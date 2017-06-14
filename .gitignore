@@ -1,0 +1,7 @@
+*.pyc
+*.swp
+*.egg-info
+*.log
+build/
+_build/
+__pycache__
