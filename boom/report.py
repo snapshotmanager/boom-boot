@@ -11,16 +11,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-
 _default_columns = 80
-
-class BoomReportOpts(object):
-    """BoomReportOpts()
-        Options controlling the formatting and output of a boom report.
-    """
-    columns = _default_columns
-    headings = True
-    buffer = True
 
 #
 # def data_fn(data):
@@ -42,6 +33,15 @@ ALIGN_LEFT = "left"
 ALIGN_RIGHT = "right"
 
 _align_types = [ALIGN_LEFT, ALIGN_RIGHT]
+
+class BoomReportOpts(object):
+    """BoomReportOpts()
+        Options controlling the formatting and output of a boom report.
+    """
+    columns = _default_columns
+    headings = True
+    buffer = True
+
 
 class BoomField(object):
     name = None
@@ -185,4 +185,14 @@ class BoomReport(object):
             self._output_row(data)
         return len(self._data)
 
+__all__ = [
+    # Module constants
 
+    'REP_INT', 'REP_STR', 'REP_SHA',
+    'ALIGN_LEFT', 'ALIGN_RIGHT',
+
+    # Report objects
+    'BoomReportOpts', 'BoomField', 'BoomReport'
+]
+
+# vim: set et ts=4 sw=4 :

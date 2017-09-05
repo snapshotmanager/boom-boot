@@ -11,11 +11,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-from boom import BOOM_ROOT, _blank_or_comment, _parse_name_value
-from boom import (
-    FMT_VERSION, FMT_LVM_ROOT_LV, FMT_BTRFS_SUBVOLUME, FMT_ROOT_DEVICE,
-    FMT_ROOT_OPTS, FORMAT_KEYS
-)
+from boom import *
 from hashlib import sha1
 from os import listdir
 from tempfile import mkstemp
@@ -738,14 +734,19 @@ class OsProfile(object):
 
 __all__ = [
     'OsProfile',
-    'load_profiles', 'write_profiles',
+    'load_profiles', 'write_profiles', 'get_os_profile_by_id',
+    'match_os_profile',
+
+    # Module constants
+    'BOOM_PROFILES', 'BOOM_PROFILES_PATH', 'BOOM_OS_PROFILE_FORMAT',
+    'BOOM_PROFILE_MODE',
 
     # Exported key names
-    BOOM_OS_ID, BOOM_OS_NAME, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION,
-    BOOM_OS_VERSION_ID, BOOM_OS_KERNEL_PATH, BOOM_OS_INITRAMFS_PATH,
-    BOOM_OS_KERNEL_PATTERN, BOOM_OS_INITRAMFS_PATTERN,
-    BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
-    BOOM_OS_OPTIONS,
+    'BOOM_OS_ID', 'BOOM_OS_NAME', 'BOOM_OS_SHORT_NAME', 'BOOM_OS_VERSION',
+    'BOOM_OS_VERSION_ID', 'BOOM_OS_KERNEL_PATH', 'BOOM_OS_INITRAMFS_PATH',
+    'BOOM_OS_KERNEL_PATTERN', 'BOOM_OS_INITRAMFS_PATTERN',
+    'BOOM_OS_ROOT_OPTS_LVM2', 'BOOM_OS_ROOT_OPTS_BTRFS',
+    'BOOM_OS_OPTIONS',
 
     'PROFILE_KEYS', 'KEY_NAMES', 'REQUIRED_KEYS', 'ROOT_KEYS',
 

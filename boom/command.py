@@ -11,19 +11,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-
 import boom
-from boom.osprofile import OsProfile, load_profiles, write_profiles
-
-from boom.report import (
-    BoomField, BoomReportOpts, BoomReport,
-    REP_STR, REP_INT, REP_SHA
-)
-
-from boom.bootloader import (
-    load_entries, write_entries, find_entries,
-    BootEntry, BootParams
-)
+from boom.osprofile import *
+from boom.report import *
+from boom.bootloader import *
 
 import sys
 from argparse import ArgumentParser

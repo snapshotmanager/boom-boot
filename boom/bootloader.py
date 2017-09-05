@@ -13,24 +13,14 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 import boom
 
-from boom import (
-    FMT_VERSION, FMT_LVM_ROOT_LV, FMT_BTRFS_SUBVOLUME, FMT_ROOT_DEVICE,
-    FMT_ROOT_OPTS, FORMAT_KEYS
-)
-
-from boom.osprofile import (
-    load_profiles, get_os_profile_by_id, match_os_profile
-)
+from boom import *
+from boom.osprofile import *
 
 from os.path import join as path_join
 from tempfile import mkstemp
 from os import listdir, rename, fdopen, chmod, unlink
 import os.path
 from hashlib import sha1
-
-BOOT_ROOT = boom.BOOT_ROOT
-_blank_or_comment = boom._blank_or_comment
-_parse_name_value = boom._parse_name_value
 
 #: The path to the BLS boot entries directory.
 BOOT_ENTRIES_PATH = path_join(BOOT_ROOT, "loader/entries")
@@ -1108,5 +1098,29 @@ class BootEntry(object):
             raise ValueError("Entry does not exist: %s" % self._entry_path)
         os.unlink(self._entry_path)
         _del_entry(self)
+
+
+__all__ = [
+    # Module constants
+    'BOOT_ENTRIES_PATH',
+    'BOOT_ENTRIES_FORMAT',
+    'BOOT_ENTRY_MODE',
+
+    # BootEntry keys
+    'BOOT_TITLE',
+    'BOOT_VERSION',
+    'BOOT_MACHINE_ID',
+    'BOOT_LINUX',
+    'BOOT_INITRD',
+    'BOOT_EFI',
+    'BOOT_OPTIONS',
+    'BOOT_DEVICETREE',
+
+    # BootParams and BootEntry objects
+    'BootParams', 'BootEntry',
+
+    # Entry lookup, load, and write functions
+    'load_entries', 'write_entries', 'find_entries'
+]
 
 # vim: set et ts=4 sw=4 :
