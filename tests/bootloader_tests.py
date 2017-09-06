@@ -11,7 +11,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-
 import unittest
 import logging
 from sys import stdout
@@ -191,7 +190,8 @@ class BootEntryTests(unittest.TestCase):
     def test_BootEntry__repr__(self):
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=None)
         xrepr = ('BootEntry(entry_data={BOOT_TITLE: "title", '
-                 'BOOT_MACHINE_ID: "ffffffff"})')
+                 'BOOT_MACHINE_ID: "ffffffff", '
+                 'BOOT_ID: "1a648481de25e694b4e3dece78390afc3516b79c"})')
         self.assertEqual(repr(be), xrepr)
 
     def test_BootEntry(self):

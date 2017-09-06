@@ -47,6 +47,8 @@ BOOT_EFI = "BOOT_EFI"
 BOOT_OPTIONS = "BOOT_OPTIONS"
 #: The ``BootEntry`` device tree key.
 BOOT_DEVICETREE = "BOOT_DEVICETREE"
+#: The ``BootEntry`` boot identifier key.
+BOOT_ID = "BOOT_ID"
 
 #: An ordered list of all possible ``BootEntry`` keys.
 ENTRY_KEYS = [
@@ -426,7 +428,7 @@ class BootEntry(object):
     _bp = None
 
     def __str(self, quote=False, prefix="", suffix="", tail="\n",
-              sep=" ", bls=True):
+              sep=" ", bls=True, no_boot_id=False):
         """__str(self) -> string
 
             Return a human or machine readable representation of this
@@ -443,11 +445,17 @@ class BootEntry(object):
             :param tail: A string to be concatenated between subsequent
                          records in the formatted string.
 
+            :param no_boot_id: Do not include the BOOT_ID key in the
+                               returned string. Used internally in
+                               order to avoid recursion when calculating
+                               the BOOT_ID checksum.
+
             :returns: A string representation.
 
             :returntype: string
         """
         be_str = prefix
+
         for key in [k for k in ENTRY_KEYS if getattr(self, KEY_MAP[k])]:
             attr = KEY_MAP[key]
             key_fmt = '%s%s"%s"' if quote else '%s%s%s'
@@ -457,6 +465,17 @@ class BootEntry(object):
             else:
                 key_data = (key, sep, getattr(self, attr))
             be_str += key_fmt % key_data
+
+        # BOOT_ID requires special handling to avoid recursion from the
+        # boot_id property method (which uses the string representation
+        # of the object to calculate the checksum).
+        if not bls and not no_boot_id:
+            key_fmt = ('%s%s"%s"' if quote else '%s%s%s') + tail
+            boot_id_data = [BOOT_ID, sep, self.boot_id]
+            if bls:
+                boot_id_data[0] = _transform_key(BOOT_ID)
+            be_str += key_fmt % tuple(boot_id_data)
+
         return be_str.rstrip(tail) + suffix
 
     def __str__(self):
@@ -517,6 +536,8 @@ class BootEntry(object):
             return self.devicetree
         if key == BOOT_EFI:
             return self.efi
+        if key == BOOT_ID:
+            return self.boot_id
         if self._bp and key == BOOT_VERSION:
             return self._bp.version
 
@@ -539,6 +560,14 @@ class BootEntry(object):
             self.linux = value
         elif key == BOOT_INITRD and self._bp:
             self.initrd = value
+        elif key == BOOT_OPTIONS and self._bp:
+            self.options = value
+        elif key == BOOT_DEVICETREE and self._bp:
+            self.devicetree = value
+        elif key == BOOT_EFI and self._bp:
+            self.efi = value
+        elif key == BOOT_ID:
+            raise TypeError("'boot_id' property does not support assignment")
         elif key in self._entry_data:
             self._entry_data[key] = value
         else:
@@ -861,7 +890,18 @@ class BootEntry(object):
             using the title, version, root_device and any defined
             LVM2 or BTRFS snapshot parameters.
         """
-        return sha1(str(self).encode('utf-8')).hexdigest()
+
+        # The default ``str()`` and ``repr()`` behaviour for
+        # ``BootEntry`` objects includes the ``boot_id`` value. This
+        # must be disabled in order to generate the ``boot_id`` to
+        # avoid recursing into __generate_boot_id() from the string
+        # formatting methods.
+        #
+        # Call the underlying ``__str()`` method directly and disable
+        # the inclusion of the ``boot_id``.
+        #
+        # Other callers should always rely on the standard methods.
+        return sha1(self.__str(no_boot_id=True).encode('utf-8')).hexdigest()
 
     def _entry_data_property(self, name):
         if self._entry_data and name in self._entry_data:
