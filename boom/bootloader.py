@@ -445,6 +445,12 @@ class BootEntry(object):
             :param tail: A string to be concatenated between subsequent
                          records in the formatted string.
 
+            :param sep: A separator to be inserted between each name and
+                        value. Normally either ' ' or '='.
+
+            :param bls: Generate output using BootLoader Specification
+                        syntax and key names.
+
             :param no_boot_id: Do not include the BOOT_ID key in the
                                returned string. Used internally in
                                order to avoid recursion when calculating
