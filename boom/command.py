@@ -205,12 +205,6 @@ def print_entries(boot_id=None, title=None, version=None,
     return br.output()
 
 
-def make_default(boot_id=None, title=None, version=None,
-                 machine_id=None, root_device=None, lvm_root_lv=None,
-                 btrfs_subvol_path=None, btrfs_subvol_id=None):
-    pass
-
-
 #
 # boom command line tool
 #

@@ -37,7 +37,6 @@ create_entry = boom.command.create_entry
 delete_entries = boom.command.delete_entries
 list_entries = boom.command.list_entries
 print_entries = boom.command.print_entries
-make_default = boom.command.make_default
 
 load_profiles = boom.osprofile.load_profiles
 
