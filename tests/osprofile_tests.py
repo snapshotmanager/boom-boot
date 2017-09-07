@@ -11,7 +11,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-
 import unittest
 import logging
 from sys import stdout
@@ -20,11 +19,13 @@ log = logging.getLogger()
 log.level = logging.DEBUG
 log.addHandler(logging.FileHandler("test.log"))
 
+from os import listdir
+
 import boom
 BOOM_ROOT_TEST = "./tests/boom"
 # Override default BOOM_ROOT.
 boom.BOOM_ROOT = BOOM_ROOT_TEST
-from boom.osprofile import OsProfile
+from boom.osprofile import *
 
 
 class OsProfileTests(unittest.TestCase):
@@ -213,5 +214,21 @@ class OsProfileTests(unittest.TestCase):
     def test_osprofile_write_profiles(self):
         boom.osprofile.load_profiles()
         boom.osprofile.write_profiles()
+
+    def test_osprofile_find_profiles_by_id(self):
+        rhel72_os_id = "9736c347ccb724368be04e51bb25687a361e535c"
+        osp_list = find_profiles(os_id=rhel72_os_id)
+        self.assertEqual(len(osp_list), 1)
+        self.assertEqual(osp_list[0].os_id, rhel72_os_id)
+
+    def test_osprofile_find_profiles_by_name(self):
+        os_name = "Fedora"
+        os_short_name = "fedora"
+        osp_list = find_profiles(name=os_name)
+        nr_profiles = 0
+        for f in listdir(boom.osprofile.BOOM_PROFILES_PATH):
+            if os_short_name in f:
+                nr_profiles += 1
+        self.assertTrue(len(osp_list), nr_profiles)
 
 # vim: set et ts=4 sw=4 :

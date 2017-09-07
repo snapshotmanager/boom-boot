@@ -42,12 +42,12 @@ BOOM_OS_SHORT_NAME = "BOOM_OS_SHORT_NAME"
 BOOM_OS_VERSION = "BOOM_OS_VERSION"
 #: Constant for the Boom OS version ID string profile key.
 BOOM_OS_VERSION_ID = "BOOM_OS_VERSION_ID"
+#: Constant for the Boom OS uname pattern profile key.
+BOOM_OS_UNAME_PATTERN = "BOOM_OS_UNAME_PATTERN"
 #: Constant for the Boom OS kernel path profile key.
 BOOM_OS_KERNEL_PATH = "BOOM_OS_KERNEL_PATH"
 #: Constant for the Boom OS initramfs path profile key.
 BOOM_OS_INITRAMFS_PATH = "BOOM_OS_INITRAMFS_PATH"
-#: Constant for the Boom OS uname pattern profile key.
-BOOM_OS_UNAME_PATTERN = "BOOM_OS_UNAME_PATTERN"
 #: Constant for the Boom OS kernel pattern profile key.
 BOOM_OS_KERNEL_PATTERN = "BOOM_OS_KERNEL_PATTERN"
 #: Constant for the Boom OS initramfs pattern profile key.
@@ -65,8 +65,9 @@ BOOM_OS_OPTIONS = "BOOM_OS_OPTIONS"
 PROFILE_KEYS = [
     # Keys 0-9 (ID to INITRAMFS_PATTERN) are mandatory.
     BOOM_OS_ID, BOOM_OS_NAME, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION,
-    BOOM_OS_VERSION_ID, BOOM_OS_KERNEL_PATH, BOOM_OS_INITRAMFS_PATH,
-    BOOM_OS_UNAME_PATTERN, BOOM_OS_KERNEL_PATTERN, BOOM_OS_INITRAMFS_PATTERN,
+    BOOM_OS_VERSION_ID, BOOM_OS_UNAME_PATTERN,
+    BOOM_OS_KERNEL_PATH, BOOM_OS_INITRAMFS_PATH,
+    BOOM_OS_KERNEL_PATTERN, BOOM_OS_INITRAMFS_PATTERN,
     # At least one of keys 10-11 (ROOT_OPTS) is required.
     BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
     # The OPTIONS key is optional.
@@ -82,9 +83,9 @@ KEY_NAMES = {
     BOOM_OS_SHORT_NAME: "Short name",
     BOOM_OS_VERSION: "Version",
     BOOM_OS_VERSION_ID: "Version ID",
+    BOOM_OS_UNAME_PATTERN: "UTS release pattern",
     BOOM_OS_KERNEL_PATH: "Kernel path",
     BOOM_OS_INITRAMFS_PATH: "Initramfs path",
-    BOOM_OS_UNAME_PATTERN: "UTS release pattern",
     BOOM_OS_KERNEL_PATTERN: "Kernel pattern",
     BOOM_OS_INITRAMFS_PATTERN: "Initramfs pattern",
     BOOM_OS_ROOT_OPTS_LVM2: "Root options (LVM2)",
@@ -93,7 +94,7 @@ KEY_NAMES = {
 }
 
 #: Boom profile keys that must exist in a valid profile.
-REQUIRED_KEYS = PROFILE_KEYS[0:10]
+REQUIRED_KEYS = PROFILE_KEYS[0:9]
 
 #: Boom profile keys for different forms of root device specification.
 ROOT_KEYS = PROFILE_KEYS[10:12]
@@ -141,6 +142,93 @@ def write_profiles():
         # FIXME: handle exceptions in write_profile()
         osp.write_profile()
 
+
+def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
+                  version=None, version_id=None, uname_pattern=None,
+                  kernel_path=None, initramfs_path=None,
+                  kernel_pattern=None, initramfs_pattern=None,
+                  root_opts_lvm2=None, root_opts_btrfs=None, options=None):
+    """find_profiles(match_fn, os_id, name, short_name,
+                     version, version_id, uname_pattern,
+                     kernel_path, initramfs_path,
+                     kernel_pattern, initramfs_pattern,
+                     root_opts_lvm2, root_opts_btrfs, options) -> list
+
+        Return a list of ``OsProfile`` objects matching the specified
+        criteria. Matching proceeds as the logical 'and' of all criteria.
+        Criteria that are unset (``None``) are ignored.
+
+        If the optional ``match_fn`` parameter is specified, the match
+        criteria parameters are ignored and each ``OsProfile`` is tested
+        in turn by calling ``match_fn``. If the matching function returns
+        ``True`` the ``OsProfile`` will be included in the results.
+
+        If no ``OsProfile`` matches the specified criteria the empty list
+        is returned.
+
+        OS profiles will be automatically loaded from disk if they are
+        not already in memory.
+
+        :param match_fn: An optional match function to test profiles.
+        :param os_id: The boot identifier to match.
+        :param name: The profile name to match.
+        :param short_name: The profile short name to match.
+        :param version: The version string to match.
+        :param version_id: The version ID string to match.
+        :param uname_pattern: The ``uname_pattern`` value to match.
+        :param kernel_path: The kernel path to match.
+        :param initramfs_path: The initial ramfs path to match.
+        :param kernel_pattern: The kernel pattern to match.
+        :param initramfs_pattern: The initial ramfs pattern to match.
+        :param root_opts_lvm2: The LVM2 root options template to match.
+        :param root_opts_btrfs: The BTRFS root options template to match.
+        :param options: The options template to match.
+        :returns: a list of ``OsProfile`` objects.
+        :returntype: list
+    """
+    global _profiles
+
+    if not _profiles:
+        load_profiles()
+
+    matches = []
+
+    if match_fn:
+        for osp in _profiles:
+            if match_fn(osp):
+                matches.append(osp)
+        return matches
+
+    for osp in _profiles:
+        if os_id and not osp.os_id.startswith(os_id):
+            continue
+        if name and osp.name != name:
+            continue
+        if short_name and osp.short_name != short_name:
+            continue
+        if version and osp.version != version:
+            continue
+        if version_id and osp.version_id != version_id:
+            continue
+        if uname_pattern and osp.uname_pattern != uname_pattern:
+            continue
+        if kernel_path and osp.kernel_path != kernel_path:
+            continue
+        if initramfs_path and osp.initramfs_path != initramfs_path:
+            continue
+        if kernel_pattern and osp.kernel_pattern != kernel_pattern:
+            continue
+        if initramfs_pattern and osp.initramfs_pattern != initramfs_pattern:
+            continue
+        if root_opts_lvm2 and osp.root_opts_lvm2 != root_opts_lvm2:
+            continue
+        if root_opts_btrfs and osp.root_opts_btrfs != root_opts_btrfs:
+            continue
+        if options and osp.options != options:
+            continue
+        matches.append(osp)
+
+    return matches
 
 def get_os_profile_by_id(os_id):
     """get_os_profile_by_id(os_id) -> OsProfile
@@ -734,8 +822,8 @@ class OsProfile(object):
 
 __all__ = [
     'OsProfile',
-    'load_profiles', 'write_profiles', 'get_os_profile_by_id',
-    'match_os_profile',
+    'load_profiles', 'write_profiles', 'find_profiles',
+    'get_os_profile_by_id', 'match_os_profile',
 
     # Module constants
     'BOOM_PROFILES', 'BOOM_PROFILES_PATH', 'BOOM_OS_PROFILE_FORMAT',
