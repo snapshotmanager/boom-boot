@@ -603,6 +603,22 @@ class OsProfile(object):
     # have a corresponding <key>.setter.
 
     @property
+    def uname_pattern(self):
+        """The current ``uname_pattern`` setting of this profile.
+
+            :getter: returns the ``uname_pattern`` as a string.
+            :setter: stores a new ``uname_pattern`` setting.
+            :type: string
+        """
+        return self._profile_data[BOOM_OS_UNAME_PATTERN]
+
+    @uname_pattern.setter
+    def uname_pattern(self, value):
+        # FIXME who validates?
+        self._profile_data[BOOM_OS_UNAME_PATTERN] = value
+        self._dirty()
+
+    @property
     def kernel_path(self):
         """The current ``kernel_path`` setting of this profile.
 
@@ -632,22 +648,6 @@ class OsProfile(object):
     def initramfs_path(self, value):
         # FIXME who validates?
         self._profile_data[BOOM_OS_INITRAMFS_PATH] = value
-        self._dirty()
-
-    @property
-    def uname_pattern(self):
-        """The current ``uname_pattern`` setting of this profile.
-
-            :getter: returns the ``uname_pattern`` as a string.
-            :setter: stores a new ``uname_pattern`` setting.
-            :type: string
-        """
-        return self._profile_data[BOOM_OS_UNAME_PATTERN]
-
-    @uname_pattern.setter
-    def uname_pattern(self, value):
-        # FIXME who validates?
-        self._profile_data[BOOM_OS_UNAME_PATTERN] = value
         self._dirty()
 
     @property
