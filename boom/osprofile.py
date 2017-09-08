@@ -149,10 +149,10 @@ def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
                   kernel_pattern=None, initramfs_pattern=None,
                   root_opts_lvm2=None, root_opts_btrfs=None, options=None):
     """find_profiles(match_fn, os_id, name, short_name,
-                     version, version_id, uname_pattern,
-                     kernel_path, initramfs_path,
-                     kernel_pattern, initramfs_pattern,
-                     root_opts_lvm2, root_opts_btrfs, options) -> list
+       version, version_id, uname_pattern,
+       kernel_path, initramfs_path,
+       kernel_pattern, initramfs_pattern,
+       root_opts_lvm2, root_opts_btrfs, options) -> list
 
         Return a list of ``OsProfile`` objects matching the specified
         criteria. Matching proceeds as the logical 'and' of all criteria.
@@ -441,7 +441,10 @@ class OsProfile(object):
 
     def __init__(self, name=None, short_name=None, version=None,
                  version_id=None, profile_file=None, profile_data=None):
-        """Initialise a new ``OsProfile`` object using the supplied
+        """__init__(self, name, short_name, version, version_id,
+           profile_file, profile_data) -> OsProfile
+
+            Initialise a new ``OsProfile`` object using the supplied
             ``os-release`` values.
 
             If neither ``profile_file`` nor ``profile_data`` is given,
@@ -496,6 +499,7 @@ class OsProfile(object):
 
     def __key_regex_from_format(self, fmt):
         """__key_regex_from_format(self, fmt) -> str
+
             Generate a regular expression to match formatted instances
             of format string ``fmt``. The expression is constructed by
             replacing all format keys with the pattern ".*".
@@ -520,6 +524,7 @@ class OsProfile(object):
 
     def match(self, entry):
         """match(self, entry) -> ``OsProfile``
+
             Test the supplied ``BootEntry`` to determine whether it
             matches this ``OsProfile``.
 

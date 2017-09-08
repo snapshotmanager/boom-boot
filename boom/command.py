@@ -27,7 +27,7 @@ from argparse import ArgumentParser
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None, osprofile=None):
     """create_entry(title, version, machine_id, root_device, lvm_root_lv,
-                    btrfs_subvol_path, btrfs_subvol_id, osprofile) -> str
+       btrfs_subvol_path, btrfs_subvol_id, osprofile) -> str
 
         Create the specified boot entry in the configured loader directory.
         An error is raised if a matching entry already exists.
@@ -41,8 +41,9 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         :param osprofile: The ``OsProfile`` for this entry.
         :returns: a ``BootEntry`` object corresponding to the new entry.
         :returntype: ``BootEntry``
-        :raises: ``ValueError`` if required values are missing or ``OsError``
-                 if an error occurs while writing the entry file.
+        :raises: ``ValueError`` if either required values are missing or
+                 a duplicate entry exists, or``OsError`` if an error
+                 occurs while writing the entry file.
     """
     if not title:
         raise ValueError("Entry title cannot be empty.")
@@ -137,7 +138,7 @@ def list_entries(boot_id=None, title=None, version=None,
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
         :param osprofile: The ``OsProfile`` for this entry.
         :returns: the ``boot_id`` of the new entry.
-        :returntype: str
+        :returntype: list
     """
     bes = find_entries(boot_id=boot_id, title=title, version=version,
                        machine_id=machine_id, root_device=root_device,
@@ -165,13 +166,15 @@ _entry_fields_verbose = [
 def print_entries(boot_id=None, title=None, version=None,
                   machine_id=None, root_device=None, lvm_root_lv=None,
                   btrfs_subvol_path=None, btrfs_subvol_id=None,
-                  opts=None, out_file=None, fields=None):
+                  report_title=None, opts=None, out_file=None, fields=None):
     """print_entries(boot_id, title, version,
                     machine_id, root_device, lvm_root_lv,
                     btrfs_subvol_path, btrfs_subvol_id) -> list
 
-        Return a list of ``boom.bootloader.BootEntry`` objects matching
-        the given criteria.
+        Format a set of ``boom.bootloader.BootEntry`` objects matching
+        the given criteria, and output them as a report to the file
+        given in ``out_file``, or ``sys.stdout`` if ``out_file`` is
+        unset.
 
         :param boot_id: ``boot_id`` to match.
         :param title: the title of the new entry.
@@ -180,7 +183,11 @@ def print_entries(boot_id=None, title=None, version=None,
         :param lvm_root_lv: an optional LVM2 root logical volume.
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
-        :param osprofile: The ``OsProfile`` for this entry.
+        :param opts: output formatting and control options.
+        :param out_file: a file object to which output is written, or
+                         ``None`` to write output to ``sys.stdout``.
+        :param fields: a table of ``BoomField`` field descriptors for
+                       the report.
         :returns: the ``boot_id`` of the new entry.
         :returntype: str
     """

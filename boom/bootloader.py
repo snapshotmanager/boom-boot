@@ -178,7 +178,7 @@ class BootParams(object):
     def __init__(self, version, root_device=None, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None):
         """__init__(self, root_device, lvm_root_lv, btrfs_subvol_path,
-                    btrfs_subvol_id) -> BootParams
+           btrfs_subvol_id) -> BootParams
 
             Initialise a new ``BootParams`` object with the specified
             values.
@@ -318,7 +318,10 @@ def write_entries():
 def find_entries(boot_id=None, title=None, version=None,
                  machine_id=None, root_device=None, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None):
-    """Return a list of ``BootEntry`` objects matching the specified
+    """find_entries(boot_id, title, version, machine_id, root_device,
+       lvm_root_lv, btrfs_subvol_path, btrfs_subvol_id) -> list
+
+        Return a list of ``BootEntry`` objects matching the specified
         criteria. Matching proceeds as the logical 'and' of all criteria.
         Criteria that are unset (``None``) are ignored.
 
@@ -329,21 +332,13 @@ def find_entries(boot_id=None, title=None, version=None,
         not already in memory.
 
         :param boot_id: The boot identifier to match.
-
         :param title: The entry title to match.
-
         :param version: The version string to match``.
-
         :param root_device: The ``root_device`` value to match.
-
         :param lvm_root_lv: The root logical volume to match.
-
         :param btrfs_subvol_path: The BTRFS subvolume path to match.
-
         :param btrfs_subvol_id: The BTRFS subvolume ID to match.
-
         :returns: a list of ``BootEntry`` objects.
-
         :returntype: list
     """
     global _entries
@@ -745,7 +740,10 @@ class BootEntry(object):
 
     def __init__(self, title=None, machine_id=None, osprofile=None,
                  boot_params=None, entry_file=None, entry_data=None):
-        """Initialise a new ``BootEntry`` object from the specified
+        """__init__(self, title, machine_id, osprofile, boot_params,
+           entry_file, entry_data) -> BootEntry
+
+            Initialise a new ``BootEntry`` object from the specified
             file or using the supplied values.
 
             If ``osprofile`` is specified the profile is attached to the

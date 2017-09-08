@@ -102,6 +102,7 @@ class BoomReport(object):
 
     def __init__(self, rfile, title, fields, opts):
         """__init__(self, rfile, title, fields, opts) -> ``BoomReport``
+
             Initialise a new ``BoomReport`` object with the specified fields
             and output control options.
 
