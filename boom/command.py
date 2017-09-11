@@ -27,7 +27,7 @@ from argparse import ArgumentParser
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None, osprofile=None):
     """create_entry(title, version, machine_id, root_device, lvm_root_lv,
-       btrfs_subvol_path, btrfs_subvol_id, osprofile) -> str
+       btrfs_subvol_path, btrfs_subvol_id, osprofile) -> ``BootEntry``
 
         Create the specified boot entry in the configured loader directory.
         An error is raised if a matching entry already exists.
