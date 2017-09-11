@@ -21,7 +21,11 @@ from argparse import ArgumentParser
 
 
 #
-# Command driven API
+# Command driven API: BootEntry and OsProfile management and reporting.
+#
+
+#
+# BootEntry manipulation
 #
 
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
@@ -211,6 +215,10 @@ def print_entries(boot_id=None, title=None, version=None,
 
     return br.output()
 
+
+#
+# OsProfile manipulation
+#
 
 #
 # boom command line tool
