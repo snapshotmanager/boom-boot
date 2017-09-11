@@ -170,7 +170,7 @@ _entry_fields_verbose = [
 def print_entries(boot_id=None, title=None, version=None,
                   machine_id=None, root_device=None, lvm_root_lv=None,
                   btrfs_subvol_path=None, btrfs_subvol_id=None,
-                  report_title=None, opts=None, out_file=None, fields=None):
+                  report_title=None, out_file=None, fields=None, opts=None):
     """print_entries(boot_id, title, version,
                     machine_id, root_device, lvm_root_lv,
                     btrfs_subvol_path, btrfs_subvol_id) -> list
@@ -195,7 +195,7 @@ def print_entries(boot_id=None, title=None, version=None,
         :returns: the ``boot_id`` of the new entry.
         :returntype: str
     """
-    opts = BoomReportOpts() if not opts else opts
+    opts = opts if opts else BoomReportOpts()
 
     if not out_file:
         out_file = sys.stdout
@@ -209,7 +209,7 @@ def print_entries(boot_id=None, title=None, version=None,
                        btrfs_subvol_path=btrfs_subvol_path,
                        btrfs_subvol_id=btrfs_subvol_id)
 
-    br = BoomReport(out_file, title, _entry_fields, None)
+    br = BoomReport(out_file, report_title, _entry_fields, None)
     for be in bes:
         br.add_row_data(be)
 
