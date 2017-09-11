@@ -11,13 +11,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-
 import unittest
 import logging
 from sys import stdout
 from os import listdir
 from os.path import exists
 from StringIO import StringIO
+import re
 
 log = logging.getLogger()
 log.level = logging.DEBUG
@@ -57,11 +57,11 @@ class CommandTests(unittest.TestCase):
         self.assertTrue(len(bes), nr)
 
     def test_list_entries_match_version(self):
-        version = "4.10.17-100.fc24"
+        version = "4.10.17-100.fc24.x86_64"
         path = boom.bootloader.BOOT_ENTRIES_PATH
         nr = len([p for p in listdir(path) if version in p])
         bes = boom.command.list_entries(version=version)
-        self.assertTrue(len(bes), nr)
+        self.assertEqual(len(bes), nr)
 
     def test_create_entry_notitle(self):
         # Fedora 24 (Workstation Edition)
@@ -137,14 +137,14 @@ class CommandTests(unittest.TestCase):
         print_entries() 
 
     def test_print_entries_boot_id_filter(self):
-        xoutput = ("Boot ID      Title                                 "
-                   "                   Version                  \n"
-                   "c629b1dbbbf9 Fedora (4.10.17-100.fc24.x86_64) 24 "
-                   "(Workstation Edition 4.10.17-100.fc24         \n")
+        xoutput = ["Boot ID.*Title.*Version",
+                   "c629b1dbbbf9.*Fedora (4.10.17-100.fc24.x86_64) 24 "
+                   "(Workstation Edition.*4.10.17-100.fc24.x86_64"]
         output = StringIO()
         print_entries(boot_id="c629b1dbbbf9d461a9266d87f518e47c02c8adfe",
                       out_file=output)
-        self.assertEqual(output.getvalue(), xoutput)
+        for pair in zip(xoutput, output.getvalue().splitlines()):
+            self.assertTrue(re.match(pair[0], pair[1]))
 
     def test_boom_main_noargs(self):
         argv = ['']
