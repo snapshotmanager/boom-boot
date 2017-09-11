@@ -594,7 +594,9 @@ class BootEntryTests(unittest.TestCase):
         version = "4.10.17-100.fc24.x86_64"
         boom.bootloader._entries = None
         bes = boom.bootloader.find_entries(version=version)
-        self.assertEqual(len(bes), 1)
+        path = boom.bootloader.BOOT_ENTRIES_PATH
+        nr = len([p for p in listdir(path) if version in p])
+        self.assertEqual(len(bes), nr)
 
     def test_find_entries_by_root_device(self):
         root_device = "/dev/vg_root/root"
@@ -609,10 +611,20 @@ class BootEntryTests(unittest.TestCase):
         self.assertEqual(len(bes), 1)
 
     def test_find_entries_by_btrfs_subvol_id(self):
-        btrfs_subvol_id = "23"
+        entries_path = boom.bootloader.BOOT_ENTRIES_PATH
         boom.bootloader._entries = None
+        btrfs_subvol_id = "23"
+        nr = 0
+
+        # count entries
+        for p in listdir(entries_path):
+            with open(join(entries_path, p), "r") as f:
+                for l in f.readlines():
+                    if "subvolid" in l:
+                        nr += 1
+
         bes = boom.bootloader.find_entries(btrfs_subvol_id=btrfs_subvol_id)
-        self.assertEqual(len(bes), 2)
+        self.assertEqual(len(bes), nr)
 
     def test_find_entries_by_btrfs_subvol_path(self):
         btrfs_subvol_path = "/snapshot/today"
