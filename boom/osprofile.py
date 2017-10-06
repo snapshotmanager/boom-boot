@@ -103,7 +103,6 @@ ROOT_KEYS = PROFILE_KEYS[10:12]
 _profiles = []
 _profiles_by_id = {}
 
-
 def load_profiles():
     """load_profiles() -> None
 
@@ -118,9 +117,11 @@ def load_profiles():
 
         :returns: None
     """
-    global _profiles, _profiles_by_id
+    global _profiles, _profiles_by_id, _NullProfile
     _profiles = []
     _profiles_by_id = {}
+    _profiles.append(_NullProfile)
+    _profiles_by_id[_NullProfile.os_id] = _NullProfile
     profile_files = listdir(BOOM_PROFILES_PATH)
     for pf in profile_files:
         if not pf.endswith(".profile"):
@@ -200,6 +201,8 @@ def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
         return matches
 
     for osp in _profiles:
+        if osp == _NullProfile:
+            continue
         if os_id and not osp.os_id.startswith(os_id):
             continue
         if name and osp.name != name:
@@ -254,10 +257,12 @@ def match_os_profile(entry):
         :returntype: ``BootEntry`` or ``NoneType``.
     """
     for osp in _profiles:
+        if osp == _NullProfile:
+            continue
         if hasattr(osp, "match"):
             if osp.match(entry):
                 return osp
-    return None
+    return _NullProfile
 
 
 class OsProfile(object):
@@ -488,7 +493,12 @@ class OsProfile(object):
 
         self._unwritten = True
 
-        if any([not val for val in [name, short_name, version, version_id]]):
+        required_args = [name, short_name, version, version_id]
+        if all([not val for val in required_args]):
+            # NULL profile
+            for key in PROFILE_KEYS:
+                self._profile_data[key] = ""
+        elif any([not val for val in required_args]):
             raise ValueError("Invalid profile arguments: name, "
                              "short_name, version, and version_id are"
                              "mandatory.")
@@ -827,6 +837,9 @@ class OsProfile(object):
             except:
                 pass
             raise e
+
+
+_NullProfile = OsProfile(name="", short_name="", version="", version_id="")
 
 __all__ = [
     'OsProfile',
