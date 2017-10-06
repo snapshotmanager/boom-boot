@@ -30,11 +30,24 @@ boom.BOOT_ROOT = BOOT_ROOT_TEST
 
 import boom.report
 
-from boom.report import (
-    BoomField, BoomReport, BoomReportOpts,
-    REP_INT, REP_STR, REP_SHA,
-    ALIGN_LEFT, ALIGN_RIGHT
-)
+from boom.report import *
+
+_report_objs = [
+    (1, "foo", "ffffffffffffffffffffffffffffffffffffffff"),
+    (2, "bar", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"),
+    (3, "baz", "1111111111111111111111111111111111111111"),
+    (4, "qux", "2222222222222222222222222222222222222222")
+]
+
+BR_NUM = 1
+BR_STR = 2
+BR_SHA = 4
+
+_test_obj_types = [
+    BoomReportObjType(BR_NUM, "Num", "num_", lambda o: o[0]),
+    BoomReportObjType(BR_STR, "Str", "str_", lambda o: o[1]),
+    BoomReportObjType(BR_SHA, "Sha", "sha_", lambda o: o[2])
+]
 
 class ReportTests(unittest.TestCase):
     def test_default_sort_fn(self):
@@ -43,57 +56,67 @@ class ReportTests(unittest.TestCase):
         _default_sort_fn = boom.report._default_sort_fn
         self.assertTrue(_default_sort_fn(bigger, smaller))
 
-    def test_BoomField_no_name(self):
+    def test_BoomFieldType_no_name(self):
         with self.assertRaises(ValueError):
-            bf = BoomField(None, "None", 0, REP_INT, lambda x: x)
+            bf = BoomFieldType(BR_NUM, None, "None", "Nothing", 0,
+                               REP_NUM, lambda x: x)
 
-    def test_BoomField_bogus_dtype_raises(self):
+    def test_BoomFieldType_bogus_dtype_raises(self):
         with self.assertRaises(ValueError):
-            bf = BoomField("none", "None", 0, "fzzrt", lambda x: x)
+            bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0,
+                               "fzzrt", lambda x: x)
 
-    def test_BoomField_dtype_INT(self):
-        bf = BoomField("none", "None", 0, REP_INT, lambda x: x)
-        self.assertEqual(bf.dtype, REP_INT)
+    def test_BoomFieldType_dtype_NUM(self):
+        bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0,
+                           REP_NUM, lambda x: x)
+        self.assertEqual(bf.dtype, REP_NUM)
 
-    def test_BoomField_dtype_STR(self):
-        bf = BoomField("none", "None", 0, REP_STR, lambda x: x)
+    def test_BoomFieldType_dtype_STR(self):
+        bf = BoomFieldType(BR_STR, "none", "None", "Nothing", 0,
+                           REP_STR, lambda x: x)
         self.assertEqual(bf.dtype, REP_STR)
 
-    def test_BoomField_dtype_SHA(self):
-        bf = BoomField("none", "None", 0, REP_SHA, lambda x: x)
+    def test_BoomFieldType_dtype_SHA(self):
+        bf = BoomFieldType(BR_SHA, "none", "None", "Nothing", 0, REP_SHA, lambda x: x)
         self.assertEqual(bf.dtype, REP_SHA)
 
-    def test_BoomField_bogus_align_raises(self):
+    def test_BoomFieldType_bogus_align_raises(self):
         with self.assertRaises(ValueError):
-            bf = BoomField("none", "None", 0, REP_INT,
-                           lambda x: x, align="qux")
+            bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0, REP_NUM,
+                               lambda x: x, align="qux")
 
-    def test_BoomField_with_align_l(self):
-        bf = BoomField("none", "None", 0, REP_INT,
+    def test_BoomFieldType_with_align_l(self):
+        bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0, REP_NUM,
                        lambda x: x, align=ALIGN_LEFT)
 
-    def test_BoomField_with_align_r(self):
-        bf = BoomField("none", "None", 0, REP_INT,
+    def test_BoomFieldType_with_align_r(self):
+        bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0, REP_NUM,
                        lambda x: x, align=ALIGN_RIGHT)
 
-    def test_BoomField_negative_width_raises(self):
+    def test_BoomFieldType_negative_width_raises(self):
         with self.assertRaises(ValueError) as cm:
-            bf = BoomField("none", "None", -1, REP_INT, lambda x: x)
+            bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", -1, REP_NUM, lambda x: x)
 
-    def test_BoomField_simple_str_int_report(self):
-        bf_name = BoomField("name", "Name", 8, REP_STR, lambda x: x[0])
-        bf_num = BoomField("number", "Number", 8, REP_INT, lambda x: x[1])
+    def test_BoomFieldType_simple_str_int_report(self):
+        bf_name = BoomFieldType(BR_STR, "name", "Name", "Nothing", 8,
+                                REP_STR, lambda f, d: f.report_str(d))
+        bf_num = BoomFieldType(BR_NUM, "number", "Number", "Nothing", 8,
+                               REP_NUM, lambda f, d: f.report_num(d))
 
         output = StringIO()
-        xoutput = ("Name     Number   \nOne             1 \nTwo             " +
-                   "2 \nThree           3 \n")
+        opts = BoomReportOpts(report_file=output)
 
-        br = BoomReport(output, "simple", [bf_name, bf_num], None)
-        br.add_row_data(("One", 1))
-        br.add_row_data(("Two", 2))
-        br.add_row_data(("Three", 3))
-        br.output()
+        xoutput = ("Name     Number  \nfoo             1\n" +
+                   "bar             2\nbaz             3\nqux             4\n")
 
+        br = BoomReport(_test_obj_types, [bf_name, bf_num], "name,number",
+                        opts, None, None)
+
+        for obj in _report_objs:
+            br.report_object(obj)
+        br.report_output()
+
+        print("\n" + output.getvalue() + "\n")
         self.assertEqual(output.getvalue(), xoutput)
 
 # vim: set et ts=4 sw=4 :
