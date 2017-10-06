@@ -279,6 +279,102 @@ def print_entries(boot_id=None, title=None, version=None,
 # OsProfile manipulation
 #
 
+def list_profiles(os_id=None, name=None, short_name=None,
+                  version=None, version_id=None, uname_pattern=None,
+                  kernel_path=None, initramfs_path=None,
+                  kernel_pattern=None, initramfs_pattern=None,
+                  root_opts_lvm2=None, root_opts_btrfs=None, options=None):
+    """list_profiles(os_id, name, short_name,
+                     version, version_id, uname_pattern,
+                     kernel_path, initramfs_path,
+                     kernel_pattern, initramfs_pattern,
+                     root_opts_lvm2, root_opts_btrfs, options) -> list
+
+        Return a list of ``boom.osprofile.OsProfile`` objects matching
+        the given criteria.
+
+        :param os_id: The boot identifier to match.
+        :param name: The profile name to match.
+        :param short_name: The profile short name to match.
+        :param version: The version string to match.
+        :param version_id: The version ID string to match.
+        :param uname_pattern: The ``uname_pattern`` value to match.
+        :param kernel_path: The kernel path to match.
+        :param initramfs_path: The initial ramfs path to match.
+        :param kernel_pattern: The kernel pattern to match.
+        :param initramfs_pattern: The initial ramfs pattern to match.
+        :param root_opts_lvm2: The LVM2 root options template to match.
+        :param root_opts_btrfs: The BTRFS root options template to match.
+        :param options: The options template to match.
+        :returns: a list of ``OsProfile`` objects.
+        :returntype: list
+    """
+    osps = find_profiles(os_id=os_id, name=name, short_name=short_name,
+                         version=version, version_id=version_id,
+                         uname_pattern=uname_pattern,
+                         kernel_path=kernel_path,
+                         initramfs_path=initramfs_path,
+                         kernel_pattern=kernel_pattern,
+                         initramfs_pattern=initramfs_pattern,
+                         root_opts_lvm2=root_opts_lvm2,
+                         root_opts_btrfs=root_opts_btrfs,
+                         options=options)
+
+    return osps
+
+
+def print_profiles(os_id=None, name=None, short_name=None,
+                   version=None, version_id=None, uname_pattern=None,
+                   kernel_path=None, initramfs_path=None,
+                   kernel_pattern=None, initramfs_pattern=None,
+                   root_opts_lvm2=None, root_opts_btrfs=None, options=None,
+                   opts=None, output_fields=None):
+    """print_profiles(os_id, name, short_name,
+                      version, version_id, uname_pattern,
+                      kernel_path, initramfs_path,
+                      kernel_pattern, initramfs_pattern,
+                      root_opts_lvm2, root_opts_btrfs, options) -> list
+
+        :param os_id: The boot identifier to match.
+        :param name: The profile name to match.
+        :param short_name: The profile short name to match.
+        :param version: The version string to match.
+        :param version_id: The version ID string to match.
+        :param uname_pattern: The ``uname_pattern`` value to match.
+        :param kernel_path: The kernel path to match.
+        :param initramfs_path: The initial ramfs path to match.
+        :param kernel_pattern: The kernel pattern to match.
+        :param initramfs_pattern: The initial ramfs pattern to match.
+        :param root_opts_lvm2: The LVM2 root options template to match.
+        :param root_opts_btrfs: The BTRFS root options template to match.
+        :param options: The options template to match.
+        :returns: the number of matching profiles output.
+        :returntype: int
+    """
+    opts = opts if opts else BoomReportOpts()
+
+    if not output_fields:
+        output_fields = _default_profile_fields
+
+    osps = find_profiles(os_id=os_id, name=name, short_name=short_name,
+                         version=version, version_id=version_id,
+                         uname_pattern=uname_pattern,
+                         kernel_path=kernel_path,
+                         initramfs_path=initramfs_path,
+                         kernel_pattern=kernel_pattern,
+                         initramfs_pattern=initramfs_pattern,
+                         root_opts_lvm2=root_opts_lvm2,
+                         root_opts_btrfs=root_opts_btrfs,
+                         options=options)
+
+    br = BoomReport(_report_obj_types, _profile_fields, output_fields, opts,
+                    None, None)
+
+    for osp in osps:
+        br.report_object(BoomReportObj(None, osp))
+
+    return br.report_output()
+
 #
 # boom command line tool
 #
