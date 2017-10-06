@@ -437,7 +437,10 @@ class OsProfile(object):
                         comment = ""
         self._comments = comments
 
-        return self.__from_data(profile_data)
+        try:
+            self.__from_data(profile_data)
+        except ValueError as e:
+            raise ValueError(str(e) + "in %s" % profile_file)
 
     def __init__(self, name=None, short_name=None, version=None,
                  version_id=None, profile_file=None, profile_data=None):
