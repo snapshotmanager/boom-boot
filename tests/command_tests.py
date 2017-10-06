@@ -32,6 +32,7 @@ boom.BOOT_ROOT = BOOT_ROOT_TEST
 import boom.osprofile
 import boom.bootloader
 import boom.command
+import boom.report
 
 create_entry = boom.command.create_entry
 delete_entries = boom.command.delete_entries
@@ -127,22 +128,23 @@ class CommandTests(unittest.TestCase):
             delete_entries(boot_id="thereisnospoon")
 
     def test_print_entries_no_matching(self):
-        xoutput = ("Boot ID      Title                        " + 
-                   "                            Version                  \n")
+        xoutput = r"BootID.*Version.*OsID.*Name.*OsVersion"
         output = StringIO()
-        print_entries(boot_id="thereisnoboot", out_file=output)
-        self.assertEqual(output.getvalue(), xoutput)
+        opts = boom.report.BoomReportOpts(report_file=output)
+        print_entries(boot_id="thereisnoboot", opts=opts)
+        print(output.getvalue())
+        self.assertTrue(re.match(xoutput, output.getvalue()))
 
     def test_print_entries_default_stdout(self):
         print_entries() 
 
     def test_print_entries_boot_id_filter(self):
-        xoutput = ["Boot ID.*Title.*Version",
-                   "c629b1dbbbf9.*Fedora (4.10.17-100.fc24.x86_64) 24 "
-                   "(Workstation Edition.*4.10.17-100.fc24.x86_64"]
+        xoutput = [r"BootID.*Version.*OsID.*Name.*OsVersion",
+                   r"ee8d1df.*4.11.5-100.fc24.*9cb53dd.*Fedora.*"
+                   r"24 \(Workstation Edition\)"]
         output = StringIO()
-        print_entries(boot_id="c629b1dbbbf9d461a9266d87f518e47c02c8adfe",
-                      out_file=output)
+        opts = boom.report.BoomReportOpts(report_file=output)
+        print_entries(boot_id="ee8d1dfbfe95", opts=opts)
         for pair in zip(xoutput, output.getvalue().splitlines()):
             self.assertTrue(re.match(pair[0], pair[1]))
 
