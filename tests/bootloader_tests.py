@@ -277,7 +277,7 @@ class BootEntryTests(unittest.TestCase):
                        BOOT_LINUX: "/vmlinuz",
                        BOOT_VERSION: "1.1.1"}, boot_params=bp)
 
-        self.assertEqual(be.options, None)
+        self.assertEqual(be.options, "")
 
     def test_BootEntry_empty_format_key(self):
         # Assert that key properties of a BootEntry with empty format keys
