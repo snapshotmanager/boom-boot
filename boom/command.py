@@ -17,6 +17,7 @@ from boom.report import *
 from boom.bootloader import *
 
 import sys
+from os.path import basename
 from argparse import ArgumentParser
 
 #
@@ -387,7 +388,9 @@ boom_usage = """%(prog}s <command> [options]\n\n"
 
 
 def main(args):
-    parser = ArgumentParser(description="BooM Boot Manager")
+    parser = ArgumentParser(prog=basename(args[0]),
+                            description="Boom Boot Manager")
+
     parser.add_argument("command", metavar="COMMAND", type=str, nargs=1,
                         help="The boom command to run")
     parser.add_argument("-t", "--title", metavar="TITLE", type=str, nargs=1,
