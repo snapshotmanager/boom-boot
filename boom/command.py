@@ -20,6 +20,7 @@ import sys
 from os.path import basename
 from argparse import ArgumentParser
 
+
 #
 # Reporting object types
 #
@@ -55,12 +56,14 @@ class BoomReportObj(object):
             self.osp = os_profile
 
 
-BR_ENTRY   = 1
+BR_ENTRY = 1
 BR_PROFILE = 2
 
 _report_obj_types = [
-    BoomReportObjType(BR_ENTRY, "Boot loader entries", "entry_", lambda o: o.be),
-    BoomReportObjType(BR_PROFILE, "OS profiles", "profile_", lambda o: o.osp)
+    BoomReportObjType(
+        BR_ENTRY, "Boot loader entries", "entry_", lambda o: o.be),
+    BoomReportObjType(
+        BR_PROFILE, "OS profiles", "profile_", lambda o: o.osp)
 ]
 
 #
@@ -69,19 +72,45 @@ _report_obj_types = [
 
 #: fields derived from OsProfile data.
 _profile_fields = [
-    BoomFieldType(BR_PROFILE, "osid", "OsID", "OS identifier", 7, REP_SHA, lambda f, d: f.report_sha(d.os_id)),
-    BoomFieldType(BR_PROFILE, "osname", "Name", "OS name", 24, REP_SHA, lambda f, d: f.report_str(d.name)),
-    BoomFieldType(BR_PROFILE, "osshortname", "OsShortName", "OS short name", 12, REP_SHA, lambda f, d: f.report_str(d.short_name)),
-    BoomFieldType(BR_PROFILE, "osversion", "OsVersion", "OS version", 10, REP_SHA, lambda f, d: f.report_str(d.version)),
-    BoomFieldType(BR_PROFILE, "osversion_id", "VersionID", "Version identifier", 10, REP_SHA, lambda f, d: f.report_str(d.version_id)),
-    BoomFieldType(BR_PROFILE, "unamepattern", "UnamePattern", "UTS name pattern", 12, REP_STR, lambda f, d: f.report_str(d.uname_pattern)),
-    BoomFieldType(BR_PROFILE, "kernelpath", "KernPath", "Kernel path", 8, REP_SHA, lambda f, d: f.report_str(d.kernel_path)),
-    BoomFieldType(BR_PROFILE, "initramfspath", "InitramfsPath", "Initial RAMFS path", 10, REP_SHA, lambda f, d: f.report_str(d.initramfs_path)),
-    BoomFieldType(BR_PROFILE, "kernelpattern", "KernPattern", "Kernel image pattern", 13, REP_SHA, lambda f, d: f.report_str(d.kernel_pattern)),
-    BoomFieldType(BR_PROFILE, "initramfspattern", "InitramfsPattern", "Initial RAMFS pattern", 13, REP_SHA, lambda f, d: f.report_str(d.initramfs_pattern)),
-    BoomFieldType(BR_PROFILE, "lvm2opts", "LVM2RootOpts", "LVM2 root options", 12, REP_SHA, lambda f, d: f.report_str(d.root_opts_lvm2)),
-    BoomFieldType(BR_PROFILE, "btrfsopts", "BTRFSRootOpts", "BTRFS root options", 13, REP_SHA, lambda f, d: f.report_str(d.root_opts_btrfs)),
-    BoomFieldType(BR_PROFILE, "options", "Options", "Kernel options", 24, REP_SHA, lambda f, d: f.report_str(d.options))
+    BoomFieldType(
+        BR_PROFILE, "osid", "OsID", "OS identifier", 7,
+        REP_SHA, lambda f, d: f.report_sha(d.os_id)),
+    BoomFieldType(
+        BR_PROFILE, "osname", "Name", "OS name", 24,
+        REP_SHA, lambda f, d: f.report_str(d.name)),
+    BoomFieldType(
+        BR_PROFILE, "osshortname", "OsShortName", "OS short name", 12,
+        REP_SHA, lambda f, d: f.report_str(d.short_name)),
+    BoomFieldType(
+        BR_PROFILE, "osversion", "OsVersion", "OS version", 10,
+        REP_SHA, lambda f, d: f.report_str(d.version)),
+    BoomFieldType(
+        BR_PROFILE, "osversion_id", "VersionID", "Version identifier", 10,
+        REP_SHA, lambda f, d: f.report_str(d.version_id)),
+    BoomFieldType(
+        BR_PROFILE, "unamepattern", "UnamePattern", "UTS name pattern", 12,
+        REP_STR, lambda f, d: f.report_str(d.uname_pattern)),
+    BoomFieldType(
+        BR_PROFILE, "kernelpath", "KernelPath", "Kernel path", 8,
+        REP_SHA, lambda f, d: f.report_str(d.kernel_path)),
+    BoomFieldType(
+        BR_PROFILE, "initramfspath", "InitramfsPath", "Initial RAMFS path", 10,
+        REP_SHA, lambda f, d: f.report_str(d.initramfs_path)),
+    BoomFieldType(
+        BR_PROFILE, "kernelpattn", "KernPattern", "Kernel image pattern", 13,
+        REP_SHA, lambda f, d: f.report_str(d.kernel_pattern)),
+    BoomFieldType(
+        BR_PROFILE, "initrdpattern", "InitrdPattern", "Initrd pattern", 13,
+        REP_SHA, lambda f, d: f.report_str(d.initramfs_pattern)),
+    BoomFieldType(
+        BR_PROFILE, "lvm2opts", "LVM2Opts", "LVM2 options", 12,
+        REP_SHA, lambda f, d: f.report_str(d.root_opts_lvm2)),
+    BoomFieldType(
+        BR_PROFILE, "btrfsopts", "BTRFSOpts", "BTRFS options", 13,
+        REP_SHA, lambda f, d: f.report_str(d.root_opts_btrfs)),
+    BoomFieldType(
+        BR_PROFILE, "options", "Options", "Kernel options", 24,
+        REP_SHA, lambda f, d: f.report_str(d.options))
 ]
 
 _default_profile_fields = "osid,osname,osversion"
@@ -89,17 +118,32 @@ _verbose_profile_fields = _default_profile_fields + ",unamepattern,options"
 
 #: fields derived from BootEntry data.
 _entry_fields = [
-    BoomFieldType(BR_ENTRY, "bootid", "BootID", "Boot identifier", 7, REP_SHA, lambda f, d: f.report_sha(d.boot_id)),
-    BoomFieldType(BR_ENTRY, "title", "Title", "Entry title", 24, REP_STR, lambda f, d: f.report_str(d.title)),
-    BoomFieldType(BR_ENTRY, "version", "Version", "Kernel version", 24, REP_STR, lambda f, d: f.report_str(d.version)),
-    BoomFieldType(BR_ENTRY, "options", "Options", "Kernel options", 24, REP_STR, lambda f, d: f.report_str(d.options)),
-    BoomFieldType(BR_ENTRY, "kernel", "Kernel", "Kernel image", 32, REP_STR, lambda f, d: f.report_str(d.linux)),
-    BoomFieldType(BR_ENTRY, "initramfs", "Initramfs", "Initramfs image", 40, REP_STR, lambda f, d: f.report_str(d.initrd)),
-    BoomFieldType(BR_ENTRY, "machineid", "Machine ID", "Machine identifier", 12, REP_SHA, lambda f, d: f.report_sha(d.machine_id))
+    BoomFieldType(
+        BR_ENTRY, "bootid", "BootID", "Boot identifier", 7,
+        REP_SHA, lambda f, d: f.report_sha(d.boot_id)),
+    BoomFieldType(
+        BR_ENTRY, "title", "Title", "Entry title", 24,
+        REP_STR, lambda f, d: f.report_str(d.title)),
+    BoomFieldType(
+        BR_ENTRY, "version", "Version", "Kernel version", 24,
+        REP_STR, lambda f, d: f.report_str(d.version)),
+    BoomFieldType(
+        BR_ENTRY, "options", "Options", "Kernel options", 24,
+        REP_STR, lambda f, d: f.report_str(d.options)),
+    BoomFieldType(
+        BR_ENTRY, "kernel", "Kernel", "Kernel image", 32,
+        REP_STR, lambda f, d: f.report_str(d.linux)),
+    BoomFieldType(
+        BR_ENTRY, "initramfs", "Initramfs", "Initramfs image", 40,
+        REP_STR, lambda f, d: f.report_str(d.initrd)),
+    BoomFieldType(
+        BR_ENTRY, "machineid", "Machine ID", "Machine identifier", 12,
+        REP_SHA, lambda f, d: f.report_sha(d.machine_id))
 ]
 
 _default_entry_fields = "bootid,version,osid,osname,osversion"
 _verbose_entry_fields = "bootid,version,kernel,initramfs,options,machineid"
+
 
 #
 # Command driven API: BootEntry and OsProfile management and reporting.
