@@ -262,7 +262,7 @@ def _add_entry(entry):
         :param entry: The ``BootEntry`` to add.
     """
     global _entries
-    if _entries == None:
+    if _entries is None:
         load_entries()
     if entry not in _entries:
         _entries.append(entry)
