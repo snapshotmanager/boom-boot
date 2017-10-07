@@ -50,10 +50,8 @@ class BoomReportObj(object):
             :returns: a new BoomReportObj.
             :returntype: ``BoomReportObj``
         """
-        if boot_entry:
-            self.be = boot_entry
-        if os_profile:
-            self.osp = os_profile
+        self.be = boot_entry
+        self.osp = os_profile
 
 
 BR_ENTRY = 1
