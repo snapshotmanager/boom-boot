@@ -103,6 +103,7 @@ ROOT_KEYS = PROFILE_KEYS[10:12]
 _profiles = []
 _profiles_by_id = {}
 
+
 def load_profiles():
     """load_profiles() -> None
 
@@ -233,6 +234,7 @@ def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
 
     return matches
 
+
 def get_os_profile_by_id(os_id):
     """get_os_profile_by_id(os_id) -> OsProfile
 
@@ -319,7 +321,6 @@ class OsProfile(object):
             osp_str += '%s:"%s", ' % (f, self._profile_data[f])
         osp_str = osp_str.rstrip(", ")
         return osp_str + "})"
-
 
     def __len__(self):
         """__len__(self) -> int
