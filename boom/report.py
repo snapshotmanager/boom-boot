@@ -213,8 +213,7 @@ class BoomField(object):
         self.set_value(value, value)
 
     def report_sha(self, value):
-        sha = value[:7]
-        self.set_value(sha, value)
+        self.set_value(value, value)
 
     def report_num(self, value):
         self.set_value(str(value), value)
@@ -411,9 +410,33 @@ class BoomReport(object):
         self.__parse_fields(output_fields, 0)
         self.__parse_keys(sort_keys, 0)
 
+    def __recalculate_sha_width(self):
+        shas = {}
+        for row in self._rows:
+            for field in row._fields:
+                if self._fields[field._props.field_num].dtype == REP_SHA:
+                    num = field._props.field_num
+                    if num not in shas:
+                        shas[num] = set()
+                    shas[num].add(field.report_string)
+        for num in shas.keys():
+            min_prefix = 7
+            shas[num] = list(shas[num])
+            shas[num].sort()
+            for sha in shas[num]:
+                if shas[num].index(sha) == len(shas[num]) - 1:
+                    continue
+                def _next_sha(shas, sha):
+                    return shas[num][shas[num].index(sha) + 1]
+                while sha[:min_prefix] == _next_sha(shas, sha)[:min_prefix]:
+                    min_prefix += 1
+            field._props.width = min_prefix
+
     def __recalculate_fields(self):
         for row in self._rows:
             for field in row._fields:
+                if self._fields[field._props.field_num].dtype == REP_SHA:
+                    continue
                 field_len = len(field.report_string)
                 if field_len > field._props.width:
                     field._props.width = field_len
@@ -552,6 +575,7 @@ class BoomReport(object):
         if not self._rows:
             return
         if self._field_calc_needed:
+            self.__recalculate_sha_width()
             self.__recalculate_fields()
         if self._sort_required:
             self._sort_rows()
