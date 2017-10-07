@@ -12,6 +12,8 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+__version__ = "0.1"
+
 #: The location of the system ``/boot`` directory.
 BOOT_ROOT = "/boot"
 
