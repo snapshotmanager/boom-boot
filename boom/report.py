@@ -26,6 +26,7 @@ REP_SHA = "sha"
 
 _dtypes = [REP_NUM, REP_STR, REP_SHA]
 
+
 def _default_sort_fn(v1, v2):
     return v1 > v2
 
@@ -38,6 +39,7 @@ _align_types = [ALIGN_LEFT, ALIGN_RIGHT]
 
 STANDARD_QUOTE = "'"
 STANDARD_PAIR = "="
+
 
 class BoomReportOpts(object):
     """BoomReportOpts()
@@ -289,10 +291,11 @@ class BoomReport(object):
                 desc_len = len(desc) + 7
                 print("%s Fields" % desc)
                 print("%*.*s" % (desc_len, desc_len, banner))
-            print("  %-*s - %s%s%s%s" % (name_len, f.name, f.desc,
-                  " [" if display_field_types else "",
-                  f.dtype if display_field_types else "",
-                  "]" if display_field_types else ""))
+            print("  %-*s - %s%s%s%s" %
+                  (name_len, f.name, f.desc,
+                   " [" if display_field_types else "",
+                   f.dtype if display_field_types else "",
+                   "]" if display_field_types else ""))
             last_desc = desc
 
     def __display_fields(self, display_field_types):
@@ -459,7 +462,7 @@ class BoomReport(object):
                                  fields[fp.field_num].name)
 
             try:
-               fields[fp.field_num].report_fn(field, data)
+                fields[fp.field_num].report_fn(field, data)
             except ValueError:
                 raise ValueError("No value assigned to field %s" %
                                  fields[fp.field_num].name)
