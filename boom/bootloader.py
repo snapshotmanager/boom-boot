@@ -291,7 +291,7 @@ def load_entries(machine_id=None):
         :param machine_id: A ``machine_id`` value to match.
     """
     global _entries
-    if not boom.osprofile._profiles:
+    if len(boom.osprofile._profiles) is 1:
         load_profiles()
 
     _entries = []
