@@ -75,40 +75,40 @@ _profile_fields = [
         REP_SHA, lambda f, d: f.report_sha(d.os_id)),
     BoomFieldType(
         BR_PROFILE, "osname", "Name", "OS name", 24,
-        REP_SHA, lambda f, d: f.report_str(d.name)),
+        REP_STR, lambda f, d: f.report_str(d.name)),
     BoomFieldType(
         BR_PROFILE, "osshortname", "OsShortName", "OS short name", 12,
-        REP_SHA, lambda f, d: f.report_str(d.short_name)),
+        REP_STR, lambda f, d: f.report_str(d.short_name)),
     BoomFieldType(
         BR_PROFILE, "osversion", "OsVersion", "OS version", 10,
-        REP_SHA, lambda f, d: f.report_str(d.version)),
+        REP_STR, lambda f, d: f.report_str(d.version)),
     BoomFieldType(
         BR_PROFILE, "osversion_id", "VersionID", "Version identifier", 10,
-        REP_SHA, lambda f, d: f.report_str(d.version_id)),
+        REP_STR, lambda f, d: f.report_str(d.version_id)),
     BoomFieldType(
         BR_PROFILE, "unamepattern", "UnamePattern", "UTS name pattern", 12,
         REP_STR, lambda f, d: f.report_str(d.uname_pattern)),
     BoomFieldType(
         BR_PROFILE, "kernelpath", "KernelPath", "Kernel path", 8,
-        REP_SHA, lambda f, d: f.report_str(d.kernel_path)),
+        REP_STR, lambda f, d: f.report_str(d.kernel_path)),
     BoomFieldType(
         BR_PROFILE, "initramfspath", "InitramfsPath", "Initial RAMFS path", 10,
-        REP_SHA, lambda f, d: f.report_str(d.initramfs_path)),
+        REP_STR, lambda f, d: f.report_str(d.initramfs_path)),
     BoomFieldType(
-        BR_PROFILE, "kernelpattn", "KernPattern", "Kernel image pattern", 13,
-        REP_SHA, lambda f, d: f.report_str(d.kernel_pattern)),
+        BR_PROFILE, "kernelpattern", "KernPattern", "Kernel image pattern", 13,
+        REP_STR, lambda f, d: f.report_str(d.kernel_pattern)),
     BoomFieldType(
         BR_PROFILE, "initrdpattern", "InitrdPattern", "Initrd pattern", 13,
-        REP_SHA, lambda f, d: f.report_str(d.initramfs_pattern)),
+        REP_STR, lambda f, d: f.report_str(d.initramfs_pattern)),
     BoomFieldType(
         BR_PROFILE, "lvm2opts", "LVM2Opts", "LVM2 options", 12,
-        REP_SHA, lambda f, d: f.report_str(d.root_opts_lvm2)),
+        REP_STR, lambda f, d: f.report_str(d.root_opts_lvm2)),
     BoomFieldType(
         BR_PROFILE, "btrfsopts", "BTRFSOpts", "BTRFS options", 13,
-        REP_SHA, lambda f, d: f.report_str(d.root_opts_btrfs)),
+        REP_STR, lambda f, d: f.report_str(d.root_opts_btrfs)),
     BoomFieldType(
         BR_PROFILE, "options", "Options", "Kernel options", 24,
-        REP_SHA, lambda f, d: f.report_str(d.options))
+        REP_STR, lambda f, d: f.report_str(d.options))
 ]
 
 _default_profile_fields = "osid,osname,osversion"
