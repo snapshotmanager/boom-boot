@@ -415,9 +415,10 @@ class BootEntryTests(unittest.TestCase):
         from boom.osprofile import OsProfile, load_profiles
         load_profiles()
 
+        xos_id = "6bf746bb7231693b2903585f171e4290ff0602b5"
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
-        self.assertEqual(be._osp.os_id, "6bf746bb7231693b2903585f171e4290ff0602b5")
+        self.assertEqual(be._osp.os_id, xos_id)
 
     def test_BootEntry__getitem__(self):
         from boom.osprofile import OsProfile, load_profiles

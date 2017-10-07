@@ -14,13 +14,13 @@
 
 import unittest
 import logging
+import boom
 from sys import stdout
 
 log = logging.getLogger()
 log.level = logging.DEBUG
 log.addHandler(logging.FileHandler("test.log"))
 
-import boom
 BOOM_ROOT_TEST = "./tests/boom"
 # Override default BOOM_ROOT.
 boom.BOOM_ROOT = BOOM_ROOT_TEST

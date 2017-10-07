@@ -49,6 +49,7 @@ _test_obj_types = [
     BoomReportObjType(BR_SHA, "Sha", "sha_", lambda o: o[2])
 ]
 
+
 class ReportTests(unittest.TestCase):
     def test_default_sort_fn(self):
         bigger = 1000
@@ -77,25 +78,27 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(bf.dtype, REP_STR)
 
     def test_BoomFieldType_dtype_SHA(self):
-        bf = BoomFieldType(BR_SHA, "none", "None", "Nothing", 0, REP_SHA, lambda x: x)
+        bf = BoomFieldType(BR_SHA, "none", "None", "Nothing", 0,
+                           REP_SHA, lambda x: x)
         self.assertEqual(bf.dtype, REP_SHA)
 
     def test_BoomFieldType_bogus_align_raises(self):
         with self.assertRaises(ValueError):
-            bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0, REP_NUM,
-                               lambda x: x, align="qux")
+            bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0,
+                               REP_NUM, lambda x: x, align="qux")
 
     def test_BoomFieldType_with_align_l(self):
-        bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0, REP_NUM,
-                       lambda x: x, align=ALIGN_LEFT)
+        bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0,
+                           REP_NUM, lambda x: x, align=ALIGN_LEFT)
 
     def test_BoomFieldType_with_align_r(self):
-        bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0, REP_NUM,
-                       lambda x: x, align=ALIGN_RIGHT)
+        bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", 0,
+                           REP_NUM, lambda x: x, align=ALIGN_RIGHT)
 
     def test_BoomFieldType_negative_width_raises(self):
         with self.assertRaises(ValueError) as cm:
-            bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", -1, REP_NUM, lambda x: x)
+            bf = BoomFieldType(BR_NUM, "none", "None", "Nothing", -1,
+                               REP_NUM, lambda x: x)
 
     def test_BoomFieldType_simple_str_int_report(self):
         bf_name = BoomFieldType(BR_STR, "name", "Name", "Nothing", 8,

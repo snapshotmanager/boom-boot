@@ -43,6 +43,7 @@ load_profiles = boom.osprofile.load_profiles
 
 get_os_profile_by_id = boom.osprofile.get_os_profile_by_id
 
+
 class CommandTests(unittest.TestCase):
     def test_list_entries(self):
         path = boom.bootloader.BOOT_ENTRIES_PATH
@@ -70,14 +71,14 @@ class CommandTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             be = create_entry(None, "2.6.0", "ffffffff", "/dev/vg_hex/root",
                               lvm_root_lv="vg_hex/root", osprofile=osp)
- 
+
     def test_create_entry_noversion(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
         with self.assertRaises(ValueError) as cm:
             be = create_entry("ATITLE", None, "ffffffff", "/dev/vg_hex/root",
                               lvm_root_lv="vg_hex/root", osprofile=osp)
- 
+
     def test_create_entry_nomachineid(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
@@ -96,8 +97,8 @@ class CommandTests(unittest.TestCase):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
         with self.assertRaises(ValueError) as cm:
-            be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
-                              lvm_root_lv="vg_hex/root")
+            be = create_entry("ATITLE", "2.6.0", "ffffffff",
+                              "/dev/vg_hex/root", lvm_root_lv="vg_hex/root")
 
     def test_create_dupe(self):
         # Fedora 24 (Workstation Edition)
@@ -136,7 +137,7 @@ class CommandTests(unittest.TestCase):
         self.assertTrue(re.match(xoutput, output.getvalue()))
 
     def test_print_entries_default_stdout(self):
-        print_entries() 
+        print_entries()
 
     def test_print_entries_boot_id_filter(self):
         xoutput = [r"BootID.*Version.*OsID.*Name.*OsVersion",
