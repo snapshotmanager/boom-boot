@@ -422,22 +422,117 @@ def print_profiles(os_id=None, name=None, short_name=None,
 # boom command line tool
 #
 
-boom_usage = """%(prog}s <command> [options]\n\n"
-                create <title> <version> [--osprofile=os_id] [...]
-                delete [title|version|boot_id|os_id]
-                list [title|version|boot_id|os_id|root_device|machine_id]
+def _create_cmd(cmd_args):
+    pass
+
+
+def _delete_cmd(cmd_args):
+    pass
+
+
+def _list_cmd(cmd_args):
+    if cmd_args.fields:
+        fields = cmd_args.fields
+    elif cmd_args.verbose:
+        fields = _verbose_entry_fields
+    else:
+        fields = None
+    try:
+        print_entries(output_fields=fields)
+    except ValueError:
+        return 1
+
+
+def _edit_cmd(cmd_args):
+    pass
+
+
+def _create_profile_cmd(cmd_args):
+    pass
+
+
+def _delete_profile_cmd(cmd_args):
+    pass
+
+
+def _list_profile_cmd(cmd_args):
+    if cmd_args.fields:
+        fields = cmd_args.fields
+    elif cmd_args.verbose:
+        fields = _verbose_profile_fields
+    else:
+        fields = None
+    try:
+        print_profiles(output_fields=fields)
+    except ValueError:
+        return 1
+
+
+def _edit_profile_cmd(cmd_args):
+    pass
+
+
+boom_usage = """%(prog}s [type] <command> [options]\n\n"
+                [entry] create <title> <version> [--osprofile=os_id] [...]
+                [entry] delete [title|version|boot_id|os_id]
+                [entry] list [title|version|boot_id|os_id|root_device|machine_id]\n\n
+                [entry] edit [...]
+                profile create <name> <shortname> <version> <versionid> [...]
+                profile delete [...]
+                profile list [...]
+                profile edit [...]
              """
+
+_boom_entry_commands = [
+    ("create", _create_cmd),
+    ("delete", _delete_cmd),
+    ("list", _list_cmd),
+    ("edit", _edit_cmd)
+]
+
+_boom_profile_commands = [
+    ("create", _create_profile_cmd),
+    ("delete", _delete_profile_cmd),
+    ("list", _list_profile_cmd),
+    ("edit", _edit_profile_cmd)
+]
+
+_boom_command_types = [
+    ("entry", _boom_entry_commands),
+    ("profile", _boom_profile_commands)
+]
+
+
+def _match_cmd_type(cmdtype):
+    for t in _boom_command_types:
+        if cmdtype == t[0]:
+            return t
+    return None
+
+
+def _match_command(cmd, cmds):
+    for c in cmds:
+        if cmd == c[0]:
+            return c
+    return None
 
 
 def main(args):
+    global _boom_entry_commands, _boom_profile_commands, _boom_command_types
     parser = ArgumentParser(prog=basename(args[0]),
                             description="Boom Boot Manager")
 
-    parser.add_argument("command", metavar="COMMAND", type=str, nargs=1,
-                        help="The boom command to run")
+    # Default type is boot entry.
+    if _match_command(args[1], _boom_entry_commands):
+        args.insert(1, "entry")
+
+    parser.add_argument("type", metavar="[TYPE]", type=str,
+                        help="The command type to run", action="store")
+    parser.add_argument("command", metavar="COMMAND", type=str,
+                        help="The command to run", action="store")
     parser.add_argument("-t", "--title", metavar="TITLE", type=str, nargs=1,
                         help="The title of a boom boot entry")
-    parser.add_argument("-v", "--version", metavar="VERSION", type=str,
+    parser.add_argument("-V", "--version", metavar="VERSION", type=str,
                         nargs=1, help="The kernel version of a boom "
                         "boot entry")
     parser.add_argument("-b", "--boot-id", metavar="BOOT_ID", type=str,
@@ -449,6 +544,23 @@ def main(args):
                         nargs=1, help="The root device for a boot entry")
     parser.add_argument("-m", "--machine-id", metavar="MACHINE_ID", type=str,
                         nargs=1, help="The machine_id value to use")
-    parser.parse_args()
+    parser.add_argument("-f", "--fields", metavar="FIELDS", type=str,
+                        help="Specify which fields to display")
+    parser.add_argument("-v", "--verbose", help="Enable verbose ouput",
+                        action="store_true")
+    cmd_args = parser.parse_args()
+
+    cmd_type = _match_cmd_type(cmd_args.type)
+    if not cmd_type:
+        print("Unknown command type: %s" % cmd_args.type)
+        return 1
+
+    type_cmds = cmd_type[1]
+    command = _match_command(cmd_args.command, type_cmds)
+    if not command:
+        print("Unknown command: %s %s" % (cmd_type[0], cmd_args.command))
+        return 1
+
+    return command[1](cmd_args)
 
 # vim: set et ts=4 sw=4 :
