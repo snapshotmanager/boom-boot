@@ -190,19 +190,21 @@ def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
     """
     global _profiles
 
-    if not _profiles:
+    if len(_profiles) is 1:
         load_profiles()
 
     matches = []
 
     if match_fn:
         for osp in _profiles:
+            if osp.os_id == _NullProfile.os_id:
+                continue
             if match_fn(osp):
                 matches.append(osp)
         return matches
 
     for osp in _profiles:
-        if osp == _NullProfile:
+        if osp.os_id == _NullProfile.os_id:
             continue
         if os_id and not osp.os_id.startswith(os_id):
             continue
@@ -259,7 +261,7 @@ def match_os_profile(entry):
         :returntype: ``BootEntry`` or ``NoneType``.
     """
     for osp in _profiles:
-        if osp == _NullProfile:
+        if osp.os_id == _NullProfile.os_id:
             continue
         if hasattr(osp, "match"):
             if osp.match(entry):
