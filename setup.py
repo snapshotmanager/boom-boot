@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from setuptools import setup, Extension
+from setuptools import setup
 
 setup(
     name='boom',
