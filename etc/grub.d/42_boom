@@ -1,0 +1,20 @@
+#!/bin/sh
+BOOM_CONFIG="/etc/default/boom"
+. $BOOM_CONFIG
+
+BOOM_USE_SUBMENU="${BOOM_USE_SUBMENU:-yes}"
+BOOM_SUBMENU_NAME="${BOOM_SUBMENU_NAME:-Snapshots}"
+SUBMENU_PREFIX="    "
+
+INSMOD_CMD="insmod blscfg"
+IMPORT_CMD="bls_import"
+
+if [ "$BOOM_USE_SUBMENU" == "yes" -o "$BOOM_SUBMENU_NAME" == "y" ]; then
+	echo "submenu \"$BOOM_SUBMENU_NAME\" {"
+	echo "${SUBMENU_PREFIX}${INSMOD_CMD}"
+	echo "${SUBMENU_PREFIX}${IMPORT_CMD}"
+	echo "}"
+else
+	echo ${INSMOD_CMD}
+	echo ${IMPORT_CMD}
+fi;
