@@ -103,6 +103,18 @@ ROOT_KEYS = PROFILE_KEYS[10:12]
 _profiles = []
 _profiles_by_id = {}
 
+#: Whether profiles have been read from disk
+_profiles_loaded = False
+
+def _is_null_profile(osp):
+    global _null_profile
+    if osp.os_id == _null_profile.os_id:
+        return True
+    return False
+
+def profiles_loaded():
+    global _profiles_loaded
+    return _profiles_loaded
 
 def load_profiles():
     """load_profiles() -> None
@@ -118,11 +130,11 @@ def load_profiles():
 
         :returns: None
     """
-    global _profiles, _profiles_by_id, _NullProfile
+    global _profiles, _profiles_by_id, _profiles_loaded, _null_profile
     _profiles = []
     _profiles_by_id = {}
-    _profiles.append(_NullProfile)
-    _profiles_by_id[_NullProfile.os_id] = _NullProfile
+    _profiles.append(_null_profile)
+    _profiles_by_id[_null_profile.os_id] = _null_profile
     profile_files = listdir(BOOM_PROFILES_PATH)
     for pf in profile_files:
         if not pf.endswith(".profile"):
@@ -131,6 +143,7 @@ def load_profiles():
         osp = OsProfile(profile_file=pf_path)
         _profiles.append(osp)
         _profiles_by_id[osp.os_id] = osp
+    _profiles_loaded = True
 
 
 def write_profiles():
@@ -141,6 +154,8 @@ def write_profiles():
     """
     global _profiles
     for osp in _profiles:
+        if _is_null_profile(osp):
+            continue
         # FIXME: handle exceptions in write_profile()
         osp.write_profile()
 
@@ -190,21 +205,21 @@ def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
     """
     global _profiles
 
-    if len(_profiles) is 1:
+    if not profiles_loaded():
         load_profiles()
 
     matches = []
 
     if match_fn:
         for osp in _profiles:
-            if osp.os_id == _NullProfile.os_id:
+            if _is_null_profile(osp):
                 continue
             if match_fn(osp):
                 matches.append(osp)
         return matches
 
     for osp in _profiles:
-        if osp.os_id == _NullProfile.os_id:
+        if _is_null_profile(osp):
             continue
         if os_id and not osp.os_id.startswith(os_id):
             continue
@@ -260,13 +275,14 @@ def match_os_profile(entry):
                   ``BootEntry`` or ``None`` if no match is found.
         :returntype: ``BootEntry`` or ``NoneType``.
     """
+    global _profiles, _profiles_loaded
     for osp in _profiles:
-        if osp.os_id == _NullProfile.os_id:
+        if _is_null_profile(osp):
             continue
         if hasattr(osp, "match"):
             if osp.match(entry):
                 return osp
-    return _NullProfile
+    return _null_profile
 
 
 class OsProfile(object):
@@ -842,11 +858,11 @@ class OsProfile(object):
             raise e
 
 
-_NullProfile = OsProfile(name="", short_name="", version="", version_id="")
+_null_profile = OsProfile(name="", short_name="", version="", version_id="")
 
 __all__ = [
     'OsProfile',
-    'load_profiles', 'write_profiles', 'find_profiles',
+    'profiles_loaded', 'load_profiles', 'write_profiles', 'find_profiles',
     'get_os_profile_by_id', 'match_os_profile',
 
     # Module constants

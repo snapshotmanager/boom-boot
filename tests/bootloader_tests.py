@@ -568,7 +568,8 @@ class BootEntryTests(unittest.TestCase):
 
     def test_load_entries_loads_profiles(self):
         import boom.osprofile
-        boom.osprofile._profiles = None
+        boom.osprofile._profiles = [boom.osprofile.OsProfile("","","","","")]
+        boom.osprofile._profiles_loaded = False
         boom.bootloader.load_entries()
         self.assertTrue(boom.osprofile._profiles)
         self.assertTrue(boom.bootloader._entries)
