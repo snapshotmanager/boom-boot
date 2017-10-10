@@ -146,11 +146,9 @@ class BootEntryTests(unittest.TestCase):
     def _get_test_OsProfile(self):
         osp = OsProfile(name="Distribution", short_name="distro",
                         version="1 (Workstation Edition)", version_id="1")
-        osp.kernel_path = "/"
-        osp.initramfs_path = "/"
         osp.uname_pattern = "di1"
-        osp.kernel_pattern = "vmlinuz-%{version}"
-        osp.initramfs_pattern = "initramfs-%{version}.img"
+        osp.kernel_pattern = "/boot/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/boot/initramfs-%{version}.img"
         osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
         osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
         osp.options = "root=%{root_device} %{root_opts} rhgb quiet"
@@ -314,8 +312,8 @@ class BootEntryTests(unittest.TestCase):
         osp = self._get_test_OsProfile()
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=osp)
         be.version = "1.1.1-17.qux.x86_64"
-        self.assertEqual(be.linux, "/vmlinuz-1.1.1-17.qux.x86_64")
-        self.assertEqual(be.initrd, "/initramfs-1.1.1-17.qux.x86_64.img")
+        self.assertEqual(be.linux, "/boot/vmlinuz-1.1.1-17.qux.x86_64")
+        self.assertEqual(be.initrd, "/boot/initramfs-1.1.1-17.qux.x86_64.img")
 
     def test_BootEntry_profile_root_lvm2(self):
         osp = self._get_test_OsProfile()
@@ -430,8 +428,8 @@ class BootEntryTests(unittest.TestCase):
         xtitle = "title"
         xmachine_id = "ffffffff"
         xversion = "4.11.5-100.fc24.x86_64"
-        xlinux = "/vmlinuz-4.11.5-100.fc24.x86_64"
-        xinitrd = "/initramfs-4.11.5-100.fc24.x86_64.img"
+        xlinux = "/boot/vmlinuz-4.11.5-100.fc24.x86_64"
+        xinitrd = "/boot/initramfs-4.11.5-100.fc24.x86_64.img"
         xoptions = "root=/dev/sda5 ro  rhgb quiet"
         xdevicetree = "device.tree"
 
@@ -518,8 +516,8 @@ class BootEntryTests(unittest.TestCase):
         xvalues = [
             'title',
             'ffffffff',
-            '/vmlinuz-4.11.5-100.fc24.x86_64',
-            '/initramfs-4.11.5-100.fc24.x86_64.img',
+            '/boot/vmlinuz-4.11.5-100.fc24.x86_64',
+            '/boot/initramfs-4.11.5-100.fc24.x86_64.img',
             'root=/dev/sda5 ro  rhgb quiet',
             '4.11.5-100.fc24.x86_64'
         ]
@@ -539,8 +537,8 @@ class BootEntryTests(unittest.TestCase):
         xvalues = [
             'title',
             'ffffffff',
-            '/vmlinuz-4.11.5-100.fc24.x86_64',
-            '/initramfs-4.11.5-100.fc24.x86_64.img',
+            '/boot/vmlinuz-4.11.5-100.fc24.x86_64',
+            '/boot/initramfs-4.11.5-100.fc24.x86_64.img',
             'root=/dev/sda5 ro  rhgb quiet',
             '4.11.5-100.fc24.x86_64'
         ]

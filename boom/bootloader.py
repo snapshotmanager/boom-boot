@@ -1014,9 +1014,8 @@ class BootEntry(object):
         if not self._osp or BOOT_LINUX in self._entry_data:
             return self._entry_data_property(BOOT_LINUX)
 
-        kernel_name = self._apply_format(self._osp.kernel_pattern)
-        kernel_path = self._apply_format(self._osp.kernel_path)
-        return path_join(kernel_path, kernel_name)
+        kernel_path = self._apply_format(self._osp.kernel_pattern)
+        return kernel_path
 
     @linux.setter
     def linux(self, linux):
@@ -1034,9 +1033,8 @@ class BootEntry(object):
         if not self._osp or BOOT_INITRD in self._entry_data:
             return self._entry_data_property(BOOT_INITRD)
 
-        initramfs_name = self._apply_format(self._osp.initramfs_pattern)
-        initramfs_path = self._apply_format(self._osp.initramfs_path)
-        return path_join(initramfs_path, initramfs_name)
+        initramfs_path = self._apply_format(self._osp.initramfs_pattern)
+        return initramfs_path
 
     @initrd.setter
     def initrd(self, initrd):

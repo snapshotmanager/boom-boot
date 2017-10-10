@@ -89,12 +89,6 @@ _profile_fields = [
         BR_PROFILE, "unamepattern", "UnamePattern", "UTS name pattern", 12,
         REP_STR, lambda f, d: f.report_str(d.uname_pattern)),
     BoomFieldType(
-        BR_PROFILE, "kernelpath", "KernelPath", "Kernel path", 8,
-        REP_STR, lambda f, d: f.report_str(d.kernel_path)),
-    BoomFieldType(
-        BR_PROFILE, "initramfspath", "InitramfsPath", "Initial RAMFS path", 10,
-        REP_STR, lambda f, d: f.report_str(d.initramfs_path)),
-    BoomFieldType(
         BR_PROFILE, "kernelpattern", "KernPattern", "Kernel image pattern", 13,
         REP_STR, lambda f, d: f.report_str(d.kernel_pattern)),
     BoomFieldType(
@@ -324,12 +318,10 @@ def print_entries(boot_id=None, title=None, version=None,
 
 def list_profiles(os_id=None, name=None, short_name=None,
                   version=None, version_id=None, uname_pattern=None,
-                  kernel_path=None, initramfs_path=None,
                   kernel_pattern=None, initramfs_pattern=None,
                   root_opts_lvm2=None, root_opts_btrfs=None, options=None):
     """list_profiles(os_id, name, short_name,
                      version, version_id, uname_pattern,
-                     kernel_path, initramfs_path,
                      kernel_pattern, initramfs_pattern,
                      root_opts_lvm2, root_opts_btrfs, options) -> list
 
@@ -342,12 +334,8 @@ def list_profiles(os_id=None, name=None, short_name=None,
         :param version: The version string to match.
         :param version_id: The version ID string to match.
         :param uname_pattern: The ``uname_pattern`` value to match.
-        :param kernel_path: The kernel path to match.
-        :param initramfs_path: The initial ramfs path to match.
         :param kernel_pattern: The kernel pattern to match.
         :param initramfs_pattern: The initial ramfs pattern to match.
-        :param root_opts_lvm2: The LVM2 root options template to match.
-        :param root_opts_btrfs: The BTRFS root options template to match.
         :param options: The options template to match.
         :returns: a list of ``OsProfile`` objects.
         :returntype: list
@@ -355,12 +343,8 @@ def list_profiles(os_id=None, name=None, short_name=None,
     osps = find_profiles(os_id=os_id, name=name, short_name=short_name,
                          version=version, version_id=version_id,
                          uname_pattern=uname_pattern,
-                         kernel_path=kernel_path,
-                         initramfs_path=initramfs_path,
                          kernel_pattern=kernel_pattern,
                          initramfs_pattern=initramfs_pattern,
-                         root_opts_lvm2=root_opts_lvm2,
-                         root_opts_btrfs=root_opts_btrfs,
                          options=options)
 
     return osps
@@ -368,13 +352,11 @@ def list_profiles(os_id=None, name=None, short_name=None,
 
 def print_profiles(os_id=None, name=None, short_name=None,
                    version=None, version_id=None, uname_pattern=None,
-                   kernel_path=None, initramfs_path=None,
                    kernel_pattern=None, initramfs_pattern=None,
                    root_opts_lvm2=None, root_opts_btrfs=None, options=None,
                    opts=None, output_fields=None):
     """print_profiles(os_id, name, short_name,
                       version, version_id, uname_pattern,
-                      kernel_path, initramfs_path,
                       kernel_pattern, initramfs_pattern,
                       root_opts_lvm2, root_opts_btrfs, options) -> list
 
@@ -384,8 +366,6 @@ def print_profiles(os_id=None, name=None, short_name=None,
         :param version: The version string to match.
         :param version_id: The version ID string to match.
         :param uname_pattern: The ``uname_pattern`` value to match.
-        :param kernel_path: The kernel path to match.
-        :param initramfs_path: The initial ramfs path to match.
         :param kernel_pattern: The kernel pattern to match.
         :param initramfs_pattern: The initial ramfs pattern to match.
         :param root_opts_lvm2: The LVM2 root options template to match.
@@ -402,8 +382,6 @@ def print_profiles(os_id=None, name=None, short_name=None,
     osps = find_profiles(os_id=os_id, name=name, short_name=short_name,
                          version=version, version_id=version_id,
                          uname_pattern=uname_pattern,
-                         kernel_path=kernel_path,
-                         initramfs_path=initramfs_path,
                          kernel_pattern=kernel_pattern,
                          initramfs_pattern=initramfs_pattern,
                          root_opts_lvm2=root_opts_lvm2,

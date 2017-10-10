@@ -44,10 +44,6 @@ BOOM_OS_VERSION = "BOOM_OS_VERSION"
 BOOM_OS_VERSION_ID = "BOOM_OS_VERSION_ID"
 #: Constant for the Boom OS uname pattern profile key.
 BOOM_OS_UNAME_PATTERN = "BOOM_OS_UNAME_PATTERN"
-#: Constant for the Boom OS kernel path profile key.
-BOOM_OS_KERNEL_PATH = "BOOM_OS_KERNEL_PATH"
-#: Constant for the Boom OS initramfs path profile key.
-BOOM_OS_INITRAMFS_PATH = "BOOM_OS_INITRAMFS_PATH"
 #: Constant for the Boom OS kernel pattern profile key.
 BOOM_OS_KERNEL_PATTERN = "BOOM_OS_KERNEL_PATTERN"
 #: Constant for the Boom OS initramfs pattern profile key.
@@ -63,12 +59,11 @@ BOOM_OS_OPTIONS = "BOOM_OS_OPTIONS"
 #: keys, root option keys, and optional keys (currently the Linux
 #: kernel command line).
 PROFILE_KEYS = [
-    # Keys 0-9 (ID to INITRAMFS_PATTERN) are mandatory.
+    # Keys 0-7 (ID to INITRAMFS_PATTERN) are mandatory.
     BOOM_OS_ID, BOOM_OS_NAME, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION,
     BOOM_OS_VERSION_ID, BOOM_OS_UNAME_PATTERN,
-    BOOM_OS_KERNEL_PATH, BOOM_OS_INITRAMFS_PATH,
     BOOM_OS_KERNEL_PATTERN, BOOM_OS_INITRAMFS_PATTERN,
-    # At least one of keys 10-11 (ROOT_OPTS) is required.
+    # At least one of keys 8-9 (ROOT_OPTS) is required.
     BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
     # The OPTIONS key is optional.
     BOOM_OS_OPTIONS
@@ -84,8 +79,6 @@ KEY_NAMES = {
     BOOM_OS_VERSION: "Version",
     BOOM_OS_VERSION_ID: "Version ID",
     BOOM_OS_UNAME_PATTERN: "UTS release pattern",
-    BOOM_OS_KERNEL_PATH: "Kernel path",
-    BOOM_OS_INITRAMFS_PATH: "Initramfs path",
     BOOM_OS_KERNEL_PATTERN: "Kernel pattern",
     BOOM_OS_INITRAMFS_PATTERN: "Initramfs pattern",
     BOOM_OS_ROOT_OPTS_LVM2: "Root options (LVM2)",
@@ -94,10 +87,10 @@ KEY_NAMES = {
 }
 
 #: Boom profile keys that must exist in a valid profile.
-REQUIRED_KEYS = PROFILE_KEYS[0:9]
+REQUIRED_KEYS = PROFILE_KEYS[0:7]
 
 #: Boom profile keys for different forms of root device specification.
-ROOT_KEYS = PROFILE_KEYS[10:12]
+ROOT_KEYS = PROFILE_KEYS[8:10]
 
 #: Global profile list
 _profiles = []
@@ -162,12 +155,10 @@ def write_profiles():
 
 def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
                   version=None, version_id=None, uname_pattern=None,
-                  kernel_path=None, initramfs_path=None,
                   kernel_pattern=None, initramfs_pattern=None,
                   root_opts_lvm2=None, root_opts_btrfs=None, options=None):
     """find_profiles(match_fn, os_id, name, short_name,
        version, version_id, uname_pattern,
-       kernel_path, initramfs_path,
        kernel_pattern, initramfs_pattern,
        root_opts_lvm2, root_opts_btrfs, options) -> list
 
@@ -193,8 +184,6 @@ def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
         :param version: The version string to match.
         :param version_id: The version ID string to match.
         :param uname_pattern: The ``uname_pattern`` value to match.
-        :param kernel_path: The kernel path to match.
-        :param initramfs_path: The initial ramfs path to match.
         :param kernel_pattern: The kernel pattern to match.
         :param initramfs_pattern: The initial ramfs pattern to match.
         :param root_opts_lvm2: The LVM2 root options template to match.
@@ -232,10 +221,6 @@ def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
         if version_id and osp.version_id != version_id:
             continue
         if uname_pattern and osp.uname_pattern != uname_pattern:
-            continue
-        if kernel_path and osp.kernel_path != kernel_path:
-            continue
-        if initramfs_path and osp.initramfs_path != initramfs_path:
             continue
         if kernel_pattern and osp.kernel_pattern != kernel_pattern:
             continue
@@ -307,7 +292,7 @@ class OsProfile(object):
             :returntype: string
         """
         breaks = [BOOM_OS_ID, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION_ID,
-                  BOOM_OS_INITRAMFS_PATH, BOOM_OS_INITRAMFS_PATTERN,
+                  BOOM_OS_INITRAMFS_PATTERN,
                   BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
                   BOOM_OS_OPTIONS]
 
@@ -651,38 +636,6 @@ class OsProfile(object):
         self._dirty()
 
     @property
-    def kernel_path(self):
-        """The current ``kernel_path`` setting of this profile.
-
-            :getter: returns the ``kernel_path`` as a string.
-            :setter: store a new ``kernel_path`` setting.
-            :type: string
-        """
-        return self._profile_data[BOOM_OS_KERNEL_PATH]
-
-    @kernel_path.setter
-    def kernel_path(self, value):
-        # FIXME who validates?
-        self._profile_data[BOOM_OS_KERNEL_PATH] = value
-        self._dirty()
-
-    @property
-    def initramfs_path(self):
-        """The current ``initramfs_path`` setting of this profile.
-
-            :getter: returns the ``initramfs_path`` as a string.
-            :setter: store a new ``initramfs_path`` setting.
-            :type: string
-        """
-        return self._profile_data[BOOM_OS_INITRAMFS_PATH]
-
-    @initramfs_path.setter
-    def initramfs_path(self, value):
-        # FIXME who validates?
-        self._profile_data[BOOM_OS_INITRAMFS_PATH] = value
-        self._dirty()
-
-    @property
     def kernel_pattern(self):
         """The current ``kernel_pattern`` setting of this profile.
 
@@ -870,8 +823,8 @@ __all__ = [
     'BOOM_PROFILE_MODE',
 
     # Exported key names
-    'BOOM_OS_ID', 'BOOM_OS_NAME', 'BOOM_OS_SHORT_NAME', 'BOOM_OS_VERSION',
-    'BOOM_OS_VERSION_ID', 'BOOM_OS_KERNEL_PATH', 'BOOM_OS_INITRAMFS_PATH',
+    'BOOM_OS_ID', 'BOOM_OS_NAME', 'BOOM_OS_SHORT_NAME',
+    'BOOM_OS_VERSION', 'BOOM_OS_VERSION_ID',
     'BOOM_OS_KERNEL_PATTERN', 'BOOM_OS_INITRAMFS_PATTERN',
     'BOOM_OS_ROOT_OPTS_LVM2', 'BOOM_OS_ROOT_OPTS_BTRFS',
     'BOOM_OS_OPTIONS',

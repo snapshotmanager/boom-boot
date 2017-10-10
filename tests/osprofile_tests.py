@@ -87,8 +87,8 @@ class OsProfileTests(unittest.TestCase):
     def test_OsProfile_from_profile_data(self):
         # Pull in all the BOOM_OS_* constants to the local namespace.
         from boom.osprofile import (
-            BOOM_OS_ID, BOOM_OS_NAME, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION,
-            BOOM_OS_VERSION_ID, BOOM_OS_KERNEL_PATH, BOOM_OS_INITRAMFS_PATH,
+            BOOM_OS_ID, BOOM_OS_NAME, BOOM_OS_SHORT_NAME,
+            BOOM_OS_VERSION, BOOM_OS_VERSION_ID,
             BOOM_OS_UNAME_PATTERN, BOOM_OS_KERNEL_PATTERN,
             BOOM_OS_INITRAMFS_PATTERN, BOOM_OS_ROOT_OPTS_LVM2,
             BOOM_OS_ROOT_OPTS_BTRFS, BOOM_OS_OPTIONS
@@ -99,8 +99,6 @@ class OsProfileTests(unittest.TestCase):
             BOOM_OS_SHORT_NAME: "rhel",
             BOOM_OS_VERSION: "7.2 (Maipo)",
             BOOM_OS_VERSION_ID: "7.2",
-            BOOM_OS_KERNEL_PATH: "/",
-            BOOM_OS_INITRAMFS_PATH: "/",
             BOOM_OS_UNAME_PATTERN: "el7",
             BOOM_OS_KERNEL_PATTERN: "vmlinuz-%{version}",
             BOOM_OS_INITRAMFS_PATTERN: "initramfs-%{version}.img",
@@ -126,8 +124,6 @@ class OsProfileTests(unittest.TestCase):
     def test_OsProfile_properties(self):
         osp = OsProfile(name="Fedora", short_name="fedora",
                         version="24 (Workstation Edition)", version_id="24")
-        osp.kernel_path = "/boot"
-        osp.initramfs_path = "/boot"
         osp.kernel_pattern = "vmlinuz-%{version}"
         osp.initramfs_pattern = "initramfs-%{version}.img"
         osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
@@ -137,8 +133,6 @@ class OsProfileTests(unittest.TestCase):
         self.assertEqual(osp.short_name, "fedora")
         self.assertEqual(osp.version, "24 (Workstation Edition)")
         self.assertEqual(osp.version_id, "24")
-        self.assertEqual(osp.kernel_path, "/boot")
-        self.assertEqual(osp.initramfs_path, "/boot")
         self.assertEqual(osp.kernel_pattern, "vmlinuz-%{version}")
         self.assertEqual(osp.initramfs_pattern,
                          "initramfs-%{version}.img")
@@ -151,9 +145,6 @@ class OsProfileTests(unittest.TestCase):
     def test_OsProfile_no_lvm(self):
         osp = OsProfile(name="NoLVM", short_name="nolvm",
                         version="1 (Server)", version_id="1")
-        osp.kernel_path = "/"
-        osp.initramfs_path = "/"
-        osp.kernel_pattern = "/"
         osp.kernel_pattern = "vmlinux-%{version}"
         osp.initramfs_pattern = "initramfs-%{version}.img"
         osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
@@ -163,8 +154,6 @@ class OsProfileTests(unittest.TestCase):
     def test_OsProfile_no_btrfs(self):
         osp = OsProfile(name="NoBTRFS", short_name="nobtrfs",
                         version="1 (Server)", version_id="1")
-        osp.kernel_path = "/"
-        osp.initramfs_path = "/"
         osp.kernel_pattern = "/"
         osp.kernel_pattern = "vmlinux-%{version}"
         osp.initramfs_pattern = "initramfs-%{version}.img"
@@ -198,8 +187,6 @@ class OsProfileTests(unittest.TestCase):
         from os.path import exists, join
         osp = OsProfile(name="Fedora", short_name="fedora",
                         version="24 (Workstation Edition)", version_id="24")
-        osp.kernel_path = "/boot"
-        osp.initramfs_path = "/boot"
         osp.uname_pattern = "fc24"
         osp.kernel_pattern = "vmlinuz-%{version}"
         osp.initramfs_pattern = "initramfs-%{version}.img"
