@@ -556,8 +556,6 @@ class BoomReport(object):
             :returns: the number of rows of output written.
             :returntype: ``int``
         """
-        if not self._rows:
-            return
         if self._field_calc_needed:
             self.__recalculate_sha_width()
             self.__recalculate_fields()
