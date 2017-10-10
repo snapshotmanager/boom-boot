@@ -495,22 +495,6 @@ class BoomReport(object):
         if not self.opts.buffered:
             return self.report_output()
 
-    def set_output_fields(self, output_fields):
-        """set_output_fields(self, output_fields) -> int
-            Set the list of output fields that will be rendered by this
-            report. The ``output_fields`` argument should contain a
-            string listing the fields to be included in order.
-            For example, to select the fields 'name', 'version', and
-            'id', the ``output_fields`` string should be:
-
-                ``"name,version,id"``
-
-            :param output_fields: the list of output fields, in order.
-            :returns: the number of output fields configured.
-            :returntype: int
-        """
-        pass
-
     def sort(self, field, reverse=False):
         pass
 
