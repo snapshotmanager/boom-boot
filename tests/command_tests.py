@@ -133,7 +133,6 @@ class CommandTests(unittest.TestCase):
         output = StringIO()
         opts = boom.report.BoomReportOpts(report_file=output)
         print_entries(boot_id="thereisnoboot", opts=opts)
-        print(output.getvalue())
         self.assertTrue(re.match(xoutput, output.getvalue()))
 
     def test_print_entries_default_stdout(self):
