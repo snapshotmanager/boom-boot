@@ -149,8 +149,10 @@ class CommandTests(unittest.TestCase):
         for pair in zip(xoutput, output.getvalue().splitlines()):
             self.assertTrue(re.match(pair[0], pair[1]))
 
-    def test_boom_main_noargs(self):
-        argv = ['']
-        boom.command.main(argv[1:])
+# Calling the main() entry point from the test suite causes a SysExit
+# exception in ArgParse() (too few arguments).
+#    def test_boom_main_noargs(self):
+#        args = ['/home/breeves/src/git/boom/bin/boom', '--help']
+#        boom.command.main(args)
 
 # vim: set et ts=4 sw=4 :
