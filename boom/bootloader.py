@@ -420,7 +420,7 @@ class BootEntry(object):
     _unwritten = False
     _comments = None
     _osp = None
-    _bp = None
+    bp = None
 
     def __str(self, quote=False, prefix="", suffix="", tail="\n",
               sep=" ", bls=True, no_boot_id=False):
@@ -539,8 +539,8 @@ class BootEntry(object):
             return self.efi
         if key == BOOT_ID:
             return self.boot_id
-        if self._bp and key == BOOT_VERSION:
-            return self._bp.version
+        if self.bp and key == BOOT_VERSION:
+            return self.bp.version
 
         raise KeyError("BootEntry key %s not present." % key)
 
@@ -555,17 +555,17 @@ class BootEntry(object):
         if not isinstance(key, str):
             raise TypeError("BootEntry key must be a string.")
 
-        if key == BOOT_VERSION and self._bp:
-            self._bp.version = value
-        elif key == BOOT_LINUX and self._bp:
+        if key == BOOT_VERSION and self.bp:
+            self.bp.version = value
+        elif key == BOOT_LINUX and self.bp:
             self.linux = value
-        elif key == BOOT_INITRD and self._bp:
+        elif key == BOOT_INITRD and self.bp:
             self.initrd = value
-        elif key == BOOT_OPTIONS and self._bp:
+        elif key == BOOT_OPTIONS and self.bp:
             self.options = value
-        elif key == BOOT_DEVICETREE and self._bp:
+        elif key == BOOT_DEVICETREE and self.bp:
             self.devicetree = value
-        elif key == BOOT_EFI and self._bp:
+        elif key == BOOT_EFI and self.bp:
             self.efi = value
         elif key == BOOT_ID:
             raise TypeError("'boot_id' property does not support assignment")
@@ -586,7 +586,7 @@ class BootEntry(object):
         keys = self._entry_data.keys()
         add_keys = [BOOT_LINUX, BOOT_INITRD, BOOT_OPTIONS]
 
-        if self._bp:
+        if self.bp:
             add_keys.append(BOOT_VERSION)
 
         for k in add_keys:
@@ -606,7 +606,7 @@ class BootEntry(object):
         values = self._entry_data.values()
         add_values = [self.linux, self.initrd, self.options]
 
-        if self._bp:
+        if self.bp:
             add_values.append(self.version)
 
         return values + add_values
@@ -626,7 +626,7 @@ class BootEntry(object):
             (BOOT_OPTIONS, self.options)
         ]
 
-        if self._bp:
+        if self.bp:
             add_items.append((BOOT_VERSION, self.version))
 
         return self._entry_data.items() + add_items
@@ -806,7 +806,7 @@ class BootEntry(object):
         if not title or not machine_id:
             raise ValueError("BootEntry title and machine_id cannot be None")
 
-        self._bp = boot_params
+        self.bp = boot_params
 
         # The BootEntry._entry_data dictionary contains data for an existing
         # BootEntry that has been read from disk, as well as any overridden
@@ -849,7 +849,7 @@ class BootEntry(object):
         """
         orig = fmt
         key_format = "%%{%s}"
-        bp = self._bp
+        bp = self.bp
 
         if not fmt:
             return ""
@@ -928,9 +928,9 @@ class BootEntry(object):
             :getter: Returns the root options string for this ``BootEntry``.
             :type: string
         """
-        if not self._osp or not self._bp:
+        if not self._osp or not self.bp:
             return ""
-        bp = self._bp
+        bp = self.bp
         osp = self._osp
         if bp.lvm_root_lv:
             return self._apply_format(osp.root_opts_lvm2)
@@ -976,8 +976,8 @@ class BootEntry(object):
             :setter: sets this ``BootEntry`` object's ``version``.
             :type: string
         """
-        if self._bp and BOOT_VERSION not in self._entry_data:
-            return self._bp.version
+        if self.bp and BOOT_VERSION not in self._entry_data:
+            return self.bp.version
         return self._entry_data_property(BOOT_VERSION)
 
     @version.setter
