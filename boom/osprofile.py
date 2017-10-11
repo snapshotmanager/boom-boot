@@ -92,6 +92,15 @@ REQUIRED_KEYS = PROFILE_KEYS[0:7]
 #: Boom profile keys for different forms of root device specification.
 ROOT_KEYS = PROFILE_KEYS[8:10]
 
+#: Keys with default values
+_DEFAULT_KEYS = {
+    BOOM_OS_KERNEL_PATTERN: "/boot/kernel-%{version}",
+    BOOM_OS_INITRAMFS_PATTERN: "/boot/initramfs-%{version}.img",
+    BOOM_OS_ROOT_OPTS_LVM2: "rd.lvm.lv=%{lvm_root_lv}",
+    BOOM_OS_ROOT_OPTS_BTRFS: "rootflags=%{btrfs_subvol}",
+    BOOM_OS_OPTIONS: "root=%{root_devive} ro %{root_opts}"
+}
+
 #: Global profile list
 _profiles = []
 _profiles_by_id = {}
@@ -497,6 +506,11 @@ class OsProfile(object):
 
         self._unwritten = True
 
+        self._profile_data[BOOM_OS_NAME] = name
+        self._profile_data[BOOM_OS_SHORT_NAME] = short_name
+        self._profile_data[BOOM_OS_VERSION] = version
+        self._profile_data[BOOM_OS_VERSION_ID] = version_id
+
         required_args = [name, short_name, version, version_id]
         if all([not val for val in required_args]):
             # NULL profile
@@ -506,11 +520,9 @@ class OsProfile(object):
             raise ValueError("Invalid profile arguments: name, "
                              "short_name, version, and version_id are"
                              "mandatory.")
+            for key in _DEFAULT_KEYS:
+                self._profile_data[key] = _DEFAULT_KEYS[key]
 
-        self._profile_data[BOOM_OS_NAME] = name
-        self._profile_data[BOOM_OS_SHORT_NAME] = short_name
-        self._profile_data[BOOM_OS_VERSION] = version
-        self._profile_data[BOOM_OS_VERSION_ID] = version_id
         self._generate_os_id()
         _profiles.append(self)
 
