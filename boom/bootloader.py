@@ -16,10 +16,9 @@ import boom
 from boom import *
 from boom.osprofile import *
 
-from os.path import join as path_join
+from os.path import exists as path_exists, join as path_join
 from tempfile import mkstemp
 from os import listdir, rename, fdopen, chmod, unlink
-import os.path
 from hashlib import sha1
 
 #: The path to the BLS boot entries directory.
@@ -1136,9 +1135,9 @@ class BootEntry(object):
             :raises: ``OsError`` if an error occurs removing the file or
                      ``ValueError`` if the entry does not exist.
         """
-        if not os.path.exists(self._entry_path):
+        if not path_exists(self._entry_path):
             raise ValueError("Entry does not exist: %s" % self._entry_path)
-        os.unlink(self._entry_path)
+        unlink(self._entry_path)
         _del_entry(self)
 
 
