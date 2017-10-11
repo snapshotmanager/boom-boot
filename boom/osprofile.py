@@ -514,31 +514,6 @@ class OsProfile(object):
         self._generate_os_id()
         _profiles.append(self)
 
-    def __key_regex_from_format(self, fmt):
-        """__key_regex_from_format(self, fmt) -> str
-
-            Generate a regular expression to match formatted instances
-            of format string ``fmt``. The expression is constructed by
-            replacing all format keys with the pattern ".*".
-
-            :param fmt: The format string to build an expression from.
-            :returns: A regular expression matching instances of
-                      ``fmt``.
-            :returntype: str
-        """
-        key_format = "%%{%s}"
-        regex_all = ".*"
-
-        if not fmt:
-            return ""
-
-        for key in FORMAT_KEYS:
-            if key in fmt:
-                key = key_format % key
-                fmt = fmt.replace(key, regex_all)
-
-        return fmt
-
     def match(self, entry):
         """match(self, entry) -> ``OsProfile``
 
@@ -556,7 +531,7 @@ class OsProfile(object):
                 return True
         # Attempt to match a distribution-formatted options line
         if self.options and entry.options:
-            key_regex = self.__key_regex_from_format(self.options)
+            key_regex = _key_regex_from_format(self.options)
             if re.match(key_regex, entry.options):
                 return True
         return False

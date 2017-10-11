@@ -155,7 +155,11 @@ class BootEntryTests(unittest.TestCase):
         return osp
 
     def _get_test_BootEntry(self, osp):
-        return BootEntry(title="title", machine_id="ffffffff", osprofile=osp)
+        bp = BootParams("1.1.1.fc24", root_device="/dev/vg/lv",
+                        lvm_root_lv="vg/lv")
+
+        return BootEntry(title="title", machine_id="ffffffff",
+                         boot_params=bp, osprofile=osp)
 
     def get_test_lvm2_BootEntry(self, osp):
         be = self._get_test_BootEntry(osp)
@@ -307,6 +311,7 @@ class BootEntryTests(unittest.TestCase):
 
         # write entry (FIXME: and verify by re-loading)
         be.write_entry()
+        be.delete_entry()
 
     def test_BootEntry_profile_kernel_version(self):
         osp = self._get_test_OsProfile()

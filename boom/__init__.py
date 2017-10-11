@@ -107,6 +107,34 @@ def _parse_name_value(nvp, separator="="):
         value = value[1:-1]
     return (name, value)
 
+def _key_regex_from_format(fmt, capture=False):
+    """_key_regex_from_format(self, fmt) -> str
+
+        Generate a regular expression to match formatted instances
+        of format string ``fmt``. The expression is constructed by
+        replacing all format keys with the pattern ".*".
+
+        If the ``capture`` argument is True, capture groups will
+        be inserted around each replaced substitution.
+
+        :param fmt: The format string to build an expression from.
+        :returns: A regular expression matching instances of
+                  ``fmt``.
+        :returntype: str
+    """
+    key_format = "%%{%s}"
+    regex_all = "(.*)" if capture else ".*"
+
+    if not fmt:
+        return ""
+
+    for key in FORMAT_KEYS:
+        if key in fmt:
+            key = key_format % key
+            fmt = fmt.replace(key, regex_all)
+
+    return fmt
+
 __all__ = [
     # boom module constants
     'BOOT_ROOT', 'BOOM_ROOT',
@@ -123,7 +151,8 @@ __all__ = [
 
     # Utility routines
     '_blank_or_comment',
-    '_parse_name_value'
+    '_parse_name_value',
+    '_key_regex_from_format'
 ]
 
 # vim: set et ts=4 sw=4 :

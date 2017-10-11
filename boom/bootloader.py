@@ -20,6 +20,7 @@ from os.path import exists as path_exists, join as path_join
 from tempfile import mkstemp
 from os import listdir, rename, fdopen, chmod, unlink
 from hashlib import sha1
+import re
 
 #: The path to the BLS boot entries directory.
 BOOT_ENTRIES_PATH = path_join(BOOT_ROOT, "loader/entries")
@@ -251,6 +252,80 @@ class BootParams(object):
             self.btrfs_subvol_path = btrfs_subvol_path
         if btrfs_subvol_id:
             self.btrfs_subvol_id = btrfs_subvol_id
+
+    @classmethod
+    def from_entry(cls, be):
+        """from_entry(be) -> BootParams
+
+        Recover BootParams values from a templated BootEntry: each
+        key subject to template substitution is transformed into a
+        regular expression, matching the element and capturing the
+        corresponding BootParams value.
+
+        A BootEntry object that has no attached OsProfile cannot be
+        reversed since no templates exist to match the entry against:
+        in this case None is returned but no exception is raised.
+        The entry may be modified and re-written, but no templating
+        is possible unless a new, valid, OsProfile is attached.
+
+        :param be: The BootEntry to recover BootParams from.
+        :returns: A newly initialised BootParams object.
+        :returntype: ``BootParams``
+        :raises: ValueError if expected values cannot be matched.
+        """
+        osp = be._osp
+        # Version is written directly from BootParams
+        version = be.version
+
+        # Decompose options first to obtain root device and options.
+        options_regex = _key_regex_from_format(osp.options, capture=True)
+
+        if not options_regex:
+            return None
+
+        match = re.match(options_regex, be.options)
+        if not match:
+                raise ValueError("Cannot match BootEntry options")
+
+        root_device = match.group(1)
+        if len(match.groups()) == 2:
+            root_opts = match.group(2)
+
+        lvm2_root_lv = None
+        btrfs_root_opts = None
+        btrfs_subvol_id = None
+        btrfs_subvol_path = None
+
+        # Decompose root opts to obtain BTRFS/LVM2 values
+        if root_opts:
+            lvm2_opts_regex = _key_regex_from_format(osp.root_opts_lvm2,
+                                                     capture=True)
+            btrfs_opts_regex = _key_regex_from_format(osp.root_opts_btrfs,
+                                                      capture=True)
+            match = re.match(lvm2_opts_regex, root_opts)
+            if match:
+                lvm2_root_lv=match.group(1)
+            else:
+                match = re.match(btrfs_opts_regex, root_opts)
+                btrfs_root_opts=match.group(1)
+                if "subvolid" in btrfs_root_opts:
+                    subvolid_regex = r"subvolid=(\d*)"
+                    match = re.match(subvolid_regex, btrfs_root_opts)
+                    btrfs_subvol_id = match.group(1)
+                elif "subvolpath" in btrfs_root_opts:
+                    subvolpath_regex = r"subvolpath=(\S*)"
+                    match = re.match(subvolpath_regex, btrfs_root_opts)
+                    btrfs_subvol_path = match.group(1)
+                else:
+                    raise ValueError("Unrecognized btrfs root options: %s"
+                                     % btrfs_root_opts)
+            if not match:
+                raise ValueError("Unknown root options: %s" % root_opts)
+
+        return BootParams(version, root_device=root_device,
+                          lvm_root_lv=lvm2_root_lv,
+                          btrfs_subvol_path=btrfs_subvol_path,
+                          btrfs_subvol_id=btrfs_subvol_id)
 
 
 def _add_entry(entry):
@@ -707,13 +782,16 @@ class BootEntry(object):
         for key in [k for k in ENTRY_KEYS if k in entry_data]:
             self._entry_data[key] = entry_data[key]
 
-        if boot_params:
-            self._bp = boot_params
-            # boot_params is always authoritative
-            self._entry_data[BOOT_VERSION] = self._bp.version
-
         if not self._osp:
             self.__match_os_profile()
+
+        if boot_params:
+            self.bp = boot_params
+            # boot_params is always authoritative
+            self._entry_data[BOOT_VERSION] = self.bp.version
+        else:
+            # Attempt to recover BootParams from entry data
+            self.bp = BootParams.from_entry(self)
 
     def __from_file(self, entry_file, boot_params):
         entry_data = {}
