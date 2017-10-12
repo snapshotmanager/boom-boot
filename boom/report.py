@@ -415,19 +415,18 @@ class BoomReport(object):
         for row in self._rows:
             for field in row._fields:
                 if self._fields[field._props.field_num].dtype == REP_SHA:
-                    num = field._props.field_num
-                    if num not in shas:
-                        shas[num] = set()
-                    shas[num].add(field.report_string)
-        for num in shas.keys():
+                    if field not in shas:
+                        shas[field] = set()
+                    shas[field].add(field.report_string)
+        for field in shas.keys():
             min_prefix = 7
-            shas[num] = list(shas[num])
-            shas[num].sort()
-            for sha in shas[num]:
-                if shas[num].index(sha) == len(shas[num]) - 1:
+            shas[field] = list(shas[field])
+            shas[field].sort()
+            for sha in shas[field]:
+                if shas[field].index(sha) == len(shas[field]) - 1:
                     continue
                 def _next_sha(shas, sha):
-                    return shas[num][shas[num].index(sha) + 1]
+                    return shas[field][shas[field].index(sha) + 1]
                 while sha[:min_prefix] == _next_sha(shas, sha)[:min_prefix]:
                     min_prefix += 1
             field._props.width = min_prefix
