@@ -409,8 +409,8 @@ def _delete_cmd(cmd_args):
 
 
 def _list_cmd(cmd_args):
-    if cmd_args.fields:
-        fields = cmd_args.fields
+    if cmd_args.options:
+        fields = cmd_args.options
     elif cmd_args.verbose:
         fields = _verbose_entry_fields
     else:
@@ -434,8 +434,8 @@ def _delete_profile_cmd(cmd_args):
 
 
 def _list_profile_cmd(cmd_args):
-    if cmd_args.fields:
-        fields = cmd_args.fields
+    if cmd_args.options:
+        fields = cmd_args.options
     elif cmd_args.verbose:
         fields = _verbose_profile_fields
     else:
@@ -515,14 +515,12 @@ def main(args):
                         "boot entry")
     parser.add_argument("-b", "--boot-id", metavar="BOOT_ID", type=str,
                         nargs=1, help="The BOOT_ID of a boom boot entry")
-    parser.add_argument("-o", "--os-profile", metavar="OS_ID", type=str,
-                        nargs=1, help="A boom operating system profile "
-                        "identifier")
     parser.add_argument("-r", "--root-device", metavar="ROOT", type=str,
                         nargs=1, help="The root device for a boot entry")
     parser.add_argument("-m", "--machine-id", metavar="MACHINE_ID", type=str,
                         nargs=1, help="The machine_id value to use")
     parser.add_argument("-f", "--fields", metavar="FIELDS", type=str,
+    parser.add_argument("-o", "--options", metavar="FIELDS", type=str,
                         help="Specify which fields to display")
     parser.add_argument("-v", "--verbose", help="Enable verbose ouput",
                         action="store_true")
