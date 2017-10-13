@@ -419,6 +419,96 @@ def print_entries(selection=None, output_fields=None, opts=None):
 # OsProfile manipulation
 #
 
+def create_profile(name, short_name, version, version_id,
+                   uname_pattern=None, kernel_pattern=None,
+                   initramfs_pattern=None, root_opts_lvm2=None,
+                   root_opts_btrfs=None, options=None,
+                   profile_data=None):
+    """create_profile,(name, short_name, version, version_id
+       uname_pattern, kernel_pattern, initramfs_pattern,
+       root_opts_lvm2, root_opts_btrfs, options, profile_data) ->
+       ``OsProfile``
+
+        Create the specified OsProfile in the configured profiles
+        directory.
+
+        OsProfile key values may be specified either by passing
+        individual keyword arguments, or by passing a dictionary
+        of OsProfile key name to value pairs as the ``profile_data``
+        argument. If a key is present as both a keyword argument
+        and in the ``profile_data`` dictionary, the argument will
+        take precedence.
+
+        An error is raised if a matching profile already exists.
+
+        :param name: The name of the new OsProfile
+        :param short_name: The short name of the new OsProfile
+        :param version: The version string of the new OsProfile
+        :param version_id: The version ID string of the new OsProfile
+        :param uname_pattern: A uname pattern to match for this profile
+        :param kernel_pattern: Pattern to generate kernel paths
+        :param initramfs_pattern: Pattern to generate initramfs paths
+        :param root_opts_lvm2: Template options for LVM2 entries
+        :param root_opts_btrfs: Template options for BTRFS entries
+        :param options: Template kernel command line options
+        :param profile_data: Dictionary of profile key:value pairs
+
+        :returns: an ``OsProfile`` object for the new profile
+        :returntype: ``OsProfile``
+        :raises: ``ValueError`` if either required values are missing or
+                 a duplicate profile exists, or``OsError`` if an error
+                 occurs while writing the profile file.
+    """
+    def _have_key(pd, arg, key):
+        return arg or pd and key in pd
+
+    if  not _have_key(profile_data, name, BOOM_OS_NAME):
+        raise ValueError("Profile name cannot be empty.")
+
+    if  not _have_key(profile_data, short_name, BOOM_OS_SHORT_NAME):
+        raise ValueError("Profile short name cannot be empty.")
+
+    if not _have_key(profile_data, version, BOOM_OS_VERSION):
+        raise ValueError("Profile version cannot be empty.")
+
+    if not _have_key(profile_data, version_id, BOOM_OS_VERSION_ID):
+        raise ValueError("Profile version ID cannot be empty.")
+
+    if not profile_data:
+        profile_data = {}
+
+    # Allow keyword arguments to override
+    if name:
+        profile_data[BOOM_OS_NAME] = name
+    if short_name:
+        profile_data[BOOM_OS_SHORT_NAME] = short_name
+    if version:
+        profile_data[BOOM_OS_VERSION] = version
+    if version_id:
+        profile_data[BOOM_OS_VERSION_ID] = version_id
+    if uname_pattern:
+        profile_data[BOOM_OS_UNAME_PATTERN] = uname_pattern
+    if kernel_pattern:
+        profile_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
+    if initramfs_pattern:
+        profile_data[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
+    if root_opts_lvm2:
+        profile_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
+    if root_opts_btrfs:
+        profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
+    if options:
+        profile_data[BOOM_OS_OPTIONS] = options
+
+    osp = OsProfile(name, short_name, version, version_id,
+                    profile_data=profile_data)
+
+    if find_profiles(selection=Selection(os_id=osp.os_id)):
+        raise ValueError("Profile already exists (os_id=%s)" % osp.os_id)
+
+    osp.write_profile()
+    return osp
+
+
 def list_profiles(selection=None):
     """list_profiles(os_id, name, short_name,
                      version, version_id, uname_pattern,
@@ -619,7 +709,47 @@ def _edit_cmd(cmd_args, select):
 
 
 def _create_profile_cmd(cmd_args, select):
-    pass
+    if not cmd_args.name:
+        print("profile create requires --name")
+        return 1
+    else:
+        name = cmd_args.name
+
+    if not cmd_args.short_name:
+        print("profile create requires --short-name")
+        return 1
+    else:
+        short_name = cmd_args.short_name
+
+    if not cmd_args.os_version:
+        print("profile create requires --os-version")
+        return 1
+    else:
+        version = cmd_args.os_version
+
+    if not cmd_args.os_version_id:
+        print("profile create requires --os-version-id")
+        return 1
+    else:
+        version_id = cmd_args.os_version_id
+
+    try:
+        osp = create_profile(name, short_name, version, version_id,
+                             uname_pattern=cmd_args.uname_pattern,
+                             kernel_pattern=cmd_args.kernel_pattern,
+                             initramfs_pattern=cmd_args.initramfs_pattern,
+                             root_opts_lvm2=cmd_args.lvm_opts,
+                             root_opts_btrfs=cmd_args.btrfs_opts,
+                             options=cmd_args.os_options)
+    except ValueError as e:
+        print(e)
+        return 1
+
+    if find_profiles(Selection(os_id=osp.os_id)):
+        print "Profile already exists (os_id=%s)" % osp.os_id
+        return 1
+
+    return 0
 
 
 def _delete_profile_cmd(cmd_args, select):
