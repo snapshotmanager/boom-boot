@@ -126,6 +126,17 @@ class Selection(object):
         "os_root_opts_lvm2", "os_root_opts_btrfs", "os_options"
     ]
 
+    def __str__(self):
+        all_attrs = self.entry_attrs + self.params_attrs + self.profile_attrs
+        attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
+        strval = ""
+        for attr in attrs:
+            strval += "%s='%s'" % (attr, getattr(self, attr))
+        return strval
+
+    def __repr__(self):
+        return "Selection(" + str(self) + ")"
+
     def __init__(self, boot_id=None, title=title, version=version,
                  machine_id=None, linux=None, initrd=None,
                  efi=None, root_device=None, lvm_root_lv=None,
