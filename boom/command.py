@@ -517,14 +517,6 @@ def _create_cmd(cmd_args, select):
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
 
-    subvol = _parse_btrfs_subvol(cmd_args.btrfs_subvolume)
-    if subvol.startswith('/'):
-        btrfs_subvol_path = subvol
-        btrfs_subvol_id = None
-    else:
-        btrfs_subvol_path = None
-        btrfs_subvol_id = subvol
-
     # FIXME: default to host OsProfile
     if not cmd_args.profile:
         print("create requires --profile")
