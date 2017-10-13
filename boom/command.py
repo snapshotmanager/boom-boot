@@ -440,6 +440,8 @@ def _create_cmd(cmd_args, select):
     else:
         root_device = cmd_args.root_device
 
+    lvm_root_lv = cmd_args.rootlv if cmd_args.rootlv else None
+
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
 
@@ -467,7 +469,9 @@ def _create_cmd(cmd_args, select):
 
     try:
         be = create_entry(title, version, machine_id,
-                          root_device, osprofile=osp)
+                          root_device, lvm_root_lv=lvm_root_lv,
+                          btrfs_subvol_path=btrfs_subvol_path,
+                          btrfs_subvol_id=btrfs_subvol_id, osprofile=osp)
     except ValueError as e:
         print(e)
         return 1
@@ -639,6 +643,10 @@ def main(args):
     cmd_args = parser.parse_args()
 
     cmd_type = _match_cmd_type(cmd_args.type)
+
+    if not cmd_args.root_device and cmd_args.rootlv:
+        cmd_args.root_device = DEV_PATTERN % cmd_args.rootlv
+
     if not cmd_type:
         print("Unknown command type: %s" % cmd_args.type)
         return 1
