@@ -87,10 +87,10 @@ KEY_NAMES = {
 }
 
 #: Boom profile keys that must exist in a valid profile.
-REQUIRED_KEYS = PROFILE_KEYS[0:7]
+REQUIRED_KEYS = PROFILE_KEYS[0:8]
 
 #: Boom profile keys for different forms of root device specification.
-ROOT_KEYS = PROFILE_KEYS[8:10]
+ROOT_KEYS = PROFILE_KEYS[9:10]
 
 #: Keys with default values
 _DEFAULT_KEYS = {
