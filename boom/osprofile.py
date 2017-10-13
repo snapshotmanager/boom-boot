@@ -414,6 +414,8 @@ class OsProfile(object):
                 profile_data[key] = _DEFAULT_KEYS[key]
 
         for key in REQUIRED_KEYS:
+            if key == BOOM_OS_ID:
+                continue
             if key not in profile_data:
                 raise ValueError(err_str % key)
 
@@ -427,6 +429,9 @@ class OsProfile(object):
         if BOOM_OS_OPTIONS not in profile_data:
             profile_data[BOOM_OS_OPTIONS] = ""
         self._profile_data = dict(profile_data)
+
+        if BOOM_OS_ID not in self._profile_data:
+            self._generate_os_id()
 
     def __from_file(self, profile_file):
         """__from_file(self, profile_file) -> OsProfile
