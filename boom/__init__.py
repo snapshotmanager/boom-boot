@@ -194,6 +194,9 @@ class Selection(object):
                          os_options=args.os_options,
                          os_uname_pattern=args.uname_pattern)
 
+    def __attr_has_value(self, attr):
+        return hasattr(self, attr) and getattr(self, attr) is not None
+
     def check_valid_selection(self, entry=False, params=False, profile=False):
         """check_valid_selection(entry, params, profile) -> None
 
@@ -222,17 +225,19 @@ class Selection(object):
         if profile:
             valid_attrs += self.profile_attrs
 
-        def _attr_has_value(attr):
-            return hasattr(self, attr) and getattr(self, attr) is not None
-
         for attr in all_attrs:
-            if _attr_has_value(attr) and attr not in valid_attrs:
+            if self.__attr_has_value(attr) and attr not in valid_attrs:
                 invalid_attrs.append(attr)
 
         if invalid_attrs:
             invalid = ", ".join(invalid_attrs)
             raise ValueError("Invalid criteria for selection type: %s" %
                              invalid)
+
+    def is_null(self):
+        all_attrs = self.entry_attrs + self.params_attrs + self.profile_attrs
+        attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
+        return not any(attrs)
 
 #
 # Generic routines for parsing name-value pairs.
