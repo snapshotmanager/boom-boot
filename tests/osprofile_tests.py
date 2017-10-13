@@ -50,7 +50,12 @@ class OsProfileTests(unittest.TestCase):
 
         xstr = ('OS ID: "d279248249d12dd3d115e77e81afac1cb6a00ebd",\n'
                 'Name: "Distribution", Short name: "distro",\n'
-                'Version: "1 (Workstation)", Version ID: "1"')
+                'Version: "1 (Workstation)", Version ID: "1",\n'
+                'Kernel pattern: "/boot/kernel-%{version}", '
+                'Initramfs pattern: "/boot/initramfs-%{version}.img",\n'
+                'Root options (LVM2): "rd.lvm.lv=%{lvm_root_lv}",\n'
+                'Root options (BTRFS): "rootflags=%{btrfs_subvolume}",\n'
+                'Options: "root=%{root_device} ro %{root_opts}"')
 
         self.assertEqual(str(osp), xstr)
 
@@ -61,7 +66,12 @@ class OsProfileTests(unittest.TestCase):
         xrepr = ('OsProfile(profile_data={'
                  'BOOM_OS_ID:"d279248249d12dd3d115e77e81afac1cb6a00ebd", '
                  'BOOM_OS_NAME:"Distribution", BOOM_OS_SHORT_NAME:"distro", '
-                 'BOOM_OS_VERSION:"1 (Workstation)", BOOM_OS_VERSION_ID:"1"})')
+                 'BOOM_OS_VERSION:"1 (Workstation)", BOOM_OS_VERSION_ID:"1", '
+                 'BOOM_OS_KERNEL_PATTERN:"/boot/kernel-%{version}", '
+                 'BOOM_OS_INITRAMFS_PATTERN:"/boot/initramfs-%{version}.img", '
+                 'BOOM_OS_ROOT_OPTS_LVM2:"rd.lvm.lv=%{lvm_root_lv}", '
+                 'BOOM_OS_ROOT_OPTS_BTRFS:"rootflags=%{btrfs_subvolume}", '
+                 'BOOM_OS_OPTIONS:"root=%{root_device} ro %{root_opts}"})')
 
         self.assertEqual(repr(osp), xrepr)
 
@@ -150,7 +160,7 @@ class OsProfileTests(unittest.TestCase):
         osp.initramfs_pattern = "initramfs-%{version}.img"
         osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
 
-        self.assertEqual(osp.root_opts_lvm2, None)
+        self.assertEqual(osp.root_opts_lvm2, "rd.lvm.lv=%{lvm_root_lv}")
 
     def test_OsProfile_no_btrfs(self):
         osp = OsProfile(name="NoBTRFS", short_name="nobtrfs",
@@ -160,7 +170,7 @@ class OsProfileTests(unittest.TestCase):
         osp.initramfs_pattern = "initramfs-%{version}.img"
         osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
 
-        self.assertEqual(osp.root_opts_btrfs, None)
+        self.assertEqual(osp.root_opts_btrfs, "rootflags=%{btrfs_subvolume}")
 
     def test_OsProfile_from_os_release(self):
         osp = OsProfile.from_os_release([
