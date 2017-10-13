@@ -56,12 +56,15 @@ class BoomReportObj(object):
 
 BR_ENTRY = 1
 BR_PROFILE = 2
+BR_PARAMS = 4
 
 _report_obj_types = [
     BoomReportObjType(
         BR_ENTRY, "Boot loader entries", "entry_", lambda o: o.be),
     BoomReportObjType(
-        BR_PROFILE, "OS profiles", "profile_", lambda o: o.osp)
+        BR_PROFILE, "OS profiles", "profile_", lambda o: o.osp),
+    BoomReportObjType(
+        BR_PARAMS, "Boot parameters", "param_", lambda o: o.be.bp)
 ]
 
 #
@@ -117,9 +120,6 @@ _entry_fields = [
         BR_ENTRY, "title", "Title", "Entry title", 24,
         REP_STR, lambda f, d: f.report_str(d.title)),
     BoomFieldType(
-        BR_ENTRY, "version", "Version", "Kernel version", 24,
-        REP_STR, lambda f, d: f.report_str(d.version)),
-    BoomFieldType(
         BR_ENTRY, "options", "Options", "Kernel options", 24,
         REP_STR, lambda f, d: f.report_str(d.options)),
     BoomFieldType(
@@ -131,6 +131,25 @@ _entry_fields = [
     BoomFieldType(
         BR_ENTRY, "machineid", "Machine ID", "Machine identifier", 12,
         REP_SHA, lambda f, d: f.report_sha(d.machine_id))
+]
+
+#: fields derived from BootParams data
+_params_fields = [
+    BoomFieldType(
+        BR_PARAMS, "version", "Version", "Kernel version", 24,
+        REP_STR, lambda f, d: f.report_str(d.version)),
+    BoomFieldType(
+        BR_PARAMS, "rootdev", "RootDevice", "Root device", 10,
+        REP_STR, lambda f, d: f.report_str(d.root_device)),
+    BoomFieldType(
+        BR_PARAMS, "rootlv", "RootLV", "Root logical volume", 6,
+        REP_STR, lambda f, d: f.report_str(d.lvm_root_lv or "")),
+    BoomFieldType(
+        BR_PARAMS, "subvolpath", "SubvolPath", "BTRFS subvolume path", 10,
+        REP_STR, lambda f, d: f.report_str(d.btrfs_subvol_path or "")),
+    BoomFieldType(
+        BR_PARAMS, "subvolid", "SubvolID", "BTRFS subvolume ID", 8,
+        REP_NUM, lambda f, d: f.report_str(d.btrfs_subvol_id or ""))
 ]
 
 _default_entry_fields = "bootid,version,osid,osname,osversion"
@@ -305,8 +324,8 @@ def print_entries(boot_id=None, title=None, version=None,
                        btrfs_subvol_path=btrfs_subvol_path,
                        btrfs_subvol_id=btrfs_subvol_id)
 
-    br = BoomReport(_report_obj_types, _entry_fields + _profile_fields,
-                    output_fields, opts, None, None)
+    br = BoomReport(_report_obj_types, _entry_fields + _profile_fields +
+                    _params_fields, output_fields, opts, None, None)
     for be in bes:
         br.report_object(BoomReportObj(be, be._osp))
 
