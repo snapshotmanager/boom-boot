@@ -419,7 +419,7 @@ class BoomReport(object):
                         shas[field] = set()
                     shas[field].add(field.report_string)
         for field in shas.keys():
-            min_prefix = 7
+            min_prefix = min(7,field._props.initial_width)
             shas[field] = list(shas[field])
             shas[field].sort()
             for sha in shas[field]:
