@@ -1242,6 +1242,9 @@ __all__ = [
     'BOOT_OPTIONS',
     'BOOT_DEVICETREE',
 
+    # Root device pattern
+    'DEV_PATTERN',
+
     # BootParams and BootEntry objects
     'BootParams', 'BootEntry',
 
