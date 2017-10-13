@@ -26,6 +26,7 @@ BOOM_ROOT_TEST = "./tests/boom"
 # Override default BOOM_ROOT.
 boom.BOOM_ROOT = BOOM_ROOT_TEST
 from boom.osprofile import *
+from boom import Selection
 
 
 class OsProfileTests(unittest.TestCase):
@@ -204,14 +205,14 @@ class OsProfileTests(unittest.TestCase):
 
     def test_osprofile_find_profiles_by_id(self):
         rhel72_os_id = "9736c347ccb724368be04e51bb25687a361e535c"
-        osp_list = find_profiles(os_id=rhel72_os_id)
+        osp_list = find_profiles(selection=Selection(os_id=rhel72_os_id))
         self.assertEqual(len(osp_list), 1)
         self.assertEqual(osp_list[0].os_id, rhel72_os_id)
 
     def test_osprofile_find_profiles_by_name(self):
         os_name = "Fedora"
         os_short_name = "fedora"
-        osp_list = find_profiles(name=os_name)
+        osp_list = find_profiles(selection=Selection(os_name=os_name))
         nr_profiles = 0
         for f in listdir(boom.osprofile.BOOM_PROFILES_PATH):
             if os_short_name in f:

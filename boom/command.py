@@ -12,6 +12,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 import boom
+from boom import Selection
 from boom.osprofile import *
 from boom.report import *
 from boom.bootloader import *
@@ -208,7 +209,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
 
     be = BootEntry(title=title, machine_id=machine_id,
                    osprofile=osprofile, boot_params=bp)
-    if find_entries(boot_id=be.boot_id):
+    if find_entries(Selection(boot_id=be.boot_id)):
         raise ValueError("Entry already exists (boot_id=%s)." % be.boot_id)
 
     be.write_entry()
@@ -216,9 +217,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
     return be
 
 
-def delete_entries(boot_id=None, title=None, version=None,
-                   machine_id=None, root_device=None, lvm_root_lv=None,
-                   btrfs_subvol_path=None, btrfs_subvol_id=None):
+def delete_entries(selection=None):
     """delete_entries(boot_id, title, version,
                       machine_id, root_device, lvm_root_lv,
                       btrfs_subvol_path, btrfs_subvol_id) -> int
@@ -229,6 +228,9 @@ def delete_entries(boot_id=None, title=None, version=None,
         If ``boot_id`` is not used, and more than one matching entry
         is present, all matching entries will be removed.
 
+        Selection criteria may also be expressed via a BoomSelection
+        object passed to the call using the ``selection`` parameter.
+
         On success the number of entries removed is returned.
 
         :param boot_id: ``boot_id`` to match.
@@ -238,14 +240,12 @@ def delete_entries(boot_id=None, title=None, version=None,
         :param lvm_root_lv: LVM2 root logical volume to match.
         :param btrfs_subvol_path: BTRFS subvolume path to match.
         :param btrfs_subvol_id: BTRFS subvolume id to match.
+        :param selection: A BoomSelection object giving selection
+                          criteria for the operation.
         :returns: the number of entries removed.
         :returntype: ``int``
     """
-    bes = find_entries(boot_id=boot_id, title=title, version=version,
-                       machine_id=machine_id, root_device=root_device,
-                       lvm_root_lv=lvm_root_lv,
-                       btrfs_subvol_path=btrfs_subvol_path,
-                       btrfs_subvol_id=btrfs_subvol_id)
+    bes = find_entries(selection=selection)
 
     if not bes:
         raise IndexError("No matching entry found.")
@@ -258,15 +258,16 @@ def delete_entries(boot_id=None, title=None, version=None,
     return deleted
 
 
-def list_entries(boot_id=None, title=None, version=None,
-                 machine_id=None, root_device=None, lvm_root_lv=None,
-                 btrfs_subvol_path=None, btrfs_subvol_id=None):
+def list_entries(selection=None):
     """list_entries(boot_id, title, version,
                     machine_id, root_device, lvm_root_lv,
                     btrfs_subvol_path, btrfs_subvol_id) -> list
 
         Return a list of ``boom.bootloader.BootEntry`` objects matching
         the given criteria.
+
+        Selection criteria may also be expressed via a BoomSelection
+        object passed to the call using the ``selection`` parameter.
 
         :param boot_id: ``boot_id`` to match.
         :param title: the title of the new entry.
@@ -276,22 +277,17 @@ def list_entries(boot_id=None, title=None, version=None,
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
         :param osprofile: The ``OsProfile`` for this entry.
-        :returns: the ``boot_id`` of the new entry.
+        :param selection: A BoomSelection object giving selection
+                          criteria for the operation.
+        :returns: A list of matching BootEntry objects.
         :returntype: list
     """
-    bes = find_entries(boot_id=boot_id, title=title, version=version,
-                       machine_id=machine_id, root_device=root_device,
-                       lvm_root_lv=lvm_root_lv,
-                       btrfs_subvol_path=btrfs_subvol_path,
-                       btrfs_subvol_id=btrfs_subvol_id)
+    bes = find_entries(selection=selection)
 
     return bes
 
 
-def print_entries(boot_id=None, title=None, version=None,
-                  machine_id=None, root_device=None, lvm_root_lv=None,
-                  btrfs_subvol_path=None, btrfs_subvol_id=None,
-                  output_fields=None, opts=None):
+def print_entries(selection=None, output_fields=None, opts=None):
     """print_entries(boot_id, title, version,
                     machine_id, root_device, lvm_root_lv,
                     btrfs_subvol_path, btrfs_subvol_id) -> list
@@ -300,6 +296,9 @@ def print_entries(boot_id=None, title=None, version=None,
         the given criteria, and output them as a report to the file
         given in ``out_file``, or ``sys.stdout`` if ``out_file`` is
         unset.
+
+        Selection criteria may also be expressed via a Selection
+        object passed to the call using the ``selection`` parameter.
 
         :param boot_id: ``boot_id`` to match.
         :param title: the title of the new entry.
@@ -310,6 +309,8 @@ def print_entries(boot_id=None, title=None, version=None,
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
         :param opts: output formatting and control options.
         :param fields: a table of ``BoomFieldType`` field descriptors.
+        :param selection: A BoomSelection object giving selection
+                          criteria for the operation.
         :returns: the ``boot_id`` of the new entry.
         :returntype: str
     """
@@ -317,12 +318,10 @@ def print_entries(boot_id=None, title=None, version=None,
 
     if not output_fields:
         output_fields = _default_entry_fields
+    elif output_fields.startswith('+'):
+        output_fields = _default_entry_fields + ',' + output_fields[1:]
 
-    bes = find_entries(boot_id=boot_id, title=title, version=version,
-                       machine_id=machine_id, root_device=root_device,
-                       lvm_root_lv=lvm_root_lv,
-                       btrfs_subvol_path=btrfs_subvol_path,
-                       btrfs_subvol_id=btrfs_subvol_id)
+    bes = find_entries(selection=selection)
 
     br = BoomReport(_report_obj_types, _entry_fields + _profile_fields +
                     _params_fields, output_fields, opts, None, None)
@@ -335,10 +334,7 @@ def print_entries(boot_id=None, title=None, version=None,
 # OsProfile manipulation
 #
 
-def list_profiles(os_id=None, name=None, short_name=None,
-                  version=None, version_id=None, uname_pattern=None,
-                  kernel_pattern=None, initramfs_pattern=None,
-                  root_opts_lvm2=None, root_opts_btrfs=None, options=None):
+def list_profiles(selection=None):
     """list_profiles(os_id, name, short_name,
                      version, version_id, uname_pattern,
                      kernel_pattern, initramfs_pattern,
@@ -359,21 +355,12 @@ def list_profiles(os_id=None, name=None, short_name=None,
         :returns: a list of ``OsProfile`` objects.
         :returntype: list
     """
-    osps = find_profiles(os_id=os_id, name=name, short_name=short_name,
-                         version=version, version_id=version_id,
-                         uname_pattern=uname_pattern,
-                         kernel_pattern=kernel_pattern,
-                         initramfs_pattern=initramfs_pattern,
-                         options=options)
+    osps = find_profiles(selection=selection)
 
     return osps
 
 
-def print_profiles(os_id=None, name=None, short_name=None,
-                   version=None, version_id=None, uname_pattern=None,
-                   kernel_pattern=None, initramfs_pattern=None,
-                   root_opts_lvm2=None, root_opts_btrfs=None, options=None,
-                   opts=None, output_fields=None):
+def print_profiles(selection=None, opts=None, output_fields=None):
     """print_profiles(os_id, name, short_name,
                       version, version_id, uname_pattern,
                       kernel_pattern, initramfs_pattern,
@@ -397,15 +384,10 @@ def print_profiles(os_id=None, name=None, short_name=None,
 
     if not output_fields:
         output_fields = _default_profile_fields
+    elif output_fields.startswith('+'):
+        output_fields = _default_profile_fields + ',' + output_fields[1:]
 
-    osps = find_profiles(os_id=os_id, name=name, short_name=short_name,
-                         version=version, version_id=version_id,
-                         uname_pattern=uname_pattern,
-                         kernel_pattern=kernel_pattern,
-                         initramfs_pattern=initramfs_pattern,
-                         root_opts_lvm2=root_opts_lvm2,
-                         root_opts_btrfs=root_opts_btrfs,
-                         options=options)
+    osps = find_profiles(selection=selection)
 
     br = BoomReport(_report_obj_types, _profile_fields, output_fields, opts,
                     None, None)
@@ -419,15 +401,15 @@ def print_profiles(os_id=None, name=None, short_name=None,
 # boom command line tool
 #
 
-def _create_cmd(cmd_args):
+def _create_cmd(cmd_args, select):
     pass
 
 
-def _delete_cmd(cmd_args):
+def _delete_cmd(cmd_args, select):
     pass
 
 
-def _list_cmd(cmd_args):
+def _list_cmd(cmd_args, select):
     if cmd_args.options:
         fields = cmd_args.options
     elif cmd_args.verbose:
@@ -435,24 +417,25 @@ def _list_cmd(cmd_args):
     else:
         fields = None
     try:
-        print_entries(output_fields=fields)
-    except ValueError:
+        print_entries(selection=select, output_fields=fields)
+    except ValueError as e:
+        print(e)
         return 1
 
 
-def _edit_cmd(cmd_args):
+def _edit_cmd(cmd_args, select):
     pass
 
 
-def _create_profile_cmd(cmd_args):
+def _create_profile_cmd(cmd_args, select):
     pass
 
 
-def _delete_profile_cmd(cmd_args):
+def _delete_profile_cmd(cmd_args, select):
     pass
 
 
-def _list_profile_cmd(cmd_args):
+def _list_profile_cmd(cmd_args, select):
     if cmd_args.options:
         fields = cmd_args.options
     elif cmd_args.verbose:
@@ -460,12 +443,13 @@ def _list_profile_cmd(cmd_args):
     else:
         fields = None
     try:
-        print_profiles(output_fields=fields)
-    except ValueError:
+        print_profiles(selection=select, output_fields=fields)
+    except ValueError as e:
+        print(e)
         return 1
 
 
-def _edit_profile_cmd(cmd_args):
+def _edit_profile_cmd(cmd_args, select):
     pass
 
 
@@ -578,6 +562,7 @@ def main(args):
         print("Unknown command: %s %s" % (cmd_type[0], cmd_args.command))
         return 1
 
-    return command[1](cmd_args)
+    select = Selection.from_cmd_args(cmd_args)
+    return command[1](cmd_args, select)
 
 # vim: set et ts=4 sw=4 :

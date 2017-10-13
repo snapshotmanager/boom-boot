@@ -29,6 +29,7 @@ BOOM_ROOT_TEST = BOOT_ROOT_TEST + "/boom"
 boom.BOOM_ROOT = BOOM_ROOT_TEST
 boom.BOOT_ROOT = BOOT_ROOT_TEST
 
+from boom import Selection
 import boom.osprofile
 import boom.bootloader
 import boom.command
@@ -55,14 +56,14 @@ class CommandTests(unittest.TestCase):
         machine_id = "611f38fd887d41dea7eb3403b2730a76"
         path = boom.bootloader.BOOT_ENTRIES_PATH
         nr = len([p for p in listdir(path) if p.startswith(machine_id)])
-        bes = boom.command.list_entries(machine_id=machine_id)
+        bes = boom.command.list_entries(Selection(machine_id=machine_id))
         self.assertTrue(len(bes), nr)
 
     def test_list_entries_match_version(self):
         version = "4.10.17-100.fc24.x86_64"
         path = boom.bootloader.BOOT_ENTRIES_PATH
         nr = len([p for p in listdir(path) if version in p])
-        bes = boom.command.list_entries(version=version)
+        bes = boom.command.list_entries(Selection(version=version))
         self.assertEqual(len(bes), nr)
 
     def test_create_entry_notitle(self):
@@ -121,18 +122,18 @@ class CommandTests(unittest.TestCase):
                           lvm_root_lv="vg_hex/root", osprofile=osp)
         self.assertTrue(exists(be._entry_path))
 
-        delete_entries(boot_id=be.boot_id)
+        delete_entries(Selection(boot_id=be.boot_id))
         self.assertFalse(exists(be._entry_path))
 
     def test_delete_entries_no_matching_raises(self):
         with self.assertRaises(IndexError) as cm:
-            delete_entries(boot_id="thereisnospoon")
+            delete_entries(Selection(boot_id="thereisnospoon"))
 
     def test_print_entries_no_matching(self):
         xoutput = r"BootID.*Version.*OsID.*Name.*OsVersion"
         output = StringIO()
         opts = boom.report.BoomReportOpts(report_file=output)
-        print_entries(boot_id="thereisnoboot", opts=opts)
+        print_entries(selection=Selection(boot_id="thereisnoboot"), opts=opts)
         self.assertTrue(re.match(xoutput, output.getvalue()))
 
     def test_print_entries_default_stdout(self):
@@ -144,7 +145,7 @@ class CommandTests(unittest.TestCase):
                    r"24 \(Workstation Edition\)"]
         output = StringIO()
         opts = boom.report.BoomReportOpts(report_file=output)
-        print_entries(boot_id="ee8d1dfbfe95", opts=opts)
+        print_entries(selection=Selection(boot_id="ee8d1dfbfe95"), opts=opts)
         for pair in zip(xoutput, output.getvalue().splitlines()):
             self.assertTrue(re.match(pair[0], pair[1]))
 

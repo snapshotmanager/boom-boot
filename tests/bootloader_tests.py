@@ -30,7 +30,7 @@ boom.BOOT_ROOT = BOOT_ROOT_TEST
 
 import boom.bootloader
 from boom.osprofile import OsProfile
-
+from boom import Selection
 BootEntry = boom.bootloader.BootEntry
 BootParams = boom.bootloader.BootParams
 
@@ -586,34 +586,50 @@ class BootEntryTests(unittest.TestCase):
     def test_find_entries_by_boot_id(self):
         boot_id = "12ce4b818d476c3bcf6bb314b65f7c166e8d2d59"
         boom.bootloader._entries = None
-        bes = boom.bootloader.find_entries(boot_id=boot_id)
+        bes = boom.bootloader.find_entries(Selection(boot_id=boot_id))
         self.assertEqual(len(bes), 1)
 
     def test_find_entries_by_title(self):
-        title = "Fedora (4.11.5-100.fc24.x86_64) 24 (Workstation Edition)"
+        title = "Red Hat Enterprise Linux 7.2 (Maipo) 3.10-23.el7"
         boom.bootloader._entries = None
-        bes = boom.bootloader.find_entries(title=title)
+        bes = boom.bootloader.find_entries(Selection(title=title))
         self.assertEqual(len(bes), 1)
 
     def test_find_entries_by_version(self):
         version = "4.10.17-100.fc24.x86_64"
         boom.bootloader._entries = None
-        bes = boom.bootloader.find_entries(version=version)
+        bes = boom.bootloader.find_entries(Selection(version=version))
         path = boom.bootloader.BOOT_ENTRIES_PATH
         nr = len([p for p in listdir(path) if version in p])
         self.assertEqual(len(bes), nr)
 
     def test_find_entries_by_root_device(self):
+        entries_path = boom.bootloader.BOOT_ENTRIES_PATH
         root_device = "/dev/vg_root/root"
         boom.bootloader._entries = None
-        bes = boom.bootloader.find_entries(root_device=root_device)
-        self.assertEqual(len(bes), 1)
+        bes = boom.bootloader.find_entries(Selection(root_device=root_device))
+        xentries = 0
+        for e in listdir(entries_path):
+            if e.endswith(".conf"):
+                with open(join(entries_path, e)) as f:
+                    for l in f.readlines():
+                        if root_device in l:
+                            xentries +=1
+        self.assertEqual(len(bes), xentries)
 
     def test_find_entries_by_lvm_root_lv(self):
-        lvm_root_lv = "vg_root/root"
+        entries_path = boom.bootloader.BOOT_ENTRIES_PATH
         boom.bootloader._entries = None
-        bes = boom.bootloader.find_entries(lvm_root_lv=lvm_root_lv)
-        self.assertEqual(len(bes), 1)
+        lvm_root_lv = "vg_root/root"
+        bes = boom.bootloader.find_entries(Selection(lvm_root_lv=lvm_root_lv))
+        xentries = 0
+        for e in listdir(entries_path):
+            if e.endswith(".conf"):
+                with open(join(entries_path, e)) as f:
+                    for l in f.readlines():
+                        if "rd.lvm.lv=" + lvm_root_lv in l:
+                            xentries +=1
+        self.assertEqual(len(bes), xentries)
 
     def test_find_entries_by_btrfs_subvol_id(self):
         entries_path = boom.bootloader.BOOT_ENTRIES_PATH
@@ -628,13 +644,13 @@ class BootEntryTests(unittest.TestCase):
                     if "subvolid" in l:
                         nr += 1
 
-        bes = boom.bootloader.find_entries(btrfs_subvol_id=btrfs_subvol_id)
+        bes = boom.bootloader.find_entries(Selection(btrfs_subvol_id=btrfs_subvol_id))
         self.assertEqual(len(bes), nr)
 
     def test_find_entries_by_btrfs_subvol_path(self):
         btrfs_subvol_path = "/snapshot/today"
         boom.bootloader._entries = None
-        bes = boom.bootloader.find_entries(btrfs_subvol_path=btrfs_subvol_path)
+        bes = boom.bootloader.find_entries(Selection(btrfs_subvol_path=btrfs_subvol_path))
         self.assertEqual(len(bes), 1)
 
     def test_delete_unwritten_BootEntry_raises(self):
@@ -695,7 +711,7 @@ class BootLoaderTests(unittest.TestCase):
         entries = find_entries()
         self.assertEqual(len(entries), len(boom.bootloader._entries))
 
-        entries = find_entries(machine_id="ffffffff")
+        entries = find_entries(Selection(machine_id="ffffffff"))
         self.assertEqual(len(entries), self._nr_machine_id("ffffffff"))
 
 # vim: set et ts=4 sw=4 :

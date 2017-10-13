@@ -388,12 +388,39 @@ def write_entries():
     for be in _entries:
         be.write_entry()
 
+def select_params(s, bp):
+    if s.root_device and s.root_device != bp.root_device:
+        return False
+    if s.lvm_root_lv and s.lvm_root_lv != bp.lvm_root_lv:
+        return False
+    if s.btrfs_subvol_path and s.btrfs_subvol_path != bp.btrfs_subvol_path:
+        return False
+    if s.btrfs_subvol_id and s.btrfs_subvol_id != bp.btrfs_subvol_id:
+        return False
 
-def find_entries(boot_id=None, title=None, version=None,
-                 machine_id=None, root_device=None, lvm_root_lv=None,
-                 btrfs_subvol_path=None, btrfs_subvol_id=None):
-    """find_entries(boot_id, title, version, machine_id, root_device,
-       lvm_root_lv, btrfs_subvol_path, btrfs_subvol_id) -> list
+    return True
+
+def select_entry(s, be):
+    if not select_profile(s, be._osp):
+        return False
+
+    if s.boot_id and not be.boot_id.startswith(s.boot_id):
+        return False
+    if s.title and be.title != s.title:
+        return False
+    if s.version and be.version != s.version:
+        return False
+    if s.machine_id and be.machine_id != s.machine_id:
+        return False
+
+    if not select_params(s, be.bp):
+        return False
+
+    return True
+
+
+def find_entries(selection=None):
+    """find_entries(selection=None) -> list
 
         Return a list of ``BootEntry`` objects matching the specified
         criteria. Matching proceeds as the logical 'and' of all criteria.
@@ -405,13 +432,8 @@ def find_entries(boot_id=None, title=None, version=None,
         Boot entries will be automatically loaded from disk if they are
         not already in memory.
 
-        :param boot_id: The boot identifier to match.
-        :param title: The entry title to match.
-        :param version: The version string to match``.
-        :param root_device: The ``root_device`` value to match.
-        :param lvm_root_lv: The root logical volume to match.
-        :param btrfs_subvol_path: The BTRFS subvolume path to match.
-        :param btrfs_subvol_id: The BTRFS subvolume ID to match.
+        :param selection: A ``Selection`` object specifying the match
+                          criteria for the operation.
         :returns: a list of ``BootEntry`` objects.
         :returntype: list
     """
@@ -422,29 +444,14 @@ def find_entries(boot_id=None, title=None, version=None,
 
     matches = []
 
-    # Option string prefixes
-    svpath = "subvolpath=" + btrfs_subvol_path if btrfs_subvol_path else None
-    svid = "subvolid=" + btrfs_subvol_id if btrfs_subvol_id else None
+    # Use null search criteria if unspecified
+    selection = selection if selection else Selection()
+
+    selection.check_valid_selection(entry=True, params=True, profile=True)
 
     for be in _entries:
-        if boot_id and not be.boot_id.startswith(boot_id):
-            continue
-        if title and be.title != title:
-            continue
-        if version and be.version != version:
-            continue
-        if machine_id and be.machine_id != machine_id:
-            continue
-        # Match format attributes against the resulting options string.
-        if root_device and root_device not in be.options:
-            continue
-        if lvm_root_lv and lvm_root_lv not in be.options:
-            continue
-        if btrfs_subvol_path and svpath not in be.options:
-            continue
-        if btrfs_subvol_id and svid not in be.options:
-            continue
-        matches.append(be)
+        if select_entry(selection, be):
+            matches.append(be)
     return matches
 
 

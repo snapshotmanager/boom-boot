@@ -162,10 +162,32 @@ def write_profiles():
         osp.write_profile()
 
 
-def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
-                  version=None, version_id=None, uname_pattern=None,
-                  kernel_pattern=None, initramfs_pattern=None,
-                  root_opts_lvm2=None, root_opts_btrfs=None, options=None):
+def select_profile(s, osp):
+    if _is_null_profile(osp):
+        return False
+    if s.os_id and not osp.os_id.startswith(s.os_id):
+        return False
+    if s.os_name and osp.name != s.os_name:
+        return False
+    if s.os_short_name and osp.short_name != s.os_short_name:
+        return False
+    if s.os_version and osp.os_version != s.version:
+        return False
+    if s.os_version_id and osp.os_version_id != s.version_id:
+        return False
+    if s.os_uname_pattern and osp.uname_pattern != s.os_uname_pattern:
+        return False
+    if s.os_kernel_pattern and osp.kernel_pattern != s.os_kernel_pattern:
+        return False
+    if (s.os_initramfs_pattern and
+        osp.os_initramfs_pattern != s.initramfs_pattern):
+        return False
+    if s.os_options and osp.os_options != s.options:
+        return False
+    return True
+
+
+def find_profiles(selection=None, match_fn=select_profile):
     """find_profiles(match_fn, os_id, name, short_name,
        version, version_id, uname_pattern,
        kernel_pattern, initramfs_pattern,
@@ -186,61 +208,32 @@ def find_profiles(match_fn=None, os_id=None, name=None, short_name=None,
         OS profiles will be automatically loaded from disk if they are
         not already in memory.
 
+        :param selection: A ``Selection`` object specifying the match
+                          criteria for the operation.
         :param match_fn: An optional match function to test profiles.
-        :param os_id: The boot identifier to match.
-        :param name: The profile name to match.
-        :param short_name: The profile short name to match.
-        :param version: The version string to match.
-        :param version_id: The version ID string to match.
-        :param uname_pattern: The ``uname_pattern`` value to match.
-        :param kernel_pattern: The kernel pattern to match.
-        :param initramfs_pattern: The initial ramfs pattern to match.
-        :param root_opts_lvm2: The LVM2 root options template to match.
-        :param root_opts_btrfs: The BTRFS root options template to match.
-        :param options: The options template to match.
         :returns: a list of ``OsProfile`` objects.
         :returntype: list
     """
     global _profiles
+
+    selection.check_valid_selection(profile=True)
 
     if not profiles_loaded():
         load_profiles()
 
     matches = []
 
-    if match_fn:
-        for osp in _profiles:
-            if _is_null_profile(osp):
-                continue
-            if match_fn(osp):
-                matches.append(osp)
-        return matches
+    # Use null search criteria if unspecified
+    s = selection if selection else Selection()
 
     for osp in _profiles:
         if _is_null_profile(osp):
             continue
-        if os_id and not osp.os_id.startswith(os_id):
-            continue
-        if name and osp.name != name:
-            continue
-        if short_name and osp.short_name != short_name:
-            continue
-        if version and osp.version != version:
-            continue
-        if version_id and osp.version_id != version_id:
-            continue
-        if uname_pattern and osp.uname_pattern != uname_pattern:
-            continue
-        if kernel_pattern and osp.kernel_pattern != kernel_pattern:
-            continue
-        if initramfs_pattern and osp.initramfs_pattern != initramfs_pattern:
-            continue
-        if root_opts_lvm2 and osp.root_opts_lvm2 != root_opts_lvm2:
-            continue
-        if root_opts_btrfs and osp.root_opts_btrfs != root_opts_btrfs:
-            continue
-        if options and osp.options != options:
-            continue
+        if match_fn(selection, osp):
+            matches.append(osp)
+    return matches
+
+    for osp in _profiles:
         matches.append(osp)
 
     return matches
@@ -803,7 +796,7 @@ _null_profile = OsProfile(name="", short_name="", version="", version_id="")
 __all__ = [
     'OsProfile',
     'profiles_loaded', 'load_profiles', 'write_profiles', 'find_profiles',
-    'get_os_profile_by_id', 'match_os_profile',
+    'get_os_profile_by_id', 'match_os_profile', 'select_profile',
 
     # Module constants
     'BOOM_PROFILES', 'BOOM_PROFILES_PATH', 'BOOM_OS_PROFILE_FORMAT',
