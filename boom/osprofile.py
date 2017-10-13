@@ -233,11 +233,6 @@ def find_profiles(selection=None, match_fn=select_profile):
             matches.append(osp)
     return matches
 
-    for osp in _profiles:
-        matches.append(osp)
-
-    return matches
-
 
 def get_os_profile_by_id(os_id):
     """get_os_profile_by_id(os_id) -> OsProfile
