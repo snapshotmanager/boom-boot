@@ -113,8 +113,8 @@ class OsProfileTests(unittest.TestCase):
             BOOM_OS_UNAME_PATTERN: "el7",
             BOOM_OS_KERNEL_PATTERN: "vmlinuz-%{version}",
             BOOM_OS_INITRAMFS_PATTERN: "initramfs-%{version}.img",
-            BOOM_OS_ROOT_OPTS_LVM2: "rd.lvm.lv=%{lvm_root_lv}",
-            BOOM_OS_ROOT_OPTS_BTRFS: "rootflags=%{btrfs_subvolume}",
+            BOOM_OS_ROOT_OPTS_LVM2: "rd.lvm.lv=%{lvm_root_lv} rh",
+            BOOM_OS_ROOT_OPTS_BTRFS: "rootflags=%{btrfs_subvolume} rh",
             BOOM_OS_OPTIONS: "root=%{root_device} %{root_opts} rhgb quiet"
         }
 
@@ -124,8 +124,11 @@ class OsProfileTests(unittest.TestCase):
         # Remove the root options keys.
         profile_data.pop(BOOM_OS_ROOT_OPTS_LVM2, None)
         profile_data.pop(BOOM_OS_ROOT_OPTS_BTRFS, None)
-        with self.assertRaises(ValueError) as cm:
-            osp = OsProfile(profile_data=profile_data)
+        osp = OsProfile(profile_data=profile_data)
+
+        # Assert that defaults are restored
+        self.assertEqual(osp.root_opts_lvm2, "rd.lvm.lv=%{lvm_root_lv}")
+        self.assertEqual(osp.root_opts_btrfs, "rootflags=%{btrfs_subvolume}")
 
         # Remove the name key.
         profile_data.pop(BOOM_OS_NAME, None)
