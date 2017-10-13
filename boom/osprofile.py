@@ -401,7 +401,7 @@ class OsProfile(object):
         digest = sha1(hashdata.encode('utf-8')).hexdigest()
         self._profile_data[BOOM_OS_ID] = digest
 
-    def __from_data(self, profile_data):
+    def __from_data(self, profile_data, dirty=True):
         """__from_data(self, profile_data) -> OsProfile
             Initialise a new OsProfile object using the profile data
             in the `profile_data` dictionary.
@@ -433,6 +433,9 @@ class OsProfile(object):
         if BOOM_OS_ID not in self._profile_data:
             self._generate_os_id()
 
+        if dirty:
+            self._dirty()
+
     def __from_file(self, profile_file):
         """__from_file(self, profile_file) -> OsProfile
             Initialise a new OsProfile object using the profile data
@@ -454,7 +457,7 @@ class OsProfile(object):
         self._comments = comments
 
         try:
-            self.__from_data(profile_data)
+            self.__from_data(profile_data, dirty=False)
         except ValueError as e:
             raise ValueError(str(e) + "in %s" % profile_file)
 
@@ -502,7 +505,7 @@ class OsProfile(object):
         if profile_file:
             return self.__from_file(profile_file)
 
-        self._unwritten = True
+        self._dirty()
 
         self._profile_data[BOOM_OS_NAME] = name
         self._profile_data[BOOM_OS_SHORT_NAME] = short_name
