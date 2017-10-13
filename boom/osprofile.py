@@ -513,8 +513,8 @@ class OsProfile(object):
             raise ValueError("Invalid profile arguments: name, "
                              "short_name, version, and version_id are"
                              "mandatory.")
-            for key in _DEFAULT_KEYS:
-                self._profile_data[key] = _DEFAULT_KEYS[key]
+        for key in _DEFAULT_KEYS:
+            self._profile_data[key] = _DEFAULT_KEYS[key]
 
         self._generate_os_id()
         _profiles.append(self)
