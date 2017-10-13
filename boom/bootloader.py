@@ -312,8 +312,8 @@ class BootParams(object):
                     subvolid_regex = r"subvolid=(\d*)"
                     match = re.match(subvolid_regex, btrfs_root_opts)
                     btrfs_subvol_id = match.group(1)
-                elif "subvolpath" in btrfs_root_opts:
-                    subvolpath_regex = r"subvolpath=(\S*)"
+                elif "subvol" in btrfs_root_opts:
+                    subvolpath_regex = r"subvol=(\S*)"
                     match = re.match(subvolpath_regex, btrfs_root_opts)
                     btrfs_subvol_path = match.group(1)
                 else:
