@@ -53,5 +53,6 @@ Module contents
 .. automodule:: boom
     :members:
     :special-members:
+    :exclude-members: __dict__, __module__, __weakref__
     :undoc-members:
     :show-inheritance:
