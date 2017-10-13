@@ -838,14 +838,20 @@ def main(args):
                         help="The BOOT_ID of a boom boot entry")
     parser.add_argument("-B", "--btrfs-subvolume", metavar="SUBVOL", type=str,
                         help="The path or ID of a BTRFS subvolume")
+    parser.add_argument("--btrfs-opts", metavar="OPTS", type=str,
+                        help="A template option string for BTRFS devices")
     parser.add_argument("-e", "--efi", metavar="IMG", type=str,
                         help="An executable EFI application image")
     parser.add_argument("-i", "--initrd", metavar="IMG", type=str,
                         help="A linux initrd image path")
+    parser.add_argument("-k", "--kernel-pattern", metavar="PATTERN", type=str,
+                        help="A pattern for generating kernel paths")
     parser.add_argument("-l", "--linux", metavar="IMG", type=str,
                         help="A linux kernel image path")
     parser.add_argument("-L", "--rootlv", metavar="LV", type=str,
                         help="An LVM2 root logical volume")
+    parser.add_argument("--lvm-opts", metavar="OPTS", type=str,
+                        help="A template option string for LVM2 devices")
     parser.add_argument("-m", "--machine-id", metavar="MACHINE_ID", type=str,
                         help="The machine_id value to use")
     parser.add_argument("-n", "--name", metavar="OSNAME", type=str,
@@ -854,6 +860,8 @@ def main(args):
                         help="Specify which fields to display")
     parser.add_argument("-O", "--os-version", metavar="OSVERSION", type=str,
                         help="A Boom OsProfile version")
+    parser.add_argument("-I", "--os-version-id", metavar="OSVERSIONID",
+                        type=str, help="A Boom OsProfile version ID")
     parser.add_argument("--os-options", metavar="OPTIONS", type=str,
                         help="A Boom OsProfile options template")
     parser.add_argument("-p", "--profile", metavar="OS_ID", type=str,
@@ -861,6 +869,9 @@ def main(args):
                         "identifier")
     parser.add_argument("-r", "--root-device", metavar="ROOT", type=str,
                         help="The root device for a boot entry")
+    parser.add_argument("-R", "--initramfs-pattern", metavar="PATTERN",
+                        type=str, help="A pattern for generating initramfs "
+                        "paths")
     parser.add_argument("-s", "--short-name", metavar="OSSHORTNAME", type=str,
                         help="A Boom OsProfile short name")
     parser.add_argument("-t", "--title", metavar="TITLE", type=str,
