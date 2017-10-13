@@ -402,12 +402,74 @@ def print_profiles(selection=None, opts=None, output_fields=None):
 #
 
 def _create_cmd(cmd_args, select):
-    pass
+    # FIXME: default version to $(uname -r)
+    if not cmd_args.version:
+        print("create requires --version")
+        return 1
+    else:
+        version = cmd_args.version
+
+    if not cmd_args.title:
+        print("create requires --title")
+        return 1
+    else:
+        title = cmd_args.title
+
+    if not cmd_args.machine_id:
+        print("create requires --machine-id")
+        return 1
+    else:
+        machine_id = cmd_args.machine_id
+
+    if not cmd_args.root_device:
+        print("create requires --root-device")
+        return 1
+    else:
+        root_device = cmd_args.root_device
+    # FIXME: default to host OsProfile
+    if not cmd_args.profile:
+        print("create requires --profile")
+        return 1
+    else:
+        os_id = cmd_args.profile
+
+    osps = find_profiles(Selection(os_id=os_id))
+    if len(osps) > 1:
+        print("OsProfile ID '%s' is ambiguous")
+        return 1
+
+    osp = osps[0]
+
+    try:
+        be = create_entry(title, version, machine_id,
+                          root_device, osprofile=osp)
+    except ValueError as e:
+        print(e)
+        return 1
+
+    print("Created entry '%s' (%s)" % (be.title, be.version))
 
 
 def _delete_cmd(cmd_args, select):
-    pass
+    if not select or select.is_null():
+        print("delete requires selection criteria")
+        return 1
 
+    if cmd_args.options:
+        fields = cmd_args.options
+    elif cmd_args.verbose:
+        fields = _verbose_entry_fields
+    else:
+        fields = None
+
+    try:
+        if cmd_args.verbose:
+            print_entries(select, output_fields=fields)
+        nr = delete_entries(select)
+    except (ValueError, IndexError) as e:
+        print(e)
+        return 1
+    print("Deleted %d entr%s" % (nr, "ies" if nr > 1 else "y"))
 
 def _list_cmd(cmd_args, select):
     if cmd_args.options:
