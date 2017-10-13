@@ -271,6 +271,78 @@ def delete_entries(selection=None):
     return deleted
 
 
+def clone_entry(selection=None, title=None, version=None, machine_id=None,
+                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
+                btrfs_subvol_id=None, osprofile=None):
+    """clone_entry(selection, title, version, machine_id, root_device,
+       lvm_root_lv, btrfs_subvol_path, btrfs_subvol_id, osprofile)
+       -> ``BootEntry``
+
+        Create the specified boot entry in the configured loader directory
+        by cloning all un-set parameters from the boot entry selected by
+        the ``selection`` argument.
+
+        An error is raised if a matching entry already exists.
+
+        :param selection: criteria matching the entry to clone.
+        :param title: the title of the new entry.
+        :param version: the version string for the new entry.
+        :param root_device: the root device path for the new entry.
+        :param lvm_root_lv: an optional LVM2 root logical volume.
+        :param btrfs_subvol_path: an optional BTRFS subvolume path.
+        :param btrfs_subvol_id: an optional BTRFS subvolume id.
+        :param osprofile: The ``OsProfile`` for this entry.
+        :returns: a ``BootEntry`` object corresponding to the new entry.
+        :returntype: ``BootEntry``
+        :raises: ``ValueError`` if either required values are missing or
+                 a duplicate entry exists, or``OsError`` if an error
+                 occurs while writing the entry file.
+    """
+    if not selection.boot_id:
+        raise ValueError("clone requires boot_id")
+        return 1
+
+    all_args = (title, version, machine_id, root_device, lvm_root_lv,
+                btrfs_subvol_path, btrfs_subvol_id, osprofile)
+
+    if not any(all_args):
+        raise ValueError("clone requires one or more of:\ntitle, version, "
+                         "machine_id, root_device, lvm_root_lv, "
+                         "btrfs_subvol_path, btrfs_subvol_id, osprofile")
+        return 1
+
+    bes = find_entries(selection)
+    if len(bes) > 1:
+        raise ValueError("clone criteria must match exactly one entry")
+        return 1
+
+    be = bes[0]
+
+    title = title if title else be.title
+    version = version if version else be.version
+    machine_id = machine_id if machine_id else be.machine_id
+    root_device = root_device if root_device else be.bp.root_device
+    lvm_root_lv = lvm_root_lv if lvm_root_lv else be.bp.lvm_root_lv
+    btrfs_subvol_path = (btrfs_subvol_path if btrfs_subvol_path
+                         else be.bp.btrfs_subvol_path)
+    btrfs_subvol_id = (btrfs_subvol_id if btrfs_subvol_id
+                       else be.bp.btrfs_subvol_id)
+    osprofile = osprofile if osprofile else be._osp
+
+    bp = BootParams(version, root_device, lvm_root_lv=lvm_root_lv,
+                    btrfs_subvol_path=btrfs_subvol_path,
+                    btrfs_subvol_id=btrfs_subvol_id)
+
+    clone_be = BootEntry(title=title, machine_id=machine_id,
+                         osprofile=osprofile, boot_params=bp)
+    if find_entries(Selection(boot_id=clone_be.boot_id)):
+        raise ValueError("Entry already exists (boot_id=%s)." %
+                         clone_be.boot_id)
+
+    clone_be.write_entry()
+
+    return be
+
 def list_entries(selection=None):
     """list_entries(boot_id, title, version,
                     machine_id, root_device, lvm_root_lv,
@@ -500,6 +572,42 @@ def _delete_cmd(cmd_args, select):
         return 1
     print("Deleted %d entr%s" % (nr, "ies" if nr > 1 else "y"))
 
+
+def _clone_cmd(cmd_args, select):
+    title = cmd_args.title
+    version = cmd_args.version
+    machine_id = cmd_args.machine_id
+    root_device = cmd_args.root_device
+    lvm_root_lv = cmd_args.rootlv
+    print("rd: %s LV: %s" %(root_device,lvm_root_lv))
+    subvol = cmd_args.btrfs_subvolume
+    (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
+
+    # Discard all selection criteria but boot_id.
+    select = Selection(boot_id=select.boot_id)
+
+    osp = None
+    if cmd_args.profile:
+        osps = find_profiles(Selection(os_id=cmd_args.profile))
+        if len(osps) > 1:
+            print("OS profile identifier '%s' is ambiguous" %
+                  cmd_args.profile)
+            return 1
+        osp = osps[0]
+
+    try:
+        be = clone_entry(select, title=title, version=version,
+                         machine_id=machine_id, root_device=root_device,
+                         lvm_root_lv=lvm_root_lv,
+                         btrfs_subvol_path=btrfs_subvol_path,
+                         btrfs_subvol_id=btrfs_subvol_id, osprofile=osp)
+    except ValueError as e:
+        print(e)
+        return 1
+
+    be.write_entry()
+    return be
+
 def _list_cmd(cmd_args, select):
     if cmd_args.options:
         fields = cmd_args.options
@@ -547,6 +655,7 @@ def _edit_profile_cmd(cmd_args, select):
 boom_usage = """%(prog}s [type] <command> [options]\n\n"
                 [entry] create <title> <version> [--osprofile=os_id] [...]
                 [entry] delete [title|version|boot_id|os_id]
+                [entry] clone --boot-id ID
                 [entry] list [title|version|boot_id|os_id|root_device|machine_id]\n\n
                 [entry] edit [...]
                 profile create <name> <shortname> <version> <versionid> [...]
@@ -558,6 +667,7 @@ boom_usage = """%(prog}s [type] <command> [options]\n\n"
 _boom_entry_commands = [
     ("create", _create_cmd),
     ("delete", _delete_cmd),
+    ("clone", _clone_cmd),
     ("list", _list_cmd),
     ("edit", _edit_cmd)
 ]
