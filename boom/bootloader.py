@@ -26,7 +26,7 @@ import re
 BOOT_ENTRIES_PATH = path_join(BOOT_ROOT, "loader/entries")
 
 #: The format used to construct entry file names.
-BOOT_ENTRIES_FORMAT = "%s-%s.conf"
+BOOT_ENTRIES_FORMAT = "%s-%s-%s.conf"
 
 #: The file mode with which BLS entries should be created.
 BOOT_ENTRY_MODE = 0o644
@@ -1157,7 +1157,8 @@ class BootEntry(object):
 
     @property
     def _entry_path(self):
-        file_name = BOOT_ENTRIES_FORMAT % (self.machine_id, self.version)
+        id_tuple = (self.machine_id, self.boot_id[0:7], self.version)
+        file_name = BOOT_ENTRIES_FORMAT % id_tuple
         return path_join(BOOT_ENTRIES_PATH, file_name)
 
     def write_entry(self, force=False):
