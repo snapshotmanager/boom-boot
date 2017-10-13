@@ -12,7 +12,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 import boom
-from boom import Selection
+from boom import Selection, _parse_btrfs_subvol
 from boom.osprofile import *
 from boom.report import *
 from boom.bootloader import *
@@ -155,6 +155,19 @@ _params_fields = [
 
 _default_entry_fields = "bootid,version,osid,osname,osversion"
 _verbose_entry_fields = "bootid,version,kernel,initramfs,options,machineid"
+
+
+def _subvol_from_arg(subvol):
+    if not subvol:
+        return (None, None)
+    subvol = _parse_btrfs_subvol(subvol)
+    if subvol.startswith('/'):
+        btrfs_subvol_path = subvol
+        btrfs_subvol_id = None
+    else:
+        btrfs_subvol_path = None
+        btrfs_subvol_id = subvol
+    return (btrfs_subvol_path, btrfs_subvol_id)
 
 
 #
@@ -426,6 +439,18 @@ def _create_cmd(cmd_args, select):
         return 1
     else:
         root_device = cmd_args.root_device
+
+    subvol = cmd_args.btrfs_subvolume
+    (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
+
+    subvol = _parse_btrfs_subvol(cmd_args.btrfs_subvolume)
+    if subvol.startswith('/'):
+        btrfs_subvol_path = subvol
+        btrfs_subvol_id = None
+    else:
+        btrfs_subvol_path = None
+        btrfs_subvol_id = subvol
+
     # FIXME: default to host OsProfile
     if not cmd_args.profile:
         print("create requires --profile")
