@@ -544,9 +544,9 @@ def main(args):
                         help="The title of a boom boot entry")
     parser.add_argument("-u", "--uname-pattern", metavar="PATTERN", type=str,
                         help="A Boom OsProfile uname pattern")
-    parser.add_argument("-v", "--verbose", help="Enable verbose ouput",
+    parser.add_argument("-V", "--verbose", help="Enable verbose ouput",
                         action="store_true")
-    parser.add_argument("-V", "--version", metavar="VERSION", type=str,
+    parser.add_argument("-v", "--version", metavar="VERSION", type=str,
                         help="The kernel version of a boom "
                         "boot entry")
     cmd_args = parser.parse_args()
