@@ -527,22 +527,44 @@ def main(args):
                         help="The command type to run", action="store")
     parser.add_argument("command", metavar="COMMAND", type=str,
                         help="The command to run", action="store")
-    parser.add_argument("-t", "--title", metavar="TITLE", type=str, nargs=1,
-                        help="The title of a boom boot entry")
-    parser.add_argument("-V", "--version", metavar="VERSION", type=str,
-                        nargs=1, help="The kernel version of a boom "
-                        "boot entry")
     parser.add_argument("-b", "--boot-id", metavar="BOOT_ID", type=str,
-                        nargs=1, help="The BOOT_ID of a boom boot entry")
-    parser.add_argument("-r", "--root-device", metavar="ROOT", type=str,
-                        nargs=1, help="The root device for a boot entry")
+                        help="The BOOT_ID of a boom boot entry")
+    parser.add_argument("-B", "--btrfs-subvolume", metavar="SUBVOL", type=str,
+                        help="The path or ID of a BTRFS subvolume")
+    parser.add_argument("-e", "--efi", metavar="IMG", type=str,
+                        help="An executable EFI application image")
+    parser.add_argument("-i", "--initrd", metavar="IMG", type=str,
+                        help="A linux initrd image path")
+    parser.add_argument("-l", "--linux", metavar="IMG", type=str,
+                        help="A linux kernel image path")
+    parser.add_argument("-L", "--rootlv", metavar="LV", type=str,
+                        help="An LVM2 root logical volume")
     parser.add_argument("-m", "--machine-id", metavar="MACHINE_ID", type=str,
-                        nargs=1, help="The machine_id value to use")
-    parser.add_argument("-f", "--fields", metavar="FIELDS", type=str,
+                        help="The machine_id value to use")
+    parser.add_argument("-n", "--name", metavar="OSNAME", type=str,
+                        help="The name of a Boom OsProfile")
     parser.add_argument("-o", "--options", metavar="FIELDS", type=str,
                         help="Specify which fields to display")
+    parser.add_argument("-O", "--os-version", metavar="OSVERSION", type=str,
+                        help="A Boom OsProfile version")
+    parser.add_argument("--os-options", metavar="OPTIONS", type=str,
+                        help="A Boom OsProfile options template")
+    parser.add_argument("-p", "--profile", metavar="OS_ID", type=str,
+                        help="A boom operating system profile "
+                        "identifier")
+    parser.add_argument("-r", "--root-device", metavar="ROOT", type=str,
+                        help="The root device for a boot entry")
+    parser.add_argument("-s", "--short-name", metavar="OSSHORTNAME", type=str,
+                        help="A Boom OsProfile short name")
+    parser.add_argument("-t", "--title", metavar="TITLE", type=str, nargs=1,
+                        help="The title of a boom boot entry")
+    parser.add_argument("-u", "--uname-pattern", metavar="PATTERN", type=str,
+                        help="A Boom OsProfile uname pattern")
     parser.add_argument("-v", "--verbose", help="Enable verbose ouput",
                         action="store_true")
+    parser.add_argument("-V", "--version", metavar="VERSION", type=str,
+                        help="The kernel version of a boom "
+                        "boot entry")
     cmd_args = parser.parse_args()
 
     cmd_type = _match_cmd_type(cmd_args.type)
