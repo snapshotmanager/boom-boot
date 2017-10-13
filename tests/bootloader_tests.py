@@ -222,33 +222,33 @@ class BootEntryTests(unittest.TestCase):
             be = BootEntry(entry_data={BOOT_MACHINE_ID: "ffffffff",
                            BOOT_VERSION: "1.1.1", BOOT_LINUX: "/vmlinuz-1.1.1",
                            BOOT_INITRD: "/initramfs-1.1.1.img",
-                           BOOT_OPTIONS: "root=%{root_device} %{root_opts}"})
+                           BOOT_OPTIONS: "root=/dev/sda5 ro"})
 
         # Valid entry
         be = BootEntry(entry_data={BOOT_TITLE: "title",
                        BOOT_MACHINE_ID: "ffffffff",
                        BOOT_VERSION: "1.1.1", BOOT_LINUX: "/vmlinuz-1.1.1",
                        BOOT_INITRD: "/initramfs-1.1.1.img",
-                       BOOT_OPTIONS: "root=%{root_device} %{root_opts}"})
+                       BOOT_OPTIONS: "root=/dev/sda5 ro"})
 
         with self.assertRaises(ValueError) as cm:
             # Missing BOOT_LINUX or BOOT_EFI
             be = BootEntry(entry_data={BOOT_TITLE: "title",
                            BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
                            BOOT_INITRD: "/initramfs-1.1.1.img",
-                           BOOT_OPTIONS: "root=%{root_device} %{root_opts}"})
+                           BOOT_OPTIONS: "root=/dev/sda5 ro"})
 
         # Valid Linux entry
         be = BootEntry(entry_data={BOOT_TITLE: "title",
                        BOOT_LINUX: "/vmlinuz",
                        BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
-                       BOOT_OPTIONS: "root=%{root_device} %{root_opts}"})
+                       BOOT_OPTIONS: "root=/dev/sda5 ro"})
 
         # Valid EFI entry
         be = BootEntry(entry_data={BOOT_TITLE: "title",
                        BOOT_EFI: "/some.efi.thing",
                        BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
-                       BOOT_OPTIONS: "root=%{root_device} %{root_opts}"})
+                       BOOT_OPTIONS: "root=/dev/sda5 ro"})
 
     def test_BootEntry_with_boot_params(self):
         from boom.bootloader import (
@@ -260,7 +260,8 @@ class BootEntryTests(unittest.TestCase):
                        BOOT_MACHINE_ID: "ffffffff",
                        BOOT_VERSION: "1.1.1", BOOT_LINUX: "/vmlinuz-1.1.1",
                        BOOT_INITRD: "/initramfs-1.1.1.img",
-                       BOOT_OPTIONS: "root=%{root_device} %{root_opts}"},
+                       BOOT_OPTIONS: "root=/dev/vg_root/root "
+                                     "rd.lvm.lv=vg_root/root"},
                        boot_params=bp)
         # boot_params overrides BootEntry
         self.assertEqual(be.version, bp.version)
@@ -366,7 +367,7 @@ class BootEntryTests(unittest.TestCase):
         be = BootEntry(entry_data={BOOT_TITLE: "title",
                        BOOT_LINUX: "/vmlinuz",
                        BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
-                       BOOT_OPTIONS: "root=%{root_device} %{root_opts}"})
+                       BOOT_OPTIONS: "root=/dev/sda5 ro"})
         self.assertEqual(xroot_opts, be.root_opts)
 
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")

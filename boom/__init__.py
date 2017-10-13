@@ -312,7 +312,7 @@ def _key_regex_from_format(fmt, capture=False):
         :returntype: str
     """
     key_format = "%%{%s}"
-    regex_all = "(.*)" if capture else ".*"
+    regex_all = "(\S*)" if capture else "\S*"
 
     if not fmt:
         return ""
@@ -322,7 +322,12 @@ def _key_regex_from_format(fmt, capture=False):
             key = key_format % key
             fmt = fmt.replace(key, regex_all)
 
-    return fmt
+    # Ignore whitespace
+    out_fmt = ""
+    for word in fmt.split():
+        out_fmt += word + "\s*"
+
+    return out_fmt
 
 __all__ = [
     # boom module constants
