@@ -186,14 +186,20 @@ class BootEntryTests(unittest.TestCase):
 
     def test_BootEntry__str__(self):
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=None)
-        xstr = 'title title\nmachine-id ffffffff'
+        xstr = ('title title\nmachine-id ffffffff\n'
+                'linux /boot/kernel-%{version}\n'
+                'initrd /boot/initramfs-%{version}.img\n'
+                'options root=%{root_device} ro %{root_opts}')
         self.assertEqual(str(be), xstr)
 
     def test_BootEntry__repr__(self):
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=None)
         xrepr = ('BootEntry(entry_data={BOOT_TITLE: "title", '
                  'BOOT_MACHINE_ID: "ffffffff", '
-                 'BOOT_ID: "1a648481de25e694b4e3dece78390afc3516b79c"})')
+                 'BOOT_LINUX: "/boot/kernel-%{version}", '
+                 'BOOT_INITRD: "/boot/initramfs-%{version}.img", '
+                 'BOOT_OPTIONS: "root=%{root_device} ro %{root_opts}", '
+                 'BOOT_ID: "62f1abab827f5973d8a0ebfe06c1a86cb1618f9e"})')
         self.assertEqual(repr(be), xrepr)
 
     def test_BootEntry(self):
@@ -280,7 +286,8 @@ class BootEntryTests(unittest.TestCase):
                        BOOT_LINUX: "/vmlinuz",
                        BOOT_VERSION: "1.1.1"}, boot_params=bp)
 
-        self.assertEqual(be.options, "")
+        xoptions = "root=/dev/vg00/lvol0 ro rd.lvm.lv=vg00/lvol0"
+        self.assertEqual(be.options, xoptions)
 
     def test_BootEntry_empty_format_key(self):
         # Assert that key properties of a BootEntry with empty format keys
@@ -351,7 +358,7 @@ class BootEntryTests(unittest.TestCase):
                          "rootflags=subvol=/snapshots/20170523-1 rhgb quiet")
 
     def test_BootEntry_boot_id(self):
-        xboot_id = '043eddada5e0e59986e979f5930a4ee2c2a94eb4'
+        xboot_id = 'c6f02bd9f4a3eaaa6eae0c737e4dca865f5f6d5c'
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
         self.assertEqual(xboot_id, be.boot_id)
