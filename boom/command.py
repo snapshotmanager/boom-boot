@@ -540,7 +540,7 @@ def main(args):
                         help="The root device for a boot entry")
     parser.add_argument("-s", "--short-name", metavar="OSSHORTNAME", type=str,
                         help="A Boom OsProfile short name")
-    parser.add_argument("-t", "--title", metavar="TITLE", type=str, nargs=1,
+    parser.add_argument("-t", "--title", metavar="TITLE", type=str,
                         help="The title of a boom boot entry")
     parser.add_argument("-u", "--uname-pattern", metavar="PATTERN", type=str,
                         help="A Boom OsProfile uname pattern")
