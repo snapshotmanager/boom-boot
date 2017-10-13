@@ -408,6 +408,11 @@ class OsProfile(object):
         """
         err_str = "Invalid profile data (missing %s)"
 
+        # Set profile defaults
+        for key in _DEFAULT_KEYS:
+            if key not in profile_data:
+                profile_data[key] = _DEFAULT_KEYS[key]
+
         for key in REQUIRED_KEYS:
             if key not in profile_data:
                 raise ValueError(err_str % key)
