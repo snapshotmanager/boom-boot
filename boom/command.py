@@ -231,29 +231,20 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
 
 
 def delete_entries(selection=None):
-    """delete_entries(boot_id, title, version,
-                      machine_id, root_device, lvm_root_lv,
-                      btrfs_subvol_path, btrfs_subvol_id) -> int
+    """delete_entries(selection) -> int
 
         Delete the specified boot entry or entries from the configured
-        loader directory. If ``boot_id`` is used, or of the criteria
+        loader directory. If ``boot_id`` is used, or if the criteria
         specified match exactly one entry, a single entry is removed.
         If ``boot_id`` is not used, and more than one matching entry
         is present, all matching entries will be removed.
 
-        Selection criteria may also be expressed via a BoomSelection
+        Selection criteria may also be expressed via a Selection
         object passed to the call using the ``selection`` parameter.
 
         On success the number of entries removed is returned.
 
-        :param boot_id: ``boot_id`` to match.
-        :param title: title string to match.
-        :param version: version to match.
-        :param root_device: root device path to match.
-        :param lvm_root_lv: LVM2 root logical volume to match.
-        :param btrfs_subvol_path: BTRFS subvolume path to match.
-        :param btrfs_subvol_id: BTRFS subvolume id to match.
-        :param selection: A BoomSelection object giving selection
+        :param selection: A Selection object giving selection
                           criteria for the operation.
         :returns: the number of entries removed.
         :returntype: ``int``
@@ -351,7 +342,7 @@ def list_entries(selection=None):
         Return a list of ``boom.bootloader.BootEntry`` objects matching
         the given criteria.
 
-        Selection criteria may also be expressed via a BoomSelection
+        Selection criteria may also be expressed via a Selection
         object passed to the call using the ``selection`` parameter.
 
         :param boot_id: ``boot_id`` to match.
@@ -362,7 +353,7 @@ def list_entries(selection=None):
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
         :param osprofile: The ``OsProfile`` for this entry.
-        :param selection: A BoomSelection object giving selection
+        :param selection: A Selection object giving selection
                           criteria for the operation.
         :returns: A list of matching BootEntry objects.
         :returntype: list
@@ -394,7 +385,7 @@ def print_entries(selection=None, output_fields=None, opts=None):
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
         :param opts: output formatting and control options.
         :param fields: a table of ``BoomFieldType`` field descriptors.
-        :param selection: A BoomSelection object giving selection
+        :param selection: A Selection object giving selection
                           criteria for the operation.
         :returns: the ``boot_id`` of the new entry.
         :returntype: str
