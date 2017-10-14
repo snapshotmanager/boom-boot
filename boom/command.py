@@ -803,8 +803,7 @@ def _clone_cmd(cmd_args, select):
         print(e)
         return 1
 
-    be.write_entry()
-    return be
+    return 0
 
 def _list_cmd(cmd_args, select):
     if cmd_args.options:
