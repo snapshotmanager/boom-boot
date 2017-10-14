@@ -830,6 +830,9 @@ def _clone_cmd(cmd_args, select):
     osp = None
     if cmd_args.profile:
         osps = find_profiles(Selection(os_id=cmd_args.profile))
+        if not osps:
+            print("No matching profile found: %s" % cmd_args.profile)
+            return 1
         if len(osps) > 1:
             print("OS profile identifier '%s' is ambiguous" %
                   cmd_args.profile)
