@@ -410,11 +410,39 @@ def print_entries(selection=None, output_fields=None, opts=None):
 # OsProfile manipulation
 #
 
+def _os_profile_from_file(profile_file, uname_pattern,
+                          kernel_pattern, initramfs_pattern,
+                          root_opts_lvm2, root_opts_btrfs,
+                          options):
+    """_os_profile_from_file(profile_file, uname_pattern,
+    kernel_pattern, initramfs_pattern, root_opts_lvm2, root_opts_btrfs,
+    options) -> ``OsProfile``
+    """
+    osp = OsProfile.from_os_release_file(profile_file)
+    if uname_pattern:
+        osp.uname_pattern = uname_pattern
+    if kernel_pattern:
+        osp.kernel_pattern = kernel_pattern
+    if initramfs_pattern:
+        osp.initramfs_pattern = initramfs_pattern
+    if root_opts_lvm2:
+        osp.root_opts_lvm2 = root_opts_lvm2
+    if root_opts_btrfs:
+        osp.root_opts_btrfs = root_opts_btrfs
+    if options:
+        osp.options = options
+
+    if find_profiles(selection=Selection(os_id=osp.os_id)):
+        raise ValueError("Profile already exists (os_id=%s)" % osp.os_id)
+
+    osp.write_profile()
+    return osp
+
 def create_profile(name, short_name, version, version_id,
                    uname_pattern=None, kernel_pattern=None,
                    initramfs_pattern=None, root_opts_lvm2=None,
                    root_opts_btrfs=None, options=None,
-                   profile_data=None):
+                   profile_data=None, profile_file=None):
     """create_profile,(name, short_name, version, version_id
        uname_pattern, kernel_pattern, initramfs_pattern,
        root_opts_lvm2, root_opts_btrfs, options, profile_data) ->
@@ -452,6 +480,12 @@ def create_profile(name, short_name, version, version_id,
     """
     def _have_key(pd, arg, key):
         return arg or pd and key in pd
+
+    if profile_file:
+        return _os_profile_from_file(profile_file, uname_pattern,
+                                     kernel_pattern, initramfs_pattern,
+                                     root_opts_lvm2, root_opts_btrfs,
+                                     options)
 
     if  not _have_key(profile_data, name, BOOM_OS_NAME):
         raise ValueError("Profile name cannot be empty.")
@@ -824,29 +858,37 @@ def _edit_cmd(cmd_args, select):
 
 
 def _create_profile_cmd(cmd_args, select):
-    if not cmd_args.name:
-        print("profile create requires --name")
-        return 1
+    if cmd_args.os_release or cmd_args.from_host:
+        name = None
+        short_name = None
+        version = None
+        version_id = None
+        release = cmd_args.os_release or "/etc/os-release"
     else:
-        name = cmd_args.name
+        if not cmd_args.name:
+            print("profile create requires --name")
+            return 1
+        else:
+            name = cmd_args.name
 
-    if not cmd_args.short_name:
-        print("profile create requires --short-name")
-        return 1
-    else:
-        short_name = cmd_args.short_name
+        if not cmd_args.short_name:
+            print("profile create requires --short-name")
+            return 1
+        else:
+            short_name = cmd_args.short_name
 
-    if not cmd_args.os_version:
-        print("profile create requires --os-version")
-        return 1
-    else:
-        version = cmd_args.os_version
+        if not cmd_args.os_version:
+            print("profile create requires --os-version")
+            return 1
+        else:
+            version = cmd_args.os_version
 
-    if not cmd_args.os_version_id:
-        print("profile create requires --os-version-id")
-        return 1
-    else:
-        version_id = cmd_args.os_version_id
+        if not cmd_args.os_version_id:
+            print("profile create requires --os-version-id")
+            return 1
+        else:
+            version_id = cmd_args.os_version_id
+        release = None
 
     try:
         osp = create_profile(name, short_name, version, version_id,
@@ -855,10 +897,11 @@ def _create_profile_cmd(cmd_args, select):
                              initramfs_pattern=cmd_args.initramfs_pattern,
                              root_opts_lvm2=cmd_args.lvm_opts,
                              root_opts_btrfs=cmd_args.btrfs_opts,
-                             options=cmd_args.os_options)
+                             options=cmd_args.os_options, profile_file=release)
     except ValueError as e:
         print(e)
         return 1
+    print("Created profile with os_id %s:" % osp.os_id[0:7])
     print(osp)
     return 0
 
@@ -1003,6 +1046,8 @@ def main(args):
                         help="A template option string for BTRFS devices")
     parser.add_argument("-e", "--efi", metavar="IMG", type=str,
                         help="An executable EFI application image")
+    parser.add_argument("-H", "--from-host", help="Take os-release values "
+                        "from the running host", action="store_true")
     parser.add_argument("-i", "--initrd", metavar="IMG", type=str,
                         help="A linux initrd image path")
     parser.add_argument("-k", "--kernel-pattern", metavar="PATTERN", type=str,
@@ -1025,6 +1070,8 @@ def main(args):
                         type=str, help="A Boom OsProfile version ID")
     parser.add_argument("--os-options", metavar="OPTIONS", type=str,
                         help="A Boom OsProfile options template")
+    parser.add_argument("--os-release", metavar="OSRELEASE", type=str,
+                        help="Path to an os-release file")
     parser.add_argument("-p", "--profile", metavar="OS_ID", type=str,
                         help="A boom operating system profile "
                         "identifier")
