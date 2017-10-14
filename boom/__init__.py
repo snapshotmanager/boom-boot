@@ -331,15 +331,35 @@ def _key_regex_from_format(fmt, capture=False):
     key_format = "%%{%s}"
     regex_all = "(\S*)" if capture else "\S*"
 
+    def _make_key_regex(spaces=0):
+        regex = r'(' if capture else r''
+        regex += r'\S*'
+        while spaces:
+            regex += r' ?\S*'
+            spaces -= 1
+        regex += r')' if capture else r''
+        return regex
+
     if not fmt:
         return ""
 
+    _key_spaces = {
+        FMT_VERSION: 0,
+        FMT_LVM_ROOT_LV: 0,
+        FMT_BTRFS_SUBVOL_ID: 0,
+        FMT_BTRFS_SUBVOL_PATH: 0,
+        FMT_BTRFS_SUBVOLUME: 0,
+        FMT_ROOT_DEVICE: 0,
+        FMT_ROOT_OPTS: 1
+    }
+
     for key in FORMAT_KEYS:
         if key in fmt:
+            regex = _make_key_regex(spaces=_key_spaces[key])
             key = key_format % key
-            fmt = fmt.replace(key, regex_all)
+            fmt = fmt.replace(key, regex)
 
-    # Ignore whitespace
+    # Ignore whitespace variations
     out_fmt = ""
     for word in fmt.split():
         out_fmt += word + "\s*"
