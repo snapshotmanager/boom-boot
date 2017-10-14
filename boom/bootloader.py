@@ -375,7 +375,11 @@ def load_entries(machine_id=None):
         if machine_id and machine_id not in entry:
             continue
         entry_path = path_join(BOOT_ENTRIES_PATH, entry)
-        _add_entry(BootEntry(entry_file=entry_path))
+        try:
+            _add_entry(BootEntry(entry_file=entry_path))
+        except Exception as e:
+            print("Could not load entry: %s" % entry_path)
+            print(e)
 
 
 def write_entries():
