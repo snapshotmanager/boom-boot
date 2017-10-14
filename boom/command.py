@@ -859,6 +859,7 @@ def _create_profile_cmd(cmd_args, select):
     except ValueError as e:
         print(e)
         return 1
+    print(osp)
     return 0
 
 
