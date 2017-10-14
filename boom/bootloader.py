@@ -302,11 +302,13 @@ class BootParams(object):
                                                      capture=True)
             btrfs_opts_regex = _key_regex_from_format(osp.root_opts_btrfs,
                                                       capture=True)
-            match = re.match(lvm2_opts_regex, root_opts)
+
+            match = re.search(lvm2_opts_regex, root_opts)
             if match:
                 lvm2_root_lv=match.group(1)
-            else:
-                match = re.match(btrfs_opts_regex, root_opts)
+
+            match = re.search(btrfs_opts_regex, root_opts)
+            if match:
                 btrfs_root_opts=match.group(1)
                 if "subvolid" in btrfs_root_opts:
                     subvolid_regex = r"subvolid=(\d*)"
@@ -319,8 +321,6 @@ class BootParams(object):
                 else:
                     raise ValueError("Unrecognized btrfs root options: %s"
                                      % btrfs_root_opts)
-            if not match:
-                raise ValueError("Unknown root options: %s" % root_opts)
 
         return BootParams(version, root_device=root_device,
                           lvm_root_lv=lvm2_root_lv,
