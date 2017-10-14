@@ -171,9 +171,9 @@ def select_profile(s, osp):
         return False
     if s.os_short_name and osp.short_name != s.os_short_name:
         return False
-    if s.os_version and osp.os_version != s.version:
+    if s.os_version and osp.version != s.os_version:
         return False
-    if s.os_version_id and osp.os_version_id != s.version_id:
+    if s.os_version_id and osp.version_id != s.version_id:
         return False
     if s.os_uname_pattern and osp.uname_pattern != s.os_uname_pattern:
         return False
@@ -182,7 +182,7 @@ def select_profile(s, osp):
     if (s.os_initramfs_pattern and
         osp.os_initramfs_pattern != s.initramfs_pattern):
         return False
-    if s.os_options and osp.os_options != s.options:
+    if s.os_options and osp.os_options != s.os_options:
         return False
     return True
 
