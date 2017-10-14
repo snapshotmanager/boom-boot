@@ -341,6 +341,69 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 
     return be
 
+def edit_entry(selection=None, title=None, version=None, machine_id=None,
+               root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
+               btrfs_subvol_id=None, osprofile=None):
+    """edit_entry(selection, title, version, machine_id, root_device,
+                  lvm_root_lv, btrfs_subvol_path, btrfs_subvol_id,
+                  osprofile) -> ``BootEntry``
+
+        Modify an existing BootEntry by changing one or more of the
+        entry values or boot parameters.
+
+        The modified BootEntry is written to disk and returned on
+        success.
+
+        Modifying a BootEntry causes the entry's boot_id to change,
+        since the ID is based on the values of all configured boot
+        keys.
+
+        :param selection: A Selection specifying the boot_id to edit
+        :param title: The new entry title
+        :param version: The new entry version
+        :param machine_id: The new machine_id
+        :param root_device: The new root device
+        :param lvm_root_lv: The new LVM root LV
+        :param btrfs_subvol_path: The new BTRFS subvolume path
+        :param btrfs_subvol_id: The new BTRFS subvolme ID
+        :returns: The modified ``BootEntry``
+        :returntype: ``BootEntry``
+    """
+   # Discard all selection criteria but boot_id.
+    selection = Selection(boot_id=selection.boot_id)
+
+    osp = None
+    if osprofile:
+        os_id = osprofile
+        osps = find_profiles(Selection(os_id=os_id))
+        if not osps:
+            raise ValueError("No matching profile found: %s" % os_id)
+        if len(osps) > 1:
+            raise ValueError("OS profile identifier '%s' is ambiguous" % os_id)
+            return 1
+        osp = osps.pop()
+
+    bes = find_entries(selection=selection)
+    if not bes:
+        raise ValueError("No matching entry found for boot ID %s" %
+                         selection.boot_id[:7])
+        return 1
+
+    be = bes.pop()
+    # Boot ID will change: clean up old file.
+    be.delete_entry()
+    be._osp = osp or be._osp
+    be.title = title or be.title
+    be.version = version or be.version
+    be.machine_id = machine_id or be.machine_id
+    be.bp.root_device = root_device or be.bp.root_device
+    be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
+    be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
+    be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
+    be.write_entry()
+    return be
+
+
 def list_entries(selection=None):
     """list_entries(boot_id, title, version,
                     machine_id, root_device, lvm_root_lv,
@@ -882,7 +945,27 @@ def _list_cmd(cmd_args, select):
 
 
 def _edit_cmd(cmd_args, select):
-    pass
+    title = cmd_args.title
+    version = cmd_args.version
+    machine_id = cmd_args.machine_id
+    root_device = cmd_args.root_device
+    lvm_root_lv = cmd_args.rootlv
+    subvol = cmd_args.btrfs_subvolume
+    (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
+
+    try:
+        be = edit_entry(selection=select, title=title, version=version,
+                        machine_id=machine_id, root_device=root_device,
+                        lvm_root_lv=lvm_root_lv,
+                        btrfs_subvol_path=btrfs_subvol_path,
+                        btrfs_subvol_id=btrfs_subvol_id)
+    except ValueError as e:
+        print(e)
+        return 1
+
+    print("Edited entry, boot_id now: %s" % be.boot_id[:7])
+    print(_str_indent(str(be), 2))
+    return 0
 
 
 def _create_profile_cmd(cmd_args, select):
