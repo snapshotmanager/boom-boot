@@ -57,7 +57,7 @@ class BoomTests(unittest.TestCase):
         nvp = 'n=v # Qux.'
         (name, value) = boom._parse_name_value(nvp)
         self.assertEqual(name, "n")
-        self.assertEqual(value, "v")
+        self.assertEqual(value, "v ")
         nvp = 'n=v#Qux.'
         (name, value) = boom._parse_name_value(nvp)
         self.assertEqual(name, "n")
@@ -98,11 +98,12 @@ class BoomTests(unittest.TestCase):
         self.assertEqual(value, "v")
 
         # Assert that a comment following a value is permitted, with or
-        # without intervening whitespace.
+        # without intervening whitespace. Trailing whitespace is
+        # included in the parsed value.
         nvp = 'n v # Qux.'
         (name, value) = boom._parse_name_value(nvp, separator=None)
         self.assertEqual(name, "n")
-        self.assertEqual(value, "v")
+        self.assertEqual(value, "v ")
         nvp = 'n v#Qux.'
         (name, value) = boom._parse_name_value(nvp, separator=None)
         self.assertEqual(name, "n")

@@ -284,7 +284,9 @@ def _parse_name_value(nvp, separator="="):
     """
     val_err = ValueError("Malformed name/value pair: %s" % nvp)
     try:
-        name, value = nvp.rstrip().split(separator, 1)
+        # Only strip newlines: values may contain embedded
+        # whitespace anywhere within the string.
+        name, value = nvp.rstrip('\n').split(separator, 1)
     except:
         raise val_err
 
@@ -306,8 +308,7 @@ def _parse_name_value(nvp, separator="="):
         value, comment = value.split("#", 1)
 
     name = name.strip()
-    value = value.strip()
-
+    value = value.lstrip()
     if value.startswith('"') or value.startswith("'"):
         value = value[1:-1]
     return (name, value)
