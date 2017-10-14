@@ -289,7 +289,7 @@ class OsProfile(object):
             :returntype: string
         """
         breaks = [BOOM_OS_ID, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION_ID,
-                  BOOM_OS_INITRAMFS_PATTERN,
+                  BOOM_OS_UNAME_PATTERN, BOOM_OS_INITRAMFS_PATTERN,
                   BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
                   BOOM_OS_OPTIONS]
 
