@@ -683,7 +683,6 @@ def _clone_cmd(cmd_args, select):
     machine_id = cmd_args.machine_id
     root_device = cmd_args.root_device
     lvm_root_lv = cmd_args.rootlv
-    print("rd: %s LV: %s" %(root_device,lvm_root_lv))
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
 
