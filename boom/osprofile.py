@@ -15,8 +15,8 @@ from boom import *
 from hashlib import sha1
 from os import listdir
 from tempfile import mkstemp
-from os.path import join as path_join
-from os import fdopen, rename, chmod
+from os.path import join as path_join, exists as path_exists
+from os import fdopen, rename, chmod, unlink
 import re
 
 #: Boom profiles directory name.
@@ -797,6 +797,30 @@ class OsProfile(object):
             except:
                 pass
             raise e
+
+    def delete_profile(self):
+        """delete_profile(self) -> None
+
+            Remove the on-disk profile corresponding to this
+            ``OsProfile`` object. This will permanently erase the
+            current file (although the current data may be re-written at
+            any time by calling ``write_profile()`` before the object is
+            disposed of).
+
+            :returntype: ``NoneType``
+            :raises: ``OsError`` if an error occurs removing the file or
+                     ``ValueError`` if the profile does not exist.
+        """
+        global _profiles
+        profile_path = self._profile_path()
+
+        if _profiles and self in _profiles:
+            _profiles.remove(self)
+
+        if not path_exists(profile_path):
+            return
+
+        unlink(profile_path)
 
 
 _null_profile = OsProfile(name="", short_name="", version="", version_id="")
