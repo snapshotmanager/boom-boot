@@ -757,6 +757,51 @@ def list_profiles(selection=None):
 
     return osps
 
+def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
+                 initramfs_pattern=None, root_opts_lvm2=None,
+                 root_opts_btrfs=None, options=None):
+    """edit_profile(selection, uname_pattern, kernel_pattern,
+    initramfs_pattern, root_opts_lvm2, root_opts_btrfs, options)
+    -> ``OsProfile``
+
+        Modify an existing OsProfile by changing one or more of the
+        profile values.
+
+        The modified OsProfile is written to disk and returned on
+        success.
+
+        :param selection: A Selection specifying the boot_id to edit
+        :param uname_pattern: The new uname pattern
+        :param kernel_pattern: The new kernel pattern
+        :param initramfs_pattern: The new initramfs pattern
+        :param root_opts_lvm2: The new LVM2 root options
+        :param root_opts_btrfs: The new BTRFS root options
+        :param options: The new kernel options template
+        :returns: The modified ``OsProfile``
+        :returntype: ``OsProfile``
+    """
+    # Discard all selection criteria but os_id.
+    selection = Selection(os_id=selection.os_id)
+
+    osp = None
+    osps = find_profiles(Selection(os_id=selection.os_id))
+    if not osps:
+        raise ValueError("No matching profile found: %s" % selection.os_id)
+    if len(osps) > 1:
+        raise ValueError("OS profile identifier '%s' is ambiguous" %
+                         selection.os_id)
+        return 1
+
+    osp = osps.pop()
+    osp.uname_pattern = uname_pattern or osp.uname_pattern
+    osp.kernel_pattern = kernel_pattern or osp.kernel_pattern
+    osp.initramfs_pattern = initramfs_pattern or osp.initramfs_pattern
+    osp.root_opts_lvm2 = root_opts_lvm2 or osp.root_opts_lvm2
+    osp.root_opts_btrfs = root_opts_btrfs or osp.root_opts_btrfs
+    osp.options = options or osp.options
+    osp.write_profile()
+    return osp
+
 
 def print_profiles(selection=None, opts=None, output_fields=None):
     """print_profiles(os_id, name, short_name,
@@ -1100,7 +1145,37 @@ def _list_profile_cmd(cmd_args, select):
 
 
 def _edit_profile_cmd(cmd_args, select):
-    pass
+    id_keys = (cmd_args.name, cmd_args.short_name,
+               cmd_args.version, cmd_args.os_version_id)
+
+    if any(id_keys):
+        print("Cannot edit name, short_name, version, or version_id:\n"
+              "Use 'clone --profile OS_ID'.")
+        return 1
+
+    uname_pattern = cmd_args.uname_pattern
+    kernel_pattern = cmd_args.kernel_pattern
+    initramfs_pattern = cmd_args.initramfs_pattern
+    root_opts_lvm2 = cmd_args.lvm_opts
+    root_opts_btrfs = cmd_args.btrfs_opts
+    options = cmd_args.os_options
+
+    try:
+        osp = edit_profile(selection=select, uname_pattern=uname_pattern,
+                           kernel_pattern=kernel_pattern,
+                           initramfs_pattern=initramfs_pattern,
+                           root_opts_lvm2=root_opts_lvm2,
+                           root_opts_btrfs=root_opts_btrfs, options=options)
+    except ValueError as e:
+        print(e)
+        return 1
+
+    print("Edited profile:")
+    print(_str_indent(str(osp), 2))
+    return 0
+
+
+pass
 
 
 boom_usage = """%(prog}s [type] <command> [options]\n\n"
