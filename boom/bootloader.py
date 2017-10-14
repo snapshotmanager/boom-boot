@@ -1032,11 +1032,19 @@ class BootEntry(object):
             return ""
         bp = self.bp
         osp = self._osp
+        root_opts = "%s%s%s"
+
+        lvm_opts = ""
         if bp.lvm_root_lv:
-            return self._apply_format(osp.root_opts_lvm2)
+            lvm_opts = self._apply_format(osp.root_opts_lvm2)
+
+        btrfs_opts = ""
         if bp.btrfs_subvol_id or bp.btrfs_subvol_path:
-            return self._apply_format(osp.root_opts_btrfs)
-        return ""
+            btrfs_opts += self._apply_format(osp.root_opts_btrfs)
+
+        spacer = " " if lvm_opts and btrfs_opts else ""
+
+        return root_opts % (lvm_opts, spacer, btrfs_opts)
 
     @property
     def title(self):
