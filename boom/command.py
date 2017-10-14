@@ -747,8 +747,8 @@ def _create_cmd(cmd_args, select):
         print(e)
         return 1
 
-    print("Created entry '%s' (%s)" % (be.title, be.version))
-
+    print("Created entry with boot_id %s:" % be.boot_id[0:7])
+    print(be)
 
 def _delete_cmd(cmd_args, select):
     if not select or select.is_null():
