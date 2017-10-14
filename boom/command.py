@@ -170,6 +170,13 @@ def _subvol_from_arg(subvol):
     return (btrfs_subvol_path, btrfs_subvol_id)
 
 
+def _str_indent(string, indent):
+    outstr = ""
+    for line in string.splitlines():
+        outstr += indent * ' ' + line + '\n'
+    return outstr.rstrip('\n')
+
+
 #
 # Command driven API: BootEntry and OsProfile management and reporting.
 #
@@ -849,7 +856,8 @@ def _show_cmd(cmd_args, select):
     first = True
     for be in bes:
         ws = "" if first else "\n"
-        print("%sBoot Entry (boot_id=%s)\n%s" % (ws, be.boot_id[:7], be))
+        be_str = _str_indent(str(be), 2)
+        print("%sBoot Entry (boot_id=%s)\n%s" % (ws, be.boot_id[:7], be_str))
         first = False
     return 0
 
@@ -983,7 +991,8 @@ def _show_profile_cmd(cmd_args, select):
     first = True
     for osp in osps:
         ws = "" if first else "\n"
-        print("%sOS Profile (os_id=%s)\n%s" % (ws, osp.os_id[:7], osp))
+        osp_str = _str_indent(str(osp), 2)
+        print("%sOS Profile (os_id=%s)\n%s" % (ws, osp.os_id[:7], osp_str))
         first = False
     return 0
 
