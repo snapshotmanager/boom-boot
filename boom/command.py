@@ -859,11 +859,6 @@ def _create_profile_cmd(cmd_args, select):
     except ValueError as e:
         print(e)
         return 1
-
-    if find_profiles(Selection(os_id=osp.os_id)):
-        print "Profile already exists (os_id=%s)" % osp.os_id
-        return 1
-
     return 0
 
 
