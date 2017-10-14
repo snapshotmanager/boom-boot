@@ -800,6 +800,18 @@ class BootEntry(object):
             # Attempt to recover BootParams from entry data
             self.bp = BootParams.from_entry(self)
 
+            def _pop_if_set(key):
+                if key in self._entry_data:
+                    self._entry_data.pop(key)
+
+            if self.bp:
+                # Clear templated keys from _entry_data and
+                # regenerate from be.bp on demand.
+                _pop_if_set(BOOT_VERSION)
+                _pop_if_set(BOOT_LINUX)
+                _pop_if_set(BOOT_INITRD)
+                _pop_if_set(BOOT_OPTIONS)
+
     def __from_file(self, entry_file, boot_params):
         entry_data = {}
         comments = {}
