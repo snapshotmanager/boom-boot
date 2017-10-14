@@ -531,6 +531,101 @@ def delete_profiles(selection=None):
     return deleted
 
 
+def clone_profile(selection=None, name=None, short_name=None, version=None,
+                  version_id=None, uname_pattern=None, kernel_pattern=None,
+                  initramfs_pattern=None, root_opts_lvm2=None,
+                  root_opts_btrfs=None, options=None):
+    """clone_profile(selection, name, short_name, version, version_id,
+       uname_pattern, kernel_pattern, initramfs_pattern, root_opts_lvm2,
+       root_opts_btrfs, options) -> ``OsProfile``
+
+        Create the specified profile in the configured profile directory
+        by cloning all un-set parameters from the profile selected by
+        the ``selection`` argument.
+
+        An error is raised if a matching profile already exists.
+
+        :param selection: criteria matching the profile to clone.
+        :param name: the name of the new profile.
+        :param short_name: the short name of the new profile.
+        :param version: the version string for the new profile.
+        :param version_id: the version ID string for the new profile.
+        :param uname_pattern: a uname pattern to match this profile.
+        :param root_opts_lvm2: LVM2 root options template.
+        :param root_opts_btrfs: BTRFS root options template.
+        :param options: Kernel options template.
+        :returns: a new ``OsProfile`` object.
+        :returntype: ``OsProfile``
+        :raises: ``ValueError`` if either required values are missing or
+                 a duplicate profile exists, or``OsError`` if an error
+                 occurs while writing the profile file.
+    """
+    if not selection.os_id:
+        raise ValueError("clone requires os_id")
+        return 1
+
+    all_args = (name, short_name, version, version_id, uname_pattern,
+                kernel_pattern, initramfs_pattern, root_opts_lvm2,
+               root_opts_btrfs, options)
+
+    if not any(all_args):
+        raise ValueError('clone requires one or more of:\nname, '
+                         'short_name, version, version_id, uname_pattern,'
+                         'kernel_pattern, initramfs_pattern, root_opts_lvm2, '
+                         'root_opts_btrfs, options')
+        return 1
+
+    osps = find_profiles(selection)
+    if len(osps) > 1:
+        raise ValueError("clone criteria must match exactly one profile")
+        return 1
+
+    osp = osps.pop()
+
+    # Clone unset keys
+    name = name if name else osp.name
+    short_name = short_name if short_name else osp.short_name
+    version = version if version else osp.version
+    version_id = version_id if version_id else osp.version_id
+    uname_pattern = uname_pattern if uname_pattern else osp.uname_pattern
+    kernel_pattern = kernel_pattern if kernel_pattern else osp.kernel_pattern
+    root_opts_lvm2 = root_opts_lvm2 if root_opts_lvm2 else osp.root_opts_lvm2
+    root_opts_btrfs = (root_opts_btrfs if root_opts_btrfs
+                         else osp.root_opts_btrfs)
+    options = options if options else osp.options
+
+    pd = {}
+    if name:
+        pd[BOOM_OS_NAME] = name
+    if short_name:
+        pd[BOOM_OS_SHORT_NAME] = short_name
+    if version:
+        pd[BOOM_OS_VERSION] = version
+    if version_id:
+        pd[BOOM_OS_VERSION_ID] = version_id
+    if uname_pattern:
+        pd[BOOM_OS_UNAME_PATTERN] = uname_pattern
+    if kernel_pattern:
+        pd[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
+    if initramfs_pattern:
+        pd[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
+    if root_opts_lvm2:
+        pd[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
+    if root_opts_btrfs:
+        pd[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
+    if options:
+        pd[BOOM_OS_OPTIONS] = options
+
+    clone_osp = OsProfile(None, None, None, None, profile_data=pd)
+
+    if find_profiles(Selection(os_id=clone_osp.os_id)):
+        raise ValueError("Profile already exists (os_id=%s)." %
+                         clone_osp.os_id)
+
+    clone_osp.write_profile()
+
+    return osp
+
 def list_profiles(selection=None):
     """list_profiles(os_id, name, short_name,
                      version, version_id, uname_pattern,
@@ -796,7 +891,34 @@ def _delete_profile_cmd(cmd_args, select):
 
 
 def _clone_profile_cmd(cmd_args, select):
-    pass
+    name = cmd_args.name
+    short_name = cmd_args.short_name
+    version = cmd_args.os_version
+    version_id = cmd_args.os_version_id
+    uname_pattern = cmd_args.uname_pattern
+    kernel_pattern = cmd_args.kernel_pattern
+    initramfs_pattern = cmd_args.initramfs_pattern
+    root_opts_lvm2 = cmd_args.lvm_opts
+    root_opts_btrfs = cmd_args.btrfs_opts
+    options = cmd_args.os_options
+
+    # Discard all selection criteria but os_id.
+    select = Selection(os_id=select.os_id)
+
+    try:
+        be = clone_profile(selection=select, name=name, short_name=short_name,
+                           version=version, version_id=version_id,
+                           uname_pattern=uname_pattern,
+                           kernel_pattern=kernel_pattern,
+                           initramfs_pattern=initramfs_pattern,
+                           root_opts_lvm2=root_opts_lvm2,
+                           root_opts_btrfs=root_opts_btrfs, options=options)
+
+    except ValueError as e:
+        print(e)
+        return 1
+
+    return 0
 
 
 def _list_profile_cmd(cmd_args, select):
@@ -840,6 +962,7 @@ _boom_entry_commands = [
 _boom_profile_commands = [
     ("create", _create_profile_cmd),
     ("delete", _delete_profile_cmd),
+    ("clone", _clone_profile_cmd),
     ("list", _list_profile_cmd),
     ("edit", _edit_profile_cmd)
 ]
