@@ -499,6 +499,37 @@ def create_profile(name, short_name, version, version_id,
     osp.write_profile()
     return osp
 
+def delete_profiles(selection=None):
+    """delete_profiles(selection) -> int
+
+        Delete the specified OsProfile or profiles from the configured
+        profile directory. If ``os_id`` is used, or if the criteria
+        specified match exactly one profile, a single entry is removed.
+        If ``os_id`` is not used, and more than one matching profile
+        is present, all matching profiles will be removed.
+
+        Selection criteria are expressed via a Selection object
+        passed to the call using the ``selection`` parameter.
+
+        On success the number of profiles removed is returned.
+
+        :param selection: A Selection object giving selection
+                          criteria for the operation.
+        :returns: the number of entries removed.
+        :returntype: ``int``
+    """
+    osps = find_profiles(selection=selection)
+
+    if not osps:
+        raise IndexError("No matching profiles found.")
+
+    deleted = 0
+    for osp in osps:
+        osp.delete_profile()
+        deleted += 1
+
+    return deleted
+
 
 def list_profiles(selection=None):
     """list_profiles(os_id, name, short_name,
@@ -744,6 +775,28 @@ def _create_profile_cmd(cmd_args, select):
 
 
 def _delete_profile_cmd(cmd_args, select):
+    if not select or select.is_null():
+        print("profile delete requires selection criteria")
+        return 1
+
+    if cmd_args.options:
+        fields = cmd_args.options
+    elif cmd_args.verbose:
+        fields = _verbose_profile_fields
+    else:
+        fields = None
+
+    try:
+        if cmd_args.verbose:
+            print_profiles(select, output_fields=fields)
+        nr = delete_profiles(select)
+    except (ValueError, IndexError) as e:
+        print(e)
+        return 1
+    print("Deleted %d profile%s" % (nr, "s" if nr > 1 else ""))
+
+
+def _clone_profile_cmd(cmd_args, select):
     pass
 
 
