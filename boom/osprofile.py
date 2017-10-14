@@ -722,10 +722,15 @@ class OsProfile(object):
                 continue
             name, value = _parse_name_value(line)
             release_data[name] = value
-        return OsProfile(release_data["NAME"],
-                         release_data["ID"],
-                         release_data["VERSION"],
-                         release_data["VERSION_ID"])
+        osp = OsProfile(release_data["NAME"],
+                        release_data["ID"],
+                        release_data["VERSION"],
+                        release_data["VERSION_ID"])
+
+        for key in _DEFAULT_KEYS:
+            osp._profile_data[key] = _DEFAULT_KEYS[key]
+
+        return osp
 
     @classmethod
     def from_os_release_file(cls, path):
