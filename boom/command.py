@@ -839,6 +839,21 @@ def _clone_cmd(cmd_args, select):
 
     return 0
 
+
+def _show_cmd(cmd_args, select):
+    try:
+        bes = find_entries(select)
+    except ValueError as e:
+        print(e)
+        return 1
+    first = True
+    for be in bes:
+        ws = "" if first else "\n"
+        print("%sBoot Entry (boot_id=%s)\n%s" % (ws, be.boot_id[:7], be))
+        first = False
+    return 0
+
+
 def _list_cmd(cmd_args, select):
     if cmd_args.options:
         fields = cmd_args.options
@@ -959,6 +974,20 @@ def _clone_profile_cmd(cmd_args, select):
     return 0
 
 
+def _show_profile_cmd(cmd_args, select):
+    try:
+        osps = find_profiles(select)
+    except ValueError as e:
+        print(e)
+        return 1
+    first = True
+    for osp in osps:
+        ws = "" if first else "\n"
+        print("%sOS Profile (os_id=%s)\n%s" % (ws, osp.os_id[:7], osp))
+        first = False
+    return 0
+
+
 def _list_profile_cmd(cmd_args, select):
     if cmd_args.options:
         fields = cmd_args.options
@@ -993,6 +1022,7 @@ _boom_entry_commands = [
     ("create", _create_cmd),
     ("delete", _delete_cmd),
     ("clone", _clone_cmd),
+    ("show", _show_cmd),
     ("list", _list_cmd),
     ("edit", _edit_cmd)
 ]
@@ -1001,6 +1031,7 @@ _boom_profile_commands = [
     ("create", _create_profile_cmd),
     ("delete", _delete_profile_cmd),
     ("clone", _clone_profile_cmd),
+    ("show", _show_profile_cmd),
     ("list", _list_profile_cmd),
     ("edit", _edit_profile_cmd)
 ]
