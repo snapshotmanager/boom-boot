@@ -617,6 +617,8 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
         return 1
 
     osps = find_profiles(selection)
+    if not(osps):
+        raise ValueError("No matching profile found: %s" % selection.os_id)
     if len(osps) > 1:
         raise ValueError("clone criteria must match exactly one profile")
         return 1
