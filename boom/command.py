@@ -1242,6 +1242,8 @@ def main(args):
                         help="The command to run", action="store")
     parser.add_argument("-b", "--boot-id", metavar="BOOT_ID", type=str,
                         help="The BOOT_ID of a boom boot entry")
+    parser.add_argument("--boot-dir", metavar="PATH", type=str,
+                        help="The path to the /boot file system")
     parser.add_argument("-B", "--btrfs-subvolume", metavar="SUBVOL", type=str,
                         help="The path or ID of a BTRFS subvolume")
     parser.add_argument("--btrfs-opts", metavar="OPTS", type=str,
@@ -1296,6 +1298,9 @@ def main(args):
     cmd_args = parser.parse_args()
 
     cmd_type = _match_cmd_type(cmd_args.type)
+
+    if cmd_args.boot_dir:
+        set_boot_path(cmd_args.boot_dir)
 
     if not cmd_args.root_device and cmd_args.rootlv:
         cmd_args.root_device = DEV_PATTERN % cmd_args.rootlv
