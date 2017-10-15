@@ -22,9 +22,6 @@ import re
 #: Boom profiles directory name.
 BOOM_PROFILES = "profiles"
 
-#: Boom profiles directory path.
-BOOM_PROFILES_PATH = path_join(BOOM_ROOT, BOOM_PROFILES)
-
 #: File name format for Boom profiles.
 BOOM_OS_PROFILE_FORMAT = "%s-%s%s.profile"
 
@@ -108,6 +105,18 @@ _profiles_by_id = {}
 #: Whether profiles have been read from disk
 _profiles_loaded = False
 
+
+def boom_profiles_path():
+    """boom_profiles_path() -> str
+
+        Return the path to the boom profiles directory.
+
+        :returns: The boom profiles path.
+        :returntype: str
+    """
+    return path_join(get_boom_path(), BOOM_PROFILES)
+
+
 def _is_null_profile(osp):
     global _null_profile
     if osp.os_id == _null_profile.os_id:
@@ -122,7 +131,7 @@ def load_profiles():
     """load_profiles() -> None
 
         Load the set of profiles found at the path
-        ``boom.osprofile.BOOM_PROFILES_PATH`` into the global profile
+        ``boom.osprofile.boom_profiles_path()`` into the global profile
         list.
 
         This function may be called to explicitly load, or reload the
@@ -137,11 +146,12 @@ def load_profiles():
     _profiles_by_id = {}
     _profiles.append(_null_profile)
     _profiles_by_id[_null_profile.os_id] = _null_profile
-    profile_files = listdir(BOOM_PROFILES_PATH)
+    profiles_path = boom_profiles_path()
+    profile_files = listdir(profiles_path)
     for pf in profile_files:
         if not pf.endswith(".profile"):
             continue
-        pf_path = path_join(BOOM_PROFILES_PATH, pf)
+        pf_path = path_join(profiles_path, pf)
         osp = OsProfile(profile_file=pf_path)
         _profiles.append(osp)
         _profiles_by_id[osp.os_id] = osp
@@ -152,7 +162,7 @@ def write_profiles():
     """write_profiles() -> None
 
         Write the current list of profiles to the directory located at
-        ``boom.osprofile.BOOM_PROFILES_PATH``.
+        ``boom.osprofile.boom_profiles_path()``.
     """
     global _profiles
     for osp in _profiles:
@@ -760,14 +770,13 @@ class OsProfile(object):
         """
         profile_id = (self.os_id, self.short_name, self.version_id)
         profile_path_name = BOOM_OS_PROFILE_FORMAT % (profile_id)
-        return path_join(BOOM_PROFILES_PATH, profile_path_name)
+        return path_join(boom_profiles_path(), profile_path_name)
 
     def write_profile(self, force=False):
         """ write_profile(self) -> None
 
             Write out this ``OsProfile``'s data to a file in Boom
-            format to the paths specified by the current ``BOOM_ROOT``,
-            ``BOOM_PROFILES``, and ``BOOM_OS_PROFILE_FORMAT`` values.
+            format to the paths specified by the current configuration.
 
             Currently the ``os_id``, ``short_name`` and ``version_id``
             keys are used to construct the file name.
@@ -787,7 +796,7 @@ class OsProfile(object):
 
         profile_path = self._profile_path()
 
-        (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=BOOM_PROFILES_PATH)
+        (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_profiles_path())
         with fdopen(tmp_fd, "w") as f:
             for key in [k for k in PROFILE_KEYS if k in self._profile_data]:
                 if self._comments and key in self._comments:
@@ -836,7 +845,7 @@ __all__ = [
     'get_os_profile_by_id', 'match_os_profile', 'select_profile',
 
     # Module constants
-    'BOOM_PROFILES', 'BOOM_PROFILES_PATH', 'BOOM_OS_PROFILE_FORMAT',
+    'BOOM_PROFILES', 'BOOM_OS_PROFILE_FORMAT',
     'BOOM_PROFILE_MODE',
 
     # Exported key names
@@ -847,6 +856,9 @@ __all__ = [
     'BOOM_OS_OPTIONS',
 
     'PROFILE_KEYS', 'KEY_NAMES', 'REQUIRED_KEYS', 'ROOT_KEYS',
+
+    # Path configuration
+    'boom_profiles_path',
 
     # FIXME - testing only
     '_profiles'

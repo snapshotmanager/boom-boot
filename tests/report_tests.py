@@ -15,7 +15,7 @@ import unittest
 import logging
 from sys import stdout
 from os import listdir
-from os.path import exists
+from os.path import exists, abspath
 from StringIO import StringIO
 
 log = logging.getLogger()
@@ -23,10 +23,8 @@ log.level = logging.DEBUG
 log.addHandler(logging.FileHandler("test.log"))
 
 import boom
-BOOT_ROOT_TEST = "./tests"
-BOOM_ROOT_TEST = BOOT_ROOT_TEST + "/boom"
-boom.BOOM_ROOT = BOOM_ROOT_TEST
-boom.BOOT_ROOT = BOOT_ROOT_TEST
+BOOT_ROOT_TEST = abspath("./tests")
+boom.set_boot_path(BOOT_ROOT_TEST)
 
 import boom.report
 

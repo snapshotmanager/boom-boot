@@ -16,14 +16,15 @@ import unittest
 import logging
 import boom
 from sys import stdout
+from os.path import abspath
 
 log = logging.getLogger()
 log.level = logging.DEBUG
 log.addHandler(logging.FileHandler("test.log"))
 
-BOOM_ROOT_TEST = "./tests/boom"
-# Override default BOOM_ROOT.
-boom.BOOM_ROOT = BOOM_ROOT_TEST
+BOOT_ROOT_TEST = abspath("./tests")
+# Override default BOOT_ROOT.
+boom.set_boot_path(BOOT_ROOT_TEST)
 
 
 class BoomTests(unittest.TestCase):

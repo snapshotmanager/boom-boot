@@ -15,13 +15,15 @@ from os.path import exists as path_exists, isabs, join as path_join
 __version__ = "0.1"
 
 #: The location of the system ``/boot`` directory.
-BOOT_ROOT = "/boot"
+DEFAULT_BOOT_PATH = "/boot"
+__boot_root = DEFAULT_BOOT_PATH
 
 #: The default path for Boom configuration files.
-_DEFAULT_BOOM_PATH = "boom"
+_DEFAULT_BOOM_DIR = "boom"
 
 #: The root directory for Boom configuration files.
-BOOM_ROOT = path_join(BOOT_ROOT, _DEFAULT_BOOM_PATH)
+DEFAULT_BOOM_PATH = path_join(DEFAULT_BOOT_PATH, _DEFAULT_BOOM_DIR)
+__boom_root = DEFAULT_BOOM_PATH
 
 #: Kernel version string, in ``uname -r`` format.
 FMT_VERSION = "version"
@@ -48,46 +50,61 @@ FORMAT_KEYS = [
 ]
 
 
-def set_boom_boot_path(boot_path):
+def get_boot_path():
+    """get_boot_path() -> str
+
+        Return the currently configured boot file system path.
+        :returns: the path to the /boot file system.
+        :returntype: str
+    """
+    return __boot_root
+
+def get_boom_path():
+    """get_boom_path() -> str
+
+        Return the currently configured boom configuration path.
+        :returns: the path to the BOOT/boom directory.
+        :returntype: str
+    """
+    return __boom_root
+
+def set_boot_path(boot_path):
     """set_boot_root(boot_path) -> None
 
-        Set the location of the boot file system stored in ``BOOM_BOOT``
-        to ``boot_path``. ``BOOM_BOOT`` defaults to the '/boot/' mount
-        directory in the root file system: this may be overridden by
-        calling this function with a different path.
+        Set the location of the boot file system to ``boot_path``.
+        The path defaults to the '/boot/' mount directory in the root
+        file system: this may be overridden by calling this function
+        with a different path.
 
-        Calling ``set_boom_root_path()`` will re-set ``BOOM_ROOT`` to
-        the default boom configuration sub-directory within the new
-        boot file system. The location of the boom configuration path
-        may be configured separately by calling ``set_boom_root_path()``
-        after setting the boot path.
-
-        Paths must be set before importing any other boom API module:
-        changes are not automatically propagated to sub-modules.
+        Calling ``set_boom_root_path()`` will re-set the value returned
+        by ``get_boom_path()`` to the default boom configuration sub-
+        directory within the new boot file system. The location of the
+        boom configuration path may be configured separately by calling
+        ``set_boom_root_path()`` after setting the boot path.
 
         :param boot_path: the path to the 'boom/' directory containing
                           boom profiles and configuration.
         :returns: ``None``
         :raises: ValueError if ``boot_path`` does not exist.
     """
-    global BOOT_ROOT, BOOM_ROOT
+    global __boot_root, __boom_root
     if not isabs(boot_path):
-        raise ValueError("boot_path must be an absolute path" % boot_path)
+        raise ValueError("boot_path must be an absolute path: %s" % boot_path)
 
     if not path_exists(boot_path):
         raise ValueError("Path '%s' does not exist" % boot_path)
 
-    BOOT_ROOT = boot_path
-    BOOM_ROOT = path_join(boot_path, _DEFAULT_BOOM_PATH)
+    __boot_root = boot_path
+    __boom_root = path_join(boot_path, _DEFAULT_BOOM_DIR)
 
 
-def set_boom_root_path(root_path):
+def set_boom_path(root_path):
     """set_boom_root_path(root_path) -> None
 
         Set the location of the boom configuration path stored in
-        ``BOOM_ROOT`` to ``root_path``. ``BOOM_ROOT`` defaults to the
+        ``__boom_root`` to ``root_path``. ``__boom_root`` defaults to the
         'boom/' sub-directory in the boot file system specified by
-        ``BOOT_ROOT``: this may be overridden by calling this function
+        ``__boot_root``: this may be overridden by calling this function
         with a different path.
 
         Paths must be set before importing any other boom API module:
@@ -98,19 +115,19 @@ def set_boom_root_path(root_path):
         :returns: ``None``
         :raises: ValueError if ``root_path`` does not exist.
     """
-    global BOOT_ROOT, BOOM_ROOT
+    global __boot_root, __boom_root
     if isabs(root_path) and not path_exists(root_path):
         raise ValueError("Root path %s does not exist" % root_path)
-    elif not path_exists(path_join(BOOT_ROOT, root_path)):
+    elif not path_exists(path_join(__boot_root, root_path)):
         raise ValueError("Root path %s does not exist" % root_path)
 
     if not isabs(root_path):
-        root_path = path_join(BOOT_ROOT, root_path)
+        root_path = path_join(__boot_root, root_path)
 
     if not path_exists(path_join(root_path, "profiles")):
         raise ValueError("Root path is not a boom configuration path.")
 
-    BOOM_ROOT = root_path
+    __boom_root = root_path
 
 
 def _parse_btrfs_subvol(subvol):
@@ -436,7 +453,7 @@ def _key_regex_from_format(fmt, capture=False):
 
 __all__ = [
     # boom module constants
-    'BOOT_ROOT', 'BOOM_ROOT',
+    'DEFAULT_BOOT_PATH', 'DEFAULT_BOOM_PATH',
 
     # Profile format keys
     'FMT_VERSION',
@@ -451,9 +468,13 @@ __all__ = [
     # API Classes
     'Selection',
 
+    # Path configuration
+    'get_boot_path',
+    'get_boom_path',
+    'set_boot_path',
+    'set_boom_path',
+
     # Utility routines
-    'set_boom_boot_path',
-    'set_boom_root_path',
     '_blank_or_comment',
     '_parse_name_value',
     '_key_regex_from_format'

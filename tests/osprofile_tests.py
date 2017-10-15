@@ -14,6 +14,7 @@
 import unittest
 import logging
 from sys import stdout
+from os.path import abspath
 
 log = logging.getLogger()
 log.level = logging.DEBUG
@@ -22,9 +23,9 @@ log.addHandler(logging.FileHandler("test.log"))
 from os import listdir
 
 import boom
-BOOM_ROOT_TEST = "./tests/boom"
-# Override default BOOM_ROOT.
-boom.BOOM_ROOT = BOOM_ROOT_TEST
+BOOT_ROOT_TEST = abspath("./tests")
+boom.set_boot_path(BOOT_ROOT_TEST)
+
 from boom.osprofile import *
 from boom import Selection
 
@@ -208,7 +209,7 @@ class OsProfileTests(unittest.TestCase):
         osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
         osp.options = "root=%{root_device} ro %{root_opts} rhgb quiet"
         osp.write_profile()
-        profile_path = join(boom.osprofile.BOOM_PROFILES_PATH,
+        profile_path = join(boom_profiles_path(),
                             "%s-fedora24.profile" % osp.os_id)
         self.assertTrue(exists(profile_path))
 
@@ -227,7 +228,7 @@ class OsProfileTests(unittest.TestCase):
         os_short_name = "fedora"
         osp_list = find_profiles(selection=Selection(os_name=os_name))
         nr_profiles = 0
-        for f in listdir(boom.osprofile.BOOM_PROFILES_PATH):
+        for f in listdir(boom_profiles_path()):
             if os_short_name in f:
                 nr_profiles += 1
         self.assertTrue(len(osp_list), nr_profiles)

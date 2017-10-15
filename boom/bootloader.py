@@ -22,8 +22,8 @@ from os import listdir, rename, fdopen, chmod, unlink
 from hashlib import sha1
 import re
 
-#: The path to the BLS boot entries directory.
-BOOT_ENTRIES_PATH = path_join(BOOT_ROOT, "loader/entries")
+#: The path to the BLS boot entries directory relative to /boot
+ENTRIES_PATH = "loader/entries"
 
 #: The format used to construct entry file names.
 BOOT_ENTRIES_FORMAT = "%s-%s-%s.conf"
@@ -85,6 +85,16 @@ _entries = None
 
 #: Pattern for forming root device paths from LVM2 names.
 DEV_PATTERN = "/dev/%s"
+
+def boom_entries_path():
+    """boom_profiles_path() -> str
+
+        Return the path to the boom profiles directory.
+
+        :returns: The boom profiles path.
+        :returntype: str
+    """
+    return path_join(get_boot_path(), ENTRIES_PATH)
 
 
 class BootParams(object):
@@ -357,7 +367,7 @@ def _del_entry(entry):
 def load_entries(machine_id=None):
     """load_entries(machine_id) -> None
 
-        Load boot entries from ``boom.bootloader.BOOT_ENTRIES_PATH``.
+        Load boot entries from ``boom.bootloader.boom_entries_path()``.
 
         If ``machine_id`` is specified only matching entries will be
         considered.
@@ -368,13 +378,15 @@ def load_entries(machine_id=None):
     if not profiles_loaded():
         load_profiles()
 
+    entries_path = boom_entries_path()
+
     _entries = []
-    for entry in listdir(BOOT_ENTRIES_PATH):
+    for entry in listdir(entries_path):
         if not entry.endswith(".conf"):
             continue
         if machine_id and machine_id not in entry:
             continue
-        entry_path = path_join(BOOT_ENTRIES_PATH, entry)
+        entry_path = path_join(entries_path, entry)
         try:
             _add_entry(BootEntry(entry_file=entry_path))
         except Exception as e:
@@ -386,7 +398,7 @@ def write_entries():
     """write_entries() -> None
 
         Write all currently loaded boot entries to
-        ``boom.bootloader.BOOT_ENTRIES_PATH``.
+        ``boom.bootloader.boom_entries_path()``.
     """
     global _entries
     for be in _entries:
@@ -1183,13 +1195,13 @@ class BootEntry(object):
     def _entry_path(self):
         id_tuple = (self.machine_id, self.boot_id[0:7], self.version)
         file_name = BOOT_ENTRIES_FORMAT % id_tuple
-        return path_join(BOOT_ENTRIES_PATH, file_name)
+        return path_join(boom_entries_path(), file_name)
 
     def write_entry(self, force=False):
         """write_entry(self) -> None
 
             Write out this ``BootEntry``'s data to a file in BLS
-            format to the path specified by ``BOOT_ENTRIES_PATH``.
+            format to the path specified by ``boom_entries_path()``.
 
             The file will be named according to the entry's key values,
             and the value of the ``BOOT_ENTRIES_FORMAT`` constant.
@@ -1207,7 +1219,7 @@ class BootEntry(object):
                      new entry file fails.
         """
         entry_path = self._entry_path
-        (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=BOOT_ENTRIES_PATH)
+        (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_entries_path())
         with fdopen(tmp_fd, "w") as f:
             if self._osp:
                 # Insert OsIdentifier comment at top-of-file
@@ -1253,7 +1265,6 @@ class BootEntry(object):
 
 __all__ = [
     # Module constants
-    'BOOT_ENTRIES_PATH',
     'BOOT_ENTRIES_FORMAT',
     'BOOT_ENTRY_MODE',
 
@@ -1272,6 +1283,9 @@ __all__ = [
 
     # BootParams and BootEntry objects
     'BootParams', 'BootEntry',
+
+    # Path configuration
+    'boom_entries_path',
 
     # Entry lookup, load, and write functions
     'load_entries', 'write_entries', 'find_entries'

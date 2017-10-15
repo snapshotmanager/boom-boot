@@ -15,7 +15,7 @@ import unittest
 import logging
 from sys import stdout
 from os import listdir
-from os.path import exists
+from os.path import exists, abspath
 from StringIO import StringIO
 import re
 
@@ -24,44 +24,33 @@ log.level = logging.DEBUG
 log.addHandler(logging.FileHandler("test.log"))
 
 import boom
-BOOT_ROOT_TEST = "./tests"
-BOOM_ROOT_TEST = BOOT_ROOT_TEST + "/boom"
-boom.BOOM_ROOT = BOOM_ROOT_TEST
-boom.BOOT_ROOT = BOOT_ROOT_TEST
+BOOT_ROOT_TEST = abspath("./tests")
+boom.set_boot_path(BOOT_ROOT_TEST)
 
 from boom import Selection
-import boom.osprofile
-import boom.bootloader
-import boom.command
-import boom.report
-
-create_entry = boom.command.create_entry
-delete_entries = boom.command.delete_entries
-list_entries = boom.command.list_entries
-print_entries = boom.command.print_entries
-
-load_profiles = boom.osprofile.load_profiles
-
-get_os_profile_by_id = boom.osprofile.get_os_profile_by_id
+from boom.osprofile import *
+from boom.bootloader import *
+from boom.command import *
+from boom.report import *
 
 
 class CommandTests(unittest.TestCase):
     def test_list_entries(self):
-        path = boom.bootloader.BOOT_ENTRIES_PATH
+        path = boom_entries_path()
         nr = len([p for p in listdir(path) if p.endswith(".conf")])
         bes = boom.command.list_entries()
         self.assertTrue(len(bes), nr)
 
     def test_list_entries_match_machine_id(self):
         machine_id = "611f38fd887d41dea7eb3403b2730a76"
-        path = boom.bootloader.BOOT_ENTRIES_PATH
+        path = boom_entries_path()
         nr = len([p for p in listdir(path) if p.startswith(machine_id)])
         bes = boom.command.list_entries(Selection(machine_id=machine_id))
         self.assertTrue(len(bes), nr)
 
     def test_list_entries_match_version(self):
         version = "4.10.17-100.fc24.x86_64"
-        path = boom.bootloader.BOOT_ENTRIES_PATH
+        path = boom_entries_path()
         nr = len([p for p in listdir(path) if version in p])
         bes = boom.command.list_entries(Selection(version=version))
         self.assertEqual(len(bes), nr)

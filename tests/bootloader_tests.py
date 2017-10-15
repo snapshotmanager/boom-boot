@@ -15,7 +15,7 @@ import unittest
 import logging
 from sys import stdout
 from os import listdir
-from os.path import exists, join
+from os.path import exists, join, abspath
 
 log = logging.getLogger()
 log.level = logging.DEBUG
@@ -23,17 +23,15 @@ log.addHandler(logging.FileHandler("test.log"))
 
 # Override default BOOM_ROOT and BOOT_ROOT
 import boom
-BOOT_ROOT_TEST = "./tests"
-BOOM_ROOT_TEST = BOOT_ROOT_TEST + "/boom"
-boom.BOOM_ROOT = BOOM_ROOT_TEST
-boom.BOOT_ROOT = BOOT_ROOT_TEST
+BOOT_ROOT_TEST = abspath("./tests")
+boom.set_boot_path(BOOT_ROOT_TEST)
 
 import boom.bootloader
 from boom.osprofile import OsProfile
 from boom import Selection
 BootEntry = boom.bootloader.BootEntry
 BootParams = boom.bootloader.BootParams
-
+boom_entries_path = boom.bootloader.boom_entries_path
 
 class BootParamsTests(unittest.TestCase):
     def test_BootParams_no_version_raises(self):
@@ -607,12 +605,12 @@ class BootEntryTests(unittest.TestCase):
         version = "4.10.17-100.fc24.x86_64"
         boom.bootloader._entries = None
         bes = boom.bootloader.find_entries(Selection(version=version))
-        path = boom.bootloader.BOOT_ENTRIES_PATH
+        path = boom_entries_path()
         nr = len([p for p in listdir(path) if version in p])
         self.assertEqual(len(bes), nr)
 
     def test_find_entries_by_root_device(self):
-        entries_path = boom.bootloader.BOOT_ENTRIES_PATH
+        entries_path = boom_entries_path()
         root_device = "/dev/vg_root/root"
         boom.bootloader._entries = None
         bes = boom.bootloader.find_entries(Selection(root_device=root_device))
@@ -626,7 +624,7 @@ class BootEntryTests(unittest.TestCase):
         self.assertEqual(len(bes), xentries)
 
     def test_find_entries_by_lvm_root_lv(self):
-        entries_path = boom.bootloader.BOOT_ENTRIES_PATH
+        entries_path = boom_entries_path()
         boom.bootloader._entries = None
         lvm_root_lv = "vg_root/root"
         bes = boom.bootloader.find_entries(Selection(lvm_root_lv=lvm_root_lv))
@@ -640,7 +638,7 @@ class BootEntryTests(unittest.TestCase):
         self.assertEqual(len(bes), xentries)
 
     def test_find_entries_by_btrfs_subvol_id(self):
-        entries_path = boom.bootloader.BOOT_ENTRIES_PATH
+        entries_path = boom_entries_path()
         boom.bootloader._entries = None
         btrfs_subvol_id = "23"
         nr = 0
@@ -691,7 +689,7 @@ class BootLoaderTests(unittest.TestCase):
         # Test that loading the test entries succeeds.
         boom.bootloader.load_entries()
         entry_count = 0
-        for entry in listdir(boom.bootloader.BOOT_ENTRIES_PATH):
+        for entry in listdir(boom_entries_path()):
             if entry.endswith(".conf"):
                 entry_count += 1
         self.assertEqual(len(boom.bootloader._entries), entry_count)
@@ -702,7 +700,7 @@ class BootLoaderTests(unittest.TestCase):
         machine_id = "ffffffff"
         boom.bootloader.load_entries(machine_id=machine_id)
         entry_count = 0
-        for entry in listdir(boom.bootloader.BOOT_ENTRIES_PATH):
+        for entry in listdir(boom_entries_path()):
             if entry.startswith(machine_id) and entry.endswith(".conf"):
                 entry_count += 1
         self.assertEqual(len(boom.bootloader._entries), entry_count)
