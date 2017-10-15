@@ -1260,7 +1260,8 @@ class BootEntry(object):
         if not path_exists(self._entry_path):
             raise ValueError("Entry does not exist: %s" % self._entry_path)
         unlink(self._entry_path)
-        _del_entry(self)
+        if not self._unwritten:
+            _del_entry(self)
 
 
 __all__ = [
