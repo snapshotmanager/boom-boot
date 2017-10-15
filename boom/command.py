@@ -35,7 +35,7 @@ class BoomReportObj(object):
         method. It is an error to attempt to report an object that
         is undefined: the BoomReportObj used for a report must
         contain values for each object type that the specified list
-        of fields will attempt to access. FIXME: OR IS IT?!?!?!
+        of fields will attempt to access.
 
         This allows a single report to include fields from both a
         ``BootEntry`` object and an attached ``OsProfile``.

@@ -403,8 +403,6 @@ class OsProfile(object):
             Generate a new sha1 profile identifier for this profile,
             using the short_name, version, and version_id values and
             store it in _profile_data.
-
-            FIXME: Needs to distinguish variant?
         """
         hashdata = (self.short_name + self.version + self.version_id)
 
@@ -629,7 +627,6 @@ class OsProfile(object):
 
     @uname_pattern.setter
     def uname_pattern(self, value):
-        # FIXME who validates?
         self._profile_data[BOOM_OS_UNAME_PATTERN] = value
         self._dirty()
 
@@ -645,7 +642,6 @@ class OsProfile(object):
 
     @kernel_pattern.setter
     def kernel_pattern(self, value):
-        # FIXME who validates?
         self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
         self._dirty()
 
@@ -661,7 +657,6 @@ class OsProfile(object):
 
     @initramfs_pattern.setter
     def initramfs_pattern(self, value):
-        # FIXME who validates?
         self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
         self._dirty()
 
@@ -679,7 +674,6 @@ class OsProfile(object):
 
     @root_opts_lvm2.setter
     def root_opts_lvm2(self, value):
-        # FIXME who validates?
         self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = value
         self._dirty()
 
@@ -697,7 +691,6 @@ class OsProfile(object):
 
     @root_opts_btrfs.setter
     def root_opts_btrfs(self, value):
-        # FIXME who validates?
         self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
         self._dirty()
 
@@ -716,7 +709,6 @@ class OsProfile(object):
 
     @options.setter
     def options(self, value):
-        # FIXME who validates?
         self._profile_data[BOOM_OS_OPTIONS] = value
         self._dirty()
 
@@ -747,8 +739,6 @@ class OsProfile(object):
         """ from_file(cls) -> OsProfile
             Construct a new OsProfile object using data obtained from
             the file specified by 'path'.
-
-            FIXME: remove/rename? from_os_release_file()?
         """
         with open(path, "r") as f:
             return cls.from_os_release(f)
@@ -859,9 +849,6 @@ __all__ = [
 
     # Path configuration
     'boom_profiles_path',
-
-    # FIXME - testing only
-    '_profiles'
 ]
 
 # vim: set et ts=4 sw=4 :
