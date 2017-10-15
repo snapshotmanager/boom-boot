@@ -17,9 +17,11 @@ from boom.report import *
 from boom.bootloader import *
 
 import sys
+from os import environ
 from os.path import basename
 from argparse import ArgumentParser
 
+BOOM_BOOT_PATH_ENV="BOOM_BOOT_PATH"
 
 #
 # Reporting object types
@@ -1301,8 +1303,9 @@ def main(args):
 
     cmd_type = _match_cmd_type(cmd_args.type)
 
-    if cmd_args.boot_dir:
-        set_boot_path(cmd_args.boot_dir)
+    if cmd_args.boot_dir or BOOM_BOOT_PATH_ENV in environ:
+        boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
+        set_boot_path(boot_path)
 
     if not cmd_args.root_device and cmd_args.rootlv:
         cmd_args.root_device = DEV_PATTERN % cmd_args.rootlv
