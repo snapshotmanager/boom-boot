@@ -26,12 +26,9 @@ import boom
 BOOT_ROOT_TEST = abspath("./tests")
 boom.set_boot_path(BOOT_ROOT_TEST)
 
-import boom.bootloader
+from boom.bootloader import *
 from boom.osprofile import OsProfile
 from boom import Selection
-BootEntry = boom.bootloader.BootEntry
-BootParams = boom.bootloader.BootParams
-boom_entries_path = boom.bootloader.boom_entries_path
 
 class BootParamsTests(unittest.TestCase):
     def test_BootParams_no_version_raises(self):
@@ -310,13 +307,18 @@ class BootEntryTests(unittest.TestCase):
 
     def test_BootEntry_write(self):
         osp = self._get_test_OsProfile()
-        be = BootEntry(title="title", machine_id="ffffffff", osprofile=osp)
-        be.version = "1.1.1"
-        be.lvm_root_lv = "vg00/lvol0"
-        be.root_device = "/dev/vg00/lvol0"
+        bp = BootParams("1.1.1", root_device="/dev/vg00/lvol0",
+                        lvm_root_lv="vg00/lvol0")
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       osprofile=osp)
 
-        # write entry (FIXME: and verify by re-loading)
+        boot_id = be.boot_id
         be.write_entry()
+        load_entries()
+        be2 = find_entries(Selection(boot_id=boot_id))[0]
+        self.assertEqual(be.title, be2.title)
+        self.assertEqual(be.boot_id, be2.boot_id)
+        self.assertEqual(be.version, be2.version)
         be.delete_entry()
 
     def test_BootEntry_profile_kernel_version(self):
