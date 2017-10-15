@@ -1237,9 +1237,11 @@ def main(args):
         args.insert(1, "entry")
 
     parser.add_argument("type", metavar="[TYPE]", type=str,
-                        help="The command type to run", action="store")
-    parser.add_argument("command", metavar="COMMAND", type=str,
-                        help="The command to run", action="store")
+                        help="The command type to run: profile or entry",
+                        action="store")
+    parser.add_argument("command", metavar="COMMAND", type=str, action="store",
+                        help="The command to run: create, delete, list, edit, "
+                        "clone, show")
     parser.add_argument("-b", "--boot-id", metavar="BOOT_ID", type=str,
                         help="The BOOT_ID of a boom boot entry")
     parser.add_argument("--boot-dir", metavar="PATH", type=str,
