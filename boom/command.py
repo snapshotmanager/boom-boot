@@ -398,7 +398,7 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     bes = find_entries(selection=selection)
     if not bes:
         raise ValueError("No matching entry found for boot ID %s" %
-                         selection.boot_id[:7])
+                         selection.disp_boot_id)
         return 1
 
     be = bes.pop()
@@ -982,7 +982,7 @@ def _show_cmd(cmd_args, select):
     for be in bes:
         ws = "" if first else "\n"
         be_str = _str_indent(str(be), 2)
-        print("%sBoot Entry (boot_id=%s)\n%s" % (ws, be.boot_id[:7], be_str))
+        print("%sBoot Entry (boot_id=%s)\n%s" % (ws, be.disp_boot_id, be_str))
         first = False
     return 0
 
@@ -1020,7 +1020,7 @@ def _edit_cmd(cmd_args, select):
         print(e)
         return 1
 
-    print("Edited entry, boot_id now: %s" % be.boot_id[:7])
+    print("Edited entry, boot_id now: %s" % be.disp_boot_id)
     print(_str_indent(str(be), 2))
     return 0
 

@@ -302,7 +302,7 @@ def match_os_profile(entry):
             if osp.match(entry):
                 _log_debug("Matched BootEntry(version='%s', boot_id='%s')"
                            " to OsProfile(name='%s', os_id='%s')" %
-                           (entry.version, entry.boot_id[:7],
+                           (entry.version, entry.disp_boot_id,
                             osp.name, osp.os_id[:7]))
                 return osp
 
@@ -314,7 +314,7 @@ def match_os_profile(entry):
             if osp.match_options(entry):
                 _log_debug("Matched BootEntry(version='%s', boot_id='%s')"
                            " to OsProfile(name='%s', os_id='%s')" %
-                           (entry.version, entry.boot_id[:7],
+                           (entry.version, entry.disp_boot_id,
                             osp.name, osp.os_id[:7]))
                 return osp
 

@@ -478,6 +478,29 @@ def _key_regex_from_format(fmt, capture=False):
 
     return out_fmt
 
+
+def _find_minimum_sha_prefix(shas, min_prefix):
+    """_find_minimum_sha_prefix(shas) -> int
+
+        Find the minimum unique prefix for the set of SHA IDs in the set
+        ``shas``.
+
+        :param shas: A set of SHA IDs
+        :returns: The minimum unique prefix length for the set
+        :returntype: int
+    """
+    shas = list(shas)
+    shas.sort()
+    for sha in shas:
+        if shas.index(sha) == len(shas) - 1:
+            continue
+        def _next_sha(shas, sha):
+            return shas[shas.index(sha) + 1]
+        while sha[:min_prefix] == _next_sha(shas, sha)[:min_prefix]:
+            min_prefix += 1
+    return min_prefix
+
+
 __all__ = [
     # boom module constants
     'DEFAULT_BOOT_PATH', 'DEFAULT_BOOM_PATH',
@@ -504,7 +527,8 @@ __all__ = [
     # Utility routines
     '_blank_or_comment',
     '_parse_name_value',
-    '_key_regex_from_format'
+    '_key_regex_from_format',
+    '_find_minimum_sha_prefix'
 ]
 
 # vim: set et ts=4 sw=4 :

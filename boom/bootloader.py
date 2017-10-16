@@ -296,7 +296,7 @@ class BootParams(object):
         version = be.version
 
         _log_debug("Initialising BootParams() from BootEntry(boot_id='%s')" %
-                   be.boot_id[:7])
+                   be.disp_boot_id)
 
         # Decompose options first to obtain root device and options.
         options_regex = _key_regex_from_format(osp.options, capture=True)
@@ -420,8 +420,26 @@ def write_entries():
             be.write_entry()
         except Exception as e:
             _log_warn("Could not write BootEntry(boot_id='%s'): %s" %
-                      (be.boot_id[:7], e))
+                      (be.disp_boot_id, e))
 
+
+def min_boot_id_width():
+    """minimum_boot_id_width() -> int
+
+        Calculate the minimum width to ensure uniqueness when displaying
+        boot_id values.
+
+        :returns: the minimum boot_id width.
+        :returntype: int
+    """
+    min_prefix = 7
+    if not _entries:
+        return min_prefix
+
+    shas = set()
+    for be in _entries:
+        shas.add(be.boot_id)
+    return _find_minimum_sha_prefix(shas, min_prefix)
 
 def select_params(s, bp):
     if s.root_device and s.root_device != bp.root_device:
@@ -1047,6 +1065,18 @@ class BootEntry(object):
         return None
 
     @property
+    def disp_boot_id(self):
+        """The display boot_id of this entry.
+
+            Return the shortest prefix of this BootEntry's boot_id that
+            is unique within the current set of loaded entries.
+
+            :getter: return this BootEntry's boot_id.
+            :type: str
+        """
+        return self.boot_id[:min_boot_id_width()]
+
+    @property
     def boot_id(self):
         """A SHA1 digest that uniquely identifies this ``BootEntry``.
 
@@ -1311,7 +1341,10 @@ __all__ = [
     'boom_entries_path',
 
     # Entry lookup, load, and write functions
-    'load_entries', 'write_entries', 'find_entries'
+    'load_entries', 'write_entries', 'find_entries',
+
+    # Formatting
+    'min_boot_id_width'
 ]
 
 # vim: set et ts=4 sw=4 :
