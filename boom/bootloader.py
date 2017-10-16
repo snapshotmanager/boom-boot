@@ -402,8 +402,8 @@ def load_entries(machine_id=None):
         try:
             _add_entry(BootEntry(entry_file=entry_path))
         except Exception as e:
-            print("Could not load entry: %s" % entry_path)
-            print(e)
+            _log_warn("Could not load BootEntry '%s': %s" %
+                      (entry_path, e))
 
     _log_debug("Loaded %d entries" % len(_entries))
 
@@ -416,7 +416,12 @@ def write_entries():
     """
     global _entries
     for be in _entries:
-        be.write_entry()
+        try:
+            be.write_entry()
+        except Exception as e:
+            _log_warn("Could not write BootEntry(boot_id='%s'): %s" %
+                      (be.boot_id[:7], e))
+
 
 def select_params(s, bp):
     if s.root_device and s.root_device != bp.root_device:
