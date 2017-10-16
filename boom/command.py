@@ -1268,7 +1268,7 @@ def main(args):
                             description="Boom Boot Manager")
 
     # Default type is boot entry.
-    if _match_command(args[1], _boom_entry_commands):
+    if len(args) > 1 and _match_command(args[1], _boom_entry_commands):
         args.insert(1, "entry")
 
     parser.add_argument("type", metavar="[TYPE]", type=str,
