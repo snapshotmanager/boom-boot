@@ -264,15 +264,15 @@ def find_profiles(selection=None, match_fn=select_profile):
     """
     global _profiles
 
+    # Use null search criteria if unspecified
+    s = selection if selection else Selection()
+
     selection.check_valid_selection(profile=True)
 
     if not profiles_loaded():
         load_profiles()
 
     matches = []
-
-    # Use null search criteria if unspecified
-    s = selection if selection else Selection()
 
     for osp in _profiles:
         if _is_null_profile(osp):
