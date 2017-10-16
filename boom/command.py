@@ -1328,7 +1328,7 @@ def main(args):
     parser.add_argument("-u", "--uname-pattern", metavar="PATTERN", type=str,
                         help="A Boom OsProfile uname pattern")
     parser.add_argument("-V", "--verbose", help="Enable verbose ouput",
-                        action="store_true")
+                        action="count")
     parser.add_argument("-v", "--version", metavar="VERSION", type=str,
                         help="The kernel version of a boom "
                         "boot entry")
