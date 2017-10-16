@@ -1288,6 +1288,8 @@ class BootEntry(object):
             rename(tmp_path, entry_path)
             chmod(entry_path, BOOT_ENTRY_MODE)
         except Exception as e:
+            _log_error("Error writing entry file %s: %s" %
+                       (entry_path, e))
             try:
                 unlink(tmp_path)
             except:
@@ -1311,7 +1313,13 @@ class BootEntry(object):
         """
         if not path_exists(self._entry_path):
             raise ValueError("Entry does not exist: %s" % self._entry_path)
-        unlink(self._entry_path)
+        try:
+            unlink(self._entry_path)
+        except Exception as e:
+            _log_error("Error removing entry file %s: %s" %
+                       (entry_path, e))
+            raise
+
         if not self._unwritten:
             _del_entry(self)
 
