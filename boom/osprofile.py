@@ -165,7 +165,7 @@ def load_profiles():
             osp = OsProfile(profile_file=pf_path)
         except Exception as e:
             _log_warn("Failed to load OsProfile from '%s': %s" %
-                      (osp.os_id[:7]))
+                      (osp.disp_os_id))
         _profiles.append(osp)
         _profiles_by_id[osp.os_id] = osp
     _profiles_loaded = True
@@ -188,7 +188,26 @@ def write_profiles(force=False):
             osp.write_profile(force)
         except Exception as e:
             _log_warn("Failed to write OsProfile(os_id='%s'): %s" %
-                      (osp.os_id[:7], e))
+                      (osp.disp_os_id, e))
+
+
+def min_os_id_width():
+    """minimum_os_id_width() -> int
+
+        Calculate the minimum width to ensure uniqueness when displaying
+        os_id values.
+
+        :returns: the minimum os_id width.
+        :returntype: int
+    """
+    min_prefix = 7
+    if not _profiles:
+        return min_prefix
+
+    shas = set()
+    for osp in _profiles:
+        shas.add(osp.os_id)
+    return _find_minimum_sha_prefix(shas, min_prefix)
 
 
 def select_profile(s, osp):
@@ -303,7 +322,7 @@ def match_os_profile(entry):
                 _log_debug("Matched BootEntry(version='%s', boot_id='%s')"
                            " to OsProfile(name='%s', os_id='%s')" %
                            (entry.version, entry.disp_boot_id,
-                            osp.name, osp.os_id[:7]))
+                            osp.name, osp.disp_os_id))
                 return osp
 
     # No matching uname pattern: attempt to match options template
@@ -315,7 +334,7 @@ def match_os_profile(entry):
                 _log_debug("Matched BootEntry(version='%s', boot_id='%s')"
                            " to OsProfile(name='%s', os_id='%s')" %
                            (entry.version, entry.disp_boot_id,
-                            osp.name, osp.os_id[:7]))
+                            osp.name, osp.disp_os_id))
                 return osp
 
     return _null_profile
@@ -630,6 +649,18 @@ class OsProfile(object):
     # the corresponding attributes are read-only.
 
     @property
+    def disp_os_id(self):
+        """The display os_id of this profile.
+
+            Return the shortest prefix of this OsProfile's os_id that
+            is unique within the current set of loaded profiles.
+
+            :getter: return this OsProfile's os_id.
+            :type: str
+        """
+        return self.os_id[:min_os_id_width()]
+
+    @property
     def os_id(self):
         """The ``os_id`` of this profile.
 
@@ -849,7 +880,7 @@ class OsProfile(object):
         profile_path = self._profile_path()
 
         _log_debug("Writing OsProfile(name='%s', os_id='%s') to '%s'" %
-                   (self.name, self.os_id[:7], basename(profile_path)))
+                   (self.name, self.disp_os_id, basename(profile_path)))
 
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_profiles_path())
         with fdopen(tmp_fd, "w") as f:
@@ -867,7 +898,7 @@ class OsProfile(object):
                 pass
             raise e
 
-        _log_debug("Wrote profile (os_id=%s)'" % self.os_id[:7])
+        _log_debug("Wrote profile (os_id=%s)'" % self.disp_os_id)
 
     def delete_profile(self):
         """delete_profile(self) -> None
@@ -885,7 +916,7 @@ class OsProfile(object):
         global _profiles
         profile_path = self._profile_path()
         _log_debug("Deleting OsProfile(name='%s', os_id='%s') from '%s'" %
-                   (self.name, self.os_id[:7], basename(profile_path)))
+                   (self.name, self.disp_os_id, basename(profile_path)))
         if _profiles and self in _profiles:
             _profiles.remove(self)
 
@@ -893,7 +924,7 @@ class OsProfile(object):
             return
 
         unlink(profile_path)
-        _log_debug("Deleted OsProfile(os_id='%s')" % self.os_id[:7])
+        _log_debug("Deleted OsProfile(os_id='%s')" % self.disp_os_id)
 
 
 _null_profile = OsProfile(name="", short_name="", version="", version_id="")

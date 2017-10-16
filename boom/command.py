@@ -1137,7 +1137,7 @@ def _show_profile_cmd(cmd_args, select):
     for osp in osps:
         ws = "" if first else "\n"
         osp_str = _str_indent(str(osp), 2)
-        print("%sOS Profile (os_id=%s)\n%s" % (ws, osp.os_id[:7], osp_str))
+        print("%sOS Profile (os_id=%s)\n%s" % (ws, osp.disp_os_id, osp_str))
         first = False
     return 0
 
