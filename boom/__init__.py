@@ -301,18 +301,21 @@ class Selection(object):
         else:
             btrfs_subvol_id = btrfs_subvol_path = None
 
-        return Selection(boot_id=args.boot_id, title=args.title,
-                         version=args.version, machine_id=args.machine_id,
-                         linux=args.linux, initrd=args.initrd, efi=args.efi,
-                         root_device=args.root_device,
-                         lvm_root_lv=args.rootlv,
-                         btrfs_subvol_path=btrfs_subvol_path,
-                         btrfs_subvol_id=btrfs_subvol_id,
-                         os_id=args.profile, os_name=args.name,
-                         os_short_name=args.short_name,
-                         os_version=args.os_version,
-                         os_options=args.os_options,
-                         os_uname_pattern=args.uname_pattern)
+        s = Selection(boot_id=args.boot_id, title=args.title,
+                      version=args.version, machine_id=args.machine_id,
+                      linux=args.linux, initrd=args.initrd, efi=args.efi,
+                      root_device=args.root_device,
+                      lvm_root_lv=args.rootlv,
+                      btrfs_subvol_path=btrfs_subvol_path,
+                      btrfs_subvol_id=btrfs_subvol_id,
+                      os_id=args.profile, os_name=args.name,
+                      os_short_name=args.short_name,
+                      os_version=args.os_version,
+                      os_options=args.os_options,
+                      os_uname_pattern=args.uname_pattern)
+
+        _log_debug("Initialised %s from arguments" % repr(s))
+        return s
 
     def __attr_has_value(self, attr):
         return hasattr(self, attr) and getattr(self, attr) is not None
