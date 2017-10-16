@@ -12,6 +12,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 import sys
+from boom import _find_minimum_sha_prefix
 
 _default_columns = 80
 
@@ -40,6 +41,7 @@ _align_types = [ALIGN_LEFT, ALIGN_RIGHT]
 STANDARD_QUOTE = "'"
 STANDARD_PAIR = "="
 
+MIN_SHA_WIDTH = 7
 
 class BoomReportOpts(object):
     """BoomReportOpts()
@@ -412,26 +414,19 @@ class BoomReport(object):
 
     def __recalculate_sha_width(self):
         shas = {}
+        props_map = {}
         for row in self._rows:
             for field in row._fields:
                 if self._fields[field._props.field_num].dtype == REP_SHA:
-                    # Use field_type as index to apply check across rows
-                    field_type = self._fields[field._props.field_num]
-                    if field_type not in shas:
-                        shas[field_type] = set()
-                    shas[field_type].add(field.report_string)
-        min_prefix = max(7,field._props.initial_width)
-        for field_type in shas.keys():
-            shas[field_type] = list(shas[field_type])
-            shas[field_type].sort()
-            for sha in shas[field_type]:
-                if shas[field_type].index(sha) == len(shas[field_type]) - 1:
-                    continue
-                def _next_sha(shas, sha):
-                    return shas[field_type][shas[field_type].index(sha) + 1]
-                while sha[:min_prefix] == _next_sha(shas, sha)[:min_prefix]:
-                    min_prefix += 1
-            field._props.width = min_prefix
+                    # Use field_num as index to apply check across rows
+                    num = field._props.field_num
+                    if num not in shas:
+                        shas[num] = set()
+                        props_map[num] = field._props
+                    shas[num].add(field.report_string)
+        for num in shas.keys():
+            min_prefix = max(MIN_SHA_WIDTH, props_map[num].width)
+            props_map[num].width = _find_minimum_sha_prefix(shas[num], min_prefix)
 
     def __recalculate_fields(self):
         for row in self._rows:
