@@ -161,7 +161,11 @@ def load_profiles():
         if not pf.endswith(".profile"):
             continue
         pf_path = path_join(profiles_path, pf)
-        osp = OsProfile(profile_file=pf_path)
+        try:
+            osp = OsProfile(profile_file=pf_path)
+        except Exception as e:
+            _log_warn("Failed to load OsProfile from '%s': %s" %
+                      (osp.os_id[:7]))
         _profiles.append(osp)
         _profiles_by_id[osp.os_id] = osp
     _profiles_loaded = True
@@ -180,8 +184,11 @@ def write_profiles(force=False):
     for osp in _profiles:
         if _is_null_profile(osp):
             continue
-        # FIXME: handle exceptions in write_profile()
-        osp.write_profile(force)
+        try:
+            osp.write_profile(force)
+        except Exception as e:
+            _log_warn("Failed to write OsProfile(os_id='%s'): %s" %
+                      (osp.os_id[:7], e))
 
 
 def select_profile(s, osp):
