@@ -115,7 +115,9 @@ def set_boot_path(boot_path):
         raise ValueError("Path '%s' does not exist" % boot_path)
 
     __boot_root = boot_path
+    _log_debug("Set boot path to: %s" % __boot_root)
     __boom_root = path_join(boot_path, _DEFAULT_BOOM_DIR)
+    _log_debug("Set boom path to: %s" % __boom_root)
 
 
 def set_boom_path(root_path):
@@ -147,6 +149,7 @@ def set_boom_path(root_path):
     if not path_exists(path_join(root_path, "profiles")):
         raise ValueError("Root path is not a boom configuration path.")
 
+    _log_debug("Set boom path to: %s" % _DEFAULT_BOOM_DIR)
     __boom_root = root_path
 
 
