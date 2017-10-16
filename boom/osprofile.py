@@ -156,7 +156,7 @@ def load_profiles():
     _profiles_by_id[_null_profile.os_id] = _null_profile
     profiles_path = boom_profiles_path()
     profile_files = listdir(profiles_path)
-    _log_debug("Loading profiles from %s" % profiles_path)
+    _log_info("Loading profiles from %s" % profiles_path)
     for pf in profile_files:
         if not pf.endswith(".profile"):
             continue
@@ -169,7 +169,7 @@ def load_profiles():
         _profiles.append(osp)
         _profiles_by_id[osp.os_id] = osp
     _profiles_loaded = True
-    _log_debug("Loaded %d profiles" % (len(_profiles) - 1))
+    _log_info("Loaded %d profiles" % (len(_profiles) - 1))
 
 
 
