@@ -86,6 +86,10 @@ _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
 
+def _log_debug_entry(msg, *args, **kwargs):
+    if get_debug_mask() & BOOM_DEBUG_ENTRY:
+        _log.debug(msg, *args, **kwargs)
+
 #: The global list of boot entries.
 _entries = None
 
@@ -269,7 +273,7 @@ class BootParams(object):
         if btrfs_subvol_id:
             self.btrfs_subvol_id = btrfs_subvol_id
 
-        _log_debug("Initialised %s" % repr(self))
+        _log_debug_entry("Initialised %s" % repr(self))
 
     @classmethod
     def from_entry(cls, be):
@@ -295,14 +299,17 @@ class BootParams(object):
         # Version is written directly from BootParams
         version = be.version
 
-        _log_debug("Initialising BootParams() from BootEntry(boot_id='%s')" %
-                   be.disp_boot_id)
+        _log_debug_entry("Initialising BootParams() from "
+                         "BootEntry(boot_id='%s')" % be.boot_id)
 
         # Decompose options first to obtain root device and options.
         options_regex = _key_regex_from_format(osp.options, capture=True)
 
         if not options_regex:
             return None
+
+        _log_debug_entry("Matching options regex '%s' to '%s'" %
+                         (options_regex, be.options))
 
         match = re.match(options_regex, be.options)
         if not match:
@@ -311,6 +318,8 @@ class BootParams(object):
         root_device = match.group(1)
         if len(match.groups()) == 2:
             root_opts = match.group(2)
+
+        _log_debug_entry("Matched root_device='%s'" % root_device)
 
         lvm2_root_lv = None
         btrfs_root_opts = None
@@ -327,6 +336,7 @@ class BootParams(object):
             match = re.search(lvm2_opts_regex, root_opts)
             if match:
                 lvm2_root_lv=match.group(1)
+                _log_debug_entry("Matched lvm2_root_lv='%s'" % lvm2_root_lv)
 
             match = re.search(btrfs_opts_regex, root_opts)
             if match:
@@ -335,10 +345,14 @@ class BootParams(object):
                     subvolid_regex = r"subvolid=(\d*)"
                     match = re.match(subvolid_regex, btrfs_root_opts)
                     btrfs_subvol_id = match.group(1)
+                    _log_debug_entry("Matched btrfs_subvol_id='%s'" %
+                                     btrfs_subvol_id)
                 elif "subvol" in btrfs_root_opts:
                     subvolpath_regex = r"subvol=(\S*)"
                     match = re.match(subvolpath_regex, btrfs_root_opts)
                     btrfs_subvol_path = match.group(1)
+                    _log_debug_entry("Matched btrfs_subvol_path='%s'" %
+                                     btrfs_subvol_path)
                 else:
                     raise ValueError("Unrecognized btrfs root options: %s"
                                      % btrfs_root_opts)
@@ -397,6 +411,8 @@ def load_entries(machine_id=None):
         if not entry.endswith(".conf"):
             continue
         if machine_id and machine_id not in entry:
+            _log_debug_entry("Skipping entry with machine_id!='%s'",
+                             machine_id)
             continue
         entry_path = path_join(entries_path, entry)
         try:
@@ -502,9 +518,12 @@ def find_entries(selection=None):
 
     selection.check_valid_selection(entry=True, params=True, profile=True)
 
+    _log_debug_entry("Finding entries for %s" % repr(selection))
+
     for be in _entries:
         if select_entry(selection, be):
             matches.append(be)
+    _log_debug_entry("Found %d entries" % len(matches))
     return matches
 
 
@@ -800,6 +819,8 @@ class BootEntry(object):
             # the comment list.
             if not self._osp and osp:
                 self._osp = osp
+                _log_debug_entry("Parsed os_id='%s' from comment" %
+                                 osp.disp_os_id)
             else:
                 outlines += line + "\n"
         return outlines
@@ -1057,7 +1078,9 @@ class BootEntry(object):
         # the inclusion of the ``boot_id``.
         #
         # Other callers should always rely on the standard methods.
-        return sha1(self.__str(no_boot_id=True).encode('utf-8')).hexdigest()
+        boot_id = sha1(self.__str(no_boot_id=True).encode('utf-8')).hexdigest()
+        _log_debug_entry("Generated new boot_id='%s'" % boot_id)
+        return boot_id
 
     def _entry_data_property(self, name):
         if self._entry_data and name in self._entry_data:

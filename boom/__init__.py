@@ -72,6 +72,29 @@ _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
 
+# Boom debugging levels
+BOOM_DEBUG_PROFILE = 1
+BOOM_DEBUG_ENTRY = 2
+BOOM_DEBUG_REPORT = 4
+BOOM_DEBUG_COMMAND = 8
+BOOM_DEBUG_ALL = (BOOM_DEBUG_PROFILE |
+                  BOOM_DEBUG_ENTRY |
+                  BOOM_DEBUG_REPORT |
+                  BOOM_DEBUG_COMMAND)
+
+__debug_mask = 0
+
+def get_debug_mask():
+    return __debug_mask
+
+
+def set_debug_mask(mask):
+    global __debug_mask
+    if mask < 0 or mask > BOOM_DEBUG_ALL:
+        raise ValueError("Invalid boom debug mask: %d" % mask)
+    __debug_mask = mask
+
+
 def get_boot_path():
     """get_boot_path() -> str
 
@@ -536,6 +559,15 @@ __all__ = [
     'get_boom_path',
     'set_boot_path',
     'set_boom_path',
+
+    # Debug logging
+    'get_debug_mask',
+    'set_debug_mask',
+    'BOOM_DEBUG_PROFILE',
+    'BOOM_DEBUG_ENTRY',
+    'BOOM_DEBUG_REPORT',
+    'BOOM_DEBUG_COMMAND',
+    'BOOM_DEBUG_ALL',
 
     # Utility routines
     '_blank_or_comment',

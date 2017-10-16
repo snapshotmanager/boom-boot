@@ -106,6 +106,10 @@ _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
 
+def _log_debug_profile(msg, *args, **kwargs):
+    if get_debug_mask() & BOOM_DEBUG_PROFILE:
+        _log.debug(msg, *args, **kwargs)
+
 #: Global profile list
 _profiles = []
 _profiles_by_id = {}
@@ -274,11 +278,13 @@ def find_profiles(selection=None, match_fn=select_profile):
 
     matches = []
 
+    _log_debug_profile("Finding profiles for %s" % repr(selection))
     for osp in _profiles:
         if _is_null_profile(osp):
             continue
         if match_fn(selection, osp):
             matches.append(osp)
+    _log_debug_profile("Found %d profiles" % len(matches))
     return matches
 
 
@@ -319,10 +325,10 @@ def match_os_profile(entry):
             continue
         if hasattr(osp, "match"):
             if osp.match(entry):
-                _log_debug("Matched BootEntry(version='%s', boot_id='%s')"
-                           " to OsProfile(name='%s', os_id='%s')" %
-                           (entry.version, entry.disp_boot_id,
-                            osp.name, osp.disp_os_id))
+                _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
+                           "to OsProfile(name='%s', os_id='%s')" %
+                            (entry.version, entry.disp_boot_id, osp.name,
+                             osp.disp_os_id))
                 return osp
 
     # No matching uname pattern: attempt to match options template
@@ -331,11 +337,14 @@ def match_os_profile(entry):
             continue
         if hasattr(osp, "match_options"):
             if osp.match_options(entry):
-                _log_debug("Matched BootEntry(version='%s', boot_id='%s')"
-                           " to OsProfile(name='%s', os_id='%s')" %
-                           (entry.version, entry.disp_boot_id,
-                            osp.name, osp.disp_os_id))
+                _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
+                           "to OsProfile(name='%s', os_id='%s')" %
+                           (entry.version, entry.disp_boot_id, osp.name,
+                           osp.disp_os_id))
                 return osp
+
+    _log_debug_profile("No matching profile found for boot_id=%s" %
+                       entry.boot_id)
 
     return _null_profile
 
@@ -613,6 +622,8 @@ class OsProfile(object):
         """
         # First attempt to match a uname string pattern
         if self.uname_pattern and entry.version:
+            _log_debug_profile("Matching uname pattern '%s' to '%s'" %
+                               (self.uname_pattern, entry.version))
             if re.search(self.uname_pattern, entry.version):
                 return True
         return False
@@ -633,7 +644,9 @@ class OsProfile(object):
         """
         # Attempt to match a distribution-formatted options line
         if self.options and entry.options:
-            key_regex = _key_regex_from_format(self.options)
+            options_pattern = _key_regex_from_format(self.options)
+            _log_debug_profile("Matching options pattern '%s' to '%s'"
+                               (options_pattern, entry.options))
             if re.match(key_regex, entry.options):
                 return True
         return False

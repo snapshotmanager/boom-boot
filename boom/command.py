@@ -1263,6 +1263,26 @@ def shutdown_logging():
     logging.shutdown()
 
 
+def set_debug(debug_arg):
+    if not debug_arg:
+        return
+
+    mask_map = {
+        "profile": BOOM_DEBUG_PROFILE,
+        "entry": BOOM_DEBUG_ENTRY,
+        "report": BOOM_DEBUG_REPORT,
+        "command": BOOM_DEBUG_COMMAND,
+        "all": BOOM_DEBUG_ALL
+    }
+
+    mask = 0
+    for name in debug_arg.split(','):
+        if name not in mask_map:
+            raise ValueError("Unknown debug mask: %s" % name)
+        mask |= mask_map[name]
+    set_debug_mask(mask)
+
+
 def main(args):
     global _boom_entry_commands, _boom_profile_commands, _boom_command_types
     parser = ArgumentParser(prog=basename(args[0]),
@@ -1286,6 +1306,8 @@ def main(args):
                         help="The path or ID of a BTRFS subvolume")
     parser.add_argument("--btrfs-opts", metavar="OPTS", type=str,
                         help="A template option string for BTRFS devices")
+    parser.add_argument("--debug", metavar="DEBUGOPTS", type=str,
+                        help="A list of debug options to enable")
     parser.add_argument("-e", "--efi", metavar="IMG", type=str,
                         help="An executable EFI application image")
     parser.add_argument("-H", "--from-host", help="Take os-release values "
@@ -1335,6 +1357,7 @@ def main(args):
                         "boot entry")
     cmd_args = parser.parse_args()
 
+    set_debug(cmd_args.debug)
     setup_logging(cmd_args)
     cmd_type = _match_cmd_type(cmd_args.type)
 
