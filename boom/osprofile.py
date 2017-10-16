@@ -287,8 +287,14 @@ def match_os_profile(entry):
         :returntype: ``BootEntry`` or ``NoneType``.
     """
     global _profiles, _profiles_loaded
-    _log_debug("Attempting to match profile for BootEntry(boot_id='%s') "
-               "with unknown os_id" % entry.boot_id[:7])
+
+    # Do not report a boot_id: it will change if an OsProfile is
+    # matched to the entry.
+    _log_debug("Attempting to match profile for BootEntry(title='%s', "
+               "version='%s') with unknown os_id" %
+               (entry.title, entry.version))
+
+    # Attempt to match by uname pattern
     for osp in _profiles:
         if _is_null_profile(osp):
             continue
@@ -296,8 +302,22 @@ def match_os_profile(entry):
             if osp.match(entry):
                 _log_debug("Matched BootEntry(version='%s', boot_id='%s')"
                            " to OsProfile(name='%s', os_id='%s')" %
-                           (entry, osp))
+                           (entry.version, entry.boot_id[:7],
+                            osp.name, osp.os_id[:7]))
                 return osp
+
+    # No matching uname pattern: attempt to match options template
+    for osp in _profiles:
+        if _is_null_profile(osp):
+            continue
+        if hasattr(osp, "match_options"):
+            if osp.match_options(entry):
+                _log_debug("Matched BootEntry(version='%s', boot_id='%s')"
+                           " to OsProfile(name='%s', os_id='%s')" %
+                           (entry.version, entry.boot_id[:7],
+                            osp.name, osp.os_id[:7]))
+                return osp
+
     return _null_profile
 
 
@@ -562,7 +582,7 @@ class OsProfile(object):
         _profiles.append(self)
 
     def match(self, entry):
-        """match(self, entry) -> ``OsProfile``
+        """match(self, entry) -> bool
 
             Test the supplied ``BootEntry`` to determine whether it
             matches this ``OsProfile``.
@@ -576,6 +596,22 @@ class OsProfile(object):
         if self.uname_pattern and entry.version:
             if re.search(self.uname_pattern, entry.version):
                 return True
+        return False
+
+    def match_options(self, entry):
+        """match_options(self, entry) -> bool
+
+            Test the supplied ``BootEntry`` to determine whether it
+            matches the options template defined by this ``OsProfile``.
+
+            Used as a match of last resort when no uname pattern match
+            exists.
+
+            :param entry: A ``BootEntry`` to match against this profile.
+            :returns: ``True`` if this entry matches this profile, or
+                      ``False`` otherwise.
+            :returntype: bool
+        """
         # Attempt to match a distribution-formatted options line
         if self.options and entry.options:
             key_regex = _key_regex_from_format(self.options)
