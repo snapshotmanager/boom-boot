@@ -1247,7 +1247,6 @@ def setup_logging(cmd_args):
         level = logging.INFO
     if cmd_args.verbose == 2:
         level = logging.DEBUG
-    level = logging.DEBUG
     # Configure the package-level logger
     boom_log = logging.getLogger("boom")
     formatter = logging.Formatter('%(levelname)s - %(message)s')
