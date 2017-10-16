@@ -892,6 +892,8 @@ class OsProfile(object):
             rename(tmp_path, profile_path)
             chmod(profile_path, BOOM_PROFILE_MODE)
         except Exception as e:
+            _log_error("Error writing profile file '%s': %s" %
+                       (profile_path, e))
             try:
                 unlink(tmp_path)
             except:
@@ -923,7 +925,12 @@ class OsProfile(object):
         if not path_exists(profile_path):
             return
 
-        unlink(profile_path)
+        try:
+            unlink(profile_path)
+        except Exception as e:
+            _log_error("Error removing profile file '%s': %s" %
+                       (profile_path, e))
+
         _log_debug("Deleted OsProfile(os_id='%s')" % self.disp_os_id)
 
 
