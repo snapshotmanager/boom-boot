@@ -51,6 +51,8 @@ FORMAT_KEYS = [
     FMT_ROOT_DEVICE, FMT_ROOT_OPTS
 ]
 
+_MACHINE_ID = "/etc/machine-id"
+
 BOOM_LOG_DEBUG = logging.DEBUG
 BOOM_LOG_INFO = logging.INFO
 BOOM_LOG_WARN = logging.WARNING
@@ -501,6 +503,17 @@ def _find_minimum_sha_prefix(shas, min_prefix):
     return min_prefix
 
 
+def _get_machine_id():
+    with open(_MACHINE_ID, "r") as f:
+        try:
+            machine_id = f.read().strip()
+        except Exception as e:
+            _log_error("Could not read machine-id from '%s': %s" %
+                       (_MACHINE_ID, e))
+            machine_id = None
+    return machine_id
+
+
 __all__ = [
     # boom module constants
     'DEFAULT_BOOT_PATH', 'DEFAULT_BOOM_PATH',
@@ -528,7 +541,8 @@ __all__ = [
     '_blank_or_comment',
     '_parse_name_value',
     '_key_regex_from_format',
-    '_find_minimum_sha_prefix'
+    '_find_minimum_sha_prefix',
+    '_get_machine_id'
 ]
 
 # vim: set et ts=4 sw=4 :
