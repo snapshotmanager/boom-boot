@@ -20,8 +20,19 @@ import sys
 from os import environ
 from os.path import basename
 from argparse import ArgumentParser
+import logging
 
 BOOM_BOOT_PATH_ENV="BOOM_BOOT_PATH"
+
+_log = logging.getLogger("boom")
+
+_log_debug = _log.debug
+_log_info = _log.info
+_log_warn = _log.warning
+_log_error = _log.error
+
+_default_log_level = logging.WARNING
+_console_handler = None
 
 #
 # Reporting object types
@@ -1229,6 +1240,28 @@ def _match_command(cmd, cmds):
     return None
 
 
+def setup_logging(cmd_args):
+    global _console_handler
+    level = _default_log_level
+    if cmd_args.verbose == 1:
+        level = logging.INFO
+    if cmd_args.verbose == 2:
+        level = logging.DEBUG
+    level = logging.DEBUG
+    # Configure the package-level logger
+    boom_log = logging.getLogger("boom")
+    formatter = logging.Formatter('%(levelname)s - %(message)s')
+    boom_log.setLevel(level)
+    _console_handler = logging.StreamHandler()
+    _console_handler.setLevel(level)
+    _console_handler.setFormatter(formatter)
+    boom_log.addHandler(_console_handler)
+
+
+def shutdown_logging():
+    logging.shutdown()
+
+
 def main(args):
     global _boom_entry_commands, _boom_profile_commands, _boom_command_types
     parser = ArgumentParser(prog=basename(args[0]),
@@ -1301,6 +1334,7 @@ def main(args):
                         "boot entry")
     cmd_args = parser.parse_args()
 
+    setup_logging(cmd_args)
     cmd_type = _match_cmd_type(cmd_args.type)
 
     if cmd_args.boot_dir or BOOM_BOOT_PATH_ENV in environ:
@@ -1321,6 +1355,8 @@ def main(args):
         return 1
 
     select = Selection.from_cmd_args(cmd_args)
-    return command[1](cmd_args, select)
+    status = command[1](cmd_args, select)
+    shutdown_logging()
+    return status
 
 # vim: set et ts=4 sw=4 :

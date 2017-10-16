@@ -12,6 +12,8 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 from os.path import exists as path_exists, isabs, join as path_join
+import logging
+
 __version__ = "0.1"
 
 #: The location of the system ``/boot`` directory.
@@ -49,6 +51,24 @@ FORMAT_KEYS = [
     FMT_ROOT_DEVICE, FMT_ROOT_OPTS
 ]
 
+BOOM_LOG_DEBUG = logging.DEBUG
+BOOM_LOG_INFO = logging.INFO
+BOOM_LOG_WARN = logging.WARNING
+BOOM_LOG_ERROR = logging.ERROR
+
+_log_levels = (
+    BOOM_LOG_DEBUG,
+    BOOM_LOG_INFO,
+    BOOM_LOG_WARN,
+    BOOM_LOG_ERROR
+)
+
+_log = logging.getLogger(__name__)
+
+_log_debug = _log.debug
+_log_info = _log.info
+_log_warn = _log.warning
+_log_error = _log.error
 
 def get_boot_path():
     """get_boot_path() -> str

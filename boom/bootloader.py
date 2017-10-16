@@ -18,6 +18,7 @@ from os.path import exists as path_exists, join as path_join
 from tempfile import mkstemp
 from os import listdir, rename, fdopen, chmod, unlink
 from hashlib import sha1
+import logging
 import re
 
 #: The path to the BLS boot entries directory relative to /boot
@@ -77,6 +78,13 @@ KEY_MAP = {
 
 #: Map BLS entry keys to Boom names
 MAP_KEY = {v: k for k, v in KEY_MAP.items()}
+
+_log = logging.getLogger(__name__)
+
+_log_debug = _log.debug
+_log_info = _log.info
+_log_warn = _log.warning
+_log_error = _log.error
 
 #: The global list of boot entries.
 _entries = None

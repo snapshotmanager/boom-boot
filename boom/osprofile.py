@@ -17,6 +17,7 @@ from os import listdir
 from tempfile import mkstemp
 from os.path import join as path_join, exists as path_exists
 from os import fdopen, rename, chmod, unlink
+import logging
 import re
 
 #: Boom profiles directory name.
@@ -97,6 +98,13 @@ _DEFAULT_KEYS = {
     BOOM_OS_ROOT_OPTS_BTRFS: "rootflags=%{btrfs_subvolume}",
     BOOM_OS_OPTIONS: "root=%{root_device} ro %{root_opts}"
 }
+
+_log = logging.getLogger(__name__)
+
+_log_debug = _log.debug
+_log_info = _log.info
+_log_warn = _log.warning
+_log_error = _log.error
 
 #: Global profile list
 _profiles = []
