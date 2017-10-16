@@ -94,7 +94,12 @@ To build a binary RPM package for the current distribution, use the
 $ python setup.py bdist_rpm
 ```
 
-On success an RPM package will be written to the `dist/` directory.
+The rpm-build packages and python2 environment are required to
+build the package.
+
+On success a noarch RPM package will be written to the `dist/`
+directory. The built package contains the '/bin/boom' executable
+as well as the boom library package and submodules.
 
 Note that due to limitations in `setuptools` it is not possible for
 the packages built by this method to install the Grub2 integration
