@@ -420,7 +420,7 @@ class BoomReport(object):
                     if field_type not in shas:
                         shas[field_type] = set()
                     shas[field_type].add(field.report_string)
-        min_prefix = min(7,field._props.initial_width)
+        min_prefix = max(7,field._props.initial_width)
         for field_type in shas.keys():
             shas[field_type] = list(shas[field_type])
             shas[field_type].sort()
