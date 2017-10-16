@@ -238,9 +238,10 @@ class Selection(object):
         all_attrs = self.entry_attrs + self.params_attrs + self.profile_attrs
         attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
         strval = ""
+        tail = ", "
         for attr in attrs:
-            strval += "%s='%s'" % (attr, getattr(self, attr))
-        return strval
+            strval += "%s='%s'%s" % (attr, getattr(self, attr), tail)
+        return strval.rstrip(tail)
 
     def __repr__(self):
         return "Selection(" + str(self) + ")"
