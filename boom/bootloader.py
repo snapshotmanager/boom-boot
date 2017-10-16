@@ -14,7 +14,7 @@
 from boom import *
 from boom.osprofile import *
 
-from os.path import exists as path_exists, join as path_join
+from os.path import basename, exists as path_exists, join as path_join
 from tempfile import mkstemp
 from os import listdir, rename, fdopen, chmod, unlink
 from hashlib import sha1
@@ -269,6 +269,8 @@ class BootParams(object):
         if btrfs_subvol_id:
             self.btrfs_subvol_id = btrfs_subvol_id
 
+        _log_debug("Initialised %s" % repr(self))
+
     @classmethod
     def from_entry(cls, be):
         """from_entry(be) -> BootParams
@@ -292,6 +294,9 @@ class BootParams(object):
         osp = be._osp
         # Version is written directly from BootParams
         version = be.version
+
+        _log_debug("Initialising BootParams() from BootEntry(boot_id='%s')" %
+                   be.boot_id[:7])
 
         # Decompose options first to obtain root device and options.
         options_regex = _key_regex_from_format(osp.options, capture=True)
@@ -386,6 +391,7 @@ def load_entries(machine_id=None):
 
     entries_path = boom_entries_path()
 
+    _log_debug("Loading boot entries from '%s'" % entries_path)
     _entries = []
     for entry in listdir(entries_path):
         if not entry.endswith(".conf"):
@@ -398,6 +404,8 @@ def load_entries(machine_id=None):
         except Exception as e:
             print("Could not load entry: %s" % entry_path)
             print(e)
+
+    _log_debug("Loaded %d entries" % len(_entries))
 
 
 def write_entries():
@@ -838,6 +846,9 @@ class BootEntry(object):
         entry_data = {}
         comments = {}
         comment = ""
+
+        _log_debug("Loading BootEntry from '%s'" % basename(entry_file))
+
         with open(entry_file, "r") as ef:
             for line in ef:
                 if _blank_or_comment(line):

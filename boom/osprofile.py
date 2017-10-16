@@ -15,7 +15,7 @@ from boom import *
 from hashlib import sha1
 from os import listdir
 from tempfile import mkstemp
-from os.path import join as path_join, exists as path_exists
+from os.path import basename, join as path_join, exists as path_exists
 from os import fdopen, rename, chmod, unlink
 import logging
 import re
@@ -156,6 +156,7 @@ def load_profiles():
     _profiles_by_id[_null_profile.os_id] = _null_profile
     profiles_path = boom_profiles_path()
     profile_files = listdir(profiles_path)
+    _log_debug("Loading profiles from %s" % profiles_path)
     for pf in profile_files:
         if not pf.endswith(".profile"):
             continue
@@ -164,20 +165,23 @@ def load_profiles():
         _profiles.append(osp)
         _profiles_by_id[osp.os_id] = osp
     _profiles_loaded = True
+    _log_debug("Loaded %d profiles" % (len(_profiles) - 1))
 
 
-def write_profiles():
+
+def write_profiles(force=False):
     """write_profiles() -> None
 
         Write the current list of profiles to the directory located at
         ``boom.osprofile.boom_profiles_path()``.
     """
     global _profiles
+    _log_debug("Writing profiles to %s" % boom_profiles_path())
     for osp in _profiles:
         if _is_null_profile(osp):
             continue
         # FIXME: handle exceptions in write_profile()
-        osp.write_profile()
+        osp.write_profile(force)
 
 
 def select_profile(s, osp):
@@ -276,11 +280,16 @@ def match_os_profile(entry):
         :returntype: ``BootEntry`` or ``NoneType``.
     """
     global _profiles, _profiles_loaded
+    _log_debug("Attempting to match profile for BootEntry(boot_id='%s') "
+               "with unknown os_id" % entry.boot_id[:7])
     for osp in _profiles:
         if _is_null_profile(osp):
             continue
         if hasattr(osp, "match"):
             if osp.match(entry):
+                _log_debug("Matched BootEntry(version='%s', boot_id='%s')"
+                           " to OsProfile(name='%s', os_id='%s')" %
+                           (entry, osp))
                 return osp
     return _null_profile
 
@@ -460,6 +469,8 @@ class OsProfile(object):
         profile_data = {}
         comments = {}
         comment = ""
+
+        _log_debug("Loading OsProfile from '%s'" % basename(profile_file))
         with open(profile_file, "r") as pf:
             for line in pf:
                 if _blank_or_comment(line):
@@ -794,6 +805,9 @@ class OsProfile(object):
 
         profile_path = self._profile_path()
 
+        _log_debug("Writing OsProfile(name='%s', os_id='%s') to '%s'" %
+                   (self.name, self.os_id[:7], basename(profile_path)))
+
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_profiles_path())
         with fdopen(tmp_fd, "w") as f:
             for key in [k for k in PROFILE_KEYS if k in self._profile_data]:
@@ -810,6 +824,8 @@ class OsProfile(object):
                 pass
             raise e
 
+        _log_debug("Wrote profile (os_id=%s)'" % self.os_id[:7])
+
     def delete_profile(self):
         """delete_profile(self) -> None
 
@@ -825,7 +841,8 @@ class OsProfile(object):
         """
         global _profiles
         profile_path = self._profile_path()
-
+        _log_debug("Deleting OsProfile(name='%s', os_id='%s') from '%s'" %
+                   (self.name, self.os_id[:7], basename(profile_path)))
         if _profiles and self in _profiles:
             _profiles.remove(self)
 
@@ -833,6 +850,7 @@ class OsProfile(object):
             return
 
         unlink(profile_path)
+        _log_debug("Deleted OsProfile(os_id='%s')" % self.os_id[:7])
 
 
 _null_profile = OsProfile(name="", short_name="", version="", version_id="")
