@@ -1251,9 +1251,9 @@ def _match_command(cmd, cmds):
 def setup_logging(cmd_args):
     global _console_handler
     level = _default_log_level
-    if cmd_args.verbose == 1:
+    if cmd_args.verbose > 0:
         level = logging.INFO
-    if cmd_args.verbose == 2:
+    if cmd_args.verbose > 1:
         level = logging.DEBUG
     # Configure the package-level logger
     boom_log = logging.getLogger("boom")
