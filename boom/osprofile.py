@@ -645,9 +645,9 @@ class OsProfile(object):
         # Attempt to match a distribution-formatted options line
         if self.options and entry.options:
             options_pattern = _key_regex_from_format(self.options)
-            _log_debug_profile("Matching options pattern '%s' to '%s'"
+            _log_debug_profile("Matching options pattern '%s' to '%s'" %
                                (options_pattern, entry.options))
-            if re.match(key_regex, entry.options):
+            if re.match(options_pattern, entry.options):
                 return True
         return False
 
