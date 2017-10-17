@@ -1236,7 +1236,7 @@ _boom_command_types = [
 
 def _match_cmd_type(cmdtype):
     for t in _boom_command_types:
-        if cmdtype == t[0]:
+        if t[0].startswith(cmdtype):
             return t
     return None
 
