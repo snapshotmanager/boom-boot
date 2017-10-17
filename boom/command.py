@@ -244,7 +244,8 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
     be = BootEntry(title=title, machine_id=machine_id,
                    osprofile=osprofile, boot_params=bp)
     if find_entries(Selection(boot_id=be.boot_id)):
-        raise ValueError("Entry already exists (boot_id=%s)." % be.boot_id)
+        raise ValueError("Entry already exists (boot_id=%s)." %
+                         be.disp_boot_id)
 
     be.write_entry()
 
@@ -349,7 +350,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                          osprofile=osprofile, boot_params=bp)
     if find_entries(Selection(boot_id=clone_be.boot_id)):
         raise ValueError("Entry already exists (boot_id=%s)." %
-                         clone_be.boot_id)
+                         clone_be.disp_boot_id)
 
     clone_be.write_entry()
 
@@ -518,7 +519,7 @@ def _os_profile_from_file(profile_file, uname_pattern,
         osp.options = options
 
     if find_profiles(selection=Selection(os_id=osp.os_id)):
-        raise ValueError("Profile already exists (os_id=%s)" % osp.os_id)
+        raise ValueError("Profile already exists (os_id=%s)" % osp.disp_os_id)
 
     osp.write_profile()
     return osp
@@ -613,7 +614,7 @@ def create_profile(name, short_name, version, version_id,
                     profile_data=profile_data)
 
     if find_profiles(selection=Selection(os_id=osp.os_id)):
-        raise ValueError("Profile already exists (os_id=%s)" % osp.os_id)
+        raise ValueError("Profile already exists (os_id=%s)" % osp.disp_os_id)
 
     osp.write_profile()
     return osp
@@ -741,7 +742,7 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
 
     if find_profiles(Selection(os_id=clone_osp.os_id)):
         raise ValueError("Profile already exists (os_id=%s)." %
-                         clone_osp.os_id)
+                         clone_osp.disp_os_id)
 
     clone_osp.write_profile()
 
