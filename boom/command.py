@@ -17,7 +17,7 @@ from boom.report import *
 from boom.bootloader import *
 
 import sys
-from os import environ
+from os import environ, uname
 from os.path import basename
 from argparse import ArgumentParser
 import logging
@@ -861,10 +861,11 @@ def print_profiles(selection=None, opts=None, output_fields=None,
 #
 
 def _create_cmd(cmd_args, select):
-    # FIXME: default version to $(uname -r)
     if not cmd_args.version:
-        print("create requires --version")
-        return 1
+        version = get_uts_release()
+        if not version:
+            print("create requires --version")
+            return 1
     else:
         version = cmd_args.version
 
@@ -1253,6 +1254,9 @@ def _match_command(cmd, cmds):
             return c
     return None
 
+
+def get_uts_release():
+    return uname()[2]
 
 def setup_logging(cmd_args):
     global _console_handler
