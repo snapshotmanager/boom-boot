@@ -311,6 +311,9 @@ def match_os_profile(entry):
     """
     global _profiles, _profiles_loaded
 
+    if not _profiles_loaded:
+        load_profiles()
+
     # Do not report a boot_id: it will change if an OsProfile is
     # matched to the entry.
     _log_debug("Attempting to match profile for BootEntry(title='%s', "
