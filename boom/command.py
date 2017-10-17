@@ -893,8 +893,12 @@ def _create_cmd(cmd_args, select):
 
     # FIXME: default to host OsProfile
     if not cmd_args.profile:
-        print("create requires --profile")
-        return 1
+        # Attempt to find a matching OsProfile by version string
+        osp = match_os_profile_by_version(version)
+        if not osp:
+            print("create requires --profile")
+            return 1
+        os_id = osp.os_id
     else:
         os_id = cmd_args.profile
 
