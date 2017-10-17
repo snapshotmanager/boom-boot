@@ -922,8 +922,8 @@ def _create_cmd(cmd_args, select):
         print(e)
         return 1
 
-    print("Created entry with boot_id %s:" % be.boot_id[0:7])
-    print(be)
+    print("Created entry with boot_id %s:" % be.disp_boot_id)
+    print(_str_indent(str(be), 2))
 
 def _delete_cmd(cmd_args, select):
     if not select or select.is_null():
@@ -1083,8 +1083,8 @@ def _create_profile_cmd(cmd_args, select):
     except ValueError as e:
         print(e)
         return 1
-    print("Created profile with os_id %s:" % osp.os_id[0:7])
-    print(osp)
+    print("Created profile with os_id %s:" % osp.disp_os_id)
+    print(_str_indent(str(osp), 2))
     return 0
 
 
