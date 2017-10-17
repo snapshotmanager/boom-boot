@@ -24,9 +24,11 @@ import logging
 
 BOOM_BOOT_PATH_ENV="BOOM_BOOT_PATH"
 
-_log = logging.getLogger("boom")
+_log = logging.getLogger(__name__)
+_log.set_debug_mask(BOOM_DEBUG_COMMAND)
 
 _log_debug = _log.debug
+_log_debug_cmd = _log.debug_masked
 _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error

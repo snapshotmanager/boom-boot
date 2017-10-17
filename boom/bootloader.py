@@ -80,15 +80,13 @@ KEY_MAP = {
 MAP_KEY = {v: k for k, v in KEY_MAP.items()}
 
 _log = logging.getLogger(__name__)
+_log.set_debug_mask(BOOM_DEBUG_ENTRY)
 
 _log_debug = _log.debug
+_log_debug_entry = _log.debug_masked
 _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
-
-def _log_debug_entry(msg, *args, **kwargs):
-    if get_debug_mask() & BOOM_DEBUG_ENTRY:
-        _log.debug(msg, *args, **kwargs)
 
 #: The global list of boot entries.
 _entries = None

@@ -84,6 +84,29 @@ BOOM_DEBUG_ALL = (BOOM_DEBUG_PROFILE |
 
 __debug_mask = 0
 
+class BoomLogger(logging.Logger):
+    """BoomLogger()
+
+        Boom logging wrapper class: wrap the Logger.debug() method
+        to allow filtering of submodule debug messages by log mask.
+
+        This allows us to selectively control which messages are
+        logged in the library without having to tamper with the
+        Handler, Filter or Formatter configurations (which belong
+        to the client application using the library).
+    """
+
+    mask_bits = 0
+
+    def set_debug_mask(self, mask_bits):
+        self.mask_bits = mask_bits
+
+    def debug_masked(self, msg, *args, **kwargs):
+        if self.mask_bits & get_debug_mask():
+            super(BoomLogger, self).debug(msg, *args, **kwargs)
+
+logging.setLoggerClass(BoomLogger)
+
 def get_debug_mask():
     return __debug_mask
 

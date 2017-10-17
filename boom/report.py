@@ -11,8 +11,18 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+from boom import _find_minimum_sha_prefix, BOOM_DEBUG_REPORT
+import logging
 import sys
-from boom import _find_minimum_sha_prefix
+
+_log = logging.getLogger(__name__)
+_log.set_debug_mask(BOOM_DEBUG_REPORT)
+
+_log_debug = _log.debug
+_log_debug_report = _log.debug_masked
+_log_info = _log.info
+_log_warn = _log.warning
+_log_error = _log.error
 
 _default_columns = 80
 
