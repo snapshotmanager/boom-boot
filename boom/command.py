@@ -447,7 +447,8 @@ def list_entries(selection=None):
     return bes
 
 
-def print_entries(selection=None, output_fields=None, opts=None):
+def print_entries(selection=None, output_fields=None, opts=None,
+                  sort_keys=None):
     """print_entries(boot_id, title, version,
                     machine_id, root_device, lvm_root_lv,
                     btrfs_subvol_path, btrfs_subvol_id) -> list
@@ -484,7 +485,7 @@ def print_entries(selection=None, output_fields=None, opts=None):
     bes = find_entries(selection=selection)
 
     br = BoomReport(_report_obj_types, _entry_fields + _profile_fields +
-                    _params_fields, output_fields, opts, None, None)
+                    _params_fields, output_fields, opts, sort_keys, None)
     for be in bes:
         br.report_object(BoomReportObj(be, be._osp))
 
@@ -817,7 +818,8 @@ def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
     return osp
 
 
-def print_profiles(selection=None, opts=None, output_fields=None):
+def print_profiles(selection=None, opts=None, output_fields=None,
+                   sort_keys=None):
     """print_profiles(os_id, name, short_name,
                       version, version_id, uname_pattern,
                       kernel_pattern, initramfs_pattern,
@@ -846,8 +848,8 @@ def print_profiles(selection=None, opts=None, output_fields=None):
 
     osps = find_profiles(selection=selection)
 
-    br = BoomReport(_report_obj_types, _profile_fields, output_fields, opts,
-                    None, None)
+    br = BoomReport(_report_obj_types, _profile_fields, output_fields,
+                    opts, sort_keys, None)
 
     for osp in osps:
         br.report_object(BoomReportObj(None, osp))
@@ -935,7 +937,8 @@ def _delete_cmd(cmd_args, select):
 
     try:
         if cmd_args.verbose:
-            print_entries(select, output_fields=fields)
+            print_entries(select, output_fields=fields,
+                          sort_keys=cmd_args.sort)
         nr = delete_entries(select)
     except (ValueError, IndexError) as e:
         print(e)
@@ -1003,7 +1006,8 @@ def _list_cmd(cmd_args, select):
     else:
         fields = None
     try:
-        print_entries(selection=select, output_fields=fields)
+        print_entries(selection=select, output_fields=fields,
+                      sort_keys=cmd_args.sort)
     except ValueError as e:
         print(e)
         return 1
@@ -1096,7 +1100,8 @@ def _delete_profile_cmd(cmd_args, select):
 
     try:
         if cmd_args.verbose:
-            print_profiles(select, output_fields=fields)
+            print_profiles(select, output_fields=fields,
+                           sort_keys=cmd_args.sort)
         nr = delete_profiles(select)
     except (ValueError, IndexError) as e:
         print(e)
@@ -1158,7 +1163,8 @@ def _list_profile_cmd(cmd_args, select):
     else:
         fields = None
     try:
-        print_profiles(selection=select, output_fields=fields)
+        print_profiles(selection=select, output_fields=fields,
+                       sort_keys=cmd_args.sort)
     except ValueError as e:
         print(e)
         return 1
@@ -1334,8 +1340,10 @@ def main(args):
                         help="The name of a Boom OsProfile")
     parser.add_argument("-o", "--options", metavar="FIELDS", type=str,
                         help="Specify which fields to display")
-    parser.add_argument("-O", "--os-version", metavar="OSVERSION", type=str,
+    parser.add_argument("--os-version", metavar="OSVERSION", type=str,
                         help="A Boom OsProfile version")
+    parser.add_argument("-O", "--sort", metavar="SORTFIELDS", type=str,
+                        help="Specify which fields to sort by")
     parser.add_argument("-I", "--os-version-id", metavar="OSVERSIONID",
                         type=str, help="A Boom OsProfile version ID")
     parser.add_argument("--os-options", metavar="OPTIONS", type=str,
