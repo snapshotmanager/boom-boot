@@ -48,6 +48,9 @@ ALIGN_RIGHT = "right"
 
 _align_types = [ALIGN_LEFT, ALIGN_RIGHT]
 
+ASCENDING = "ascending"
+DESCENDING = "descending"
+
 STANDARD_QUOTE = "'"
 STANDARD_PAIR = "="
 
@@ -190,17 +193,18 @@ class BoomFieldProperties(object):
     initial_width = 0
     width = 0
     objtype = None
+    dtype = None
     align = None
     #
     # Field flags
     #
     hidden = False
     implicit = False
-    # sort_key = False
-    # ascending = False
-    # descending = False
-    # compact_one = False # used for implicit fields
+    sort_key = False
+    sort_dir = None
+    compact_one = False # used for implicit fields
     compacted = False
+    sort_posn = None
 
 
 class BoomField(object):
@@ -222,13 +226,13 @@ class BoomField(object):
         self._props = props
 
     def report_str(self, value):
-        self.set_value(value, value)
+        self.set_value(value, sort_value=value)
 
     def report_sha(self, value):
-        self.set_value(value, value)
+        self.set_value(value, sort_value=value)
 
     def report_num(self, value):
-        self.set_value(str(value), value)
+        self.set_value(str(value), sort_value=value)
 
     def set_value(self, report_string, sort_value=None):
         if report_string is None:
@@ -245,7 +249,8 @@ class BoomRow(object):
     _report = None
     #: the list of report fields in display order
     _fields = None
-
+    #: fields in sort order
+    _sort_fields = None
     def __init__(self, report):
         self._report = report
         self._fields = []
@@ -293,6 +298,7 @@ class BoomReport(object):
     _types = None
     _data = None
     _rows = None
+    _keys_count = 0
     _field_properties = None
     _header_written = False
     _field_calc_needed = True
@@ -366,17 +372,18 @@ class BoomReport(object):
 
         raise ValueError("Unknown report object type: %d" % report_type)
 
-    def __copy_field(self, field_num, implicit=False):
+    def __copy_field(self, field_num, implicit):
         fp = BoomFieldProperties()
         fp.field_num = field_num
         fp.width = fp.initial_width = self._fields[field_num].width
         fp.implicit = implicit
         fp.objtype = self.__find_type(self._fields[field_num].objtype)
+        fp.dtype = self._fields[field_num].dtype
         fp.align = self._fields[field_num].align
         return fp
 
-    def __add_field(self, field_num, implicit=False):
-        fp = self.__copy_field(field_num, implicit=implicit)
+    def __add_field(self, field_num, implicit):
+        fp = self.__copy_field(field_num, implicit)
         if fp.hidden:
             self._field_properties.insert(0, fp)
         else:
@@ -403,7 +410,7 @@ class BoomReport(object):
                 else:
                     self.report_types |= self._fields[f].objtype
                 return
-            return self.__add_field(f, implicit=implicit)
+            return self.__add_field(f, implicit)
         except ValueError as e:
             # FIXME handle '$PREFIX_all'
             # re-raise 'e' if it fails.
@@ -421,8 +428,70 @@ class BoomReport(object):
                 print("Unrecognised field: %s" % word)
                 raise e
 
+    def __add_sort_key(self, field_num, sort, implicit, type_only):
+        fields = self._implicity_fields if implicit else self._fields
+        found = None
+
+        for fp in self._field_properties:
+            if fp.implicit == implicit and fp.field_num == field_num:
+                found = fp
+
+        if not found:
+            if type_only:
+                self.report_types |= fields[field_num].objtype
+                return
+            else:
+                found = self.__add_field(field_num, implicit)
+
+        if found.sort_key:
+            _log_info("Ignoring duplicate sort field: %s" %
+                      fields[field_num].name)
+        found.sort_key = True
+        found.sort_dir = sort
+        found.sort_posn = self._keys_count
+        self._keys_count += 1
+
+    def __key_match(self, key_name, type_only):
+        sort_dir = None
+
+        if not key_name:
+            raise ValueError("Sort key name cannot be empty")
+
+        if key_name.startswith('+'):
+            sort_dir =  ASCENDING
+            key_name = key_name[1:]
+        elif key_name.startswith('-'):
+            sort_dir = DESCENDING
+            key_name = key_name[1:]
+        else:
+            sort_dir = ASCENDING
+
+        for field in self._implicit_fields:
+            fields = self._implicit_fields
+            if field.name == key_name:
+                return self.__add_sort_key(fields.index(field), sort_dir,
+                                           True, type_only)
+        for field in self._fields:
+            fields = self._fields
+            if field.name == key_name:
+                return self.__add_sort_key(fields.index(field), sort_dir,
+                                           False, type_only)
+
+        raise ValueError("Unknown sort key name: %s" % key_name)
+
     def __parse_keys(self, keys, type_only):
-        pass
+        if not keys:
+            return
+        for word in keys.split(','):
+            # Allow consecutive commas
+            if not word:
+                continue
+            try:
+                self.__key_match(word, type_only)
+            except ValueError as e:
+                self.__display_fields(True)
+                print("Unrecognised field: %s" % word)
+                raise e
 
     def __init__(self, types, fields, output_fields, opts,
                  sort_keys, private):
@@ -446,9 +515,9 @@ class BoomReport(object):
         self._types = types
         self._private = private
 
-        # handle opts
-        #  columns
-        #    sort_required, aligned
+        if opts.buffered:
+            self._sort_required = True
+
         self.opts = opts if opts else BoomReportOpts()
 
         self._rows = []
@@ -493,6 +562,8 @@ class BoomReport(object):
     def __recalculate_fields(self):
         for row in self._rows:
             for field in row._fields:
+                if self._sort_required and field._props.sort_key:
+                    row._sort_fields[field._props.sort_posn] = field
                 if self._fields[field._props.field_num].dtype == REP_SHA:
                     continue
                 field_len = len(field.report_string)
@@ -519,6 +590,51 @@ class BoomReport(object):
                 line += self.opts.separator
         self.opts.report_file.write(line + "\n")
 
+    def __row_key_fn(self):
+        def _row_cmp(row_a, row_b):
+            for cnt in range(0, row_a._report._keys_count):
+                sfa = row_a._sort_fields[cnt]
+                sfb = row_b._sort_fields[cnt]
+                if sfa._props.dtype == REP_NUM:
+                    num_a = sfa.sort_value
+                    num_b = sfb.sort_value
+                    if num_a == num_b:
+                        continue
+                    if sfa._props.sort_dir == ASCENDING:
+                        return 1 if num_a > num_b else -1
+                    else:
+                        return 1 if num_a < num_b else -1
+                else:
+                    stra = sfa.sort_value
+                    strb = sfb.sort_value
+                    if stra == strb:
+                        continue
+                    if sfa._props.sort_dir == ASCENDING:
+                        return 1 if stra > strb else -1
+                    else:
+                        return 1 if stra < strb else -1
+            return 0
+
+        class __RowKey(object):
+           def __init__(self, obj, *args):
+               self.obj = obj
+           def __lt__(self, other):
+               return _row_cmp(self.obj, other.obj) < 0
+           def __gt__(self, other):
+               return _row_cmp(self.obj, other.obj) > 0
+           def __eq__(self, other):
+               return _row_cmp(self.obj, other.obj) == 0
+           def __le__(self, other):
+               return _row_cmp(self.obj, other.obj) <= 0
+           def __ge__(self, other):
+               return _row_cmp(self.obj, other.obj) >= 0
+           def __ne__(self, other):
+               return _row_cmp(self.obj, other.obj) != 0
+        return __RowKey
+
+    def _sort_rows(self):
+        self._rows.sort(key=self.__row_key_fn())
+
     def report_object(self, obj):
         """report_object(self, data) -> None
             Add a row of data to this ``BoomReport``. The ``data``
@@ -536,7 +652,8 @@ class BoomReport(object):
 
         row = BoomRow(self)
         fields = self._fields
-
+        if self._sort_required:
+            row._sort_fields = [-1] * self._keys_count
         for fp in self._field_properties:
             field = BoomField(self, fp)
             data = fp.objtype.data_fn(obj)
@@ -555,9 +672,6 @@ class BoomReport(object):
 
         if not self.opts.buffered:
             return self.report_output()
-
-    def sort(self, field, reverse=False):
-        pass
 
     def _output_field(self, field):
         fields = self._fields
@@ -634,6 +748,7 @@ __all__ = [
 
     'REP_NUM', 'REP_STR', 'REP_SHA',
     'ALIGN_LEFT', 'ALIGN_RIGHT',
+    'ASCENDING', 'DESCENDING',
 
     # Report objects
     'BoomReportOpts', 'BoomReportObjType', 'BoomField', 'BoomFieldType',
