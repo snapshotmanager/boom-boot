@@ -324,31 +324,50 @@ def match_os_profile(entry):
     for osp in _profiles:
         if _is_null_profile(osp):
             continue
-        if hasattr(osp, "match"):
-            if osp.match(entry):
-                _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
-                           "to OsProfile(name='%s', os_id='%s')" %
-                            (entry.version, entry.disp_boot_id, osp.name,
-                             osp.disp_os_id))
-                return osp
+        if osp.match_uname_version(entry.version):
+            _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
+                       "to OsProfile(name='%s', os_id='%s')" %
+                        (entry.version, entry.disp_boot_id, osp.name,
+                         osp.disp_os_id))
+            return osp
 
     # No matching uname pattern: attempt to match options template
     for osp in _profiles:
         if _is_null_profile(osp):
             continue
-        if hasattr(osp, "match_options"):
-            if osp.match_options(entry):
-                _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
-                           "to OsProfile(name='%s', os_id='%s')" %
-                           (entry.version, entry.disp_boot_id, osp.name,
-                           osp.disp_os_id))
-                return osp
+        if osp.match_options(entry):
+            _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
+                       "to OsProfile(name='%s', os_id='%s')" %
+                       (entry.version, entry.disp_boot_id, osp.name,
+                       osp.disp_os_id))
+            return osp
 
     _log_debug_profile("No matching profile found for boot_id=%s" %
                        entry.boot_id)
 
     return _null_profile
 
+
+def match_os_profile_by_version(version):
+    """match_os_profile_by_version(version) -> OsProfile
+
+        Attempt to find a profile with a uname pattern that matches
+        ``version``. The first OsProfile with a match is returned.
+
+        :param version: A uname release version string to match.
+        :returntype: OsProfile
+        :returns: An OsProfile matching version or None if not match
+                  was found
+    """
+    global _profiles, _profiles_loaded
+
+    if not _profiles_loaded:
+        load_profiles()
+
+    for osp in _profiles:
+        if osp.match_uname_version(version):
+            return osp
+    return None
 
 class OsProfile(object):
     """ Class OsProfile implements Boom operating system profiles.
@@ -610,22 +629,21 @@ class OsProfile(object):
         self._generate_os_id()
         _profiles.append(self)
 
-    def match(self, entry):
+    def match_uname_version(self, version):
         """match(self, entry) -> bool
 
-            Test the supplied ``BootEntry`` to determine whether it
-            matches this ``OsProfile``.
+            Test the supplied version string to determine whether it
+            matches the uname_pattern of this ``OsProfile``.
 
-            :param entry: A ``BootEntry`` to match against this profile.
-            :returns: ``True`` if this entry matches this profile, or
+            :param version: A uname release version string to match.
+            :returns: ``True`` if thi version matches this profile, or
                       ``False`` otherwise.
             :returntype: bool
         """
-        # First attempt to match a uname string pattern
-        if self.uname_pattern and entry.version:
-            _log_debug_profile("Matching uname pattern '%s' to '%s'" %
-                               (self.uname_pattern, entry.version))
-            if re.search(self.uname_pattern, entry.version):
+        _log_debug_profile("Matching uname pattern '%s' to '%s'" %
+                           (self.uname_pattern, version))
+        if self.uname_pattern and version:
+            if re.search(self.uname_pattern, version):
                 return True
         return False
 
@@ -954,6 +972,7 @@ __all__ = [
     'OsProfile',
     'profiles_loaded', 'load_profiles', 'write_profiles', 'find_profiles',
     'get_os_profile_by_id', 'match_os_profile', 'select_profile',
+    'match_os_profile_by_version',
 
     # Module constants
     'BOOM_PROFILES', 'BOOM_OS_PROFILE_FORMAT',
