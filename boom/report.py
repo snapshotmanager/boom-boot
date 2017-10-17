@@ -253,6 +253,31 @@ class BoomRow(object):
     def add_field(self, field):
         self._fields.append(field)
 
+def __none_returning_fn(obj):
+    return None
+
+# Implicit report fields and types
+
+BR_SPECIAL = 0x80000000
+_implicit_special_report_types = [
+    BoomReportObjType(
+        BR_SPECIAL, "Special", "special_", __none_returning_fn
+    )
+]
+
+def __no_report_fn(f, d):
+    return
+
+_special_field_help_name = "help"
+
+_implicit_special_report_fields = [
+    BoomFieldType(
+        BR_SPECIAL, _special_field_help_name, "Help", "Show help", 8,
+        REP_STR, __no_report_fn)
+]
+
+
+# BoomReport class
 
 class BoomReport(object):
     """BoomReport()
@@ -272,9 +297,22 @@ class BoomReport(object):
     _header_written = False
     _field_calc_needed = True
     _sort_required = False
+    _already_reported = False
+
+    # Implicit field support
+    _implicit_types = _implicit_special_report_types
+    _implicit_fields = _implicit_special_report_fields
 
     private = None
     opts = None
+
+    def __help_requested(self):
+        for fp in self._field_properties:
+            if fp.implicit:
+                name = self._implicit_fields[fp.field_num].name
+                if name == _special_field_help_name:
+                    return True
+        return False
 
     def __get_longest_field_name_len(self, fields):
         max_len = 0
@@ -319,6 +357,9 @@ class BoomReport(object):
     def __find_type(self, report_type):
         # FIXME implicit field handling
 
+        for t in self._implicit_types:
+            if t.objtype == report_type:
+                return t
         for t in self._types:
             if t.objtype == report_type:
                 return t
@@ -334,8 +375,8 @@ class BoomReport(object):
         fp.align = self._fields[field_num].align
         return fp
 
-    def __add_field(self, field_num):
-        fp = self.__copy_field(field_num)
+    def __add_field(self, field_num, implicit=False):
+        fp = self.__copy_field(field_num, implicit=implicit)
         if fp.hidden:
             self._field_properties.insert(0, fp)
         else:
@@ -345,18 +386,24 @@ class BoomReport(object):
         """__get_field(field_name)
         """
         # FIXME implicit fields
+        for field in self._implicit_fields:
+            if field.name == field_name:
+                return (self._implicit_fields.index(field), True)
         for field in self._fields:
             if field.name == field_name:
-                return self._fields.index(field)
+                return (self._fields.index(field), False)
         raise ValueError("No matching field name: %s" % field_name)
 
     def __field_match(self, field_name, type_only):
         try:
-            f = self.__get_field(field_name)
+            (f, implicit) = self.__get_field(field_name)
             if (type_only):
-                self.report_types |= self._fields[f].objtype
+                if implicit:
+                    self.report_types |= self._implicit_fields[f].objtype
+                else:
+                    self.report_types |= self._fields[f].objtype
                 return
-            return self.__add_field(f)
+            return self.__add_field(f, implicit=implicit)
         except ValueError as e:
             # FIXME handle '$PREFIX_all'
             # re-raise 'e' if it fails.
@@ -422,6 +469,11 @@ class BoomReport(object):
         self.__parse_fields(output_fields, 0)
         self.__parse_keys(sort_keys, 0)
 
+        if self.__help_requested():
+            self._already_reported = True
+            self.__display_fields(display_field_types=True)
+            print("")
+
     def __recalculate_sha_width(self):
         shas = {}
         props_map = {}
@@ -478,6 +530,9 @@ class BoomReport(object):
         """
         if obj is None:
             raise ValueError("Cannot report NoneType object.")
+
+        if self._already_reported:
+            return
 
         row = BoomRow(self)
         fields = self._fields
@@ -562,6 +617,8 @@ class BoomReport(object):
             :returns: the number of rows of output written.
             :returntype: ``int``
         """
+        if self._already_reported:
+            return
         if self._field_calc_needed:
             self.__recalculate_sha_width()
             self.__recalculate_fields()
