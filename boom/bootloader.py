@@ -163,15 +163,11 @@ class BootParams(object):
             prefix, suffix, and value quoting.
 
             :param quote: A bool indicating whether to quote values.
-
             :param prefix: An optional prefix string to be concatenated
                            with the start of the formatted string.
-
             :param suffix: An optional suffix string to be concatenated
                            with the end of the formatted string.
-
             :returns: a formatted representation of this ``BootParams``.
-
             :returntype: string
         """
         bp_str = prefix
@@ -249,9 +245,10 @@ class BootParams(object):
 
             ``BootParams()`` raises ValueError if a required argument is
             missing, or if conflicting arguments are present.
-            :param version: The version string for this ``BootParams``
+
+            :param version: The version string for this BootParams
                             object.
-            :param root_device: The root device for this ``BootParams``
+            :param root_device: The root device for this BootParams
                                 object.
             :param lvm_root_lv: The LVM2 logical volume containing the
                                 root file system, for systems that use
@@ -262,9 +259,9 @@ class BootParams(object):
             :param btrfs_subvol_id: The BTRFS subvolume ID containing
                                     the root file system, for systems
                                     using BTRFS.
-            :returns: a newly initialised ``BootParams`` object.
-            :returntype: ``class BootParams``
-            :raises: ``ValueError``
+            :returns: a newly initialised BootParams object.
+            :returntype: class BootParams
+            :raises: ValueError
         """
         if not version:
             raise ValueError("version argument is required.")
