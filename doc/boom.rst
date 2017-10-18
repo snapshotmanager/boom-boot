@@ -20,6 +20,7 @@ boom.bootloader module
 .. automodule:: boom.bootloader
     :members:
     :special-members:
+    :private-members:
     :exclude-members: __dict__, __module__, __weakref__
     :undoc-members:
     :show-inheritance:
@@ -30,6 +31,7 @@ boom.osprofile module
 .. automodule:: boom.osprofile
     :members:
     :special-members:
+    :private-members:
     :exclude-members: __dict__, __module__, __weakref__
     :undoc-members:
     :show-inheritance:
@@ -52,6 +54,7 @@ boom.report module
 .. automodule:: boom.report
     :members:
     :special-members:
+    :private-members:
     :exclude-members: __dict__, __module__, __weakref__
     :undoc-members:
     :show-inheritance:
