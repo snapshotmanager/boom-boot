@@ -422,6 +422,7 @@ class BoomReport(object):
                                         field types (str, SHA, num)
                                         are included in help output
         """
+        fields = self._fields
         name_len = self.__get_longest_field_name_len(fields)
         last_desc = ""
         banner = "-" * 79
