@@ -114,8 +114,8 @@ ROOT_KEYS = PROFILE_KEYS[9:10]
 
 #: Keys with default values
 _DEFAULT_KEYS = {
-    BOOM_OS_KERNEL_PATTERN: "/boot/kernel-%{version}",
-    BOOM_OS_INITRAMFS_PATTERN: "/boot/initramfs-%{version}.img",
+    BOOM_OS_KERNEL_PATTERN: "/kernel-%{version}",
+    BOOM_OS_INITRAMFS_PATTERN: "/initramfs-%{version}.img",
     BOOM_OS_ROOT_OPTS_LVM2: "rd.lvm.lv=%{lvm_root_lv}",
     BOOM_OS_ROOT_OPTS_BTRFS: "rootflags=%{btrfs_subvolume}",
     BOOM_OS_OPTIONS: "root=%{root_device} ro %{root_opts}"
