@@ -118,19 +118,53 @@ class BoomLogger(logging.Logger):
     mask_bits = 0
 
     def set_debug_mask(self, mask_bits):
+        """set_debug_mask(mask_bits) -> None
+            Set the debug mask for this ``BoomLogger``.
+
+            This should normally be set to the ``BOOM_DEBUG_*`` value
+            corresponding to the ``boom`` sub-module that this instance
+            of ``BoomLogger`` belongs to.
+
+            :param mask_bits: The bits to set in this logger's mask.
+            :returntype: None
+        """
+        if mask_bits < 0 or mask_bits > BOOM_DEBUG_ALL:
+            raise ValueError("Invalid BoomLogger mask bits: 0x%x" %
+                             (mask_bits & ~BOOM_DEBUG_ALL))
+
         self.mask_bits = mask_bits
 
     def debug_masked(self, msg, *args, **kwargs):
+        """debug_masked(msg, *args, **kwargs) -> None
+
+            Log the specified message if it passes the current logger
+            debug mask.
+
+            :param msg: the message to be logged
+            :returntype: None
+        """
         if self.mask_bits & get_debug_mask():
             super(BoomLogger, self).debug(msg, *args, **kwargs)
 
 logging.setLoggerClass(BoomLogger)
 
 def get_debug_mask():
+    """get_debug_mask() -> int
+
+        Return the current debug mask for the ``boom`` package.
+    """
     return __debug_mask
 
 
 def set_debug_mask(mask):
+    """set_debug_mask(mask) -> None
+
+        Set the debug mask for the ``boom`` package.
+
+        :param mask: the logical OR of the ``BOOM_DEBUG_*``
+                     values to log.
+    """
+    return __debug_mask
     global __debug_mask
     if mask < 0 or mask > BOOM_DEBUG_ALL:
         raise ValueError("Invalid boom debug mask: %d" % mask)
@@ -141,6 +175,7 @@ def get_boot_path():
     """get_boot_path() -> str
 
         Return the currently configured boot file system path.
+
         :returns: the path to the /boot file system.
         :returntype: str
     """
@@ -150,6 +185,7 @@ def get_boom_path():
     """get_boom_path() -> str
 
         Return the currently configured boom configuration path.
+
         :returns: the path to the BOOT/boom directory.
         :returntype: str
     """
@@ -286,15 +322,18 @@ class Selection(object):
     os_root_opts_btrfs = None
     os_options = None
 
+    #: Selection criteria applying to BootEntry objects
     entry_attrs = [
         "boot_id", "title", "version", "machine_id", "linux", "initrd", "efi",
         "options", "devicetree"
     ]
 
+    #: Selection criteria applying to BootParams objects
     params_attrs = [
         "root_device", "lvm_root_lv", "btrfs_subvol_path", "btrfs_subvol_id"
     ]
 
+    #: Selection criteria applying to OsProfile objects
     profile_attrs = [
         "os_id", "os_name", "os_short_name", "os_version", "os_version_id",
         "os_uname_pattern", "os_kernel_pattern", "os_initramfs_pattern",
@@ -302,6 +341,14 @@ class Selection(object):
     ]
 
     def __str__(self):
+        """__str__() -> str
+
+            Format this ``Selection`` object as a human readable string.
+
+            :returns: A human readable string representation of this
+                      Selection object
+            :returntype: string
+        """
         all_attrs = self.entry_attrs + self.params_attrs + self.profile_attrs
         attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
         strval = ""
@@ -311,6 +358,16 @@ class Selection(object):
         return strval.rstrip(tail)
 
     def __repr__(self):
+        """__repr__() -> str
+
+            Format this ``Selection`` object as a machine readable
+            string. The returned string may be passed to the Selection
+            initialiser to duplicate the original Selection.
+
+            :returns: A machine readable string representation of this
+                      Selection object
+            :returntype: string
+        """
         return "Selection(" + str(self) + ")"
 
     def __init__(self, boot_id=None, title=title, version=version,
@@ -329,6 +386,29 @@ class Selection(object):
 
             Initialise a new Selection object with the specified selection
             criteria.
+
+            :param boot_id: The boot_id to match
+            :param title: The title to match
+            :param version: The version to match
+            :param machine_id: The machine_id to match
+            :param linux: The BootEntry kernel image to match
+            :param initrd: The BootEntry initrd image to match
+            :param efi: The BootEntry efi image to match
+            :param root_device: The root_device to match
+            :param lvm_root_lv: The lvm_root_lv to match
+            :param btrfs_subvol_path: The btrfs_subvol_path to match
+            :param btrfs_subvol_id: The btrfs_subvol_id to match
+            :param os_id: The os_id to match
+            :param os_name: The os_name to match
+            :param os_short_name: The os_short_name to match
+            :param os_version: The os_version to match
+            :param os_version_id: The os_version_id to match
+            :param os_options: The os_options to match
+            :param os_uname_pattern: The os_uname_pattern to match
+            :param os_kernel_pattern: The kernel_pattern to match
+            :param os_initramfs_pattern: The initramfs_pattern to match
+            :returns: A new Selection instance
+            :returntype: Selection
         """
         self.boot_id = boot_id
         self.title = title
@@ -356,7 +436,16 @@ class Selection(object):
         """from_cmd_args(args) -> Selection
 
             Construct a new ``Selection`` object from the command line
-            arguments in ``cmd_args``.
+            arguments in ``cmd_args``. Each set selection attribute from
+            ``cmd_args`` is copied into the Selection. The resulting
+            object may be passed to either the ``BootEntry`` or
+            ``OsProfile`` search functions (``find_entries`` and
+            ``find_profiles``), as well as the ``boom.command`` calls
+            that accept a selection argument.
+
+            :param args: The command line selection arguments.
+            :returns: A new Selection instance
+            :returntype: Selection
         """
         subvol = _parse_btrfs_subvol(args.btrfs_subvolume)
         if subvol and subvol.startswith('/'):
@@ -385,6 +474,15 @@ class Selection(object):
         return s
 
     def __attr_has_value(self, attr):
+        """__attr_has_value -> bool
+
+            Return ``True`` if the specified attribute name is currently
+            defined, or ``False`` otherwise.
+
+            :param attr: The name of the attribute to test
+            :returns: ``True`` if ``attr`` is set or ``False`` otherwise
+            :returntype: bool
+        """
         return hasattr(self, attr) and getattr(self, attr) is not None
 
     def check_valid_selection(self, entry=False, params=False, profile=False):
@@ -425,6 +523,14 @@ class Selection(object):
                              invalid)
 
     def is_null(self):
+        """is_null() -> bool
+
+            Return ``True`` if this ``Selection`` object matches all
+            objects, or ``False`` otherwise.
+
+            :returns: ``True`` if this Selection is null
+            :returntype: bool
+        """
         all_attrs = self.entry_attrs + self.params_attrs + self.profile_attrs
         attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
         return not any(attrs)
@@ -569,6 +675,14 @@ def _find_minimum_sha_prefix(shas, min_prefix):
 
 
 def _get_machine_id():
+    """_get_machine_id() -> str
+
+        Get the machine-id value for the running system by reading from
+        ``/etc/machine-id`` and return it as a string.
+
+        :returns: The ``machine_id`` as a string
+        :returntype: str
+    """
     with open(_MACHINE_ID, "r") as f:
         try:
             machine_id = f.read().strip()
