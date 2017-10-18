@@ -1403,4 +1403,14 @@ def main(args):
     shutdown_logging()
     return status
 
+__all__ = [
+    # BootEntry manipulation
+    'create_entry', 'delete_entries', 'clone_entry', 'edit_entry',
+    'list_entries', 'print_entries',
+
+    # OsProfile manipulation
+    'create_profile', 'delete_profiles', 'clone_profile', 'edit_profile',
+    'list_profiles', 'print_profiles',
+]
+
 # vim: set et ts=4 sw=4 :
