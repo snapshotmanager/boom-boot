@@ -748,30 +748,6 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
 
     return osp
 
-def list_profiles(selection=None):
-    """list_profiles(os_id, name, short_name,
-                     version, version_id, uname_pattern,
-                     kernel_pattern, initramfs_pattern,
-                     root_opts_lvm2, root_opts_btrfs, options) -> list
-
-        Return a list of ``boom.osprofile.OsProfile`` objects matching
-        the given criteria.
-
-        :param os_id: The boot identifier to match.
-        :param name: The profile name to match.
-        :param short_name: The profile short name to match.
-        :param version: The version string to match.
-        :param version_id: The version ID string to match.
-        :param uname_pattern: The ``uname_pattern`` value to match.
-        :param kernel_pattern: The kernel pattern to match.
-        :param initramfs_pattern: The initial ramfs pattern to match.
-        :param options: The options template to match.
-        :returns: a list of ``OsProfile`` objects.
-        :returntype: list
-    """
-    osps = find_profiles(selection=selection)
-
-    return osps
 
 def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
                  initramfs_pattern=None, root_opts_lvm2=None,
@@ -818,6 +794,31 @@ def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
     osp.write_profile()
     return osp
 
+
+def list_profiles(selection=None):
+    """list_profiles(os_id, name, short_name,
+                     version, version_id, uname_pattern,
+                     kernel_pattern, initramfs_pattern,
+                     root_opts_lvm2, root_opts_btrfs, options) -> list
+
+        Return a list of ``boom.osprofile.OsProfile`` objects matching
+        the given criteria.
+
+        :param os_id: The boot identifier to match.
+        :param name: The profile name to match.
+        :param short_name: The profile short name to match.
+        :param version: The version string to match.
+        :param version_id: The version ID string to match.
+        :param uname_pattern: The ``uname_pattern`` value to match.
+        :param kernel_pattern: The kernel pattern to match.
+        :param initramfs_pattern: The initial ramfs pattern to match.
+        :param options: The options template to match.
+        :returns: a list of ``OsProfile`` objects.
+        :returntype: list
+    """
+    osps = find_profiles(selection=selection)
+
+    return osps
 
 def print_profiles(selection=None, opts=None, output_fields=None,
                    sort_keys=None):
