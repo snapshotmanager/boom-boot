@@ -47,6 +47,7 @@ BOOM_PROFILES = "profiles"
 #: File name format for Boom profiles.
 BOOM_OS_PROFILE_FORMAT = "%s-%s%s.profile"
 
+#: The file mode with which to create Boom profiles.
 BOOM_PROFILE_MODE = 0o644
 
 # Constants for Boom profile keys
@@ -120,6 +121,7 @@ _DEFAULT_KEYS = {
     BOOM_OS_OPTIONS: "root=%{root_device} ro %{root_opts}"
 }
 
+# Module logging configuration
 _log = logging.getLogger(__name__)
 _log.set_debug_mask(BOOM_DEBUG_PROFILE)
 
@@ -149,14 +151,37 @@ def boom_profiles_path():
 
 
 def _is_null_profile(osp):
+    """_is_null_profile() -> bool
+
+        Test ``osp`` and return ``True`` if it is the Null Profile.
+        The Null Profile has an empty identity and defines no profile
+        keys: it is used in the case that no valid match is found for
+        an entry loaded from disk (for e.g. an entry that has been
+        hand-edited and matches no known version or options string,
+        or an entry for which the original profile has been deleted).
+
+        :param osp: The OsProfile to test
+        :returns: ``True`` if ``osp`` is the Null Profile or ``False``
+                  otherwise
+        :returntype: bool
+    """
     global _null_profile
     if osp.os_id == _null_profile.os_id:
         return True
     return False
 
+
 def profiles_loaded():
+    """profiles_loaded() -> bool
+        Test whether profiles have been loaded from disk.
+
+        :returntype: bool
+        :returns: ``True`` if profiles are loaded in memory or ``False``
+                  otherwise
+    """
     global _profiles_loaded
     return _profiles_loaded
+
 
 def load_profiles():
     """load_profiles() -> None
@@ -201,6 +226,8 @@ def write_profiles(force=False):
 
         Write the current list of profiles to the directory located at
         ``boom.osprofile.boom_profiles_path()``.
+
+        :returntype: None
     """
     global _profiles
     _log_debug("Writing profiles to %s" % boom_profiles_path())
@@ -234,6 +261,16 @@ def min_os_id_width():
 
 
 def select_profile(s, osp):
+    """select_profile(osp) -> bool
+
+        Test the supplied ``OsProfile`` against the selection criteria
+        in ``s`` and return ``True`` if it passes, or ``False``
+        otherwise.
+
+        :param osp: The OsProfile to test
+        :returntype: bool
+        :returns: True if osp passes selection or ``False`` otherwise.
+    """
     if _is_null_profile(osp):
         return False
     if s.os_id and not osp.os_id.startswith(s.os_id):
@@ -312,6 +349,10 @@ def get_os_profile_by_id(os_id):
 
         Return the OsProfile object corresponding to ``os_id``, or
         ``None`` if it is not found.
+
+        :returntype: OsProfile
+        :returns: An OsProfile matching os_id or None if no match was
+                  found
     """
     if os_id in _profiles_by_id:
         return _profiles_by_id[os_id]
@@ -490,12 +531,34 @@ class OsProfile(object):
         self._profile_data[key] = value
 
     def keys(self):
+        """keys() -> list
+
+            Return the list of keys for this OsProfile.
+
+            :returntype: list
+            :returns: A list of OsProfile key names
+        """
         return self._profile_data.keys()
 
     def values(self):
+        """values() -> list
+
+            Return the list of key values for this OsProfile.
+
+            :returntype: list
+            :returns: A list of OsProfile key values
+        """
         return self._profile_data.values()
 
     def items(self):
+        """values() -> list
+
+            Return a list of ``(key, value)`` tuples representing the
+            key items in this ``OsProfile``.
+
+            :returntype: list
+            :returns: A list of OsProfile key item tuples
+        """
         return self._profile_data.items()
 
     def _dirty(self):
@@ -508,6 +571,8 @@ class OsProfile(object):
 
             A clean ``OsProfile`` is marked as dirty if a new value
             is written to any of its writable properties.
+
+            :returns None:
         """
         self._unwritten = True
 
@@ -516,6 +581,8 @@ class OsProfile(object):
             Generate a new sha1 profile identifier for this profile,
             using the short_name, version, and version_id values and
             store it in _profile_data.
+
+            :returns: None
         """
         hashdata = (self.short_name + self.version + self.version_id)
 
@@ -526,6 +593,12 @@ class OsProfile(object):
         """__from_data(self, profile_data) -> OsProfile
             Initialise a new OsProfile object using the profile data
             in the `profile_data` dictionary.
+
+            This method should not be called directly: to build a new
+            ``Osprofile`` object from in-memory data, use the class
+            initialiser with the ``profile_data`` argument.
+
+            :returns: None
         """
         err_str = "Invalid profile data (missing %s)"
 
@@ -561,6 +634,12 @@ class OsProfile(object):
         """__from_file(self, profile_file) -> OsProfile
             Initialise a new OsProfile object using the profile data
             in profile_file.
+
+            This method should not be called directly: to build a new
+            ``Osprofile`` object from in-memory data, use the class
+            initialiser with the ``profile_file`` argument.
+
+            :returns: None
         """
         profile_data = {}
         comments = {}
@@ -861,8 +940,13 @@ class OsProfile(object):
     @classmethod
     def from_os_release(cls, os_release):
         """ from_os_release(cls, os_release) -> OsProfile
+
             Construct a new OsProfile object using data obtained from
             a file in os-release(5) format.
+
+            :param os_release: String data in os-release(5) format
+            :returns: A new OsProfile for the specified os-release data
+            :returntype: OsProfile
         """
         release_data = {}
         for line in os_release:
@@ -885,6 +969,10 @@ class OsProfile(object):
         """ from_file(cls) -> OsProfile
             Construct a new OsProfile object using data obtained from
             the file specified by 'path'.
+
+            :param os_release: Path to a file in os-release(5) format
+            :returns: A new OsProfile for the specified os-release file
+            :returntype: OsProfile
         """
         with open(path, "r") as f:
             return cls.from_os_release(f)
@@ -894,6 +982,9 @@ class OsProfile(object):
         """ from_host(cls) -> OsProfile
             Construct a new OsProfile object using data obtained from
             the running hosts's /etc/os-release file.
+
+            :returns: A new OsProfile for the current host
+            :returntype: OsProfile
         """
         return cls.from_os_release_file("/etc/os-release")
 
@@ -903,6 +994,9 @@ class OsProfile(object):
             Return the full path to this OsProfile in the Boom profiles
             directory (or the location to which it will be written, if
             it has not yet been written).
+
+            :returntype: str
+            :returns: The absolute path for this OsProfile's file
         """
         profile_id = (self.os_id, self.short_name, self.version_id)
         profile_path_name = BOOM_OS_PROFILE_FORMAT % (profile_id)
