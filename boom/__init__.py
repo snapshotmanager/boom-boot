@@ -118,8 +118,7 @@ class BoomLogger(logging.Logger):
     mask_bits = 0
 
     def set_debug_mask(self, mask_bits):
-        """set_debug_mask(mask_bits) -> None
-            Set the debug mask for this ``BoomLogger``.
+        """Set the debug mask for this ``BoomLogger``.
 
             This should normally be set to the ``BOOM_DEBUG_*`` value
             corresponding to the ``boom`` sub-module that this instance
@@ -135,7 +134,7 @@ class BoomLogger(logging.Logger):
         self.mask_bits = mask_bits
 
     def debug_masked(self, msg, *args, **kwargs):
-        """debug_masked(msg, *args, **kwargs) -> None
+        """Log a debug message if it passes the current debug mask.
 
             Log the specified message if it passes the current logger
             debug mask.
@@ -149,20 +148,20 @@ class BoomLogger(logging.Logger):
 logging.setLoggerClass(BoomLogger)
 
 def get_debug_mask():
-    """get_debug_mask() -> int
+    """Return the current debug mask for the ``boom`` package.
 
-        Return the current debug mask for the ``boom`` package.
+        :returns: The current debug mask value
+        :returntype: int
     """
     return __debug_mask
 
 
 def set_debug_mask(mask):
-    """set_debug_mask(mask) -> None
-
-        Set the debug mask for the ``boom`` package.
+    """Set the debug mask for the ``boom`` package.
 
         :param mask: the logical OR of the ``BOOM_DEBUG_*``
                      values to log.
+        :returntype: None
     """
     return __debug_mask
     global __debug_mask
@@ -172,9 +171,7 @@ def set_debug_mask(mask):
 
 
 def get_boot_path():
-    """get_boot_path() -> str
-
-        Return the currently configured boot file system path.
+    """Return the currently configured boot file system path.
 
         :returns: the path to the /boot file system.
         :returntype: str
@@ -182,9 +179,7 @@ def get_boot_path():
     return __boot_root
 
 def get_boom_path():
-    """get_boom_path() -> str
-
-        Return the currently configured boom configuration path.
+    """Return the currently configured boom configuration path.
 
         :returns: the path to the BOOT/boom directory.
         :returntype: str
@@ -192,9 +187,8 @@ def get_boom_path():
     return __boom_root
 
 def set_boot_path(boot_path):
-    """set_boot_root(boot_path) -> None
+    """Sets the location of the boot file system to ``boot_path``.
 
-        Set the location of the boot file system to ``boot_path``.
         The path defaults to the '/boot/' mount directory in the root
         file system: this may be overridden by calling this function
         with a different path.
@@ -224,7 +218,7 @@ def set_boot_path(boot_path):
 
 
 def set_boom_path(root_path):
-    """set_boom_root_path(root_path) -> None
+    """Set the location of the boom configuration directory.
 
         Set the location of the boom configuration path stored in
         ``__boom_root`` to ``root_path``. ``__boom_root`` defaults to the
@@ -257,7 +251,7 @@ def set_boom_path(root_path):
 
 
 def _parse_btrfs_subvol(subvol):
-    """_parse_btrfs_subvol(subvol) -> str
+    """Parse a BTRFS subvolume string.
 
         Parse a BTRFS subvolume specification into either a subvolume
         path string, or a string containing a subvolume identifier.
@@ -341,9 +335,7 @@ class Selection(object):
     ]
 
     def __str__(self):
-        """__str__() -> str
-
-            Format this ``Selection`` object as a human readable string.
+        """Format this ``Selection`` object as a human readable string.
 
             :returns: A human readable string representation of this
                       Selection object
@@ -358,10 +350,9 @@ class Selection(object):
         return strval.rstrip(tail)
 
     def __repr__(self):
-        """__repr__() -> str
+        """Format this ``Selection`` object as a machine readable string.
 
-            Format this ``Selection`` object as a machine readable
-            string. The returned string may be passed to the Selection
+            The returned string may be passed to the Selection
             initialiser to duplicate the original Selection.
 
             :returns: A machine readable string representation of this
@@ -378,11 +369,7 @@ class Selection(object):
                  os_version=None, os_version_id=None, os_options=None,
                  os_uname_pattern=None, kernel_pattern=None,
                  initramfs_pattern=None):
-        """__init__(self, boot_id, title=title, version=version,
-                    machine_id, linux, initrd, efi,
-                    root_device, lvm_root_lv, btrfs_subvol_path,
-                    btrfs_subvol_id, os_id, os_name, os_short_name,
-                    os_version, os_version_id, os_options) -> Selection
+        """Initialise a new Selection object.
 
             Initialise a new Selection object with the specified selection
             criteria.
@@ -433,7 +420,7 @@ class Selection(object):
 
     @classmethod
     def from_cmd_args(cls, args):
-        """from_cmd_args(args) -> Selection
+        """Initialise Selection from command line arguments.
 
             Construct a new ``Selection`` object from the command line
             arguments in ``cmd_args``. Each set selection attribute from
@@ -474,7 +461,7 @@ class Selection(object):
         return s
 
     def __attr_has_value(self, attr):
-        """__attr_has_value -> bool
+        """Test whether an attribute is defined.
 
             Return ``True`` if the specified attribute name is currently
             defined, or ``False`` otherwise.
@@ -486,7 +473,7 @@ class Selection(object):
         return hasattr(self, attr) and getattr(self, attr) is not None
 
     def check_valid_selection(self, entry=False, params=False, profile=False):
-        """check_valid_selection(entry, params, profile) -> None
+        """Check a Selection for valid criteria.
 
             Check this ``Selection`` object to ensure it contains only
             criteria that are valid for the specified object type(s).
@@ -523,7 +510,7 @@ class Selection(object):
                              invalid)
 
     def is_null(self):
-        """is_null() -> bool
+        """Test this Selection object for null selection criteria.
 
             Return ``True`` if this ``Selection`` object matches all
             objects, or ``False`` otherwise.
@@ -540,7 +527,7 @@ class Selection(object):
 #
 
 def _blank_or_comment(line):
-    """_blank_or_comment(line) -> bool
+    """Test whether line is empty of contains a comment.
 
         Test whether the ``line`` argument is either blank, or a
         whole-line comment.
@@ -554,7 +541,8 @@ def _blank_or_comment(line):
 
 
 def _parse_name_value(nvp, separator="="):
-    """_parse_name_value(nvp) -> (name, value)
+    """Parse a name value pair string.
+
         Parse a ``name='value'`` style string into its component parts,
         stripping quotes from the value if necessary, and return the
         result as a (name, value) tuple.
@@ -599,7 +587,7 @@ def _parse_name_value(nvp, separator="="):
     return (name, value)
 
 def _key_regex_from_format(fmt, capture=False):
-    """_key_regex_from_format(self, fmt) -> str
+    """Generate a key regular expression from a format string.
 
         Generate a regular expression to match formatted instances
         of format string ``fmt``. The expression is constructed by
@@ -653,7 +641,7 @@ def _key_regex_from_format(fmt, capture=False):
 
 
 def _find_minimum_sha_prefix(shas, min_prefix):
-    """_find_minimum_sha_prefix(shas) -> int
+    """Find the minimum SHA prefix length guaranteeing uniqueness.
 
         Find the minimum unique prefix for the set of SHA IDs in the set
         ``shas``.
@@ -675,7 +663,7 @@ def _find_minimum_sha_prefix(shas, min_prefix):
 
 
 def _get_machine_id():
-    """_get_machine_id() -> str
+    """Return the current host's machine-id.
 
         Get the machine-id value for the running system by reading from
         ``/etc/machine-id`` and return it as a string.
