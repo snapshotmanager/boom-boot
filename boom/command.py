@@ -35,8 +35,11 @@ from os.path import basename
 from argparse import ArgumentParser
 import logging
 
+#: The environment variable from which to take the location of the
+#: ``/boot`` file system.
 BOOM_BOOT_PATH_ENV="BOOM_BOOT_PATH"
 
+# Module logging configuration
 _log = logging.getLogger(__name__)
 _log.set_debug_mask(BOOM_DEBUG_COMMAND)
 
@@ -82,10 +85,14 @@ class BoomReportObj(object):
         self.osp = os_profile
 
 
+#: BootEntry report object type
 BR_ENTRY = 1
+#: OsProfile report object type
 BR_PROFILE = 2
+#: BootParams report object type
 BR_PARAMS = 4
 
+#: Report object type table for ``boom.command`` reports.
 _report_obj_types = [
     BoomReportObjType(
         BR_ENTRY, "Boot loader entries", "entry_", lambda o: o.be),
@@ -99,7 +106,7 @@ _report_obj_types = [
 # Reporting field definitions
 #
 
-#: fields derived from OsProfile data.
+#: Fields derived from OsProfile data.
 _profile_fields = [
     BoomFieldType(
         BR_PROFILE, "osid", "OsID", "OS identifier", 7,
@@ -139,7 +146,7 @@ _profile_fields = [
 _default_profile_fields = "osid,osname,osversion"
 _verbose_profile_fields = _default_profile_fields + ",unamepattern,options"
 
-#: fields derived from BootEntry data.
+#: Fields derived from BootEntry data.
 _entry_fields = [
     BoomFieldType(
         BR_ENTRY, "bootid", "BootID", "Boot identifier", 7,
@@ -161,7 +168,7 @@ _entry_fields = [
         REP_SHA, lambda f, d: f.report_sha(d.machine_id))
 ]
 
-#: fields derived from BootParams data
+#: Fields derived from BootParams data
 _params_fields = [
     BoomFieldType(
         BR_PARAMS, "version", "Version", "Kernel version", 24,
@@ -185,6 +192,17 @@ _verbose_entry_fields = "bootid,version,kernel,initramfs,options,machineid"
 
 
 def _subvol_from_arg(subvol):
+    """_subvol_from_arg(subvol) -> (str, str)
+
+        Parse a BTRFS subvolume path or identifier from a command line
+        argument string. Numeric values are assumed to be a subvolume ID
+        and values beginning with a '/' character are assumed to be a
+        subvolume path.
+
+        :param subvol: A subvolume path or ID string
+        :returns: (path, id) tuple or (None, None) if neither is found
+        :returntype: (str, str)
+    """
     if not subvol:
         return (None, None)
     subvol = _parse_btrfs_subvol(subvol)
@@ -198,6 +216,15 @@ def _subvol_from_arg(subvol):
 
 
 def _str_indent(string, indent):
+    """_str_indent(string, indent) -> str
+
+        Indent each line of the multi line string ``string`` to the
+        specified indentation level.
+
+        :param string: The string to be indented
+        :param indent: The number of characters to indent by
+        :returns: str
+    """
     outstr = ""
     for line in string.splitlines():
         outstr += indent * ' ' + line + '\n'
@@ -509,15 +536,29 @@ def print_entries(selection=None, output_fields=None, opts=None,
 # OsProfile manipulation
 #
 
-def _os_profile_from_file(profile_file, uname_pattern,
+def _os_profile_from_file(os_release, uname_pattern,
                           kernel_pattern, initramfs_pattern,
                           root_opts_lvm2, root_opts_btrfs,
                           options):
-    """_os_profile_from_file(profile_file, uname_pattern,
+    """_os_profile_from_file(os_release, uname_pattern,
     kernel_pattern, initramfs_pattern, root_opts_lvm2, root_opts_btrfs,
     options) -> ``OsProfile``
+
+        Construct a new ``OsProfile`` object from the specified path,
+        substituting each set kwarg parameter with the supplied value
+        in the resulting object.
+
+        :param os_release: The os-release file to read
+        :param uname_pattern: A replacement uname_pattern value
+        :param kernel_pattern: A replacement kernel_pattern value
+        :param initramfs_pattern: A replacement initramfs_pattern value
+        :param root_opts_lvm2: Replacement LVM2 root options
+        :param root_opts_btrfs: Replacement BTRFS root options
+        :param options: Replacement options string template
+        :returns: A new OsProfile
+        :returntype: OsProfile
     """
-    osp = OsProfile.from_os_release_file(profile_file)
+    osp = OsProfile.from_os_release_file(os_release)
     if uname_pattern:
         osp.uname_pattern = uname_pattern
     if kernel_pattern:
@@ -876,6 +917,16 @@ def print_profiles(selection=None, opts=None, output_fields=None,
 #
 
 def _create_cmd(cmd_args, select):
+    """_create_cmd(cmd_args, select) -> int
+
+        Attempt to create a new boot entry using the arguments
+        supplied in ``cmd_args`` and return the command status
+        as an integer.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Unused
+        :returns: integer status code returned from ``main()``
+    """
     if not cmd_args.version:
         version = get_uts_release()
         if not version:
@@ -940,6 +991,15 @@ def _create_cmd(cmd_args, select):
     print(_str_indent(str(be), 2))
 
 def _delete_cmd(cmd_args, select):
+    """_delete_cmd(cmd_args, select) -> int
+
+        Attempt to delete boot entries matching the selection criteria
+        given in ``select``.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria for the entries to remove
+        :returns: integer status code returned from ``main()``
+    """
     if not select or select.is_null():
         print("delete requires selection criteria")
         return 1
@@ -963,6 +1023,18 @@ def _delete_cmd(cmd_args, select):
 
 
 def _clone_cmd(cmd_args, select):
+    """_clone_cmd(cmd_args, select) -> int
+
+        Attempt to create a new boot entry by cloning an existing
+        entry. The ``boot_id`` of the supplied ``Selection`` object
+        is used to select the entry to clone. Any set entry values
+        supplied in ``cmd_args`` will be used to modify the newly
+        cloned entry.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: The ``boot_id`` to clone
+        :returns: integer status code returned from ``main()``
+    """
     title = cmd_args.title
     version = cmd_args.version
     machine_id = cmd_args.machine_id
@@ -1000,6 +1072,16 @@ def _clone_cmd(cmd_args, select):
 
 
 def _show_cmd(cmd_args, select):
+    """_list_cmd(cmd_args, select) -> int
+
+        Show the boot entries that match the given selection criteria in
+        BLS boot entry notation: one key per line, with keys and values
+        separated by a single space character.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria for the entries to show.
+        :returns: integer status code returned from ``main()``
+    """
     try:
         bes = find_entries(select)
     except ValueError as e:
@@ -1015,6 +1097,15 @@ def _show_cmd(cmd_args, select):
 
 
 def _list_cmd(cmd_args, select):
+    """_list_cmd(cmd_args, select) -> int
+
+        List the boot entries that match the given selection criteria as
+        a tabular report, with one boot entry per row.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria fore the entries to list
+        :returns: integer status code returned from ``main()``
+    """
     if cmd_args.options:
         fields = cmd_args.options
     elif cmd_args.verbose:
@@ -1030,6 +1121,17 @@ def _list_cmd(cmd_args, select):
 
 
 def _edit_cmd(cmd_args, select):
+    """_edit_cmd(cmd_args, select) -> int
+
+        Attempt to edit an existing boot entry. The ``boot_id`` of
+        the supplied ``Selection`` object is used to select the entry
+        to edit. Any set entry values supplied in ``cmd_args`` will be
+        used to modify the edited entry.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: The ``boot_id`` of the entry to edit
+        :returns: integer status code returned from ``main()``
+    """
     title = cmd_args.title
     version = cmd_args.version
     machine_id = cmd_args.machine_id
@@ -1054,6 +1156,16 @@ def _edit_cmd(cmd_args, select):
 
 
 def _create_profile_cmd(cmd_args, select):
+    """_create_profile_cmd(cmd_args, select) -> int
+
+        Attempt to create a new OS profile using the arguments
+        supplied in ``cmd_args`` and return the command status
+        as an integer.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Unused
+        :returns: integer status code returned from ``main()``
+    """
     if cmd_args.os_release or cmd_args.from_host:
         name = None
         short_name = None
@@ -1103,6 +1215,15 @@ def _create_profile_cmd(cmd_args, select):
 
 
 def _delete_profile_cmd(cmd_args, select):
+    """_delete_profile_cmd(cmd_args, select) -> int
+
+        Attempt to delete OS profiles matching the selection criteria
+        given in ``select``.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria for the profiles to remove
+        :returns: integer status code returned from ``main()``
+    """
     if not select or select.is_null():
         print("profile delete requires selection criteria")
         return 1
@@ -1126,6 +1247,18 @@ def _delete_profile_cmd(cmd_args, select):
 
 
 def _clone_profile_cmd(cmd_args, select):
+    """_clone_profile_cmd(cmd_args, select) -> int
+
+        Attempt to create a new OS profile by cloning an existing
+        profile. The ``os_id`` of the supplied ``Selection`` object
+        is used to select the profile to clone. Any set profile values
+        supplied in ``cmd_args`` will be used to modify the newly
+        cloned profile.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: The ``os_id`` to clone
+        :returns: integer status code returned from ``main()``
+    """
     name = cmd_args.name
     short_name = cmd_args.short_name
     version = cmd_args.os_version
@@ -1157,6 +1290,17 @@ def _clone_profile_cmd(cmd_args, select):
 
 
 def _show_profile_cmd(cmd_args, select):
+    """_show_profile_cmd(cmd_args, select) -> int
+
+        Show the OS profiles that match the given selection criteria in
+        human readable form. Each matching profile is printed as a
+        multi-line record, with like attributes grouped together on a
+        line.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria for the profiles to show.
+        :returns: integer status code returned from ``main()``
+    """
     try:
         osps = find_profiles(select)
     except ValueError as e:
@@ -1172,6 +1316,15 @@ def _show_profile_cmd(cmd_args, select):
 
 
 def _list_profile_cmd(cmd_args, select):
+    """_list_profile_cmd(cmd_args, select) -> int
+
+        List the OS profiles that match the given selection criteria as
+        a tabular report, with one profile per row.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria fore the profiles to list
+        :returns: integer status code returned from ``main()``
+    """
     if cmd_args.options:
         fields = cmd_args.options
     elif cmd_args.verbose:
@@ -1187,6 +1340,17 @@ def _list_profile_cmd(cmd_args, select):
 
 
 def _edit_profile_cmd(cmd_args, select):
+    """_edit_profile_cmd(cmd_args, select) -> int
+
+        Attempt to edit an existing OS profile. The ``os_id`` of the
+        supplied ``Selection`` object is used to select the profile to
+        edit. Any set entry values supplied in ``cmd_args`` will be used
+        to modify the edited profile.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: The ``os_id`` of the profile to edit
+        :returns: integer status code returned from ``main()``
+    """
     id_keys = (cmd_args.name, cmd_args.short_name,
                cmd_args.version, cmd_args.os_version_id)
 
