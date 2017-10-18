@@ -1,6 +1,16 @@
 boom package
 ============
 
+Module contents
+---------------
+
+.. automodule:: boom
+    :members:
+    :special-members:
+    :exclude-members: __dict__, __module__, __weakref__
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -47,12 +57,4 @@ boom.report module
     :show-inheritance:
 
 
-Module contents
----------------
 
-.. automodule:: boom
-    :members:
-    :special-members:
-    :exclude-members: __dict__, __module__, __weakref__
-    :undoc-members:
-    :show-inheritance:
