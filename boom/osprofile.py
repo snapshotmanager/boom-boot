@@ -11,6 +11,27 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+"""The ``boom.osprofile``  module defines the `OsProfile` class that
+represents an operating system profile. An `OsProfile` defines the
+identity of a profile and includes template values used to generate boot
+loader entries.
+
+Functions are provided to read and write operating system profiles from
+an on-disk store, and to retrieve ``OsProfile`` instances using various
+selection criteria.
+
+The ``OsProfile`` class includes named properties for each profile
+attribute ("profile key"). In addition, the class serves as a container
+type, allowing attributes to be accessed via dictionary-style indexing.
+This simplifies iteration over a profile's key / value pairs and allows
+straightforward access to all members in scripts and the Python shell.
+
+All profile key names are made available as named members of the module:
+``BOOM_OS_*``, and the ``PROFILE_KEYS`` list. Human-readable names for
+all the profile keys are stored in the ``KEY_NAMES`` dictionary: these
+are suitable for display use and are used by default by the
+``OsProfile`` string formatting routines.
+"""
 from boom import *
 from hashlib import sha1
 from os import listdir

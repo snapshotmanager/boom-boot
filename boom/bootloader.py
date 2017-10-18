@@ -11,6 +11,32 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+"""The ``boom.bootloader`` module defines classes for working with
+on-disk boot loader entries: the ``BootEntry`` class represents an
+individual boot loader entry, and the ``BootParams`` class
+encapsulates the parameters needed to boot an instance of the
+operating system. The kernel version and root device configuration
+of an existing ``BootEntry`` may be changed by modifying or
+substituting its ``BootParams`` object (this may also be used to
+'clone' configuration from one entry to another).
+
+Functions are provided to read and write boot loader entries from an
+on-disk store (normally located at ``/boot/loader/entries``), and to
+retrieve particular ``BootEntry`` objects based on a variety of
+selection criteria.
+
+The ``BootEntry`` class includes named properties for each boot entry
+attribute ("entry key"). In addition, the class serves as a container
+type, allowing attributes to be accessed via dictionary-style indexing.
+This simplifies iteration over a profile's key / value pairs and allows
+straightforward access to all members in scripts and the Python shell.
+
+All entry key names are made available as named members of the module:
+``BOOT_ENTRY_*``, and the ``ENTRY_KEYS`` list. A map of Boom key names
+to BLS keys is available in the ``KEY_MAP`` dictionary (a reverse map
+is also provided in the ``MAP_KEY`` member).
+
+"""
 from boom import *
 from boom.osprofile import *
 

@@ -11,6 +11,19 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+"""The ``boom.command`` module provides both the Boom command line
+interface infrastructure, and a simple procedural interface to the
+``boom`` library modules.
+
+The procedural interface is used by the ``boom`` command line tool,
+and may be used by application programs, or interactively in the
+Python shell by users who do not require all the features present
+in the Boom object API.
+
+In addition the module contains definitions for ``BoomReport``
+object types and fields that may be of use in implementing custom
+reports using the ``boom.report`` module.
+"""
 from boom import *
 from boom.osprofile import *
 from boom.report import *
