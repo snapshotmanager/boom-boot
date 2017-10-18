@@ -122,9 +122,7 @@ _entries = None
 DEV_PATTERN = "/dev/%s"
 
 def boom_entries_path():
-    """boom_profiles_path() -> str
-
-        Return the path to the boom profiles directory.
+    """Return the path to the boom profiles directory.
 
         :returns: The boom profiles path.
         :returntype: str
@@ -157,7 +155,7 @@ class BootParams(object):
     btrfs_subvol_id = None
 
     def __str(self, quote=False, prefix="", suffix=""):
-        """__str(self, quote, prefix, suffix) -> string
+        """Format BootParams as a string.
 
             Format this ``BootParams`` object as a string, with optional
             prefix, suffix, and value quoting.
@@ -193,7 +191,7 @@ class BootParams(object):
         return bp_str.rstrip(", ") + suffix
 
     def __str__(self):
-        """__str__(self) -> string
+        """Format BootParams as a human-readable string.
 
             Format this ``BootParams`` object as a human-readable string.
 
@@ -205,7 +203,7 @@ class BootParams(object):
         return self.__str()
 
     def __repr__(self):
-        """__repr__(self) -> string
+        """Format BootParams as a machine-readable string.
 
             Format this ``BootParams`` object as a machine-readable
             string. The string returned is in the form of a call to the
@@ -218,11 +216,7 @@ class BootParams(object):
 
     def __init__(self, version, root_device=None, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None):
-        """__init__(self, root_device, lvm_root_lv, btrfs_subvol_path,
-           btrfs_subvol_id) -> BootParams
-
-            Initialise a new ``BootParams`` object with the specified
-            values.
+        """Initialise a new ``BootParams`` object.
 
             The root device is specified via the ``root_device``
             argument as a path relative to the root file system.
@@ -291,7 +285,7 @@ class BootParams(object):
 
     @classmethod
     def from_entry(cls, be):
-        """from_entry(be) -> BootParams
+        """Recover BootParams from BootEntry.
 
         Recover BootParams values from a templated BootEntry: each
         key subject to template substitution is transformed into a
@@ -378,9 +372,7 @@ class BootParams(object):
 
 
 def _add_entry(entry):
-    """_add_entry(entry) -> None
-
-        Add a new entry to the list of known on-disk entries.
+    """Add a new entry to the list of loaded on-disk entries.
 
         :param entry: The ``BootEntry`` to add.
     """
@@ -392,10 +384,7 @@ def _add_entry(entry):
 
 
 def _del_entry(entry):
-    """_del_entry(entry) -> None
-
-        Remove an existing ``BootEntry`` from the list of on-disk
-        entries.
+    """Remove a ``BootEntry`` from the list of loaded entries.
 
         :param entry: The ``BootEntry`` to remove.
     """
@@ -404,7 +393,7 @@ def _del_entry(entry):
 
 
 def load_entries(machine_id=None):
-    """load_entries(machine_id) -> None
+    """ Load boot entries into memory.
 
         Load boot entries from ``boom.bootloader.boom_entries_path()``.
 
@@ -439,7 +428,7 @@ def load_entries(machine_id=None):
 
 
 def write_entries():
-    """write_entries() -> None
+    """Write out boot entries.
 
         Write all currently loaded boot entries to
         ``boom.bootloader.boom_entries_path()``.
@@ -454,7 +443,7 @@ def write_entries():
 
 
 def min_boot_id_width():
-    """minimum_boot_id_width() -> int
+    """Calculate the minimum unique width for boot_id values.
 
         Calculate the minimum width to ensure uniqueness when displaying
         boot_id values.
@@ -472,7 +461,7 @@ def min_boot_id_width():
     return _find_minimum_sha_prefix(shas, min_prefix)
 
 def select_params(s, bp):
-    """select_params(bp) -> bool
+    """Test BootParams against Selection criteria.
 
         Test the supplied ``BootParams`` against the selection criteria
         in ``s`` and return ``True`` if it passes, or ``False``
@@ -495,7 +484,7 @@ def select_params(s, bp):
     return True
 
 def select_entry(s, be):
-    """select_entry(be) -> bool
+    """Test BootEntry against Selection criteria.
 
         Test the supplied ``BootEntry`` against the selection criteria
         in ``s`` and return ``True`` if it passes, or ``False``
@@ -525,7 +514,7 @@ def select_entry(s, be):
 
 
 def find_entries(selection=None):
-    """find_entries(selection=None) -> list
+    """Find boot entries matching selection criteria.
 
         Return a list of ``BootEntry`` objects matching the specified
         criteria. Matching proceeds as the logical 'and' of all criteria.
@@ -564,7 +553,7 @@ def find_entries(selection=None):
 
 
 def _transform_key(key_name):
-    """_transform_key(key_name) -> string
+    """Transform key characters between Boom and BLS notation.
 
         Transform all occurrences of '_' in ``key_name`` to '-' or vice
         versa.
@@ -613,7 +602,7 @@ class BootEntry(object):
 
     def __str(self, quote=False, prefix="", suffix="", tail="\n",
               sep=" ", bls=True, no_boot_id=False):
-        """__str(self) -> string
+        """Format BootEntry as a string.
 
             Return a human or machine readable representation of this
             BootEntry.
@@ -669,7 +658,8 @@ class BootEntry(object):
         return be_str.rstrip(tail) + suffix
 
     def __str__(self):
-        """__str__(self) -> string
+        """Format BootEntry as a human-readable string in BLS notation.
+
             Format this BootEntry as a string containing a BLS
             configuration snippet.
 
@@ -680,7 +670,8 @@ class BootEntry(object):
         return self.__str()
 
     def __repr__(self):
-        """__repr__(self) -> string
+        """Format BootEntry as a machine-readable string.
+
             Return a machine readable representation of this BootEntry,
             in constructor notation.
 
@@ -692,9 +683,7 @@ class BootEntry(object):
                           suffix="})", tail=", ", sep=": ", bls=False)
 
     def __len__(self):
-        """__len__(self) -> int
-
-            Return the length (field count) of this ``BootEntry``.
+        """Return the length (key count) of this ``BootEntry``.
 
             :returns: the ``BootEntry`` length as an integer.
             :returntype: ``int``
@@ -702,9 +691,7 @@ class BootEntry(object):
         return len(self._entry_data)
 
     def __getitem__(self, key):
-        """__getitem__(self, key) -> item
-
-            Return an item from this ``BootEntry``.
+        """Return an item from this ``BootEntry``.
 
             :returns: the item corresponding to the key requested.
             :returntype: the corresponding type of the requested key.
@@ -734,9 +721,7 @@ class BootEntry(object):
         raise KeyError("BootEntry key %s not present." % key)
 
     def __setitem__(self, key, value):
-        """__setitem__(self, key, value) -> None
-
-            Set the specified ``BootEntry`` key to the given value.
+        """Set the specified ``BootEntry`` key to the given value.
 
             :param key: the ``BootEntry`` key to be set.
             :param value: the value to set for the specified key.
@@ -764,7 +749,7 @@ class BootEntry(object):
             raise KeyError("BootEntry key %s not present." % key)
 
     def keys(self):
-        """keys(self) -> list
+        """Return the list of keys for this ``BootEntry``.
 
             Return a copy of this ``BootEntry``'s keys as a list of
             key name strings.
@@ -785,7 +770,7 @@ class BootEntry(object):
         return keys
 
     def values(self):
-        """values(self) -> list
+        """Return the list of values for this ``BootEntry``.
 
             Return a copy of this ``BootEntry``'s values as a list.
 
@@ -801,7 +786,7 @@ class BootEntry(object):
         return values + add_values
 
     def items(self):
-        """items(self) -> list
+        """Return the items list for this BootEntry.
 
             Return a copy of this ``BootEntry``'s ``(key, value)``
             pairs as a list.
@@ -821,8 +806,8 @@ class BootEntry(object):
         return self._entry_data.items() + add_items
 
     def _dirty(self):
-        """_dirty(self) -> None
-            Mark this ``BootEntry`` as needing to be written to disk.
+        """Mark this ``BootEntry`` as needing to be written to disk.
+
             A newly created ``BootEntry`` object is always dirty and
             a call to its ``write_entry()`` method will always write
             a new boot entry file. Writes may be avoided for entries
@@ -836,7 +821,7 @@ class BootEntry(object):
         self._unwritten = True
 
     def __os_id_from_comment(self, comment):
-        """__os_id_from_comment(comment) -> None
+        """Retrive OsProfile from BootEntry comment.
 
             Attempt to set this BootEntry's OsProfile using a comment
             string stored in the entry file. The comment must be of the
@@ -872,7 +857,8 @@ class BootEntry(object):
         return outlines
 
     def __match_os_profile(self):
-        """__match_os_profile(self) -> None
+        """Attempt to find a matching OsProfile for this BootEntry.
+
             Attempt to guess the correct ``OsProfile`` to use with
             this ``BootEntry`` by probing each loaded ``OsProfile``
             in turn until a profile recognises the entry. If no match
@@ -887,7 +873,8 @@ class BootEntry(object):
         self._osp = match_os_profile(self)
 
     def __from_data(self, entry_data, boot_params):
-        """__from_data(self, entry_data) -> None
+        """Initialise a new BootEntry from in-memory data.
+
             Initialise a new ``BootEntry`` object with data from the
             dictionary ``entry_data`` (and optionally the supplied
             ``BootParams`` object). The supplied dictionary should be
@@ -942,7 +929,8 @@ class BootEntry(object):
                 _pop_if_set(BOOT_OPTIONS)
 
     def __from_file(self, entry_file, boot_params):
-        """__from_data(self, entry_data) -> None
+        """Initialise a new BootEntry from on-disk data.
+
             Initialise a new ``BootEntry`` using the entry data in
             ``entry_file`` (and optionally the supplied ``BootParams``
             object).
@@ -988,8 +976,7 @@ class BootEntry(object):
 
     def __init__(self, title=None, machine_id=None, osprofile=None,
                  boot_params=None, entry_file=None, entry_data=None):
-        """__init__(self, title, machine_id, osprofile, boot_params,
-           entry_file, entry_data) -> BootEntry
+        """Initialise new BootEntry.
 
             Initialise a new ``BootEntry`` object from the specified
             file or using the supplied values.
@@ -1068,7 +1055,7 @@ class BootEntry(object):
             self.__match_os_profile()
 
     def _apply_format(self, fmt):
-        """_apply_format(self, fmt) -> None
+        """Apply key format string substitution.
 
             Apply format key substitution to format string ``fmt``,
             using values provided by an attached ``BootParams`` object,
@@ -1137,7 +1124,7 @@ class BootEntry(object):
         return fmt
 
     def __generate_boot_id(self):
-        """_generate_boot_id() -> str
+        """Generate a new boot_id value.
 
             Generate a new sha1 profile identifier for this entry,
             using the title, version, root_device and any defined
@@ -1161,6 +1148,11 @@ class BootEntry(object):
         return boot_id
 
     def _entry_data_property(self, name):
+        """Return property value from entry data.
+
+            :param name: The boom key name of the property to return
+            :returns: The property value from the entry data dictionary
+        """
         if self._entry_data and name in self._entry_data:
             return self._entry_data[name]
         return None
@@ -1351,7 +1343,7 @@ class BootEntry(object):
         return path_join(boom_entries_path(), file_name)
 
     def write_entry(self, force=False):
-        """write_entry(self) -> None
+        """Write out entry to disk.
 
             Write out this ``BootEntry``'s data to a file in BLS
             format to the path specified by ``boom_entries_path()``.
@@ -1402,7 +1394,7 @@ class BootEntry(object):
         _add_entry(self)
 
     def delete_entry(self):
-        """delete_entry(self) -> None
+        """Remove on-disk BootEntry file.
 
             Remove the on-disk entry corresponding to this ``BootEntry``
             object. This will permanently erase the current file

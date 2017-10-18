@@ -140,9 +140,7 @@ _profiles_loaded = False
 
 
 def boom_profiles_path():
-    """boom_profiles_path() -> str
-
-        Return the path to the boom profiles directory.
+    """Return the path to the boom profiles directory.
 
         :returns: The boom profiles path.
         :returntype: str
@@ -151,7 +149,7 @@ def boom_profiles_path():
 
 
 def _is_null_profile(osp):
-    """_is_null_profile() -> bool
+    """Test for the Null Profile.
 
         Test ``osp`` and return ``True`` if it is the Null Profile.
         The Null Profile has an empty identity and defines no profile
@@ -172,8 +170,7 @@ def _is_null_profile(osp):
 
 
 def profiles_loaded():
-    """profiles_loaded() -> bool
-        Test whether profiles have been loaded from disk.
+    """Test whether profiles have been loaded from disk.
 
         :returntype: bool
         :returns: ``True`` if profiles are loaded in memory or ``False``
@@ -184,7 +181,7 @@ def profiles_loaded():
 
 
 def load_profiles():
-    """load_profiles() -> None
+    """Load OsProfile data from disk.
 
         Load the set of profiles found at the path
         ``boom.osprofile.boom_profiles_path()`` into the global profile
@@ -222,7 +219,7 @@ def load_profiles():
 
 
 def write_profiles(force=False):
-    """write_profiles() -> None
+    """Write all OsProfile data to disk.
 
         Write the current list of profiles to the directory located at
         ``boom.osprofile.boom_profiles_path()``.
@@ -242,7 +239,7 @@ def write_profiles(force=False):
 
 
 def min_os_id_width():
-    """minimum_os_id_width() -> int
+    """Calculate the minimum unique width for os_id values.
 
         Calculate the minimum width to ensure uniqueness when displaying
         os_id values.
@@ -261,7 +258,7 @@ def min_os_id_width():
 
 
 def select_profile(s, osp):
-    """select_profile(osp) -> bool
+    """Test the supplied profile against selection criteria.
 
         Test the supplied ``OsProfile`` against the selection criteria
         in ``s`` and return ``True`` if it passes, or ``False``
@@ -296,10 +293,7 @@ def select_profile(s, osp):
 
 
 def find_profiles(selection=None, match_fn=select_profile):
-    """find_profiles(match_fn, os_id, name, short_name,
-       version, version_id, uname_pattern,
-       kernel_pattern, initramfs_pattern,
-       root_opts_lvm2, root_opts_btrfs, options) -> list
+    """Find profiles matching selection criteria.
 
         Return a list of ``OsProfile`` objects matching the specified
         criteria. Matching proceeds as the logical 'and' of all criteria.
@@ -345,7 +339,7 @@ def find_profiles(selection=None, match_fn=select_profile):
 
 
 def get_os_profile_by_id(os_id):
-    """get_os_profile_by_id(os_id) -> OsProfile
+    """Find an OsProfile by its os_id.
 
         Return the OsProfile object corresponding to ``os_id``, or
         ``None`` if it is not found.
@@ -360,7 +354,8 @@ def get_os_profile_by_id(os_id):
 
 
 def match_os_profile(entry):
-    """match_os_profile(self) -> OsProfile
+    """Attempt to match a BootEntry to a corresponding OsProfile.
+
         Probe all loaded ``OsProfile`` objects with the supplied
         ``BootEntry`` in turn, until an ``OsProfile`` reports a match.
         Checking terminates on the first matching ``OsProfile``.
@@ -411,7 +406,7 @@ def match_os_profile(entry):
 
 
 def match_os_profile_by_version(version):
-    """match_os_profile_by_version(version) -> OsProfile
+    """Attempt to match a version string to an OsProfile.
 
         Attempt to find a profile with a uname pattern that matches
         ``version``. The first OsProfile with a match is returned.
@@ -442,11 +437,10 @@ class OsProfile(object):
     _comments = None
 
     def __str__(self):
-        """__str__(self) -> string
+        """Format this OsProfile as a human readable string.
 
-            Format this OsProfile as a human readable string. Profile
-            attributes are printed as "Name: value, " pairs, with like
-            attributes grouped together onto lines.
+            Profile attributes are printed as "Name: value, " pairs,
+            with like attributes grouped together onto lines.
 
             :returns: A human readable string representation of this OsProfile.
 
@@ -468,7 +462,7 @@ class OsProfile(object):
         return osp_str
 
     def __repr__(self):
-        """__repr___(self) -> string
+        """Format this OsProfile as a machine readable string.
 
             Return a machine-readable representation of this `OsProfile`
             object. The string is formatted as a call to the `OsProfile`
@@ -487,9 +481,7 @@ class OsProfile(object):
         return osp_str + "})"
 
     def __len__(self):
-        """__len__(self) -> int
-
-            Return the length (field count) of this ``OsProfile``.
+        """Return the length (key count) of this ``OsProfile``.
 
             :returns: the ``OsProfile`` length as an integer.
             :returntype: ``int``
@@ -497,9 +489,7 @@ class OsProfile(object):
         return len(self._profile_data)
 
     def __getitem__(self, key):
-        """__getitem__(self, key) -> item
-
-            Return an item from this ``OsProfile``.
+        """Return an item from this ``OsProfile``.
 
             :returns: the item corresponding to the key requested.
             :returntype: the corresponding type of the requested key.
@@ -515,9 +505,7 @@ class OsProfile(object):
         raise KeyError("Key %s not in profile." % key)
 
     def __setitem__(self, key, value):
-        """__setitem__(self, key, value) -> None
-
-            Set the specified ``OsProfile`` key to the given value.
+        """Set the specified ``OsProfile`` key to the given value.
 
             :param key: the ``OsProfile`` key to be set.
             :param value: the value to set for the specified key.
@@ -531,9 +519,7 @@ class OsProfile(object):
         self._profile_data[key] = value
 
     def keys(self):
-        """keys() -> list
-
-            Return the list of keys for this OsProfile.
+        """Return the list of keys for this OsProfile.
 
             :returntype: list
             :returns: A list of OsProfile key names
@@ -541,9 +527,7 @@ class OsProfile(object):
         return self._profile_data.keys()
 
     def values(self):
-        """values() -> list
-
-            Return the list of key values for this OsProfile.
+        """Return the list of key values for this OsProfile.
 
             :returntype: list
             :returns: A list of OsProfile key values
@@ -551,7 +535,7 @@ class OsProfile(object):
         return self._profile_data.values()
 
     def items(self):
-        """values() -> list
+        """Return the items list for this OsProfile.
 
             Return a list of ``(key, value)`` tuples representing the
             key items in this ``OsProfile``.
@@ -562,8 +546,8 @@ class OsProfile(object):
         return self._profile_data.items()
 
     def _dirty(self):
-        """_dirty(self) -> None
-            Mark this ``OsProfile`` as needing to be written to disk.
+        """Mark this ``OsProfile`` as needing to be written to disk.
+
             A newly created ``OsProfile`` object is always dirty and
             a call to its ``write_profile()`` method will always write
             a new profile file. Writes may be avoided for profiles
@@ -577,7 +561,8 @@ class OsProfile(object):
         self._unwritten = True
 
     def _generate_os_id(self):
-        """_generate_os_id(self)
+        """Generate a new OS identifier.
+
             Generate a new sha1 profile identifier for this profile,
             using the short_name, version, and version_id values and
             store it in _profile_data.
@@ -590,7 +575,8 @@ class OsProfile(object):
         self._profile_data[BOOM_OS_ID] = digest
 
     def __from_data(self, profile_data, dirty=True):
-        """__from_data(self, profile_data) -> OsProfile
+        """Initialise an OsProfile from in-memory data.
+
             Initialise a new OsProfile object using the profile data
             in the `profile_data` dictionary.
 
@@ -631,7 +617,8 @@ class OsProfile(object):
             self._dirty()
 
     def __from_file(self, profile_file):
-        """__from_file(self, profile_file) -> OsProfile
+        """Initialise a new OsProfile from data stored in a file.
+
             Initialise a new OsProfile object using the profile data
             in profile_file.
 
@@ -665,11 +652,7 @@ class OsProfile(object):
 
     def __init__(self, name=None, short_name=None, version=None,
                  version_id=None, profile_file=None, profile_data=None):
-        """__init__(self, name, short_name, version, version_id,
-           profile_file, profile_data) -> OsProfile
-
-            Initialise a new ``OsProfile`` object using the supplied
-            ``os-release`` values.
+        """Initialise a new ``OsProfile`` object.
 
             If neither ``profile_file`` nor ``profile_data`` is given,
             all of ``name``, ``short_name``, ``version``, and
@@ -730,7 +713,7 @@ class OsProfile(object):
         _profiles.append(self)
 
     def match_uname_version(self, version):
-        """match(self, entry) -> bool
+        """Test OsProfile for version string match.
 
             Test the supplied version string to determine whether it
             matches the uname_pattern of this ``OsProfile``.
@@ -748,7 +731,7 @@ class OsProfile(object):
         return False
 
     def match_options(self, entry):
-        """match_options(self, entry) -> bool
+        """Test OsProfile for options template match.
 
             Test the supplied ``BootEntry`` to determine whether it
             matches the options template defined by this ``OsProfile``.
@@ -939,7 +922,7 @@ class OsProfile(object):
 
     @classmethod
     def from_os_release(cls, os_release):
-        """ from_os_release(cls, os_release) -> OsProfile
+        """Build an OsProfile from os-release file data.
 
             Construct a new OsProfile object using data obtained from
             a file in os-release(5) format.
@@ -966,7 +949,8 @@ class OsProfile(object):
 
     @classmethod
     def from_os_release_file(cls, path):
-        """ from_file(cls) -> OsProfile
+        """Build an OsProfile from an on-disk os-release file.
+
             Construct a new OsProfile object using data obtained from
             the file specified by 'path'.
 
@@ -979,7 +963,8 @@ class OsProfile(object):
 
     @classmethod
     def from_host_os_release(cls):
-        """ from_host(cls) -> OsProfile
+        """Build an OsProfile from the current hosts's os-release.
+
             Construct a new OsProfile object using data obtained from
             the running hosts's /etc/os-release file.
 
@@ -989,7 +974,7 @@ class OsProfile(object):
         return cls.from_os_release_file("/etc/os-release")
 
     def _profile_path(self):
-        """_profile_path(self) -> string
+        """Return the path to this profile's on-disk data.
 
             Return the full path to this OsProfile in the Boom profiles
             directory (or the location to which it will be written, if
@@ -1003,7 +988,7 @@ class OsProfile(object):
         return path_join(boom_profiles_path(), profile_path_name)
 
     def write_profile(self, force=False):
-        """ write_profile(self) -> None
+        """Write out profile data to disk.
 
             Write out this ``OsProfile``'s data to a file in Boom
             format to the paths specified by the current configuration.
@@ -1050,7 +1035,7 @@ class OsProfile(object):
         _log_debug("Wrote profile (os_id=%s)'" % self.disp_os_id)
 
     def delete_profile(self):
-        """delete_profile(self) -> None
+        """Delete on-disk data for this profile.
 
             Remove the on-disk profile corresponding to this
             ``OsProfile`` object. This will permanently erase the

@@ -73,7 +73,7 @@ class BoomReportObj(object):
     osp = None
 
     def __init__(self, boot_entry=None, os_profile=None):
-        """__init__(self, boot_entry, os_profile) -> BoomReportObj
+        """Initialise new BoomReportObj objects.
 
             Construct a new BoomReportObj object containing the
             specified BootEntry and or OsProfile objects.
@@ -192,7 +192,7 @@ _verbose_entry_fields = "bootid,version,kernel,initramfs,options,machineid"
 
 
 def _subvol_from_arg(subvol):
-    """_subvol_from_arg(subvol) -> (str, str)
+    """Parse a BTRFS subvolume from a string argument.
 
         Parse a BTRFS subvolume path or identifier from a command line
         argument string. Numeric values are assumed to be a subvolume ID
@@ -216,7 +216,7 @@ def _subvol_from_arg(subvol):
 
 
 def _str_indent(string, indent):
-    """_str_indent(string, indent) -> str
+    """Indent all lines of a multi-line string.
 
         Indent each line of the multi line string ``string`` to the
         specified indentation level.
@@ -241,8 +241,7 @@ def _str_indent(string, indent):
 
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None, osprofile=None):
-    """create_entry(title, version, machine_id, root_device, lvm_root_lv,
-       btrfs_subvol_path, btrfs_subvol_id, osprofile) -> ``BootEntry``
+    """Create new boot loader entry.
 
         Create the specified boot entry in the configured loader directory.
         An error is raised if a matching entry already exists.
@@ -293,7 +292,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
 
 
 def delete_entries(selection=None):
-    """delete_entries(selection) -> int
+    """Delete entries matching selection criteria.
 
         Delete the specified boot entry or entries from the configured
         loader directory. If ``boot_id`` is used, or if the criteria
@@ -327,9 +326,7 @@ def delete_entries(selection=None):
 def clone_entry(selection=None, title=None, version=None, machine_id=None,
                 root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
                 btrfs_subvol_id=None, osprofile=None):
-    """clone_entry(selection, title, version, machine_id, root_device,
-       lvm_root_lv, btrfs_subvol_path, btrfs_subvol_id, osprofile)
-       -> ``BootEntry``
+    """Clone an existing boot loader entry.
 
         Create the specified boot entry in the configured loader directory
         by cloning all un-set parameters from the boot entry selected by
@@ -399,9 +396,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
                btrfs_subvol_id=None, osprofile=None):
-    """edit_entry(selection, title, version, machine_id, root_device,
-                  lvm_root_lv, btrfs_subvol_path, btrfs_subvol_id,
-                  osprofile) -> ``BootEntry``
+    """Edit an existing boot loader entry.
 
         Modify an existing BootEntry by changing one or more of the
         entry values or boot parameters.
@@ -460,9 +455,7 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
 
 
 def list_entries(selection=None):
-    """list_entries(boot_id, title, version,
-                    machine_id, root_device, lvm_root_lv,
-                    btrfs_subvol_path, btrfs_subvol_id) -> list
+    """List entries matching selection criteria.
 
         Return a list of ``boom.bootloader.BootEntry`` objects matching
         the given criteria.
@@ -490,9 +483,7 @@ def list_entries(selection=None):
 
 def print_entries(selection=None, output_fields=None, opts=None,
                   sort_keys=None):
-    """print_entries(boot_id, title, version,
-                    machine_id, root_device, lvm_root_lv,
-                    btrfs_subvol_path, btrfs_subvol_id) -> list
+    """Print boot loader entries matching selection criteria.
 
         Format a set of ``boom.bootloader.BootEntry`` objects matching
         the given criteria, and output them as a report to the file
@@ -540,9 +531,7 @@ def _os_profile_from_file(os_release, uname_pattern,
                           kernel_pattern, initramfs_pattern,
                           root_opts_lvm2, root_opts_btrfs,
                           options):
-    """_os_profile_from_file(os_release, uname_pattern,
-    kernel_pattern, initramfs_pattern, root_opts_lvm2, root_opts_btrfs,
-    options) -> ``OsProfile``
+    """Create OsProfile from os-release file.
 
         Construct a new ``OsProfile`` object from the specified path,
         substituting each set kwarg parameter with the supplied value
@@ -583,23 +572,20 @@ def create_profile(name, short_name, version, version_id,
                    initramfs_pattern=None, root_opts_lvm2=None,
                    root_opts_btrfs=None, options=None,
                    profile_data=None, profile_file=None):
-    """create_profile,(name, short_name, version, version_id
-       uname_pattern, kernel_pattern, initramfs_pattern,
-       root_opts_lvm2, root_opts_btrfs, options, profile_data) ->
-       ``OsProfile``
+    """Create new operating system profile.
 
         Create the specified OsProfile in the configured profiles
         directory.
-
+    
         OsProfile key values may be specified either by passing
         individual keyword arguments, or by passing a dictionary
         of OsProfile key name to value pairs as the ``profile_data``
         argument. If a key is present as both a keyword argument
         and in the ``profile_data`` dictionary, the argument will
         take precedence.
-
+    
         An error is raised if a matching profile already exists.
-
+    
         :param name: The name of the new OsProfile
         :param short_name: The short name of the new OsProfile
         :param version: The version string of the new OsProfile
@@ -611,7 +597,7 @@ def create_profile(name, short_name, version, version_id,
         :param root_opts_btrfs: Template options for BTRFS entries
         :param options: Template kernel command line options
         :param profile_data: Dictionary of profile key:value pairs
-
+    
         :returns: an ``OsProfile`` object for the new profile
         :returntype: ``OsProfile``
         :raises: ``ValueError`` if either required values are missing or
@@ -674,7 +660,7 @@ def create_profile(name, short_name, version, version_id,
     return osp
 
 def delete_profiles(selection=None):
-    """delete_profiles(selection) -> int
+    """Delete profiles matching selection criteria.
 
         Delete the specified OsProfile or profiles from the configured
         profile directory. If ``os_id`` is used, or if the criteria
@@ -709,9 +695,7 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
                   version_id=None, uname_pattern=None, kernel_pattern=None,
                   initramfs_pattern=None, root_opts_lvm2=None,
                   root_opts_btrfs=None, options=None):
-    """clone_profile(selection, name, short_name, version, version_id,
-       uname_pattern, kernel_pattern, initramfs_pattern, root_opts_lvm2,
-       root_opts_btrfs, options) -> ``OsProfile``
+    """Clone an existing operating system profile.
 
         Create the specified profile in the configured profile directory
         by cloning all un-set parameters from the profile selected by
@@ -806,9 +790,7 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
 def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
                  initramfs_pattern=None, root_opts_lvm2=None,
                  root_opts_btrfs=None, options=None):
-    """edit_profile(selection, uname_pattern, kernel_pattern,
-    initramfs_pattern, root_opts_lvm2, root_opts_btrfs, options)
-    -> ``OsProfile``
+    """Edit an existing operating system profile.
 
         Modify an existing OsProfile by changing one or more of the
         profile values.
@@ -850,10 +832,7 @@ def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
 
 
 def list_profiles(selection=None):
-    """list_profiles(os_id, name, short_name,
-                     version, version_id, uname_pattern,
-                     kernel_pattern, initramfs_pattern,
-                     root_opts_lvm2, root_opts_btrfs, options) -> list
+    """List operating system profiles matching selection criteria.
 
         Return a list of ``boom.osprofile.OsProfile`` objects matching
         the given criteria.
@@ -876,10 +855,7 @@ def list_profiles(selection=None):
 
 def print_profiles(selection=None, opts=None, output_fields=None,
                    sort_keys=None):
-    """print_profiles(os_id, name, short_name,
-                      version, version_id, uname_pattern,
-                      kernel_pattern, initramfs_pattern,
-                      root_opts_lvm2, root_opts_btrfs, options) -> list
+    """Print operating system profiles matching selection criteria.
 
         :param os_id: The boot identifier to match.
         :param name: The profile name to match.
@@ -917,7 +893,7 @@ def print_profiles(selection=None, opts=None, output_fields=None,
 #
 
 def _create_cmd(cmd_args, select):
-    """_create_cmd(cmd_args, select) -> int
+    """Create entry command handler.
 
         Attempt to create a new boot entry using the arguments
         supplied in ``cmd_args`` and return the command status
@@ -991,7 +967,7 @@ def _create_cmd(cmd_args, select):
     print(_str_indent(str(be), 2))
 
 def _delete_cmd(cmd_args, select):
-    """_delete_cmd(cmd_args, select) -> int
+    """Delete entry command handler.
 
         Attempt to delete boot entries matching the selection criteria
         given in ``select``.
@@ -1023,7 +999,7 @@ def _delete_cmd(cmd_args, select):
 
 
 def _clone_cmd(cmd_args, select):
-    """_clone_cmd(cmd_args, select) -> int
+    """Clone entry command handler.
 
         Attempt to create a new boot entry by cloning an existing
         entry. The ``boot_id`` of the supplied ``Selection`` object
@@ -1072,7 +1048,7 @@ def _clone_cmd(cmd_args, select):
 
 
 def _show_cmd(cmd_args, select):
-    """_list_cmd(cmd_args, select) -> int
+    """Show entry command handler.
 
         Show the boot entries that match the given selection criteria in
         BLS boot entry notation: one key per line, with keys and values
@@ -1097,8 +1073,7 @@ def _show_cmd(cmd_args, select):
 
 
 def _list_cmd(cmd_args, select):
-    """_list_cmd(cmd_args, select) -> int
-
+    """List entry command handler.
         List the boot entries that match the given selection criteria as
         a tabular report, with one boot entry per row.
 
@@ -1121,7 +1096,7 @@ def _list_cmd(cmd_args, select):
 
 
 def _edit_cmd(cmd_args, select):
-    """_edit_cmd(cmd_args, select) -> int
+    """Edit entry command handler.
 
         Attempt to edit an existing boot entry. The ``boot_id`` of
         the supplied ``Selection`` object is used to select the entry
@@ -1156,8 +1131,7 @@ def _edit_cmd(cmd_args, select):
 
 
 def _create_profile_cmd(cmd_args, select):
-    """_create_profile_cmd(cmd_args, select) -> int
-
+    """Create profile command handler.
         Attempt to create a new OS profile using the arguments
         supplied in ``cmd_args`` and return the command status
         as an integer.
@@ -1215,7 +1189,7 @@ def _create_profile_cmd(cmd_args, select):
 
 
 def _delete_profile_cmd(cmd_args, select):
-    """_delete_profile_cmd(cmd_args, select) -> int
+    """Delete profile command handler.
 
         Attempt to delete OS profiles matching the selection criteria
         given in ``select``.
@@ -1247,7 +1221,7 @@ def _delete_profile_cmd(cmd_args, select):
 
 
 def _clone_profile_cmd(cmd_args, select):
-    """_clone_profile_cmd(cmd_args, select) -> int
+    """Clone profile command handler.
 
         Attempt to create a new OS profile by cloning an existing
         profile. The ``os_id`` of the supplied ``Selection`` object
@@ -1290,7 +1264,7 @@ def _clone_profile_cmd(cmd_args, select):
 
 
 def _show_profile_cmd(cmd_args, select):
-    """_show_profile_cmd(cmd_args, select) -> int
+    """Show profile command handler.
 
         Show the OS profiles that match the given selection criteria in
         human readable form. Each matching profile is printed as a
@@ -1316,7 +1290,7 @@ def _show_profile_cmd(cmd_args, select):
 
 
 def _list_profile_cmd(cmd_args, select):
-    """_list_profile_cmd(cmd_args, select) -> int
+    """List profile command handler.
 
         List the OS profiles that match the given selection criteria as
         a tabular report, with one profile per row.
@@ -1340,7 +1314,7 @@ def _list_profile_cmd(cmd_args, select):
 
 
 def _edit_profile_cmd(cmd_args, select):
-    """_edit_profile_cmd(cmd_args, select) -> int
+    """Edit profile command handler.
 
         Attempt to edit an existing OS profile. The ``os_id`` of the
         supplied ``Selection`` object is used to select the profile to
