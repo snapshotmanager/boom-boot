@@ -105,6 +105,7 @@ KEY_MAP = {
 #: Map BLS entry keys to Boom names
 MAP_KEY = {v: k for k, v in KEY_MAP.items()}
 
+# Module logging configuration
 _log = logging.getLogger(__name__)
 _log.set_debug_mask(BOOM_DEBUG_ENTRY)
 
@@ -248,29 +249,21 @@ class BootParams(object):
 
             ``BootParams()`` raises ValueError if a required argument is
             missing, or if conflicting arguments are present.
-
             :param version: The version string for this ``BootParams``
                             object.
-
             :param root_device: The root device for this ``BootParams``
                                 object.
-
             :param lvm_root_lv: The LVM2 logical volume containing the
                                 root file system, for systems that use
                                 LVM.
-
             :param btrfs_subvol_path: The BTRFS subvolume path
                                       containing the root file system,
                                       for systems using BTRFS.
-
             :param btrfs_subvol_id: The BTRFS subvolume ID containing
                                     the root file system, for systems
                                     using BTRFS.
-
             :returns: a newly initialised ``BootParams`` object.
-
             :returntype: ``class BootParams``
-
             :raises: ``ValueError``
         """
         if not version:
@@ -482,6 +475,17 @@ def min_boot_id_width():
     return _find_minimum_sha_prefix(shas, min_prefix)
 
 def select_params(s, bp):
+    """select_params(bp) -> bool
+
+        Test the supplied ``BootParams`` against the selection criteria
+        in ``s`` and return ``True`` if it passes, or ``False``
+        otherwise.
+
+        :param bp: The BootParams to test
+        :returntype: bool
+        :returns: True if BootParams passes selection or ``False``
+                  otherwise.
+    """
     if s.root_device and s.root_device != bp.root_device:
         return False
     if s.lvm_root_lv and s.lvm_root_lv != bp.lvm_root_lv:
@@ -494,6 +498,17 @@ def select_params(s, bp):
     return True
 
 def select_entry(s, be):
+    """select_entry(be) -> bool
+
+        Test the supplied ``BootEntry`` against the selection criteria
+        in ``s`` and return ``True`` if it passes, or ``False``
+        otherwise.
+
+        :param bp: The BootEntry to test
+        :returntype: bool
+        :returns: True if BootEntry passes selection or ``False``
+                  otherwise.
+    """
     if not select_profile(s, be._osp):
         return False
 
@@ -818,6 +833,8 @@ class BootEntry(object):
 
             A clean ``BootEntry`` is marked as dirty if a new value
             is written to any of its writable properties.
+
+            :returntype: None
         """
         self._unwritten = True
 
@@ -827,7 +844,15 @@ class BootEntry(object):
             Attempt to set this BootEntry's OsProfile using a comment
             string stored in the entry file. The comment must be of the
             form "OsIdentifier: <os_id>". If found the value is treated
-            as authoritative.
+            as authoritative and a reference to the corresponding
+            ``OsProfile`` is stored  in the object's ``_osp`` member.
+
+            Any comment lines that do not contain an OsIdentifier tag
+            are returned as a multi-line string.
+
+            :param comment: The comment to attempt to parse
+            :returns: Comment lines not containing an OsIdentifier
+            :returntype: str
         """
         if "OsIdentifier:" not in comment:
             return
@@ -865,17 +890,26 @@ class BootEntry(object):
         self._osp = match_os_profile(self)
 
     def __from_data(self, entry_data, boot_params):
-
         """__from_data(self, entry_data) -> None
             Initialise a new ``BootEntry`` object with data from the
-            dictionary ``entry_data``.
+            dictionary ``entry_data`` (and optionally the supplied
+            ``BootParams`` object). The supplied dictionary should be
+            indexed by Boom entry key names (``BOOT_*``).
 
             Raises ``ValueError`` if required keys are missing
             (``BOOT_TITLE``, and either ``BOOT_LINUX`` or ``BOOT_EFI``).
 
-            :returns: ``None``
-            :returntype: ``None``
-            :raises: ``ValueError``
+            This method should not be called directly: to build a new
+            ``BootEntry`` object from in-memory data, use the class
+            initialiser with the ``entry_data`` argument.
+
+            :param entry_data: A dictionary mapping Boom boot entry key
+                               names to values
+            :param boot_params: Optional BootParams to attach to the new
+                                BootEntry object
+            :returns: None
+            :returntype: None
+            :raises: ValueError
         """
         if BOOT_TITLE not in entry_data:
             raise ValueError("BootEntry missing BOOT_TITLE")
@@ -911,6 +945,26 @@ class BootEntry(object):
                 _pop_if_set(BOOT_OPTIONS)
 
     def __from_file(self, entry_file, boot_params):
+        """__from_data(self, entry_data) -> None
+            Initialise a new ``BootEntry`` using the entry data in
+            ``entry_file`` (and optionally the supplied ``BootParams``
+            object).
+
+            Raises ``ValueError`` if required keys are missing
+            (``BOOT_TITLE``, and either ``BOOT_LINUX`` or ``BOOT_EFI``).
+
+            This method should not be called directly: to build a new
+            ``BootEntry`` object from entry file data, use the class
+            initialiser with the ``entry_file`` argument.
+
+            :param entry_file: The path to a file containing a BLS boot
+                               entry
+            :param boot_params: Optional BootParams to attach to the new
+                                BootEntry object
+            :returns: None
+            :returntype: None
+            :raises: ValueError
+        """
         entry_data = {}
         comments = {}
         comment = ""
@@ -1086,12 +1140,15 @@ class BootEntry(object):
         return fmt
 
     def __generate_boot_id(self):
-        """_generate_boot_id()
+        """_generate_boot_id() -> str
+
             Generate a new sha1 profile identifier for this entry,
             using the title, version, root_device and any defined
             LVM2 or BTRFS snapshot parameters.
-        """
 
+            :returns: A ``boot_id`` string
+            :returntype: str
+        """
         # The default ``str()`` and ``repr()`` behaviour for
         # ``BootEntry`` objects includes the ``boot_id`` value. This
         # must be disabled in order to generate the ``boot_id`` to
@@ -1316,6 +1373,7 @@ class BootEntry(object):
             :raises: ``OSError`` if the temporary entry file cannot be
                      renamed, or if setting file permissions on the
                      new entry file fails.
+            :returntype: None
         """
         entry_path = self._entry_path
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_entries_path())
