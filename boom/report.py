@@ -337,7 +337,16 @@ class BoomReport(object):
             max_len = cur_len if cur_len > max_len else max_len
         return max_len
 
-    def __do_display_fields(self, fields, display_field_types):
+    def __display_fields(self, display_field_types):
+        """Display report fields help message.
+
+            Display a list of valid fields for this ``BoomReport``.
+
+            :param fields: The list of fields to display
+            :param display_field_types: A boolean controling whether
+                                        field types (str, SHA, num)
+                                        are included in help output
+        """
         name_len = self.__get_longest_field_name_len(fields)
         last_desc = ""
         banner = "-" * 79
@@ -359,13 +368,6 @@ class BoomReport(object):
                    f.dtype if display_field_types else "",
                    "]" if display_field_types else ""))
             last_desc = desc
-
-    def __display_fields(self, display_field_types):
-        """__display_fields(self) -> None
-
-            Output a list of fields for this ``BoomReport`` object.
-        """
-        self.__do_display_fields(self._fields, display_field_types)
 
     def __find_type(self, report_type):
         # FIXME implicit field handling
