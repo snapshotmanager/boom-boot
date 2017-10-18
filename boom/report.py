@@ -81,8 +81,7 @@ class BoomReportOpts(object):
     def __init__(self, columns=_default_columns, headings=True, buffered=True,
                  separator=" ", field_name_prefix="", unquoted=True,
                  aligned=True, report_file=sys.stdout):
-        """__init__(self, columns, headings, buffered, report_file)
-           -> BoomReportOpts
+        """Initialise BoomReportOpts object.
 
             Initialise a ``BoomReportOpts`` object to control output
             of a ``BoomReport``.
@@ -122,7 +121,8 @@ class BoomReportObjType(object):
     data_fn = None
 
     def __init__(self, objtype, desc, prefix, data_fn):
-        """__init__(self, objtype, desc, prefix, data_fn)
+        """Initialise BoomReportObjType.
+
             Initialise a new ``BoomReportObjType`` object with the
             specified ``objtype``, ``desc``, optional ``prefix`` and
             ``data_fn``. The ``objtype`` must be an integer power of two
@@ -160,7 +160,22 @@ class BoomFieldType(object):
     report_fn = None
 
     def __init__(self, objtype, name, head, desc, width, dtype, report_fn,
-                 align=None, sort_fn=None):
+                 align=None):
+        """Initialise new BoomFieldType object.
+
+            Initialise a new ``BoomFieldType`` object with the specified
+            properties.
+
+            :param objtype: The numeric object type ID (power of two)
+            :param name: The field name used to select display fields
+            :param desc: A human-readable description of the field
+            :param width: The default (initial) field width
+            :param dtype: The BoomReport data type of the field
+            :param report_fn: The field reporting function
+            :param align: The field alignment value
+            :returns: A new BoomReportFieldType object
+            :returntype: BoomReportFieldType
+        """
         if not objtype:
             raise ValueError("'objtype' must be non-zero")
         if not name:
@@ -190,8 +205,6 @@ class BoomFieldType(object):
         if width < 0:
             raise ValueError("Field width cannot be < 0")
         self.width = width if width else _default_width
-
-        self.sort_fn = sort_fn
 
 
 class BoomFieldProperties(object):
@@ -229,19 +242,57 @@ class BoomField(object):
     sort_value = None
 
     def __init__(self, report, props):
+        """Initialise a new BoomField object.
+
+            Initialise a BoomField object and configure the supplied
+            ``report`` and ``props`` attributes.
+
+            :param report: The BoomReport that owns this field
+            :param props: The BoomFieldProperties object for this field
+        """
         self._report = report
         self._props = props
 
     def report_str(self, value):
+        """Report a string value for this BoomField object.
+
+            Set the value for this field to the supplied ``value``.
+
+            :param value: The string value to set
+            :returntype: None
+        """
         self.set_value(value, sort_value=value)
 
     def report_sha(self, value):
+        """Report a SHA value for this BoomField object.
+
+            Set the value for this field to the supplied ``value``.
+
+            :param value: The SHA value to set
+            :returntype: None
+        """
         self.set_value(value, sort_value=value)
 
     def report_num(self, value):
+        """Report a numeric value for this BoomField object.
+
+            Set the value for this field to the supplied ``value``.
+
+            :param value: The numeric value to set
+            :returntype: None
+        """
         self.set_value(str(value), sort_value=value)
 
     def set_value(self, report_string, sort_value=None):
+        """Report an arbitrary value for this BoomField object.
+
+            Set the value for this field to the supplied ``value``,
+            and set the field's ``sort_value`` to the supplied
+            ``sort_value``.
+
+            :param value: The string value to set
+            :returntype: None
+        """
         if report_string is None:
             raise ValueError("No value assigned to field.")
         self.report_string = report_string
@@ -263,9 +314,18 @@ class BoomRow(object):
         self._fields = []
 
     def add_field(self, field):
+        """Add a field to this BoomRow.
+
+            :param field: The field to be added
+            :returntype: None
+        """
         self._fields.append(field)
 
 def __none_returning_fn(obj):
+    """Dummy data function for special report types.
+
+        :returns: None
+    """
     return None
 
 # Implicit report fields and types
@@ -278,6 +338,10 @@ _implicit_special_report_types = [
 ]
 
 def __no_report_fn(f, d):
+    """Dummy report function for special report types.
+
+        :returns: None
+    """
     return
 
 _special_field_help_name = "help"
@@ -320,6 +384,13 @@ class BoomReport(object):
     opts = None
 
     def __help_requested(self):
+        """Check for presence of 'help' fields in output selection.
+
+            Check the fields making up this BoomReport and return True
+            if any valid 'help' field synonym is present.
+
+            :returns: True if help was requested or False otherwise
+        """
         for fp in self._field_properties:
             if fp.implicit:
                 name = self._implicit_fields[fp.field_num].name
@@ -328,6 +399,10 @@ class BoomReport(object):
         return False
 
     def __get_longest_field_name_len(self, fields):
+        """Find the longest field name length.
+
+            :returns: the length of the longest configured field name
+        """
         max_len = 0
         for f in fields:
             cur_len = len(f.name)
@@ -370,8 +445,12 @@ class BoomReport(object):
             last_desc = desc
 
     def __find_type(self, report_type):
-        # FIXME implicit field handling
+        """Resolve numeric type to corresponding BoomReportObjType.
 
+            :param report_type: The numeric report type to look up
+            :returns: The requested BoomReportObjType.
+            :raises: ValueError if no matching type was found.
+        """
         for t in self._implicit_types:
             if t.objtype == report_type:
                 return t
@@ -382,6 +461,13 @@ class BoomReport(object):
         raise ValueError("Unknown report object type: %d" % report_type)
 
     def __copy_field(self, field_num, implicit):
+        """Copy field definition to BoomFieldProperties
+
+            Copy values from a BoomFieldType to BoomFieldProperties.
+
+            :param field_num: The number of this field (fields order)
+            :param implicit: True if this field is implicit, else False
+        """
         fp = BoomFieldProperties()
         fp.field_num = field_num
         fp.width = fp.initial_width = self._fields[field_num].width
@@ -392,6 +478,14 @@ class BoomReport(object):
         return fp
 
     def __add_field(self, field_num, implicit):
+        """Add a field to this BoomReport.
+
+            Add the specified BoomFieldType to this BoomReport and
+            configure BoomFieldProperties for it.
+
+            :param field_num: The number of this field (fields order)
+            :param implicit: True if this field is implicit, else False
+        """
         fp = self.__copy_field(field_num, implicit)
         if fp.hidden:
             self._field_properties.insert(0, fp)
@@ -399,7 +493,17 @@ class BoomReport(object):
             self._field_properties.append(fp)
 
     def __get_field(self, field_name):
-        """__get_field(field_name)
+        """Look up a field by name.
+
+            Attempt to find the field named in ``field_name`` in this
+            BoomReport's tables of implicit and user-defined fields,
+            returning the a ``(field, implicit)`` tuple, where field
+            contains the requested ``BoomFieldType``, and ``implicit``
+            is a boolean indicating whether this field is implicit or
+            not.
+
+            :param field_num: The number of this field (fields order)
+            :param implicit: True if this field is implicit, else False
         """
         # FIXME implicit fields
         for field in self._implicit_fields:
@@ -411,6 +515,16 @@ class BoomReport(object):
         raise ValueError("No matching field name: %s" % field_name)
 
     def __field_match(self, field_name, type_only):
+        """Attempt to match a field and optionally update report type.
+
+            Look up the named field and, if ``type_only`` is True,
+            update this BoomReport's ``report_types`` mask to include
+            the field's type identifier. If ``type_only`` is False the
+            field is also added to this BoomReport's field list.
+
+            :param field_name: A string identifying the field
+            :param type_only: True if this call should only update types
+        """
         try:
             (f, implicit) = self.__get_field(field_name)
             if (type_only):
@@ -426,6 +540,18 @@ class BoomReport(object):
             raise e
 
     def __parse_fields(self, field_format, type_only):
+        """Parse report field list.
+
+            Parse ``field_format`` and attempt to match the names of
+            field names found to registered BoomFieldType fields.
+
+            If ``type_only`` is True only the ``report_types`` field
+            is updated: otherwise the parsed fields are added to the
+            BoomReport's field list.
+
+            :param field_format: The list of fields to parse
+            :param type_only: True if this call should only update types
+        """
         for word in field_format.split(','):
             # Allow consecutive commas
             if not word:
@@ -438,7 +564,17 @@ class BoomReport(object):
                 raise e
 
     def __add_sort_key(self, field_num, sort, implicit, type_only):
-        fields = self._implicity_fields if implicit else self._fields
+        """Add a new sort key to this BoomReport
+
+            Add the sort key identified by ``field_num`` to this list
+            of sort keys for this BoomReport.
+
+            :param field_num: The field number of the key to add
+            :param sort: The sort direction for this key
+            :param implicit: True if field_num is implicit, else False
+            :param type_only: True if this call should only update types 
+        """
+        fields = self._implicit_fields if implicit else self._fields
         found = None
 
         for fp in self._field_properties:
@@ -461,6 +597,16 @@ class BoomReport(object):
         self._keys_count += 1
 
     def __key_match(self, key_name, type_only):
+        """Attempt to match a sort key and update report type.
+
+            Look up the named sort key and, if ``type_only`` is True,
+            update this BoomReport's ``report_types`` mask to include
+            the field's type identifier. If ``type_only`` is False the
+            field is also added to this BoomReport's field list.
+
+            :param field_name: A string identifying the sort key
+            :param type_only: True if this call should only update types
+        """
         sort_dir = None
 
         if not key_name:
@@ -489,6 +635,18 @@ class BoomReport(object):
         raise ValueError("Unknown sort key name: %s" % key_name)
 
     def __parse_keys(self, keys, type_only):
+        """Parse report sort key list.
+
+            Parse ``keys`` and attempt to match the names of
+            sort keys found to registered BoomFieldType fields.
+
+            If ``type_only`` is True only the ``report_types`` field
+            is updated: otherwise the parsed fields are added to the
+            BoomReport's sort key list.
+
+            :param field_format: The list of fields to parse
+            :param type_only: True if this call should only update types
+        """
         if not keys:
             return
         for word in keys.split(','):
@@ -504,9 +662,7 @@ class BoomReport(object):
 
     def __init__(self, types, fields, output_fields, opts,
                  sort_keys, private):
-        """__init__(self, types, fields, output_fields, opts,
-           sort_keys, private)
-           -> ``BoomReport``
+        """Initialise BoomReport.
 
             Initialise a new ``BoomReport`` object with the specified fields
             and output control options.
@@ -553,6 +709,14 @@ class BoomReport(object):
             print("")
 
     def __recalculate_sha_width(self):
+        """Recalculate minimum SHA field widths.
+
+            For each REP_SHA field present, recalculate the minimum
+            field width required to ensure uniqueness of the displayed
+            values.
+
+            :returntype: None
+        """
         shas = {}
         props_map = {}
         for row in self._rows:
@@ -569,6 +733,15 @@ class BoomReport(object):
             props_map[num].width = _find_minimum_sha_prefix(shas[num], min_prefix)
 
     def __recalculate_fields(self):
+        """Recalculate field widths.
+
+            For each field, recalculate the minimum field width by
+            finding the longest ``report_string`` value for that field
+            and updating the dynamic width stored in the corresponding
+            ``BoomFieldProperties`` object.
+
+            :returntype: None
+        """
         for row in self._rows:
             for field in row._fields:
                 if self._sort_required and field._props.sort_key:
@@ -580,6 +753,12 @@ class BoomReport(object):
                     field._props.width = field_len
 
     def __report_headings(self):
+        """Output report headings.
+
+            Output the column headings for this BoomReport.
+
+            :returntype: None
+        """
         self._header_written = True
         if not self.opts.headings:
             return
@@ -600,7 +779,35 @@ class BoomReport(object):
         self.opts.report_file.write(line + "\n")
 
     def __row_key_fn(self):
+        """Return a Python key function to compare report rows.
+
+            The ``cmp`` argument of sorting functions has been removed
+            in Python 3.x: to maintain similarity with the device-mapper
+            report library we keep a traditional "cmp"-style function
+            (that is structured identically to the version in the device
+            mapper library), and dynamically wrap it in a ``__RowKey``
+            object to conform to the Python sort key model.
+
+            :returns: A __RowKey object wrapping _row_cmp()
+            :returntype: __RowKey
+        """
         def _row_cmp(row_a, row_b):
+            """Compare two report rows for sorting.
+
+                Compare the report rows ``row_a`` and ``row_b`` and
+                return a "cmp"-style comparison value:
+
+                    1 if row_a > row_b
+                    0 if row_a == row_b
+                   -1 if row_b < row_a
+
+                Note that the actual comparison direction depends on the
+                field definitions of the fields being compared, since
+                each sort key defines its own sort order.
+
+                :param row_a: The first row to compare
+                :param row_b: The seconf row to compare
+            """
             for cnt in range(0, row_a._report._keys_count):
                 sfa = row_a._sort_fields[cnt]
                 sfb = row_b._sort_fields[cnt]
@@ -625,27 +832,72 @@ class BoomReport(object):
             return 0
 
         class __RowKey(object):
-           def __init__(self, obj, *args):
-               self.obj = obj
-           def __lt__(self, other):
-               return _row_cmp(self.obj, other.obj) < 0
-           def __gt__(self, other):
-               return _row_cmp(self.obj, other.obj) > 0
-           def __eq__(self, other):
-               return _row_cmp(self.obj, other.obj) == 0
-           def __le__(self, other):
-               return _row_cmp(self.obj, other.obj) <= 0
-           def __ge__(self, other):
-               return _row_cmp(self.obj, other.obj) >= 0
-           def __ne__(self, other):
-               return _row_cmp(self.obj, other.obj) != 0
+            """__RowKey sort wrapper.
+            """
+            def __init__(self, obj, *args):
+                """Initialise a new __RowKey object.
+
+                    :param obj: The object to be compared
+                    :returns: None
+                """
+                self.obj = obj
+
+            def __lt__(self, other):
+                """Test if less than.
+
+                    :param other: The other object to be compared
+                """
+                return _row_cmp(self.obj, other.obj) < 0
+
+            def __gt__(self, other):
+                """Test if greater than.
+
+                    :param other: The other object to be compared
+                """
+                return _row_cmp(self.obj, other.obj) > 0
+
+            def __eq__(self, other):
+                """Test if equal to.
+
+                    :param other: The other object to be compared
+                """
+                return _row_cmp(self.obj, other.obj) == 0
+            def __le__(self, other):
+                """Test if less than or equal to.
+
+                    :param other: The other object to be compared
+                """
+                return _row_cmp(self.obj, other.obj) <= 0
+
+            def __ge__(self, other):
+                """Test if greater than or equal to.
+
+                    :param other: The other object to be compared
+                """
+                return _row_cmp(self.obj, other.obj) >= 0
+
+            def __ne__(self, other):
+                """Test if not equal to.
+
+                    :param other: The other object to be compared
+                """
+                return _row_cmp(self.obj, other.obj) != 0
+
         return __RowKey
 
     def _sort_rows(self):
+        """Sort the rows of this BoomReport.
+
+            Sort this report's rows, according to the configured sort
+            keys.
+
+            :returns: None
+        """
         self._rows.sort(key=self.__row_key_fn())
 
     def report_object(self, obj):
-        """report_object(self, data) -> None
+        """Report data for object.
+
             Add a row of data to this ``BoomReport``. The ``data``
             argument should be an object of the type understood by this
             report's fields. It will be passed in turn to each field to
@@ -683,6 +935,14 @@ class BoomReport(object):
             return self.report_output()
 
     def _output_field(self, field):
+        """Output field data.
+
+            Generate string data for one field in a report row.
+
+            :field: The field to be output
+            :returns: The output report string for this field
+            :returntype: str
+        """
         fields = self._fields
         prefix = self.opts.field_name_prefix
         quote = "" if self.opts.unquoted else STANDARD_QUOTE
@@ -714,6 +974,15 @@ class BoomReport(object):
         pass
 
     def _output_as_columns(self):
+        """Output this report in column format.
+
+            Output the data contained in this ``BoomReport`` in column
+            format, one row per line. If column headings have not been
+            printed already they will be automatically displayed by this
+            call.
+
+            :returns: None
+        """
         if not self._header_written:
             self.__report_headings()
         for row in self._rows:
@@ -730,7 +999,8 @@ class BoomReport(object):
             self.opts.report_file.write(line + "\n")
 
     def report_output(self):
-        """output(self) -> int
+        """Output report data.
+
             Output this report's data to the configured report file,
             using the configured output controls and fields.
 
