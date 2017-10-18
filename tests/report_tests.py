@@ -49,12 +49,6 @@ _test_obj_types = [
 
 
 class ReportTests(unittest.TestCase):
-    def test_default_sort_fn(self):
-        bigger = 1000
-        smaller = 1
-        _default_sort_fn = boom.report._default_sort_fn
-        self.assertTrue(_default_sort_fn(bigger, smaller))
-
     def test_BoomFieldType_no_name(self):
         with self.assertRaises(ValueError):
             bf = BoomFieldType(BR_NUM, None, "None", "Nothing", 0,

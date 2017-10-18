@@ -42,20 +42,12 @@ _log_error = _log.error
 
 _default_columns = 80
 
-#
-# def data_fn(data):
-#    :returntype: dtype
-#
-
 REP_NUM = "num"
 REP_STR = "str"
 REP_SHA = "sha"
 
 _dtypes = [REP_NUM, REP_STR, REP_SHA]
 
-
-def _default_sort_fn(v1, v2):
-    return v1 > v2
 
 _default_width = 8
 
@@ -166,7 +158,6 @@ class BoomFieldType(object):
     align = None
     dtype = None
     report_fn = None
-    sort_fn = None
 
     def __init__(self, objtype, name, head, desc, width, dtype, report_fn,
                  align=None, sort_fn=None):
