@@ -784,7 +784,7 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
 
     clone_osp.write_profile()
 
-    return osp
+    return clone_osp
 
 
 def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
@@ -1263,7 +1263,9 @@ def _clone_profile_cmd(cmd_args, select):
     except ValueError as e:
         print(e)
         return 1
-
+    print("Cloned profile with os_id %s as %s:" %
+          (select.os_id, osp.disp_os_id))
+    print(_str_indent(str(osp), 2))
     return 0
 
 
