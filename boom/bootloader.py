@@ -757,8 +757,11 @@ class BootEntry(object):
             :returns: the current list of ``BotoEntry`` keys.
             :returntype: list of str
         """
-        keys = self._entry_data.keys()
+        keys = list(self._entry_data.keys())
         add_keys = [BOOT_LINUX, BOOT_INITRD, BOOT_OPTIONS]
+
+        # Sort the item list to give stable list ordering on Py3.
+        keys = sorted(keys, reverse=True)
 
         if self.bp:
             add_keys.append(BOOT_VERSION)
@@ -777,8 +780,11 @@ class BootEntry(object):
             :returns: the current list of ``BotoEntry`` values.
             :returntype: list
         """
-        values = self._entry_data.values()
+        values = list(self._entry_data.values())
         add_values = [self.linux, self.initrd, self.options]
+
+        # Sort the item list to give stable list ordering on Py3.
+        values = sorted(values, reverse=True)
 
         if self.bp:
             add_values.append(self.version)
@@ -794,6 +800,8 @@ class BootEntry(object):
             :returns: the current list of ``BotoEntry`` items.
             :returntype: list of ``(key, value)`` tuples.
         """
+        items = list(self._entry_data.items())
+
         add_items = [
             (BOOT_LINUX, self.linux),
             (BOOT_INITRD, self.initrd),
@@ -803,7 +811,10 @@ class BootEntry(object):
         if self.bp:
             add_items.append((BOOT_VERSION, self.version))
 
-        return self._entry_data.items() + add_items
+        # Sort the item list to give stable list ordering on Py3.
+        items = sorted(items, key=lambda i:i[0], reverse=True)
+
+        return items + add_items
 
     def _dirty(self):
         """Mark this ``BootEntry`` as needing to be written to disk.
