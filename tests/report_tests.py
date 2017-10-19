@@ -16,7 +16,12 @@ import logging
 from sys import stdout
 from os import listdir
 from os.path import exists, abspath
-from StringIO import StringIO
+
+# Python3 moves StringIO to io
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
 
 log = logging.getLogger()
 log.level = logging.DEBUG
