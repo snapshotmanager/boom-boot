@@ -66,6 +66,10 @@ This package provides the python3 version of boom.
 %py2_install
 %py3_install
 
+mkdir -p ${RPM_BUILD_ROOT}/etc/grub.d
+mkdir -p ${RPM_BUILD_ROOT}/etc/default
+install -m 755 ${RPM_BUILD_DIR}/%{name}-%{version}/etc/grub.d/42_boom ${RPM_BUILD_ROOT}/etc/grub.d
+install -m 755 ${RPM_BUILD_DIR}/%{name}-%{version}/etc/default/boom ${RPM_BUILD_ROOT}/etc/default
 %check
 %{__python2} setup.py test
 %{__python3} setup.py test
@@ -75,11 +79,15 @@ This package provides the python3 version of boom.
 %doc README.md
 %{python2_sitelib}/*
 %{_bindir}/boom
+/etc/grub.d/42_boom
+/etc/default/boom
 
 %files -n python3-boom
 %license COPYING
 %doc README.md
 %{python3_sitelib}/*
+/etc/grub.d/42_boom
+/etc/default/boom
 
 %changelog
 * Thu Oct 19 2017 Bryn M. Reeves <bmr@redhat.com> = 0.1-1
