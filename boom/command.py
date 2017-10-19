@@ -1420,10 +1420,10 @@ def get_uts_release():
 def setup_logging(cmd_args):
     global _console_handler
     level = _default_log_level
-    if cmd_args.verbose > 0:
-        level = logging.INFO
-    if cmd_args.verbose > 1:
+    if cmd_args.verbose and cmd_args.verbose > 1:
         level = logging.DEBUG
+    elif cmd_args.verbose and cmd_args.verbose > 0:
+        level = logging.INFO
     # Configure the package-level logger
     boom_log = logging.getLogger("boom")
     formatter = logging.Formatter('%(levelname)s - %(message)s')
