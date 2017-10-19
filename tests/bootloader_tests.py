@@ -556,7 +556,7 @@ class BootEntryTests(unittest.TestCase):
             '4.11.5-100.fc24.x86_64'
         ]
 
-        xitems = zip(xkeys, xvalues)
+        xitems = list(zip(xkeys, xvalues))
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
 
