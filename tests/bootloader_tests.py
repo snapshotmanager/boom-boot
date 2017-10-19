@@ -601,7 +601,7 @@ class BootEntryTests(unittest.TestCase):
         title = "Red Hat Enterprise Linux 7.2 (Maipo) 3.10-23.el7"
         boom.bootloader._entries = None
         bes = boom.bootloader.find_entries(Selection(title=title))
-        self.assertEqual(len(bes), 2)
+        self.assertEqual(len(bes), 1)
 
     def test_find_entries_by_version(self):
         version = "4.10.17-100.fc24.x86_64"
