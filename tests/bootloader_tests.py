@@ -142,8 +142,8 @@ class BootEntryTests(unittest.TestCase):
         osp = OsProfile(name="Distribution", short_name="distro",
                         version="1 (Workstation Edition)", version_id="1")
         osp.uname_pattern = "di1"
-        osp.kernel_pattern = "/boot/vmlinuz-%{version}"
-        osp.initramfs_pattern = "/boot/initramfs-%{version}.img"
+        osp.kernel_pattern = "/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
         osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
         osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
         osp.options = "root=%{root_device} %{root_opts} rhgb quiet"
@@ -182,8 +182,8 @@ class BootEntryTests(unittest.TestCase):
     def test_BootEntry__str__(self):
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=None)
         xstr = ('title title\nmachine-id ffffffff\n'
-                'linux /boot/kernel-%{version}\n'
-                'initrd /boot/initramfs-%{version}.img\n'
+                'linux /kernel-%{version}\n'
+                'initrd /initramfs-%{version}.img\n'
                 'options root=%{root_device} ro %{root_opts}')
         self.assertEqual(str(be), xstr)
 
@@ -191,10 +191,10 @@ class BootEntryTests(unittest.TestCase):
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=None)
         xrepr = ('BootEntry(entry_data={BOOT_TITLE: "title", '
                  'BOOT_MACHINE_ID: "ffffffff", '
-                 'BOOT_LINUX: "/boot/kernel-%{version}", '
-                 'BOOT_INITRD: "/boot/initramfs-%{version}.img", '
+                 'BOOT_LINUX: "/kernel-%{version}", '
+                 'BOOT_INITRD: "/initramfs-%{version}.img", '
                  'BOOT_OPTIONS: "root=%{root_device} ro %{root_opts}", '
-                 'BOOT_ID: "62f1abab827f5973d8a0ebfe06c1a86cb1618f9e"})')
+                 'BOOT_ID: "c268e996352e1ea5544701b9d103b8b2fd17a91c"})')
         self.assertEqual(repr(be), xrepr)
 
     def test_BootEntry(self):
@@ -325,8 +325,8 @@ class BootEntryTests(unittest.TestCase):
         osp = self._get_test_OsProfile()
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=osp)
         be.version = "1.1.1-17.qux.x86_64"
-        self.assertEqual(be.linux, "/boot/vmlinuz-1.1.1-17.qux.x86_64")
-        self.assertEqual(be.initrd, "/boot/initramfs-1.1.1-17.qux.x86_64.img")
+        self.assertEqual(be.linux, "/vmlinuz-1.1.1-17.qux.x86_64")
+        self.assertEqual(be.initrd, "/initramfs-1.1.1-17.qux.x86_64.img")
 
     def test_BootEntry_profile_root_lvm2(self):
         osp = self._get_test_OsProfile()
@@ -358,7 +358,7 @@ class BootEntryTests(unittest.TestCase):
                          "rootflags=subvol=/snapshots/20170523-1 rhgb quiet")
 
     def test_BootEntry_boot_id(self):
-        xboot_id = 'c6f02bd9f4a3eaaa6eae0c737e4dca865f5f6d5c'
+        xboot_id = '3964a6900394b2962b60ea62a29011352101db09'
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
         self.assertEqual(xboot_id, be.boot_id)
@@ -441,8 +441,8 @@ class BootEntryTests(unittest.TestCase):
         xtitle = "title"
         xmachine_id = "ffffffff"
         xversion = "4.11.5-100.fc24.x86_64"
-        xlinux = "/boot/vmlinuz-4.11.5-100.fc24.x86_64"
-        xinitrd = "/boot/initramfs-4.11.5-100.fc24.x86_64.img"
+        xlinux = "/vmlinuz-4.11.5-100.fc24.x86_64"
+        xinitrd = "/initramfs-4.11.5-100.fc24.x86_64.img"
         xoptions = "root=/dev/sda5 ro  rhgb quiet"
         xdevicetree = "device.tree"
 
@@ -529,8 +529,8 @@ class BootEntryTests(unittest.TestCase):
         xvalues = [
             'title',
             'ffffffff',
-            '/boot/vmlinuz-4.11.5-100.fc24.x86_64',
-            '/boot/initramfs-4.11.5-100.fc24.x86_64.img',
+            '/vmlinuz-4.11.5-100.fc24.x86_64',
+            '/initramfs-4.11.5-100.fc24.x86_64.img',
             'root=/dev/sda5 ro  rhgb quiet',
             '4.11.5-100.fc24.x86_64'
         ]
@@ -550,8 +550,8 @@ class BootEntryTests(unittest.TestCase):
         xvalues = [
             'title',
             'ffffffff',
-            '/boot/vmlinuz-4.11.5-100.fc24.x86_64',
-            '/boot/initramfs-4.11.5-100.fc24.x86_64.img',
+            '/vmlinuz-4.11.5-100.fc24.x86_64',
+            '/initramfs-4.11.5-100.fc24.x86_64.img',
             'root=/dev/sda5 ro  rhgb quiet',
             '4.11.5-100.fc24.x86_64'
         ]
