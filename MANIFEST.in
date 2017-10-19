@@ -1,0 +1,4 @@
+include COPYING
+include README.md
+recursive-include tests/boom *
+recursive-include tests/loader *
