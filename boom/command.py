@@ -391,7 +391,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 
     clone_be.write_entry()
 
-    return be
+    return clone_be
 
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
@@ -1043,6 +1043,10 @@ def _clone_cmd(cmd_args, select):
     except ValueError as e:
         print(e)
         return 1
+
+    print("Cloned entry with boot_id %s as boot_id %s:" %
+          (select.boot_id, be.disp_boot_id))
+    print(_str_indent(str(be), 2))
 
     return 0
 
