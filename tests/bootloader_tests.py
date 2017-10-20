@@ -544,6 +544,9 @@ class BootEntryTests(unittest.TestCase):
         from boom.osprofile import OsProfile, load_profiles
         load_profiles()
 
+        os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"
+        osp = boom.osprofile.get_os_profile_by_id(os_id)
+
         xkeys = ['BOOT_TITLE', 'BOOT_MACHINE_ID', 'BOOT_LINUX', 'BOOT_INITRD',
                  'BOOT_OPTIONS', 'BOOT_VERSION']
 
@@ -558,8 +561,8 @@ class BootEntryTests(unittest.TestCase):
 
         xitems = list(zip(xkeys, xvalues))
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
-
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       osprofile=osp)
         self.assertEqual(be.items(), xitems)
 
     def test__add_entry_loads_entries(self):
