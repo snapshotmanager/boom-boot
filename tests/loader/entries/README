@@ -1,1 +1,7 @@
 Boot loader entry directory for the boom unit test suite.
+
+The entries in this directory may contan synthetic test data:
+non-existent kernel versions, and mock OsProfile data.
+
+For examples of actual boom boot entries please refer to the
+files in the examples/entries directory of the source tree.

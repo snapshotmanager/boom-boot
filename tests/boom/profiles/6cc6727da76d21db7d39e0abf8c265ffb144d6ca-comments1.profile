@@ -1,0 +1,12 @@
+# A profile with comments
+BOOM_OS_ID="6cc6727da76d21db7d39e0abf8c265ffb144d6ca"
+BOOM_OS_NAME="Comments"
+BOOM_OS_SHORT_NAME="comments"
+BOOM_OS_VERSION="1 (Workstation Edition)"
+BOOM_OS_VERSION_ID="1"
+BOOM_OS_UNAME_PATTERN="co1"
+BOOM_OS_KERNEL_PATTERN="/vmlinuz-%{version}"
+BOOM_OS_INITRAMFS_PATTERN="/initramfs-%{version}.img"
+BOOM_OS_ROOT_OPTS_LVM2="rd.lvm.lv=%{lvm_root_lv}"
+BOOM_OS_ROOT_OPTS_BTRFS="rootflags=%{btrfs_subvolume}"
+BOOM_OS_OPTIONS="root=%{root_device} ro %{root_opts} rhgb quiet"
