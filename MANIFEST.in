@@ -3,3 +3,4 @@ include README.md
 recursive-include etc *
 recursive-include tests/boom *
 recursive-include tests/loader *
+recursive-include examples *
