@@ -391,17 +391,16 @@ To create an `OsProfile` for the running system, use the
 `-H/--from-host'` command line option:
 
 ```
-# boom profile create --from-host --uname-pattern fc24
-Created profile with os_id 9cb53dd:
-OS ID: "9cb53ddda889d6285fd9ab985a4c47025884999f",
-Name: "Fedora", Short name: "fedora",
-Version: "24 (Workstation Edition)", Version ID: "24",
-UTS release pattern: "fc24",
-Kernel pattern: "/boot/kernel-%{version}", Initramfs pattern: "/boot/initramfs-%{version}.img",
-Root options (LVM2): "rd.lvm.lv=%{lvm_root_lv}",
-Root options (BTRFS): "rootflags=%{btrfs_subvolume}",
-Options: "root=%{root_device} ro %{root_opts}"
-
+# boom profile create --from-host --uname-pattern fc26
+Created profile with os_id d4439b7:
+  OS ID: "d4439b7d2f928c39f1160c0b0291407e5990b9e0",
+  Name: "Fedora", Short name: "fedora",
+  Version: "26 (Workstation Edition)", Version ID: "26",
+  UTS release pattern: "fc26",
+  Kernel pattern: "/kernel-%{version}", Initramfs pattern: "/initramfs-%{version}.img",
+  Root options (LVM2): "rd.lvm.lv=%{lvm_root_lv}",
+  Root options (BTRFS): "rootflags=%{btrfs_subvolume}",
+  Options: "root=%{root_device} ro %{root_opts}"
 ```
 
 The `--uname-pattern` `OsProfile` property is an otional but recommended
@@ -456,6 +455,40 @@ menu as configured:
       Press 'e' to edit the selected item, or 'c' for a command prompt.
 ```
 
+If creating an entry for the currently running kernel version, and the
+OsProfile of the running host, these options can be omitted from the
+create command:
+
+```
+# boom create --title "Fedora 26 snapshot (4.13.5-200.fc26.x86_64)" --rootlv vg_hex/root-snap-f26
+Created entry with boot_id d12c177:
+  title Fedora 26 snapshot (4.13.5-200.fc26.x86_64)
+  machine-id 611f38fd887d41dea7eb3403b2730a76
+  version 4.13.5-200.fc26.x86_64
+  linux /kernel-4.13.5-200.fc26.x86_64
+  initrd /initramfs-4.13.5-200.fc26.x86_64.img
+  options root=/dev/vg_hex/root-snap-f26 ro rd.lvm.lv=vg_hex/root-snap-f26
+```
+
+```
+      Red Hat Enterprise Linux Server (3.10.0-327.el7.x86_64) 7.2 (Maipo)
+      Red Hat Enterprise Linux Server (3.10.0-272.el7.x86_64) 7.2 (Maipo)
+      Fedora 26 snapshot (4.13.5-200.fc26.x86_64)
+      RHEL7 Snapshot
+
+
+
+
+
+
+
+
+
+
+
+      Use the ↑ and ↓ keys to change the selection.
+      Press 'e' to edit the selected item, or 'c' for a command prompt.
+```
 ## Grub2 Integration
 
 Boom includes scripts to integrate with versions of `grub2` that support
