@@ -112,8 +112,8 @@ class OsProfileTests(unittest.TestCase):
             BOOM_OS_VERSION: "7.2 (Maipo)",
             BOOM_OS_VERSION_ID: "7.2",
             BOOM_OS_UNAME_PATTERN: "el7",
-            BOOM_OS_KERNEL_PATTERN: "vmlinuz-%{version}",
-            BOOM_OS_INITRAMFS_PATTERN: "initramfs-%{version}.img",
+            BOOM_OS_KERNEL_PATTERN: "/vmlinuz-%{version}",
+            BOOM_OS_INITRAMFS_PATTERN: "/initramfs-%{version}.img",
             BOOM_OS_ROOT_OPTS_LVM2: "rd.lvm.lv=%{lvm_root_lv} rh",
             BOOM_OS_ROOT_OPTS_BTRFS: "rootflags=%{btrfs_subvolume} rh",
             BOOM_OS_OPTIONS: "root=%{root_device} %{root_opts} rhgb quiet"
@@ -139,8 +139,8 @@ class OsProfileTests(unittest.TestCase):
     def test_OsProfile_properties(self):
         osp = OsProfile(name="Fedora", short_name="fedora",
                         version="24 (Workstation Edition)", version_id="24")
-        osp.kernel_pattern = "vmlinuz-%{version}"
-        osp.initramfs_pattern = "initramfs-%{version}.img"
+        osp.kernel_pattern = "/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
         osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
         osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
         osp.options = "root=%{root_device} %{root_opts} rhgb quiet"
@@ -148,9 +148,9 @@ class OsProfileTests(unittest.TestCase):
         self.assertEqual(osp.short_name, "fedora")
         self.assertEqual(osp.version, "24 (Workstation Edition)")
         self.assertEqual(osp.version_id, "24")
-        self.assertEqual(osp.kernel_pattern, "vmlinuz-%{version}")
+        self.assertEqual(osp.kernel_pattern, "/vmlinuz-%{version}")
         self.assertEqual(osp.initramfs_pattern,
-                         "initramfs-%{version}.img")
+                         "/initramfs-%{version}.img")
         self.assertEqual(osp.root_opts_lvm2, "rd.lvm.lv=%{lvm_root_lv}")
         self.assertEqual(osp.root_opts_btrfs,
                          "rootflags=%{btrfs_subvolume}")
@@ -160,8 +160,8 @@ class OsProfileTests(unittest.TestCase):
     def test_OsProfile_no_lvm(self):
         osp = OsProfile(name="NoLVM", short_name="nolvm",
                         version="1 (Server)", version_id="1")
-        osp.kernel_pattern = "vmlinux-%{version}"
-        osp.initramfs_pattern = "initramfs-%{version}.img"
+        osp.kernel_pattern = "/vmlinux-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
         osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
 
         self.assertEqual(osp.root_opts_lvm2, "rd.lvm.lv=%{lvm_root_lv}")
@@ -170,8 +170,8 @@ class OsProfileTests(unittest.TestCase):
         osp = OsProfile(name="NoBTRFS", short_name="nobtrfs",
                         version="1 (Server)", version_id="1")
         osp.kernel_pattern = "/"
-        osp.kernel_pattern = "vmlinux-%{version}"
-        osp.initramfs_pattern = "initramfs-%{version}.img"
+        osp.kernel_pattern = "/vmlinux-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
         osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
 
         self.assertEqual(osp.root_opts_btrfs, "rootflags=%{btrfs_subvolume}")
@@ -203,8 +203,8 @@ class OsProfileTests(unittest.TestCase):
         osp = OsProfile(name="Fedora", short_name="fedora",
                         version="24 (Workstation Edition)", version_id="24")
         osp.uname_pattern = "fc24"
-        osp.kernel_pattern = "vmlinuz-%{version}"
-        osp.initramfs_pattern = "initramfs-%{version}.img"
+        osp.kernel_pattern = "/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
         osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
         osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
         osp.options = "root=%{root_device} ro %{root_opts} rhgb quiet"
