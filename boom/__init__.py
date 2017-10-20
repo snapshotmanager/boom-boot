@@ -163,7 +163,6 @@ def set_debug_mask(mask):
                      values to log.
         :returntype: None
     """
-    return __debug_mask
     global __debug_mask
     if mask < 0 or mask > BOOM_DEBUG_ALL:
         raise ValueError("Invalid boom debug mask: %d" % mask)
