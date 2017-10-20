@@ -1,6 +1,7 @@
 include COPYING
 include README.md
 recursive-include etc *
+recursive-include doc *
 recursive-include tests/boom *
 recursive-include tests/loader *
 recursive-include examples *
