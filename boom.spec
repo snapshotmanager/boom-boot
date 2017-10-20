@@ -66,10 +66,21 @@ This package provides the python3 version of boom.
 %py2_install
 %py3_install
 
+%define boom_profiles_dir %{_pkgdocdir}/examples/profiles
+%define boom_entries_dir %{_pkgdocdir}/examples/entries
+
+# Install Grub2 integration scripts
 mkdir -p ${RPM_BUILD_ROOT}/etc/grub.d
 mkdir -p ${RPM_BUILD_ROOT}/etc/default
 install -m 755 ${RPM_BUILD_DIR}/%{name}-%{version}/etc/grub.d/42_boom ${RPM_BUILD_ROOT}/etc/grub.d
-install -m 755 ${RPM_BUILD_DIR}/%{name}-%{version}/etc/default/boom ${RPM_BUILD_ROOT}/etc/default
+install -m 644 ${RPM_BUILD_DIR}/%{name}-%{version}/etc/default/boom ${RPM_BUILD_ROOT}/etc/default
+
+# Install docs examples
+mkdir -p ${RPM_BUILD_ROOT}/%{boom_profiles_dir}
+mkdir -p ${RPM_BUILD_ROOT}/%{boom_entries_dir}
+install -m 644 ${RPM_BUILD_DIR}/%{name}-%{version}/examples/profiles/* ${RPM_BUILD_ROOT}/%{boom_profiles_dir}
+install -m 644 ${RPM_BUILD_DIR}/%{name}-%{version}/examples/entries/* ${RPM_BUILD_ROOT}/%{boom_entries_dir}
+
 %check
 %{__python2} setup.py test
 %{__python3} setup.py test
@@ -77,6 +88,8 @@ install -m 755 ${RPM_BUILD_DIR}/%{name}-%{version}/etc/default/boom ${RPM_BUILD_
 %files -n python2-boom
 %license COPYING
 %doc README.md
+%doc %{boom_profiles_dir}/*
+%doc %{boom_entries_dir}/*
 %{python2_sitelib}/*
 %{_bindir}/boom
 /etc/grub.d/42_boom
@@ -85,6 +98,8 @@ install -m 755 ${RPM_BUILD_DIR}/%{name}-%{version}/etc/default/boom ${RPM_BUILD_
 %files -n python3-boom
 %license COPYING
 %doc README.md
+%doc %{boom_profiles_dir}/*
+%doc %{boom_entries_dir}/*
 %{python3_sitelib}/*
 /etc/grub.d/42_boom
 /etc/default/boom
