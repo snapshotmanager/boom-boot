@@ -659,10 +659,20 @@ class BootEntryTests(unittest.TestCase):
         self.assertEqual(len(bes), nr)
 
     def test_find_entries_by_btrfs_subvol_path(self):
+        entries_path = boom_entries_path()
         btrfs_subvol_path = "/snapshot/today"
         boom.bootloader._entries = None
         bes = boom.bootloader.find_entries(Selection(btrfs_subvol_path=btrfs_subvol_path))
-        self.assertEqual(len(bes), 1)
+        nr = 0
+
+        # count entries
+        for p in listdir(entries_path):
+            with open(join(entries_path, p), "r") as f:
+                for l in f.readlines():
+                    if "/snapshot/today" in l:
+                        nr += 1
+
+        self.assertEqual(len(bes), nr)
 
     def test_delete_unwritten_BootEntry_raises(self):
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
