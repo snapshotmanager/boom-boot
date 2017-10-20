@@ -595,7 +595,7 @@ class BootEntryTests(unittest.TestCase):
         self.assertTrue(boom.bootloader._entries)
 
     def test_find_entries_by_boot_id(self):
-        boot_id = "12ce4b818d476c3bcf6bb314b65f7c166e8d2d59"
+        boot_id = "12a2696bf85cc33f42f0449fab5da64dac7aa10a"
         boom.bootloader._entries = None
         bes = boom.bootloader.find_entries(Selection(boot_id=boot_id))
         self.assertEqual(len(bes), 1)
