@@ -348,6 +348,8 @@ def get_os_profile_by_id(os_id):
         :returns: An OsProfile matching os_id or None if no match was
                   found
     """
+    if not profiles_loaded():
+        load_profiles()
     if os_id in _profiles_by_id:
         return _profiles_by_id[os_id]
     return None
