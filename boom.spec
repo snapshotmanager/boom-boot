@@ -9,7 +9,7 @@
 
 Name: boom	
 Version: 0.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: %{summary}
 
 Group: Applications/System
