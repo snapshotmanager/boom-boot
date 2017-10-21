@@ -182,7 +182,7 @@ class BootEntryTests(unittest.TestCase):
     def test_BootEntry__str__(self):
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=None)
         xstr = ('title title\nmachine-id ffffffff\n'
-                'linux /kernel-%{version}\n'
+                'linux /vmlinuz-%{version}\n'
                 'initrd /initramfs-%{version}.img\n'
                 'options root=%{root_device} ro %{root_opts}')
         self.assertEqual(str(be), xstr)
@@ -191,10 +191,10 @@ class BootEntryTests(unittest.TestCase):
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=None)
         xrepr = ('BootEntry(entry_data={BOOT_TITLE: "title", '
                  'BOOT_MACHINE_ID: "ffffffff", '
-                 'BOOT_LINUX: "/kernel-%{version}", '
+                 'BOOT_LINUX: "/vmlinuz-%{version}", '
                  'BOOT_INITRD: "/initramfs-%{version}.img", '
                  'BOOT_OPTIONS: "root=%{root_device} ro %{root_opts}", '
-                 'BOOT_ID: "c268e996352e1ea5544701b9d103b8b2fd17a91c"})')
+                 'BOOT_ID: "9232133455077cbae6c4075b43472121e71a6835"})')
         self.assertEqual(repr(be), xrepr)
 
     def test_BootEntry(self):
@@ -358,7 +358,7 @@ class BootEntryTests(unittest.TestCase):
                          "rootflags=subvol=/snapshots/20170523-1 rhgb quiet")
 
     def test_BootEntry_boot_id(self):
-        xboot_id = '3964a6900394b2962b60ea62a29011352101db09'
+        xboot_id = '7825f7c8396b1ae7a512bc37dee1aba137cd24ac'
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
         self.assertEqual(xboot_id, be.boot_id)
