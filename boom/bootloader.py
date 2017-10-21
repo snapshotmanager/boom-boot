@@ -1089,6 +1089,7 @@ class BootEntry(object):
               system.
             * ``%{root_opts}`` The command line options required for the
               root file system.
+            * ``%{linux}`` The linux image to boot
 
             :param fmt: The string to be formatted.
 
@@ -1129,6 +1130,14 @@ class BootEntry(object):
         if bp and key in fmt:
             if bp.root_device:
                 fmt = fmt.replace(key, bp.root_device)
+
+        key = key_format % FMT_KERNEL
+        if key in fmt:
+            fmt = fmt.replace(key, self.linux)
+
+        key = key_format % FMT_INITRAMFS
+        if key in fmt:
+            fmt = fmt.replace(key, self.initrd)
 
         key = key_format % FMT_ROOT_OPTS
         if bp and key in fmt:

@@ -60,6 +60,10 @@ FMT_BTRFS_SUBVOL_PATH = "btrfs_subvol_path"
 FMT_ROOT_DEVICE = "root_device"
 #: Root device options.
 FMT_ROOT_OPTS = "root_opts"
+#: Linux kernel image
+FMT_KERNEL = "kernel"
+#: Initramfs image
+FMT_INITRAMFS = "initramfs"
 
 #: List of all possible format keys.
 FORMAT_KEYS = [
@@ -67,7 +71,8 @@ FORMAT_KEYS = [
     FMT_LVM_ROOT_LV,
     FMT_BTRFS_SUBVOL_ID, FMT_BTRFS_SUBVOL_PATH,
     FMT_BTRFS_SUBVOLUME,
-    FMT_ROOT_DEVICE, FMT_ROOT_OPTS
+    FMT_ROOT_DEVICE, FMT_ROOT_OPTS,
+    FMT_KERNEL, FMT_INITRAMFS
 ]
 
 _MACHINE_ID = "/etc/machine-id"
@@ -622,7 +627,9 @@ def _key_regex_from_format(fmt, capture=False):
         FMT_BTRFS_SUBVOL_PATH: 0,
         FMT_BTRFS_SUBVOLUME: 0,
         FMT_ROOT_DEVICE: 0,
-        FMT_ROOT_OPTS: 1
+        FMT_ROOT_OPTS: 1,
+        FMT_KERNEL: 0,
+        FMT_INITRAMFS: 0
     }
 
     for key in FORMAT_KEYS:
@@ -692,6 +699,8 @@ __all__ = [
     'FMT_BTRFS_SUBVOL_PATH',
     'FMT_ROOT_DEVICE',
     'FMT_ROOT_OPTS',
+    'FMT_KERNEL',
+    'FMT_INITRAMFS',
     'FORMAT_KEYS',
 
     # API Classes
