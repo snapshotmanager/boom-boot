@@ -382,7 +382,7 @@ def match_os_profile(entry):
                (entry.title, entry.version))
 
     # Attempt to match by uname pattern
-    for osp in _profiles:
+    for osp in sorted(_profiles, key=lambda o: (o.name, o.version)):
         if _is_null_profile(osp):
             continue
         if osp.match_uname_version(entry.version):
