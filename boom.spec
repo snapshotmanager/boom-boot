@@ -83,12 +83,14 @@ This package provides the python3 version of boom.
 %endif # if with_python3
 
 %install
-%py2_install
-
+# Install Python3 first, so that the py3 build of usr/bin/boom is not
+# overwritten by the py3 version of the script.
 %if 0%{?with_python3}
 %py3_install
 make -C ${RPM_BUILD_DIR}/%{name}-%{version}/doc html BUILDDIR=../doc
 %endif # if with_python3
+
+%py2_install
 
 # Install Grub2 integration scripts
 mkdir -p ${RPM_BUILD_ROOT}/etc/grub.d
@@ -137,5 +139,8 @@ install -d -m 750 ${RPM_BUILD_ROOT}/boot/loader/entries ${RPM_BUILD_ROOT}
 %endif # if with_python3
 
 %changelog
+* Sat Oct 21 2017 Bryn M. Reeves <bmr@redhat.com> = 0.1-2
+- Prevent py3 boom script clobbering py2 version
+
 * Thu Oct 19 2017 Bryn M. Reeves <bmr@redhat.com> = 0.1-1
 - Initial RPM spec
