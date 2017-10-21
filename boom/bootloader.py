@@ -326,6 +326,8 @@ class BootParams(object):
         root_device = match.group(1)
         if len(match.groups()) == 2:
             root_opts = match.group(2)
+        else:
+            root_opts = None
 
         _log_debug_entry("Matched root_device='%s'" % root_device)
 
