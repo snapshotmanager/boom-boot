@@ -335,6 +335,8 @@ def find_profiles(selection=None, match_fn=select_profile):
         if match_fn(selection, osp):
             matches.append(osp)
     _log_debug_profile("Found %d profiles" % len(matches))
+    matches.sort(key=lambda o: (o.name, o.version))
+
     return matches
 
 
