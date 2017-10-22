@@ -430,6 +430,12 @@ def match_os_profile_by_version(version):
             return osp
     return None
 
+
+def _key_from_key_name(key_name):
+    key_format = "%%{%s}"
+    return key_format % key_name
+
+
 class OsProfile(object):
     """ Class OsProfile implements Boom operating system profiles.
         Objects of type OsProfile define the paths, kernel command line
@@ -854,6 +860,9 @@ class OsProfile(object):
 
     @kernel_pattern.setter
     def kernel_pattern(self, value):
+        kernel_key = _key_from_key_name(FMT_KERNEL)
+        if kernel_key in value:
+            raise ValueError("OsProfile.kernel cannot contain %s" % kernel_key)
         self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
         self._dirty()
 
@@ -869,6 +878,9 @@ class OsProfile(object):
 
     @initramfs_pattern.setter
     def initramfs_pattern(self, value):
+        initramfs_key = _key_from_key_name(FMT_INITRAMFS)
+        if initramfs_key in value:
+            raise ValueError("OsProfile.initramfs cannot contain %s" % initramfs_key)
         self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
         self._dirty()
 
@@ -886,6 +898,10 @@ class OsProfile(object):
 
     @root_opts_lvm2.setter
     def root_opts_lvm2(self, value):
+        root_opts_key = _key_from_key_name(FMT_ROOT_OPTS)
+        if root_opts_key in value:
+                raise ValueError("OsProfile.root_opts_lvm2 cannot contain %s" %
+                                 root_opts_key)
         self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = value
         self._dirty()
 
@@ -903,6 +919,10 @@ class OsProfile(object):
 
     @root_opts_btrfs.setter
     def root_opts_btrfs(self, value):
+        root_opts_key = _key_from_key_name(FMT_ROOT_OPTS)
+        if root_opts_key in value:
+                raise ValueError("OsProfile.root_opts_btrfs cannot contain"
+                                 " %s" % root_opts_key)
         self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
         self._dirty()
 
