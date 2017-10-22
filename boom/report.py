@@ -492,6 +492,7 @@ class BoomReport(object):
             self._field_properties.insert(0, fp)
         else:
             self._field_properties.append(fp)
+        return fp
 
     def __get_field(self, field_name):
         """Look up a field by name.
