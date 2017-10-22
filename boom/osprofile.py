@@ -520,11 +520,30 @@ class OsProfile(object):
             :param key: the ``OsProfile`` key to be set.
             :param value: the value to set for the specified key.
         """
+
+        # Map osp key names to a list of format keys which must not
+        # appear in that key's value: e.g. %{kernel} in the kernel
+        # pattern profile key.
+        bad_key_map = {
+            BOOM_OS_KERNEL_PATTERN: [FMT_KERNEL],
+            BOOM_OS_INITRAMFS_PATTERN: [FMT_INITRAMFS],
+            BOOM_OS_ROOT_OPTS_LVM2: [FMT_ROOT_OPTS],
+            BOOM_OS_ROOT_OPTS_BTRFS: [FMT_ROOT_OPTS],
+        }
+        def _check_format_key_value(key, value, bad_keys):
+            for bad_key in bad_keys:
+                if bad_key in value:
+                    raise ValueError("OsProfile.%s cannot contain %s"
+                                     % (key, _key_from_key_name(bad_key)))
+
         if not isinstance(key, str):
             raise TypeError("OsProfile key must be a string.")
 
         if key not in PROFILE_KEYS:
             raise ValueError("Invalid OsProfile key: %s" % key)
+
+        if key in bad_key_map:
+            _check_format_key_value(key, value, bad_key_map[key])
 
         self._profile_data[key] = value
 
