@@ -1334,6 +1334,10 @@ def _edit_profile_cmd(cmd_args, select):
     id_keys = (cmd_args.name, cmd_args.short_name,
                cmd_args.version, cmd_args.os_version_id)
 
+    if cmd_args.options:
+        print("Invalid argument for 'profile edit': --options")
+        return 1
+
     if any(id_keys):
         print("Cannot edit name, short_name, version, or version_id:\n"
               "Use 'clone --profile OS_ID'.")
