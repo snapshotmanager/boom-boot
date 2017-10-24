@@ -458,6 +458,7 @@ class Selection(object):
                       os_id=args.profile, os_name=args.name,
                       os_short_name=args.short_name,
                       os_version=args.os_version,
+                      os_version_id=args.os_version_id,
                       os_options=args.os_options,
                       os_uname_pattern=args.uname_pattern)
 
