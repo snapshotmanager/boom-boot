@@ -302,7 +302,7 @@ class BootEntryTests(unittest.TestCase):
 
     def test_BootEntry_write(self):
         osp = self._get_test_OsProfile()
-        bp = BootParams("1.1.1", root_device="/dev/vg00/lvol0",
+        bp = BootParams("1.1.1-1.di1", root_device="/dev/vg00/lvol0",
                         lvm_root_lv="vg00/lvol0")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
                        osprofile=osp)
