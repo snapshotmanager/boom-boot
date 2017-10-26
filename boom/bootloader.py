@@ -322,72 +322,36 @@ class BootParams(object):
         osp = be._osp
         # Version is written directly from BootParams
         version = be.version
+        bp = BootParams(version)
 
         _log_debug_entry("Initialising BootParams() from "
                          "BootEntry(boot_id='%s')" % be.boot_id)
 
-        # Decompose options first to obtain root device and options.
-        options_regex = _key_regex_from_format(osp.options, capture=True)
+        opts_regex_words = osp.make_format_regexes(osp.options)
 
-        if not options_regex:
+        if not opts_regex_words:
             return None
 
-        _log_debug_entry("Matching options regex '%s' to '%s'" %
-                         (options_regex, be.options))
+        _log_debug_entry("Matching options regex list with %d entries" %
+                         len(opts_regex_words))
+        _log_debug_entry("Options regex list: %s" % str(opts_regex_words))
 
-        match = re.match(options_regex, be.options)
-        if not match:
-                raise ValueError("Cannot match BootEntry options")
+        for rgx_word in opts_regex_words:
+            # FIXME: capture options not present in template
+            name = rgx_word[0]
+            exp = rgx_word[1]
+            for word in be.options.split():
+                match = re.search(exp, word)
+                if match:
+                    if len(match.groups()):
+                        value = match.group(1)
+                        _log_debug_entry("Matched: '%s' (%s)" %
+                                         (value, name))
+                    setattr(bp, name, value)
 
-        root_device = match.group(1)
-        if len(match.groups()) == 2:
-            root_opts = match.group(2)
-        else:
-            root_opts = None
+        _log_debug_entry("Parsed %s" % repr(bp))
 
-        _log_debug_entry("Matched root_device='%s'" % root_device)
-
-        lvm2_root_lv = None
-        btrfs_root_opts = None
-        btrfs_subvol_id = None
-        btrfs_subvol_path = None
-
-        # Decompose root opts to obtain BTRFS/LVM2 values
-        if root_opts:
-            lvm2_opts_regex = _key_regex_from_format(osp.root_opts_lvm2,
-                                                     capture=True)
-            btrfs_opts_regex = _key_regex_from_format(osp.root_opts_btrfs,
-                                                      capture=True)
-
-            match = re.search(lvm2_opts_regex, root_opts)
-            if match:
-                lvm2_root_lv=match.group(1)
-                _log_debug_entry("Matched lvm2_root_lv='%s'" % lvm2_root_lv)
-
-            match = re.search(btrfs_opts_regex, root_opts)
-            if match:
-                btrfs_root_opts=match.group(1)
-                if "subvolid" in btrfs_root_opts:
-                    subvolid_regex = r"subvolid=(\d*)"
-                    match = re.match(subvolid_regex, btrfs_root_opts)
-                    btrfs_subvol_id = match.group(1)
-                    _log_debug_entry("Matched btrfs_subvol_id='%s'" %
-                                     btrfs_subvol_id)
-                elif "subvol" in btrfs_root_opts:
-                    subvolpath_regex = r"subvol=(\S*)"
-                    match = re.match(subvolpath_regex, btrfs_root_opts)
-                    btrfs_subvol_path = match.group(1)
-                    _log_debug_entry("Matched btrfs_subvol_path='%s'" %
-                                     btrfs_subvol_path)
-                else:
-                    raise ValueError("Unrecognized btrfs root options: %s"
-                                     % btrfs_root_opts)
-
-        return BootParams(version, root_device=root_device,
-                          lvm_root_lv=lvm2_root_lv,
-                          btrfs_subvol_path=btrfs_subvol_path,
-                          btrfs_subvol_id=btrfs_subvol_id)
-
+        return bp
 
 def _add_entry(entry):
     """Add a new entry to the list of loaded on-disk entries.

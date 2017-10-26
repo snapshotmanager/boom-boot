@@ -774,13 +774,129 @@ class OsProfile(object):
             :returntype: bool
         """
         # Attempt to match a distribution-formatted options line
-        if self.options and entry.options:
-            options_pattern = _key_regex_from_format(self.options)
-            _log_debug_profile("Matching options pattern '%s' to '%s'" %
-                               (options_pattern, entry.options))
-            if re.match(options_pattern, entry.options):
-                return True
-        return False
+
+        if not self.options or not entry.options:
+            return False
+
+        opts_regex_words = self.make_format_regexes(self.options)
+        _log_debug_profile("Matching options regex list with %d entries" %
+                           len(opts_regex_words))
+
+        format_opts = []
+        fixed_opts = []
+
+        for rgx_word in opts_regex_words:
+            for word in entry.options.split():
+                (name, exp) = rgx_word
+                match = re.match(exp, word)
+                if not match:
+                    continue
+                value = match.group(0)
+                if name:
+                    fixed_opts.append(value)
+                else:
+                    format_opts.append(value)
+
+        fixed = [o[1] for o in opts_regex_words if not o[0]]
+        have_fixed = [True if f in fixed_opts else False for f in fixed]
+
+        form = [o[1] for o in opts_regex_words if o[0]]
+        have_form = [True if f in format_opts else False for f in form]
+
+        return all(have_fixed) and any(have_form)
+
+    def make_format_regexes(self, fmt):
+        """Generate regexes matching format string
+
+            Generate a list of ``(key, expr)`` tuples containing key and
+            regular expression pairs capturing the format key values
+            contained in the format string. Any non-format key words
+            contained in the string are returned as a ``('', expr)``
+            tuple containing no capture groups.
+
+            The resulting list may be matched against the words of a
+            ``BootEntry`` object's value strings in order to extract
+            the parameters used to create them.
+
+            :param fmt: The format string to build a regex list from.
+            :returns: A list of key and word regex tuples.
+            :returntype: list of (str, str)
+        """
+        key_format = "%%{%s}"
+        cap_regex_all = "(\S+)"
+        cap_regex_num = "(\d+)"
+        regex_words = []
+
+        if not fmt:
+            return regex_words
+
+        # Keys captured by single regex
+        key_regex = {
+            FMT_VERSION: cap_regex_all,
+            FMT_LVM_ROOT_LV: cap_regex_all,
+            FMT_BTRFS_SUBVOL_ID: cap_regex_num,
+            FMT_BTRFS_SUBVOL_PATH: cap_regex_all,
+            FMT_ROOT_DEVICE: cap_regex_all,
+        }
+
+        # Keys requiring expansion
+        key_exp = {
+            FMT_LVM_ROOT_OPTS: [self.root_opts_lvm2],
+            FMT_BTRFS_ROOT_OPTS: [self.root_opts_btrfs],
+            # "fix" this by adding root_opts_btrfs_{id,path}?
+            FMT_BTRFS_SUBVOLUME: ["subvol=%{btrfs_subvol_path}",
+                                  "subvolid=%{btrfs_subvol_id}"],
+            FMT_ROOT_OPTS: [self.root_opts_lvm2, self.root_opts_btrfs],
+            FMT_KERNEL: [self.kernel_pattern],
+            FMT_INITRAMFS: [self.initramfs_pattern]
+        }
+
+        # Parent key names to preserve during recursion
+        #
+        # If a key name is listed in preserve_keys, the key name is
+        # taken as the regex name returned to the caller when
+        # recursing to evaluate an expanded format key.
+        #
+        # This allows the correct key name to be reported when a key
+        # evaluates to a string containing further format keys.
+        #
+        # This logic is not applied to the ROOT_OPTS key since the
+        # key names of the keys composing ROOT_OPTS (BTRFS/LVM2)
+        # directly map to BootParams attribute names.
+        preserve_keys = [FMT_KERNEL, FMT_INITRAMFS]
+
+        def _substitute_keys(fmt, keyname=None):
+            """Return a list of regular expressions matching the format keys
+                found in ``fmt``, expanding and substituting format keys
+                as necessary until all keys have been replaced with a
+                capturing regular expression. Or something. Go with it.
+            """
+            subst = []
+            did_subst = 0
+            for key in FORMAT_KEYS:
+                k = key_format % key
+                if k in fmt and key in key_regex:
+                    # Simple regex substitution
+                    fmt = fmt.replace(k, key_regex[key])
+                    subst.append((keyname if keyname else key, fmt))
+                    did_subst += 1
+                elif k in fmt and key in key_exp:
+                    # Recursive expansion and substitution
+                    pk = key if not keyname and key in preserve_keys else keyname
+                    for e in key_exp[key]:
+                        subst += _substitute_keys(e, keyname=pk)
+                    did_subst += 1
+
+            if not did_subst:
+                # Non-formatted word
+                subst.append(("", fmt))
+
+            return subst
+
+        for word in fmt.split():
+            regex_words += _substitute_keys(word)
+
+        return regex_words
 
     # We use properties for the OsProfile attributes: this is to
     # allow the values to be stored in a dictionary. Although
