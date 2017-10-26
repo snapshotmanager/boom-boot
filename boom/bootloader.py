@@ -281,6 +281,24 @@ class BootParams(object):
 
         _log_debug_entry("Initialised %s" % repr(self))
 
+    def has_btrfs(self):
+        """Return ``True`` if this BootParams object is configured to
+            use BTRFS.
+
+            :returns: True if BTRFS is in use, or False otherwise
+            :returntype: bool
+        """
+        return any((self.btrfs_subvol_id, self.btrfs_subvol_path))
+
+    def has_lvm2(self):
+        """Return ``True`` if this BootParams object is configured to
+            use LVM2.
+
+            :returns: True if LVM2 is in use, or False otherwise
+            :returntype: bool
+        """
+        return self.lvm_root_lv is not None and len(self.lvm_root_lv)
+
     @classmethod
     def from_entry(cls, be):
         """Recover BootParams from BootEntry.
@@ -1134,13 +1152,12 @@ class BootEntry(object):
             fmt = fmt.replace(key, value)
 
         key = key_format % FMT_BTRFS_SUBVOLUME
-        if bp and key in fmt:
-            if bp.btrfs_subvol_id or bp.btrfs_subvol_path:
-                if bp.btrfs_subvol_id:
-                    subvolume = "subvolid=%s" % bp.btrfs_subvol_id
-                if bp.btrfs_subvol_path:
-                    subvolume = "subvol=%s" % bp.btrfs_subvol_path
-                fmt = fmt.replace(key, subvolume)
+        if bp and key in fmt and bp.has_btrfs():
+            if bp.btrfs_subvol_id:
+                subvolume = "subvolid=%s" % bp.btrfs_subvol_id
+            if bp.btrfs_subvol_path:
+                subvolume = "subvol=%s" % bp.btrfs_subvol_path
+            fmt = fmt.replace(key, subvolume)
 
         key = key_format % FMT_ROOT_DEVICE
         if bp and key in fmt:
