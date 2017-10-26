@@ -1170,11 +1170,11 @@ class BootEntry(object):
             fmt = fmt.replace(key, root_opts)
 
         key = key_format % FMT_KERNEL
-        if key in fmt:
+        if bp and key in fmt:
             fmt = fmt.replace(key, self.linux)
 
         key = key_format % FMT_INITRAMFS
-        if key in fmt:
+        if bp and key in fmt:
             fmt = fmt.replace(key, self.initrd)
 
         return fmt
