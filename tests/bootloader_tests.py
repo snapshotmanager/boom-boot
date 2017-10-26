@@ -36,11 +36,6 @@ class BootParamsTests(unittest.TestCase):
             # A version string is required
             bp = BootParams(None)
 
-    def test_BootParams_no_root_device_raises(self):
-        with self.assertRaises(ValueError) as cm:
-            # An implicit or explicit root_device is required
-            bp = BootParams("1.1.1.x86_64")
-
     def test_BootParams_conflicting_btrfs_raises(self):
         with self.assertRaises(ValueError) as cm:
             # Only one of subvol_id or subvol_path is allowed

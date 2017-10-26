@@ -266,8 +266,6 @@ class BootParams(object):
             self.root_device = root_device
         elif lvm_root_lv:
             self.root_device = DEV_PATTERN % lvm_root_lv
-        else:
-            raise ValueError("root_device is required.")
 
         if lvm_root_lv:
             self.lvm_root_lv = lvm_root_lv
