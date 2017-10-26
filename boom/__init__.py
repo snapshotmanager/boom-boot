@@ -50,12 +50,16 @@ __boom_root = DEFAULT_BOOM_PATH
 FMT_VERSION = "version"
 #: LVM2 root logical volume in ``vg/lv`` format.
 FMT_LVM_ROOT_LV = "lvm_root_lv"
+#: LVM2 kernel command line options
+FMT_LVM_ROOT_OPTS = "lvm_root_opts"
 #: BTRFS subvolume specification.
 FMT_BTRFS_SUBVOLUME = "btrfs_subvolume"
 #: BTRFS subvolume ID specification.
 FMT_BTRFS_SUBVOL_ID = "btrfs_subvol_id"
 #: BTRFS subvolume path specification.
 FMT_BTRFS_SUBVOL_PATH = "btrfs_subvol_path"
+#: BTRFS kernel command line options
+FMT_BTRFS_ROOT_OPTS = "btrfs_root_opts"
 #: Root device path.
 FMT_ROOT_DEVICE = "root_device"
 #: Root device options.
@@ -68,9 +72,9 @@ FMT_INITRAMFS = "initramfs"
 #: List of all possible format keys.
 FORMAT_KEYS = [
     FMT_VERSION,
-    FMT_LVM_ROOT_LV,
+    FMT_LVM_ROOT_LV, FMT_LVM_ROOT_OPTS,
     FMT_BTRFS_SUBVOL_ID, FMT_BTRFS_SUBVOL_PATH,
-    FMT_BTRFS_SUBVOLUME,
+    FMT_BTRFS_SUBVOLUME, FMT_BTRFS_ROOT_OPTS,
     FMT_ROOT_DEVICE, FMT_ROOT_OPTS,
     FMT_KERNEL, FMT_INITRAMFS
 ]
@@ -695,9 +699,11 @@ __all__ = [
     # Profile format keys
     'FMT_VERSION',
     'FMT_LVM_ROOT_LV',
+    'FMT_LVM_ROOT_OPTS',
     'FMT_BTRFS_SUBVOLUME',
     'FMT_BTRFS_SUBVOL_ID',
     'FMT_BTRFS_SUBVOL_PATH',
+    'FMT_BTRFS_ROOT_OPTS',
     'FMT_ROOT_DEVICE',
     'FMT_ROOT_OPTS',
     'FMT_KERNEL',

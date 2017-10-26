@@ -1117,9 +1117,21 @@ class BootEntry(object):
         if key in fmt and version:
             fmt = fmt.replace(key, version)
 
+        key = key_format % FMT_LVM_ROOT_OPTS
+        if key in fmt and self._osp:
+            value_fmt = self._osp.root_opts_lvm2
+            value = self._apply_format(value_fmt)
+            fmt = fmt.replace(key, value)
+
         key = key_format % FMT_LVM_ROOT_LV
         if bp and key in fmt and bp.lvm_root_lv:
             fmt = fmt.replace(key, bp.lvm_root_lv)
+
+        key = key_format % FMT_BTRFS_ROOT_OPTS
+        if bp and self._osp and key in fmt and bp.has_btrfs():
+            value_fmt = self._osp.root_opts_btrfs
+            value = self._apply_format(value_fmt)
+            fmt = fmt.replace(key, value)
 
         key = key_format % FMT_BTRFS_SUBVOLUME
         if bp and key in fmt:
@@ -1135,6 +1147,11 @@ class BootEntry(object):
             if bp.root_device:
                 fmt = fmt.replace(key, bp.root_device)
 
+        key = key_format % FMT_ROOT_OPTS
+        if bp and key in fmt:
+            root_opts = self._apply_format(self.root_opts)
+            fmt = fmt.replace(key, root_opts)
+
         key = key_format % FMT_KERNEL
         if key in fmt:
             fmt = fmt.replace(key, self.linux)
@@ -1143,10 +1160,6 @@ class BootEntry(object):
         if key in fmt:
             fmt = fmt.replace(key, self.initrd)
 
-        key = key_format % FMT_ROOT_OPTS
-        if bp and key in fmt:
-            root_opts = self._apply_format(self.root_opts)
-            fmt = fmt.replace(key, root_opts)
         return fmt
 
     def __generate_boot_id(self):
