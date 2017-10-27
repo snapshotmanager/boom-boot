@@ -64,6 +64,17 @@ STANDARD_PAIR = "="
 
 MIN_SHA_WIDTH = 7
 
+
+# Python2 vs. Python2 string types
+try:
+    # Py2
+    string_types = (str, unicode)
+except:
+    # Py3
+    string_types = (str)
+
+num_types = (int, float)
+
 class BoomReportOpts(object):
     """BoomReportOpts()
         Options controlling the formatting and output of a boom report.
@@ -261,6 +272,8 @@ class BoomField(object):
             :param value: The string value to set
             :returntype: None
         """
+        if not isinstance(value, string_types):
+            raise TypeError("Value for report_str() must be a string type.")
         self.set_value(value, sort_value=value)
 
     def report_sha(self, value):
@@ -271,6 +284,8 @@ class BoomField(object):
             :param value: The SHA value to set
             :returntype: None
         """
+        if not isinstance(value, string_types):
+            raise TypeError("Value for report_sha() must be a string type.")
         self.set_value(value, sort_value=value)
 
     def report_num(self, value):
@@ -281,7 +296,11 @@ class BoomField(object):
             :param value: The numeric value to set
             :returntype: None
         """
-        self.set_value(str(value), sort_value=value)
+        if value is not None and not isinstance(value, num_types):
+            raise TypeError("Value for report_num() must be a numeric type.")
+        report_string = str(value) if value else ""
+        sort_value = value if value is not None else -1
+        self.set_value(report_string, sort_value=sort_value)
 
     def set_value(self, report_string, sort_value=None):
         """Report an arbitrary value for this BoomField object.

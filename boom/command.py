@@ -146,6 +146,19 @@ _profile_fields = [
 _default_profile_fields = "osid,osname,osversion"
 _verbose_profile_fields = _default_profile_fields + ",unamepattern,options"
 
+def _int_if_val(val):
+    """Return an int if val is defined or None otherwise.
+
+        A TypeError exception is raised if val is defined but does
+        not contain a parsable integer value.
+
+        :param val: The value to convert
+        :returns: None if val is None or an integer representation of
+                  the string val
+        :raises: TypeError is val cannot be converted to an int
+    """
+    return int(val) if val is not None else None
+
 #: Fields derived from BootEntry data.
 _entry_fields = [
     BoomFieldType(
@@ -184,7 +197,7 @@ _params_fields = [
         REP_STR, lambda f, d: f.report_str(d.btrfs_subvol_path or "")),
     BoomFieldType(
         BR_PARAMS, "subvolid", "SubvolID", "BTRFS subvolume ID", 8,
-        REP_NUM, lambda f, d: f.report_str(d.btrfs_subvol_id or ""))
+        REP_NUM, lambda f, d: f.report_num(_int_if_val(d.btrfs_subvol_id)))
 ]
 
 _default_entry_fields = "bootid,version,osid,osname,osversion"
