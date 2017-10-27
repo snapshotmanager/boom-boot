@@ -647,7 +647,7 @@ class BootEntryTests(unittest.TestCase):
         for p in listdir(entries_path):
             with open(join(entries_path, p), "r") as f:
                 for l in f.readlines():
-                    if "subvolid" in l:
+                    if "subvolid=23" in l:
                         nr += 1
 
         bes = boom.bootloader.find_entries(Selection(btrfs_subvol_id=btrfs_subvol_id))
