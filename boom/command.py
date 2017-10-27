@@ -1444,6 +1444,14 @@ def _report_opts_from_args(cmd_args):
     if cmd_args.separator:
         opts.separator = cmd_args.separator
 
+    if cmd_args.nameprefixes:
+        opts.field_name_prefix = "BOOM_"
+        opts.unquoted = False
+        opts.aligned = False
+
+    if cmd_args.noheadings:
+        opts.headings = False
+
     return opts
 
 def get_uts_release():
@@ -1532,7 +1540,11 @@ def main(args):
     parser.add_argument("-m", "--machine-id", metavar="MACHINE_ID", type=str,
                         help="The machine_id value to use")
     parser.add_argument("-n", "--name", metavar="OSNAME", type=str,
-                        help="The name of a Boom OsProfile")
+                        help="The name of a Boom OsProfile"),
+    parser.add_argument("--nameprefixes", action='store_true',
+                        help="Add a prefix to report field names"),
+    parser.add_argument("--noheadings", action='store_true',
+                        help="Suppress output of report headings"),
     parser.add_argument("-o", "--options", metavar="FIELDS", type=str,
                         help="Specify which fields to display")
     parser.add_argument("--os-version", metavar="OSVERSION", type=str,
