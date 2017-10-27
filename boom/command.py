@@ -1440,6 +1440,10 @@ def _report_opts_from_args(cmd_args):
 
     if cmd_args.rows:
         opts.columns_as_rows = True
+
+    if cmd_args.separator:
+        opts.separator = cmd_args.separator
+
     return opts
 
 def get_uts_release():
@@ -1551,6 +1555,8 @@ def main(args):
                         "paths")
     parser.add_argument("--rows", action="store_true",
                         help="Output report columnes as rows")
+    parser.add_argument("--separator", metavar="SEP", type=str,
+                        help="Report field separator")
     parser.add_argument("-s", "--short-name", metavar="OSSHORTNAME", type=str,
                         help="A Boom OsProfile short name")
     parser.add_argument("-t", "--title", metavar="TITLE", type=str,
