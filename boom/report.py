@@ -84,7 +84,7 @@ class BoomReportOpts(object):
     buffered = True
     separator = None
     field_name_prefix = None
-    unquoted = False
+    unquoted = True
     aligned = True
     columns_as_rows = False
     report_file = None
