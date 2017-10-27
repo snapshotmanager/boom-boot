@@ -992,7 +992,33 @@ class BoomReport(object):
         return prefix + repstr + suffix
 
     def _output_as_rows(self):
-        pass
+        """Output this report in column format.
+
+            Output the data contained in this ``BoomReport`` in column
+            format, one row per line. If column headings have not been
+            printed already they will be automatically displayed by this
+            call.
+
+            :returns: None
+        """
+        for fp in self._field_properties:
+            if fp.hidden:
+                for row in self._rows:
+                    row._fields = row._fields[1:]
+
+            fields = self._implicit_fields if fp.implicit else self._fields
+            line = ""
+
+            if self.opts.headings:
+                line += fields[fp.field_num].head + self.opts.separator
+
+            for row in self._rows:
+                field = row._fields[0]
+                line += self._output_field(field)
+                line += self.opts.separator
+                row._fields = row._fields[1:]
+
+            self.opts.report_file.write(line + "\n")
 
     def _output_as_columns(self):
         """Output this report in column format.
