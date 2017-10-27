@@ -520,7 +520,7 @@ def print_entries(selection=None, output_fields=None, opts=None,
         :returns: the ``boot_id`` of the new entry.
         :returntype: str
     """
-    opts = opts if opts else BoomReportOpts()
+    opts = opts if opts is not None else BoomReportOpts()
 
     if not output_fields:
         output_fields = _default_entry_fields
@@ -905,7 +905,7 @@ def print_profiles(selection=None, opts=None, output_fields=None,
 # boom command line tool
 #
 
-def _create_cmd(cmd_args, select):
+def _create_cmd(cmd_args, select, opts):
     """Create entry command handler.
 
         Attempt to create a new boot entry using the arguments
@@ -979,7 +979,7 @@ def _create_cmd(cmd_args, select):
     print("Created entry with boot_id %s:" % be.disp_boot_id)
     print(_str_indent(str(be), 2))
 
-def _delete_cmd(cmd_args, select):
+def _delete_cmd(cmd_args, select, opts):
     """Delete entry command handler.
 
         Attempt to delete boot entries matching the selection criteria
@@ -999,11 +999,10 @@ def _delete_cmd(cmd_args, select):
         fields = _verbose_entry_fields
     else:
         fields = None
-
     try:
         if cmd_args.verbose:
-            print_entries(select, output_fields=fields,
-                          sort_keys=cmd_args.sort)
+            print_entries(selection=select, output_fields=fields,
+                          opts=opts, sort_keys=cmd_args.sort)
         nr = delete_entries(select)
     except (ValueError, IndexError) as e:
         print(e)
@@ -1011,7 +1010,7 @@ def _delete_cmd(cmd_args, select):
     print("Deleted %d entr%s" % (nr, "ies" if nr > 1 else "y"))
 
 
-def _clone_cmd(cmd_args, select):
+def _clone_cmd(cmd_args, select, opts):
     """Clone entry command handler.
 
         Attempt to create a new boot entry by cloning an existing
@@ -1064,7 +1063,7 @@ def _clone_cmd(cmd_args, select):
     return 0
 
 
-def _show_cmd(cmd_args, select):
+def _show_cmd(cmd_args, select, opts):
     """Show entry command handler.
 
         Show the boot entries that match the given selection criteria in
@@ -1089,7 +1088,7 @@ def _show_cmd(cmd_args, select):
     return 0
 
 
-def _list_cmd(cmd_args, select):
+def _list_cmd(cmd_args, select, opts):
     """List entry command handler.
         List the boot entries that match the given selection criteria as
         a tabular report, with one boot entry per row.
@@ -1104,15 +1103,16 @@ def _list_cmd(cmd_args, select):
         fields = _verbose_entry_fields
     else:
         fields = None
+
     try:
         print_entries(selection=select, output_fields=fields,
-                      sort_keys=cmd_args.sort)
+                      opts=opts, sort_keys=cmd_args.sort)
     except ValueError as e:
         print(e)
         return 1
 
 
-def _edit_cmd(cmd_args, select):
+def _edit_cmd(cmd_args, select, opts):
     """Edit entry command handler.
 
         Attempt to edit an existing boot entry. The ``boot_id`` of
@@ -1147,7 +1147,7 @@ def _edit_cmd(cmd_args, select):
     return 0
 
 
-def _create_profile_cmd(cmd_args, select):
+def _create_profile_cmd(cmd_args, select, opts):
     """Create profile command handler.
         Attempt to create a new OS profile using the arguments
         supplied in ``cmd_args`` and return the command status
@@ -1205,7 +1205,7 @@ def _create_profile_cmd(cmd_args, select):
     return 0
 
 
-def _delete_profile_cmd(cmd_args, select):
+def _delete_profile_cmd(cmd_args, select, opts):
     """Delete profile command handler.
 
         Attempt to delete OS profiles matching the selection criteria
@@ -1237,7 +1237,7 @@ def _delete_profile_cmd(cmd_args, select):
     print("Deleted %d profile%s" % (nr, "s" if nr > 1 else ""))
 
 
-def _clone_profile_cmd(cmd_args, select):
+def _clone_profile_cmd(cmd_args, select, opts):
     """Clone profile command handler.
 
         Attempt to create a new OS profile by cloning an existing
@@ -1282,7 +1282,7 @@ def _clone_profile_cmd(cmd_args, select):
     return 0
 
 
-def _show_profile_cmd(cmd_args, select):
+def _show_profile_cmd(cmd_args, select, opts):
     """Show profile command handler.
 
         Show the OS profiles that match the given selection criteria in
@@ -1308,7 +1308,7 @@ def _show_profile_cmd(cmd_args, select):
     return 0
 
 
-def _list_profile_cmd(cmd_args, select):
+def _list_profile_cmd(cmd_args, select, opts):
     """List profile command handler.
 
         List the OS profiles that match the given selection criteria as
@@ -1324,15 +1324,16 @@ def _list_profile_cmd(cmd_args, select):
         fields = _verbose_profile_fields
     else:
         fields = None
+
     try:
         print_profiles(selection=select, output_fields=fields,
-                       sort_keys=cmd_args.sort)
+                       opts=opts, sort_keys=cmd_args.sort)
     except ValueError as e:
         print(e)
         return 1
 
 
-def _edit_profile_cmd(cmd_args, select):
+def _edit_profile_cmd(cmd_args, select, opts):
     """Edit profile command handler.
 
         Attempt to edit an existing OS profile. The ``os_id`` of the
@@ -1430,6 +1431,14 @@ def _match_command(cmd, cmds):
             return c
     return None
 
+
+def _report_opts_from_args(cmd_args):
+    opts = BoomReportOpts()
+
+    if not cmd_args:
+        return opts
+
+    return opts
 
 def get_uts_release():
     return uname()[2]
@@ -1573,7 +1582,8 @@ def main(args):
         return 1
 
     select = Selection.from_cmd_args(cmd_args)
-    status = command[1](cmd_args, select)
+    opts = _report_opts_from_args(cmd_args)
+    status = command[1](cmd_args, select, opts)
     shutdown_logging()
     return status
 
