@@ -676,6 +676,7 @@ __all__ = [
     # Utility routines
     '_blank_or_comment',
     '_parse_name_value',
+    '_parse_btrfs_subvol',
     '_find_minimum_sha_prefix',
     '_get_machine_id'
 ]
