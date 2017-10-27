@@ -139,6 +139,9 @@ install -d -m 750 ${RPM_BUILD_ROOT}/boot/loader/entries ${RPM_BUILD_ROOT}
 %endif # if with_python3
 
 %changelog
+* Fry Oct 27 2017 Bryn M. Reeves <bmr@redhat.com> = 0.1-3
+- Update RPM build to latest master
+
 * Sat Oct 21 2017 Bryn M. Reeves <bmr@redhat.com> = 0.1-2
 - Prevent py3 boom script clobbering py2 version
 
