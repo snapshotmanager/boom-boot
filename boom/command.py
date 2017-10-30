@@ -1394,27 +1394,37 @@ boom_usage = """%(prog}s [type] <command> [options]\n\n"
                 profile edit [...]
              """
 
+CREATE_CMD = "create"
+DELETE_CMD = "delete"
+CLONE_CMD = "clone"
+SHOW_CMD = "show"
+LIST_CMD = "list"
+EDIT_CMD = "edit"
+
+ENTRY_TYPE = "entry"
+PROFILE_TYPE = "profile"
+
 _boom_entry_commands = [
-    ("create", _create_cmd),
-    ("delete", _delete_cmd),
-    ("clone", _clone_cmd),
-    ("show", _show_cmd),
-    ("list", _list_cmd),
-    ("edit", _edit_cmd)
+    (CREATE_CMD, _create_cmd),
+    (DELETE_CMD, _delete_cmd),
+    (CLONE_CMD, _clone_cmd),
+    (SHOW_CMD, _show_cmd),
+    (LIST_CMD, _list_cmd),
+    (EDIT_CMD, _edit_cmd)
 ]
 
 _boom_profile_commands = [
-    ("create", _create_profile_cmd),
-    ("delete", _delete_profile_cmd),
-    ("clone", _clone_profile_cmd),
-    ("show", _show_profile_cmd),
-    ("list", _list_profile_cmd),
-    ("edit", _edit_profile_cmd)
+    (CREATE_CMD, _create_profile_cmd),
+    (DELETE_CMD, _delete_profile_cmd),
+    (CLONE_CMD, _clone_profile_cmd),
+    (SHOW_CMD, _show_profile_cmd),
+    (LIST_CMD, _list_profile_cmd),
+    (EDIT_CMD, _edit_profile_cmd)
 ]
 
 _boom_command_types = [
-    ("entry", _boom_entry_commands),
-    ("profile", _boom_profile_commands)
+    (ENTRY_TYPE, _boom_entry_commands),
+    (PROFILE_TYPE, _boom_profile_commands)
 ]
 
 
