@@ -259,7 +259,8 @@ def _str_indent(string, indent):
 #
 
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
-                 btrfs_subvol_path=None, btrfs_subvol_id=None, osprofile=None):
+                 btrfs_subvol_path=None, btrfs_subvol_id=None, osprofile=None,
+                 write=True):
     """Create new boot loader entry.
 
         Create the specified boot entry in the configured loader directory.
@@ -305,7 +306,8 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         raise ValueError("Entry already exists (boot_id=%s)." %
                          be.disp_boot_id)
 
-    be.write_entry()
+    if write:
+        be.write_entry()
 
     return be
 
@@ -344,7 +346,7 @@ def delete_entries(selection=None):
 
 def clone_entry(selection=None, title=None, version=None, machine_id=None,
                 root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
-                btrfs_subvol_id=None, osprofile=None):
+                btrfs_subvol_id=None, osprofile=None, write=True):
     """Clone an existing boot loader entry.
 
         Create the specified boot entry in the configured loader directory
@@ -408,13 +410,14 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         raise ValueError("Entry already exists (boot_id=%s)." %
                          clone_be.disp_boot_id)
 
-    clone_be.write_entry()
+    if write:
+        clone_be.write_entry()
 
     return clone_be
 
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
-               btrfs_subvol_id=None, osprofile=None):
+               btrfs_subvol_id=None, osprofile=None, write=True):
     """Edit an existing boot loader entry.
 
         Modify an existing BootEntry by changing one or more of the
@@ -469,7 +472,8 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
     be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
     be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
-    be.write_entry()
+    if write:
+        be.write_entry()
     return be
 
 
@@ -911,6 +915,13 @@ def print_profiles(selection=None, opts=None, output_fields=None,
 # boom command line tool
 #
 
+def _apply_profile_overrides(boot_entry, cmd_args):
+    if cmd_args.linux:
+        boot_entry.linux = cmd_args.linux
+
+    if cmd_args.initrd:
+        boot_entry.initrd = cmd_args.initrd
+
 def _create_cmd(cmd_args, select, opts, identifier):
     """Create entry command handler.
 
@@ -981,13 +992,22 @@ def _create_cmd(cmd_args, select, opts, identifier):
         be = create_entry(title, version, machine_id,
                           root_device, lvm_root_lv=lvm_root_lv,
                           btrfs_subvol_path=btrfs_subvol_path,
-                          btrfs_subvol_id=btrfs_subvol_id, osprofile=osp)
+                          btrfs_subvol_id=btrfs_subvol_id, osprofile=osp,
+                          write=False)
     except ValueError as e:
         print(e)
         return 1
 
+    _apply_profile_overrides(be, cmd_args)
+
+    try:
+        be.write_entry()
+    except Exception as e:
+        return 1
+
     print("Created entry with boot_id %s:" % be.disp_boot_id)
     print(_str_indent(str(be), 2))
+
 
 def _delete_cmd(cmd_args, select, opts, identifier):
     """Delete entry command handler.
@@ -1072,6 +1092,13 @@ def _clone_cmd(cmd_args, select, opts, identifier):
                          btrfs_subvol_id=btrfs_subvol_id, osprofile=osp)
     except ValueError as e:
         print(e)
+        return 1
+
+    _apply_profile_overrides(be, cmd_args)
+
+    try:
+        be.write_entry()
+    except:
         return 1
 
     print("Cloned entry with boot_id %s as boot_id %s:" %
@@ -1167,6 +1194,13 @@ def _edit_cmd(cmd_args, select, opts, identifier):
                         btrfs_subvol_id=btrfs_subvol_id)
     except ValueError as e:
         print(e)
+        return 1
+
+    _apply_profile_overrides(be, cmd_args)
+
+    try:
+        be.write_entry()
+    except:
         return 1
 
     print("Edited entry, boot_id now: %s" % be.disp_boot_id)
