@@ -982,7 +982,7 @@ class BootEntry(object):
             _log_warn("Unknown boot entry file: %s" % entry_basename)
         else:
             if self.disp_boot_id != match.group(2):
-                _log_warn("Entry file name does not match boot_id: %s" %
+                _log_info("Entry file name does not match boot_id: %s" %
                           entry_basename)
 
     def __init__(self, title=None, machine_id=None, osprofile=None,
