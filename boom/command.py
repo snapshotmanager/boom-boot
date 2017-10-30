@@ -181,7 +181,10 @@ _entry_fields = [
         REP_STR, lambda f, d: f.report_str(d.initrd)),
     BoomFieldType(
         BR_ENTRY, "machineid", "Machine ID", "Machine identifier", 12,
-        REP_SHA, lambda f, d: f.report_sha(d.machine_id))
+        REP_SHA, lambda f, d: f.report_sha(d.machine_id)),
+    BoomFieldType(
+        BR_ENTRY, "entrypath", "Entry path", "On-disk entry path", 12,
+        REP_STR, lambda f, d: f.report_str(d._entry_path))
 ]
 
 #: Fields derived from BootParams data
