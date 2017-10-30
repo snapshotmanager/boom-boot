@@ -140,7 +140,10 @@ _profile_fields = [
         REP_STR, lambda f, d: f.report_str(d.root_opts_btrfs)),
     BoomFieldType(
         BR_PROFILE, "options", "Options", "Kernel options", 24,
-        REP_STR, lambda f, d: f.report_str(d.options))
+        REP_STR, lambda f, d: f.report_str(d.options)),
+    BoomFieldType(
+        BR_PROFILE, "profilepath", "Profile path", "On-disk profile path", 12,
+        REP_STR, lambda f, d: f.report_str(d._profile_path()))
 ]
 
 _default_profile_fields = "osid,osname,osversion"
