@@ -206,8 +206,8 @@ _params_fields = [
         REP_NUM, lambda f, d: f.report_num(_int_if_val(d.btrfs_subvol_id)))
 ]
 
-_default_entry_fields = "bootid,version,osid,osname,osversion"
-_verbose_entry_fields = "bootid,version,kernel,initramfs,options,machineid"
+_default_entry_fields = "bootid,version,osname,rootdev"
+_verbose_entry_fields = (_default_entry_fields + ",options,machineid")
 
 
 def _subvol_from_arg(subvol):
