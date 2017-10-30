@@ -905,7 +905,7 @@ def print_profiles(selection=None, opts=None, output_fields=None,
 # boom command line tool
 #
 
-def _create_cmd(cmd_args, select, opts):
+def _create_cmd(cmd_args, select, opts, identifier):
     """Create entry command handler.
 
         Attempt to create a new boot entry using the arguments
@@ -916,6 +916,10 @@ def _create_cmd(cmd_args, select, opts):
         :param select: Unused
         :returns: integer status code returned from ``main()``
     """
+    if identifier is not None:
+        print("entry create does not accept <identifier>")
+        return 1
+
     if not cmd_args.version:
         version = get_uts_release()
         if not version:
@@ -979,7 +983,7 @@ def _create_cmd(cmd_args, select, opts):
     print("Created entry with boot_id %s:" % be.disp_boot_id)
     print(_str_indent(str(be), 2))
 
-def _delete_cmd(cmd_args, select, opts):
+def _delete_cmd(cmd_args, select, opts, identifier):
     """Delete entry command handler.
 
         Attempt to delete boot entries matching the selection criteria
@@ -989,6 +993,11 @@ def _delete_cmd(cmd_args, select, opts):
         :param select: Selection criteria for the entries to remove
         :returns: integer status code returned from ``main()``
     """
+    # If a boot_id is given as a command line argument treat it as
+    # a single boot entry to delete and ignore any other criteria.
+    if identifier is not None:
+        select = Selection(boot_id=identifier)
+
     if not select or select.is_null():
         print("delete requires selection criteria")
         return 1
@@ -1010,7 +1019,7 @@ def _delete_cmd(cmd_args, select, opts):
     print("Deleted %d entr%s" % (nr, "ies" if nr > 1 else "y"))
 
 
-def _clone_cmd(cmd_args, select, opts):
+def _clone_cmd(cmd_args, select, opts, identifier):
     """Clone entry command handler.
 
         Attempt to create a new boot entry by cloning an existing
@@ -1023,6 +1032,9 @@ def _clone_cmd(cmd_args, select, opts):
         :param select: The ``boot_id`` to clone
         :returns: integer status code returned from ``main()``
     """
+    if identifier is not None:
+        select = Selection(boot_id=identifier)
+
     title = cmd_args.title
     version = cmd_args.version
     machine_id = cmd_args.machine_id
@@ -1063,7 +1075,7 @@ def _clone_cmd(cmd_args, select, opts):
     return 0
 
 
-def _show_cmd(cmd_args, select, opts):
+def _show_cmd(cmd_args, select, opts, identifier):
     """Show entry command handler.
 
         Show the boot entries that match the given selection criteria in
@@ -1074,6 +1086,9 @@ def _show_cmd(cmd_args, select, opts):
         :param select: Selection criteria for the entries to show.
         :returns: integer status code returned from ``main()``
     """
+    if identifier is not None:
+        select = Selection(boot_id=identifier)
+
     try:
         bes = find_entries(select)
     except ValueError as e:
@@ -1088,7 +1103,7 @@ def _show_cmd(cmd_args, select, opts):
     return 0
 
 
-def _list_cmd(cmd_args, select, opts):
+def _list_cmd(cmd_args, select, opts, identifier):
     """List entry command handler.
         List the boot entries that match the given selection criteria as
         a tabular report, with one boot entry per row.
@@ -1097,6 +1112,9 @@ def _list_cmd(cmd_args, select, opts):
         :param select: Selection criteria fore the entries to list
         :returns: integer status code returned from ``main()``
     """
+    if identifier is not None:
+        select = Selection(boot_id=identifier)
+
     if cmd_args.options:
         fields = cmd_args.options
     elif cmd_args.verbose:
@@ -1112,7 +1130,7 @@ def _list_cmd(cmd_args, select, opts):
         return 1
 
 
-def _edit_cmd(cmd_args, select, opts):
+def _edit_cmd(cmd_args, select, opts, identifier):
     """Edit entry command handler.
 
         Attempt to edit an existing boot entry. The ``boot_id`` of
@@ -1124,6 +1142,9 @@ def _edit_cmd(cmd_args, select, opts):
         :param select: The ``boot_id`` of the entry to edit
         :returns: integer status code returned from ``main()``
     """
+    if identifier is not None:
+        select = Selection(boot_id=identifier)
+
     title = cmd_args.title
     version = cmd_args.version
     machine_id = cmd_args.machine_id
@@ -1147,7 +1168,7 @@ def _edit_cmd(cmd_args, select, opts):
     return 0
 
 
-def _create_profile_cmd(cmd_args, select, opts):
+def _create_profile_cmd(cmd_args, select, opts, identifier):
     """Create profile command handler.
         Attempt to create a new OS profile using the arguments
         supplied in ``cmd_args`` and return the command status
@@ -1157,6 +1178,10 @@ def _create_profile_cmd(cmd_args, select, opts):
         :param select: Unused
         :returns: integer status code returned from ``main()``
     """
+    if identifier is not None:
+        print("profile create does not accept <identifier>")
+        return 1
+
     if cmd_args.os_release or cmd_args.from_host:
         name = None
         short_name = None
@@ -1205,7 +1230,7 @@ def _create_profile_cmd(cmd_args, select, opts):
     return 0
 
 
-def _delete_profile_cmd(cmd_args, select, opts):
+def _delete_profile_cmd(cmd_args, select, opts, identifier):
     """Delete profile command handler.
 
         Attempt to delete OS profiles matching the selection criteria
@@ -1215,6 +1240,11 @@ def _delete_profile_cmd(cmd_args, select, opts):
         :param select: Selection criteria for the profiles to remove
         :returns: integer status code returned from ``main()``
     """
+    # If an os_id is given as a command line argument treat it as
+    # a single OsProfile to delete and ignore any other criteria.
+    if identifier is not None:
+        select = Selection(os_id=identifier)
+
     if not select or select.is_null():
         print("profile delete requires selection criteria")
         return 1
@@ -1237,7 +1267,7 @@ def _delete_profile_cmd(cmd_args, select, opts):
     print("Deleted %d profile%s" % (nr, "s" if nr > 1 else ""))
 
 
-def _clone_profile_cmd(cmd_args, select, opts):
+def _clone_profile_cmd(cmd_args, select, opts, identifier):
     """Clone profile command handler.
 
         Attempt to create a new OS profile by cloning an existing
@@ -1261,6 +1291,9 @@ def _clone_profile_cmd(cmd_args, select, opts):
     root_opts_btrfs = cmd_args.btrfs_opts
     options = cmd_args.os_options
 
+    if identifier is not None:
+        select = Selection(os_id=identifier)
+
     # Discard all selection criteria but os_id.
     select = Selection(os_id=select.os_id)
 
@@ -1282,7 +1315,7 @@ def _clone_profile_cmd(cmd_args, select, opts):
     return 0
 
 
-def _show_profile_cmd(cmd_args, select, opts):
+def _show_profile_cmd(cmd_args, select, opts, identifier):
     """Show profile command handler.
 
         Show the OS profiles that match the given selection criteria in
@@ -1294,6 +1327,9 @@ def _show_profile_cmd(cmd_args, select, opts):
         :param select: Selection criteria for the profiles to show.
         :returns: integer status code returned from ``main()``
     """
+    if identifier is not None:
+        select = Selection(os_id=identifier)
+
     try:
         osps = find_profiles(select)
     except ValueError as e:
@@ -1308,7 +1344,7 @@ def _show_profile_cmd(cmd_args, select, opts):
     return 0
 
 
-def _list_profile_cmd(cmd_args, select, opts):
+def _list_profile_cmd(cmd_args, select, opts, identifier):
     """List profile command handler.
 
         List the OS profiles that match the given selection criteria as
@@ -1318,6 +1354,9 @@ def _list_profile_cmd(cmd_args, select, opts):
         :param select: Selection criteria fore the profiles to list
         :returns: integer status code returned from ``main()``
     """
+    if identifier is not None:
+        select = Selection(os_id=identifier)
+
     if cmd_args.options:
         fields = cmd_args.options
     elif cmd_args.verbose:
@@ -1333,7 +1372,7 @@ def _list_profile_cmd(cmd_args, select, opts):
         return 1
 
 
-def _edit_profile_cmd(cmd_args, select, opts):
+def _edit_profile_cmd(cmd_args, select, opts, identifier):
     """Edit profile command handler.
 
         Attempt to edit an existing OS profile. The ``os_id`` of the
@@ -1345,6 +1384,9 @@ def _edit_profile_cmd(cmd_args, select, opts):
         :param select: The ``os_id`` of the profile to edit
         :returns: integer status code returned from ``main()``
     """
+    if identifier is not None:
+        select = Selection(os_id=identifier)
+
     id_keys = (cmd_args.name, cmd_args.short_name,
                cmd_args.version, cmd_args.os_version_id)
 
@@ -1427,6 +1469,21 @@ _boom_command_types = [
     (PROFILE_TYPE, _boom_profile_commands)
 ]
 
+
+def _id_from_arg(cmd_args, cmdtype, cmd):
+    if cmd == CREATE_CMD:
+        if cmdtype == ENTRY_TYPE:
+            return cmd_args.boot_id
+        if cmdtype == PROFILE_TYPE:
+            return cmd_args.profile
+    else:
+        if cmd_args.identifier:
+            return cmd_args.identifier
+        if cmdtype == ENTRY_TYPE:
+            return cmd_args.boot_id
+        if cmdtype == PROFILE_TYPE:
+            return cmd_args.profile
+    return None
 
 def _match_cmd_type(cmdtype):
     for t in _boom_command_types:
@@ -1523,6 +1580,9 @@ def main(args):
     parser.add_argument("command", metavar="COMMAND", type=str, action="store",
                         help="The command to run: create, delete, list, edit, "
                         "clone, show")
+    parser.add_argument("identifier", metavar="ID", type=str, action="store",
+                        help="An optional profile or boot identifier to "
+                        "operate on", nargs="?", default=None)
     parser.add_argument("-b", "--boot-id", metavar="BOOT_ID", type=str,
                         help="The BOOT_ID of a boom boot entry")
     parser.add_argument("--boot-dir", metavar="PATH", type=str,
@@ -1615,7 +1675,8 @@ def main(args):
 
     select = Selection.from_cmd_args(cmd_args)
     opts = _report_opts_from_args(cmd_args)
-    status = command[1](cmd_args, select, opts)
+    identifier = _id_from_arg(cmd_args, cmd_type[0], command[0])
+    status = command[1](cmd_args, select, opts, identifier)
     shutdown_logging()
     return status
 
