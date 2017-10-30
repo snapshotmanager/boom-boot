@@ -26,7 +26,7 @@ BuildRequires: python-setuptools
 
 %if 0%{?with_python3}
 BuildRequires: python2-setuptools
-BuildRequires: python2-sphinx
+#BuildRequires: python2-sphinx
 BuildRequires: python3-devel
 BuildRequires: python3-sphinx
 BuildRequires: python3-setuptools
@@ -83,11 +83,11 @@ This package provides the python3 version of boom.
 %endif # if with_python3
 
 %install
-# Install Python3 first, so that the py3 build of usr/bin/boom is not
+# Install Python3 first, so that the py2 build of usr/bin/boom is not
 # overwritten by the py3 version of the script.
 %if 0%{?with_python3}
 %py3_install
-make -C ${RPM_BUILD_DIR}/%{name}-%{version}/doc html BUILDDIR=../doc
+make -C doc html BUILDDIR=../doc
 %endif # if with_python3
 
 %py2_install
@@ -95,8 +95,8 @@ make -C ${RPM_BUILD_DIR}/%{name}-%{version}/doc html BUILDDIR=../doc
 # Install Grub2 integration scripts
 mkdir -p ${RPM_BUILD_ROOT}/etc/grub.d
 mkdir -p ${RPM_BUILD_ROOT}/etc/default
-install -m 755 ${RPM_BUILD_DIR}/%{name}-%{version}/etc/grub.d/42_boom ${RPM_BUILD_ROOT}/etc/grub.d
-install -m 644 ${RPM_BUILD_DIR}/%{name}-%{version}/etc/default/boom ${RPM_BUILD_ROOT}/etc/default
+install -m 755 etc/grub.d/42_boom ${RPM_BUILD_ROOT}/etc/grub.d
+install -m 644 etc/default/boom ${RPM_BUILD_ROOT}/etc/default
 
 # Make configuration directories
 mkdir -p ${RPM_BUILD_ROOT}/boot/boom/profiles
@@ -121,7 +121,7 @@ install -d -m 750 ${RPM_BUILD_ROOT}/boot/loader/entries ${RPM_BUILD_ROOT}
 %{python2_sitelib}/*
 %{_bindir}/boom
 /etc/grub.d/42_boom
-/etc/default/boom
+%config(noreplace) /etc/default/boom
 /boot/*
 
 %if 0%{?with_python3}
