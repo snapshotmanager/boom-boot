@@ -53,6 +53,9 @@ ENTRIES_PATH = "loader/entries"
 #: The format used to construct entry file names.
 BOOT_ENTRIES_FORMAT = "%s-%s-%s.conf"
 
+#: A regular expression matching the boom file name format.
+BOOT_ENTRIES_PATTERN = r"(\w*)-(\w{1,7})-([a-zA-Z0-9.\-_]*)"
+
 #: The file mode with which BLS entries should be created.
 BOOT_ENTRY_MODE = 0o644
 
@@ -953,7 +956,8 @@ class BootEntry(object):
         comments = {}
         comment = ""
 
-        _log_debug("Loading BootEntry from '%s'" % basename(entry_file))
+        entry_basename = basename(entry_file)
+        _log_debug("Loading BootEntry from '%s'" % entry_basename)
 
         with open(entry_file, "r") as ef:
             for line in ef:
@@ -971,7 +975,15 @@ class BootEntry(object):
                         comment = ""
         self._comments = comments
 
-        return self.__from_data(entry_data, boot_params)
+        self.__from_data(entry_data, boot_params)
+
+        match = re.match(BOOT_ENTRIES_PATTERN, entry_basename)
+        if not match or len(match.groups()) <= 1:
+            _log_warn("Unknown boot entry file: %s" % entry_basename)
+        else:
+            if self.disp_boot_id != match.group(2):
+                _log_warn("Entry file name does not match boot_id: %s" %
+                          entry_basename)
 
     def __init__(self, title=None, machine_id=None, osprofile=None,
                  boot_params=None, entry_file=None, entry_data=None):
