@@ -85,34 +85,29 @@ package builds can be performed by running `python setup.py` and a
 setup command. See `python setup.py --help` for detailed information on
 the available options and commands.
 
-### Building an RPM package
+### Builds and packages
+Binary packages for Fedora and Red Hat Enterprise Linux are available
+from the [copr repository][9]. These builds use the RPM spec file
+distributed in the git repository and include all the necessary
+library modules, binaries, and configuration files needed to install
+and use boom.
 
-To build a binary RPM package for the current distribution, use the
-`bdist_rpm` build command:
-
-```
-$ python setup.py bdist_rpm
-```
-
-The rpm-build packages and python2 environment are required to
-build the package.
-
-On success a noarch RPM package will be written to the `dist/`
-directory. The built package contains the '/bin/boom' executable
-as well as the boom library package and submodules.
-
-Note that due to limitations in `setuptools` it is not possible for
-the packages built by this method to install the Grub2 integration
-scripts to the `/etc` directory.
-
-To enable automatic inclusion of Boom boot entries when the Grub2
-configuration script runs, execute the following commands as root
-from the Boom source directory:
+To enable the repository on Fedora, run:
 
 ```
-# cp etc/default/boom /etc/default
-# cp etc/grub.d/42_boom /etc/grub.d
+# dnf copr enable bmr/boom
 ```
+
+The python2 and python3 versions of boom may be installed by running:
+
+```
+# dnf -y install python2-boom python3-boom
+```
+
+Note that although both python 2 and 3 versions of the library are
+provided only one package contains the `boom` binary, depending on
+the system default python runtime for that distribution version.
+
 ## The boom command
 
 The `boom` command is the main interface to the boom boot manager.
@@ -618,3 +613,4 @@ Installation and user documentation will be added in a future update.
  [6]: https://www.readthedocs.org/
  [7]: https://boom.readthedocs.io/en/latest/boom.html#module-boom.command
  [8]: https://boom.readthedocs.io/en/latest/boom.html
+ [9]: https://copr.fedorainfracloud.org/coprs/bmr/boom/
