@@ -104,6 +104,9 @@ mkdir -p ${RPM_BUILD_ROOT}/boot/loader/entries
 install -d -m 750 ${RPM_BUILD_ROOT}/boot/boom/profiles ${RPM_BUILD_ROOT}
 install -d -m 750 ${RPM_BUILD_ROOT}/boot/loader/entries ${RPM_BUILD_ROOT}
 
+mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man8
+install -m 644 man/man8/boom.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
+
 %check
 %{__python2} setup.py test
 
@@ -114,6 +117,7 @@ install -d -m 750 ${RPM_BUILD_ROOT}/boot/loader/entries ${RPM_BUILD_ROOT}
 %files -n %{?py2_pkgname}
 %license COPYING
 %doc README.md
+%doc %{_mandir}/man8/boom.*
 %if 0%{?sphinx_docs}
 %doc doc/html/
 %endif # if sphinx_docs
@@ -128,6 +132,7 @@ install -d -m 750 ${RPM_BUILD_ROOT}/boot/loader/entries ${RPM_BUILD_ROOT}
 %files -n python3-boom
 %license COPYING
 %doc README.md
+%doc %{_mandir}/man8/boom.*
 %if 0%{?sphinx_docs}
 %doc doc/html/
 %endif # if sphinx_docs
