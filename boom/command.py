@@ -483,17 +483,9 @@ def list_entries(selection=None):
         Return a list of ``boom.bootloader.BootEntry`` objects matching
         the given criteria.
 
-        Selection criteria may also be expressed via a Selection
-        object passed to the call using the ``selection`` parameter.
+        Selection criteria may be expressed via a Selection object
+        passed to the call using the ``selection`` parameter.
 
-        :param boot_id: ``boot_id`` to match.
-        :param title: the title of the new entry.
-        :param version: the version string for the new entry.
-        :param root_device: the root device path for the new entry.
-        :param lvm_root_lv: an optional LVM2 root logical volume.
-        :param btrfs_subvol_path: an optional BTRFS subvolume path.
-        :param btrfs_subvol_id: an optional BTRFS subvolume id.
-        :param osprofile: The ``OsProfile`` for this entry.
         :param selection: A Selection object giving selection
                           criteria for the operation.
         :returns: A list of matching BootEntry objects.
@@ -513,21 +505,15 @@ def print_entries(selection=None, output_fields=None, opts=None,
         given in ``out_file``, or ``sys.stdout`` if ``out_file`` is
         unset.
 
-        Selection criteria may also be expressed via a Selection
-        object passed to the call using the ``selection`` parameter.
+        Selection criteria may be expressed via a Selection object
+        passed to the call using the ``selection`` parameter.
 
-        :param boot_id: ``boot_id`` to match.
-        :param title: the title of the new entry.
-        :param version: the version string for the new entry.
-        :param root_device: the root device path for the new entry.
-        :param lvm_root_lv: an optional LVM2 root logical volume.
-        :param btrfs_subvol_path: an optional BTRFS subvolume path.
-        :param btrfs_subvol_id: an optional BTRFS subvolume id.
-        :param opts: output formatting and control options.
-        :param fields: a table of ``BoomFieldType`` field descriptors.
         :param selection: A Selection object giving selection
-                          criteria for the operation.
-        :returns: the ``boot_id`` of the new entry.
+                          criteria for the operation
+        :param output_fields: a comma-separated list of output fields
+        :param opts: output formatting and control options
+        :param sort_keys: a comma-separated list of sort keys
+        :returns: the ``boot_id`` of the new entry
         :returntype: str
     """
     opts = opts if opts is not None else BoomReportOpts()
@@ -860,15 +846,11 @@ def list_profiles(selection=None):
         Return a list of ``boom.osprofile.OsProfile`` objects matching
         the given criteria.
 
-        :param os_id: The boot identifier to match.
-        :param name: The profile name to match.
-        :param short_name: The profile short name to match.
-        :param version: The version string to match.
-        :param version_id: The version ID string to match.
-        :param uname_pattern: The ``uname_pattern`` value to match.
-        :param kernel_pattern: The kernel pattern to match.
-        :param initramfs_pattern: The initial ramfs pattern to match.
-        :param options: The options template to match.
+        Selection criteria may be expressed via a Selection object
+        passed to the call using the ``selection`` parameter.
+
+        :param selection: A Selection object giving selection
+                          criteria for the operation.
         :returns: a list of ``OsProfile`` objects.
         :returntype: list
     """
@@ -880,17 +862,14 @@ def print_profiles(selection=None, opts=None, output_fields=None,
                    sort_keys=None):
     """Print operating system profiles matching selection criteria.
 
-        :param os_id: The boot identifier to match.
-        :param name: The profile name to match.
-        :param short_name: The profile short name to match.
-        :param version: The version string to match.
-        :param version_id: The version ID string to match.
-        :param uname_pattern: The ``uname_pattern`` value to match.
-        :param kernel_pattern: The kernel pattern to match.
-        :param initramfs_pattern: The initial ramfs pattern to match.
-        :param root_opts_lvm2: The LVM2 root options template to match.
-        :param root_opts_btrfs: The BTRFS root options template to match.
-        :param options: The options template to match.
+        Selection criteria may be expressed via a Selection object
+        passed to the call using the ``selection`` parameter.
+
+        :param selection: A Selection object giving selection
+                          criteria for the operation
+        :param output_fields: a comma-separated list of output fields
+        :param opts: output formatting and control options
+        :param sort_keys: a comma-separated list of sort keys
         :returns: the number of matching profiles output.
         :returntype: int
     """
