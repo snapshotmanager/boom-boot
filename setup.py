@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 from setuptools import setup
 
+from boom import __version__ as boom_version
+
 setup(
     name='boom',
-    version="0.1",
+    version=boom_version,
     description=("""The Boom Boot Manager."""),
     author='Bryn M. Reeves',
     author_email='bmr@redhat.com',
