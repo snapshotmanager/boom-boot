@@ -7,15 +7,15 @@
 
 %global summary A set of libraries and tools for managing boot loader entries
 
-Name: boom	
-Version: 0.1
-Release: 4%{?dist}
+Name: boom
+Version: 0.8
+Release: 1%{?dist}
 Summary: %{summary}
 
 Group: Applications/System
 License: GPLv2
 URL: https://github.com/bmr-cymru/boom	
-Source0: boom-0.1.tar.gz
+Source0: boom-%{version}.tar.gz
 
 BuildArch: noarch
 
@@ -144,6 +144,11 @@ install -m 644 man/man8/boom.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
 %endif # if with_python3
 
 %changelog
+* Tue Oct 31 2017 Bryn M. Reeves <bmr@redhat.com> = 0.8-1
+- Merge spec file changes from mcsontos
+- Add boom.8 manual page
+- Update minor version number
+
 * Fri Oct 27 2017 Bryn M. Reeves <bmr@redhat.com> = 0.1-4
 - Update RPM build to latest master
 
