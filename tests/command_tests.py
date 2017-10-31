@@ -124,7 +124,7 @@ class CommandTests(unittest.TestCase):
             delete_entries(Selection(boot_id="thereisnospoon"))
 
     def test_print_entries_no_matching(self):
-        xoutput = r"BootID.*Version.*OsID.*Name.*OsVersion"
+        xoutput = r"BootID.*Version.*Name.*RootDevice"
         output = StringIO()
         opts = boom.report.BoomReportOpts(report_file=output)
         print_entries(selection=Selection(boot_id="thereisnoboot"), opts=opts)
@@ -134,12 +134,13 @@ class CommandTests(unittest.TestCase):
         print_entries()
 
     def test_print_entries_boot_id_filter(self):
-        xoutput = [r"BootID.*Version.*OsID.*Name.*OsVersion",
-                   r"ee8d1df.*4.11.5-100.fc24.*9cb53dd.*Fedora.*"
-                   r"24 \(Workstation Edition\)"]
+        xoutput = [r"BootID.*Version.*Name.*RootDevice",
+                   r"debfd7f.*4.11.12-100.fc24.x86_64.*Fedora.*"
+                   r"/dev/vg00/lvol0-snapshot"]
         output = StringIO()
         opts = boom.report.BoomReportOpts(report_file=output)
-        print_entries(selection=Selection(boot_id="ee8d1dfbfe95"), opts=opts)
+        print_entries(selection=Selection(boot_id="debfd7f"), opts=opts)
+        print(output.getvalue())
         for pair in zip(xoutput, output.getvalue().splitlines()):
             self.assertTrue(re.match(pair[0], pair[1]))
 
