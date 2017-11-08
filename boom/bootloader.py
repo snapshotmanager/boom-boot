@@ -42,7 +42,7 @@ from boom.osprofile import *
 
 from os.path import basename, exists as path_exists, join as path_join
 from tempfile import mkstemp
-from os import listdir, rename, fdopen, chmod, unlink
+from os import listdir, rename, fdopen, chmod, unlink, fdatasync
 from hashlib import sha1
 import logging
 import re
@@ -1410,6 +1410,8 @@ class BootEntry(object):
                 key_fmt = "%s %s\n"
                 key_data = (_transform_key(key), getattr(self, key))
                 f.write(key_fmt % key_data)
+                f.flush()
+                fdatasync(f.fileno())
         try:
             rename(tmp_path, entry_path)
             chmod(entry_path, BOOT_ENTRY_MODE)

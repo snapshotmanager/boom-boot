@@ -37,7 +37,7 @@ from hashlib import sha1
 from os import listdir
 from tempfile import mkstemp
 from os.path import basename, join as path_join, exists as path_exists
-from os import fdopen, rename, chmod, unlink
+from os import fdopen, rename, chmod, unlink, fdatasync
 import logging
 import re
 
@@ -1179,6 +1179,8 @@ class OsProfile(object):
                 if self._comments and key in self._comments:
                     f.write(self._comments[key].rstrip() + '\n')
                 f.write('%s="%s"\n' % (key, self._profile_data[key]))
+                f.flush()
+                fdatasync(f.fileno())
         try:
             rename(tmp_path, profile_path)
             chmod(profile_path, BOOM_PROFILE_MODE)
