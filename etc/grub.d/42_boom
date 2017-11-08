@@ -9,7 +9,7 @@ SUBMENU_PREFIX="    "
 INSMOD_CMD="insmod blscfg"
 IMPORT_CMD="bls_import"
 
-if [ "$BOOM_USE_SUBMENU" == "yes" -o "$BOOM_SUBMENU_NAME" == "y" ]; then
+if [ "$BOOM_USE_SUBMENU" = "yes" -o "$BOOM_SUBMENU_NAME" = "y" ]; then
 	echo "submenu \"$BOOM_SUBMENU_NAME\" {"
 	echo "${SUBMENU_PREFIX}${INSMOD_CMD}"
 	echo "${SUBMENU_PREFIX}${IMPORT_CMD}"
