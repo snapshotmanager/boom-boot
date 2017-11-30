@@ -9,6 +9,12 @@ SUBMENU_PREFIX="    "
 INSMOD_CMD="insmod blscfg"
 IMPORT_CMD="bls_import"
 
+# Do not generate grub configuration unless boom entries have
+# been configured.
+if [ -z "$(boom list --noheadings)" ]; then
+	exit
+fi
+
 if [ "$BOOM_USE_SUBMENU" = "yes" -o "$BOOM_SUBMENU_NAME" = "y" ]; then
 	echo "submenu \"$BOOM_SUBMENU_NAME\" {"
 	echo "${SUBMENU_PREFIX}${INSMOD_CMD}"
