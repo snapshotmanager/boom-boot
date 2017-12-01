@@ -1016,6 +1016,132 @@ efd6d41 Red Hat Enterprise Linux Server 4 (Server)
 .br
 21e37c8 Ubuntu                          16.04 LTS (Xenial Xerus)
 .P
+.SH EXAMPLES
+List the available operating system profiles
+.br
+#
+.B boom profile list
+.br
+OsID    Name                            OsVersion
+.br
+efd6d41 Red Hat Enterprise Linux Server 4 (Server)
+.br
+b730331 Red Hat Enterprise Linux Server 5 (Server)
+.br
+98c3edb Red Hat Enterprise Linux Server 6 (Server)
+.br
+c0b921e Red Hat Enterprise Linux Server 7 (Server)
+.br
+3fc389b Red Hat Enterprise Linux Server 7.2 (Maipo)
+.br
+b99ea5f Red Hat Enterprise Linux Server 8 (Server)
+.P
+List the available boot entries
+.br
+#
+.B boom list
+.br
+BootID  Version                  Name                     RootDevice
+.br
+0d3e547 4.13.5-200.fc26.x86_64   Fedora                   /dev/mapper/vg00-lvol0
+.br
+bc18de2 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg00/lvol0-snap10
+.br
+576fe39 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg00/lvol0
+.br
+f52ba10 4.11.12-100.fc24.x86_64  Fedora                   /dev/vg00/lvol0-snap
+.br
+1838f58 4.13.5-200.fc26.x86_64   Fedora                   /dev/mapper/vg00-lvol0
+.br
+81520ca 4.13.13-200.fc26.x86_64  Fedora                   /dev/mapper/vg00-lvol0
+.br
+327e24a 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg00/lvol0
+.P
+Create an OS profile for the running system (using Fedora 26 as an
+example)
+.br
+#
+.B boom profile create --from-host --uname-pattern fc26
+.br
+Created profile with os_id d4439b7:
+.br
+  OS ID: "d4439b7d2f928c39f1160c0b0291407e5990b9e0",
+.br
+  Name: "Fedora", Short name: "fedora",
+.br
+  Version: "26 (Workstation Edition)", Version ID: "26",
+.br
+  UTS release pattern: "fc26",
+.br
+  Kernel pattern: "/kernel-%{version}", Initramfs pattern: "/initramfs-%{version}.img",
+.br
+  Root options (LVM2): "rd.lvm.lv=%{lvm_root_lv}",
+.br
+  Root options (BTRFS): "rootflags=%{btrfs_subvolume}",
+.br
+  Options: "root=%{root_device} ro %{root_opts}"
+.P
+Create a new boot entry for a specific OS profile and version
+.br
+#
+.B boom profile list --short-name rhel
+.br
+OsID    Name                            OsVersion
+.br
+3fc389b Red Hat Enterprise Linux Server 7.2 (Maipo)
+.br
+98c3edb Red Hat Enterprise Linux Server 6 (Server)
+.br
+c0b921e Red Hat Enterprise Linux Server 7 (Server)
+.P
+#
+.B boom create --profile 3fc389b --title "RHEL7 snapshot" --version 3.10-272.el7 --rootlv vg00/lvol0-snap
+.br
+Created entry with boot_id a5aef11:
+.br
+title RHEL7 snapshot
+.br
+machine-id 611f38fd887d41dea7eb3403b2730a76
+.br
+version 3.10-272.el7
+.br
+linux /boot/vmlinuz-3.10-272.el7
+.br
+initrd /boot/initramfs-3.10-272.el7.img
+.br
+options root=/dev/vg00/lvol0-snap ro rd.lvm.lv=vg00/lvol0-snap rhgb quiet
+.P
+Create a new boot entry for the running system, changing only the root logical volume
+.br
+#
+.B boom create --title Snap1 --rootlv vg00/lvol0-snap1
+.br
+Created entry with boot_id e077490:
+.br
+  title Snap1
+.br
+  machine-id 611f38fd887d41dea7eb3403b2730a76
+.br
+  version 4.13.13-200.fc26.x86_64
+.br
+  linux /vmlinuz-4.13.13-200.fc26.x86_64
+.br
+  initrd /initramfs-4.13.13-200.fc26.x86_64.img
+.br
+  options BOOT_IMAGE=/vmlinuz-4.13.13-200.fc26.x86_64 root=/dev/vg00/lvol0-snap1 ro rd.lvm.lv=vg00/lvol0-snap1
+.P
+Delete an entry by its boot identifier
+.br
+#
+.B boom delete --boot-id e077490
+.br
+Deleted 1 entry
+.P
+Delete all entries for the Fedora 24 OS profile
+.br
+# boom delete --name Fedora --os-version-id 24
+Deleted 4 entries
+.P
 .SH AUTHORS
 .
 Bryn M. Reeves <bmr@redhat.com>
