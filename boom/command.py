@@ -1238,6 +1238,10 @@ def _create_profile_cmd(cmd_args, select, opts, identifier):
             version_id = cmd_args.os_version_id
         release = None
 
+    if not cmd_args.uname_pattern:
+        print("profile create requires --uname-pattern")
+        return 1
+
     try:
         osp = create_profile(name, short_name, version, version_id,
                              uname_pattern=cmd_args.uname_pattern,
