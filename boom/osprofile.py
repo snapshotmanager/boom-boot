@@ -209,8 +209,7 @@ def load_profiles():
         try:
             osp = OsProfile(profile_file=pf_path)
         except Exception as e:
-            _log_warn("Failed to load OsProfile from '%s': %s" %
-                      (osp.disp_os_id))
+            _log_warn("Failed to load OsProfile from '%s'" % pf_path)
         _profiles.append(osp)
         _profiles_by_id[osp.os_id] = osp
     _profiles_loaded = True
