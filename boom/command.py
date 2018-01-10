@@ -961,8 +961,13 @@ def _create_cmd(cmd_args, select, opts, identifier):
         os_id = cmd_args.profile
 
     osps = find_profiles(Selection(os_id=os_id))
+
+    if not osps:
+        print("OsProfile not found: %s" % os_id)
+        return 1
+
     if len(osps) > 1:
-        print("OsProfile ID '%s' is ambiguous")
+        print("OsProfile ID '%s' is ambiguous" % os_id)
         return 1
 
     osp = osps[0]
@@ -1055,7 +1060,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
     if cmd_args.profile:
         osps = find_profiles(Selection(os_id=cmd_args.profile))
         if not osps:
-            print("No matching profile found: %s" % cmd_args.profile)
+            print("OsProfile not found: %s" % cmd_args.profile)
             return 1
         if len(osps) > 1:
             print("OS profile identifier '%s' is ambiguous" %
