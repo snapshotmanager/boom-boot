@@ -683,10 +683,11 @@ class BootEntry(object):
             attr = KEY_MAP[key]
             key_fmt = '%s%s"%s"' if quote else '%s%s%s'
             key_fmt += tail
+            attr_val = getattr(self, attr)
             if bls:
-                key_data = (_transform_key(attr), sep, getattr(self, attr))
+                key_data = (_transform_key(attr), sep, attr_val)
             else:
-                key_data = (key, sep, getattr(self, attr))
+                key_data = (key, sep, attr_val)
             be_str += key_fmt % key_data
 
         # BOOT_ID requires special handling to avoid recursion from the
