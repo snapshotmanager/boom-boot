@@ -912,6 +912,10 @@ def _create_cmd(cmd_args, select, opts, identifier):
         :param select: Unused
         :returns: integer status code returned from ``main()``
     """
+    if not check_bootloader():
+        _log_warn("Boom configuration not found in grub.cfg")
+        _log_warn("Run 'grub2-mkconfig > /boot/grub2/grub.cfg' to enable")
+
     if identifier is not None:
         print("entry create does not accept <identifier>")
         return 1

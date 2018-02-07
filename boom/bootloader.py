@@ -133,6 +133,65 @@ def boom_entries_path():
     return path_join(get_boot_path(), ENTRIES_PATH)
 
 
+#: Private constants for Grub2 integration checks
+__grub_cfg = "grub2/grub.cfg"
+__etc_grub_d = "/etc/grub.d"
+__boom_grub_d = "42_boom"
+__etc_default = "/etc/default"
+__boom_defaults = "boom"
+
+def check_bootloader():
+    """Check the configuration state of the system bootloader to ensure
+        that Boom integration is enabled. Currently only Grub2 with the
+        Red Hat BLS patches is supported.
+    """
+    grub_cfg = path_join(get_boot_path(), __grub_cfg)
+    if not path_exists(grub_cfg):
+        _log_warn("No Grub2 configuration file found")
+        return False
+
+    boom_grub_d = path_join(__etc_grub_d, __boom_grub_d)
+    if not path_exists(boom_grub_d):
+        _log_warn("Boom grub2 script missing from '%s'" % __etc_grub_d)
+        return False
+
+    defaults_file = path_join(__etc_default, __boom_defaults)
+    if not path_exists(defaults_file):
+        _log_warn("Boom configuration file missing from '%s'" % defaults_file)
+        return False
+
+    def is_yes(val):
+        return val == "y" or val == "yes"
+
+    submenu_enabled = False
+    with open(defaults_file, "r") as dfile:
+        for line in dfile:
+            (name, value) = _parse_name_value(line)
+            if name == "BOOM_ENABLE_GRUB" and not is_yes(value):
+                _log_warn("Boom grub2 integration is disabled in '%s'" %
+                          defaults_file)
+            if name == "BOOM_USE_SUBMENU" and is_yes(value):
+                _log_info("Boom grub2 submenu support enabled")
+                submenu_enabled = True
+            if name == "BOOM_SUBMENU_NAME" and submenu_enabled:
+                _log_info("Boom grub2 submenu name is '%s'" % value)
+
+    found_boom_grub = False
+    found_bls = False
+    blscfg = "blscfg"
+    with open(grub_cfg) as gfile:
+        for line in gfile:
+            words = line.split()
+            if blscfg in line:
+                _log_info("Found BLS import statement in '%s'" % grub_cfg)
+                found_bls = True
+            if "BEGIN" in line and boom_grub_d in line:
+                _log_info("Found Boom Grub2 integration in '%s'" % grub_cfg)
+                found_boom_grub = True
+
+    return found_boom_grub or found_bls
+
+
 class BootParams(object):
     """ The ``BootParams`` class encapsulates the information needed to
         boot an instance of the operating system: the kernel version,
@@ -1480,7 +1539,10 @@ __all__ = [
     'load_entries', 'write_entries', 'find_entries',
 
     # Formatting
-    'min_boot_id_width'
+    'min_boot_id_width',
+
+    # Bootloader integration check
+    'check_bootloader'
 ]
 
 # vim: set et ts=4 sw=4 :
