@@ -1719,7 +1719,7 @@ def main(args):
             _log_error("Command failed: %s" % e)
 
     shutdown_logging()
-    return status
+    sys.exit(status)
 
 __all__ = [
     # BootEntry manipulation
