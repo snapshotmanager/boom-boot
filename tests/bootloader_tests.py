@@ -151,27 +151,6 @@ class BootEntryTests(unittest.TestCase):
         return BootEntry(title="title", machine_id="ffffffff",
                          boot_params=bp, osprofile=osp)
 
-    def get_test_lvm2_BootEntry(self, osp):
-        be = self._get_test_BootEntry(osp)
-        be.version = self.test_version
-        be.root_device = self.test_lvm2_root_device
-        be.lvm_root_lv = self.test_lvm_root_lv
-        return be
-
-    def get_test_btrfs_path_BootEntry(self):
-        be = self._get_test_BootEntry(osp)
-        be.version = self.test_version
-        be.root_device = self.test_btrfs_root_device
-        be.btrfs_subvol_path = self.test_btrfs_subvol_path
-        return be
-
-    def get_test_btrfs_id_BootEntry(self):
-        be = self._get_test_BootEntry(osp)
-        be.version = self.test_version
-        be.root_device = self.test_btrfs_root_device
-        be.btrfs_subvol_id = self.test_btrfs_subvol_id
-        return be
-
     # BootEntry tests
 
     def test_BootEntry__str__(self):
