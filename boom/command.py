@@ -1704,7 +1704,16 @@ def main(args):
     select = Selection.from_cmd_args(cmd_args)
     opts = _report_opts_from_args(cmd_args)
     identifier = _id_from_arg(cmd_args, cmd_type[0], command[0])
-    status = command[1](cmd_args, select, opts, identifier)
+    status = 1
+
+    if cmd_args.debug:
+        status = command[1](cmd_args, select, opts, identifier)
+    else:
+        try:
+            status = command[1](cmd_args, select, opts, identifier)
+        except Exception as e:
+            _log_error("Command failed: %s" % e)
+
     shutdown_logging()
     return status
 
