@@ -200,13 +200,16 @@ class BoomRootDeviceError(BoomError):
 
 
 def check_root_device(dev):
-    """Test for the presence of root device ``dev`` and return ``True``
-        if it exists in the configured /dev directory and is a block
-        device, or ``False`` otherwise.
+    """Test for the presence of root device ``dev`` and return if it
+        exists in the configured /dev directory and is a valid block
+        device, or raise ``BoomRootDeviceError`` otherwise.
+
+        The exception string indicates the class of error: missing
+        path or not a block device.
 
         :param dev: the root device to check for.
-        :returns: ``True`` if the device is found or ``False`` otherwise.
-        :returntype: bool
+        :raises: BoomRootDeviceError if ``dev`` is invalid.
+        :returns: None
     """
     if not path_exists(dev):
         raise BoomRootDeviceError("Device '%s' not found." % dev)
