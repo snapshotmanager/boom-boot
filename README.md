@@ -418,7 +418,7 @@ OsID    Name                            OsVersion
 98c3edb Red Hat Enterprise Linux Server 6 (Server)
 c0b921e Red Hat Enterprise Linux Server 7 (Server)
 
-# boom create --profile 3fc389b --title "RHEL7 snapshot" --version 3.10-272.el7 --rootlv vg00/lvol0-snap
+# boom create --profile 3fc389b --title "RHEL7 snapshot" --version 3.10-272.el7 --root-lv vg00/lvol0-snap
 Created entry with boot_id a5aef11:
 title RHEL7 snapshot
 machine-id 611f38fd887d41dea7eb3403b2730a76
@@ -455,7 +455,7 @@ OsProfile of the running host, these options can be omitted from the
 create command:
 
 ```
-# boom create --title "Fedora 26 snapshot (4.13.5-200.fc26.x86_64)" --rootlv vg_hex/root-snap-f26
+# boom create --title "Fedora 26 snapshot (4.13.5-200.fc26.x86_64)" --root-lv vg_hex/root-snap-f26
 Created entry with boot_id d12c177:
   title Fedora 26 snapshot (4.13.5-200.fc26.x86_64)
   machine-id 611f38fd887d41dea7eb3403b2730a76

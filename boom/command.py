@@ -948,7 +948,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
     else:
         root_device = cmd_args.root_device
 
-    lvm_root_lv = cmd_args.rootlv if cmd_args.rootlv else None
+    lvm_root_lv = cmd_args.root_lv if cmd_args.root_lv else None
 
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
@@ -1053,7 +1053,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
     version = cmd_args.version
     machine_id = cmd_args.machine_id
     root_device = cmd_args.root_device
-    lvm_root_lv = cmd_args.rootlv
+    lvm_root_lv = cmd_args.root_lv
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
 
@@ -1170,7 +1170,7 @@ def _edit_cmd(cmd_args, select, opts, identifier):
     version = cmd_args.version
     machine_id = cmd_args.machine_id
     root_device = cmd_args.root_device
-    lvm_root_lv = cmd_args.rootlv
+    lvm_root_lv = cmd_args.root_lv
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
 
@@ -1543,12 +1543,12 @@ def _report_opts_from_args(cmd_args):
     if cmd_args.separator:
         opts.separator = cmd_args.separator
 
-    if cmd_args.nameprefixes:
+    if cmd_args.name_prefixes:
         opts.field_name_prefix = "BOOM_"
         opts.unquoted = False
         opts.aligned = False
 
-    if cmd_args.noheadings:
+    if cmd_args.no_headings:
         opts.headings = False
 
     return opts
@@ -1615,68 +1615,76 @@ def main(args):
     parser.add_argument("identifier", metavar="ID", type=str, action="store",
                         help="An optional profile or boot identifier to "
                         "operate on", nargs="?", default=None)
-    parser.add_argument("-b", "--boot-id", metavar="BOOT_ID", type=str,
-                        help="The BOOT_ID of a boom boot entry")
-    parser.add_argument("--boot-dir", metavar="PATH", type=str,
+    parser.add_argument("-b", "--boot-id", "--bootid", metavar="BOOT_ID",
+                        type=str, help="The BOOT_ID of a boom boot entry")
+    parser.add_argument("--boot-dir", "--bootdir", metavar="PATH", type=str,
                         help="The path to the /boot file system")
-    parser.add_argument("-B", "--btrfs-subvolume", metavar="SUBVOL", type=str,
+    parser.add_argument("-B", "--btrfs-subvolume", "--btrfssubvolume",
+                        metavar="SUBVOL", type=str,
                         help="The path or ID of a BTRFS subvolume")
-    parser.add_argument("--btrfs-opts", metavar="OPTS", type=str,
+    parser.add_argument("--btrfs-opts", "--btrfsopts", metavar="OPTS", type=str,
                         help="A template option string for BTRFS devices")
     parser.add_argument("--debug", metavar="DEBUGOPTS", type=str,
                         help="A list of debug options to enable")
     parser.add_argument("-e", "--efi", metavar="IMG", type=str,
                         help="An executable EFI application image")
-    parser.add_argument("-H", "--from-host", help="Take os-release values "
-                        "from the running host", action="store_true")
+    parser.add_argument("-H", "--from-host", "--fromhost",
+                        help="Take os-release values from the running host",
+                        action="store_true")
     parser.add_argument("-i", "--initrd", metavar="IMG", type=str,
                         help="A linux initrd image path")
-    parser.add_argument("-k", "--kernel-pattern", metavar="PATTERN", type=str,
+    parser.add_argument("-k", "--kernel-pattern", "--kernelpattern",
+                        metavar="PATTERN", type=str,
                         help="A pattern for generating kernel paths")
     parser.add_argument("-l", "--linux", metavar="IMG", type=str,
                         help="A linux kernel image path")
-    parser.add_argument("-L", "--rootlv", metavar="LV", type=str,
+    parser.add_argument("-L", "--root-lv", "--rootlv", metavar="LV", type=str,
                         help="An LVM2 root logical volume")
-    parser.add_argument("--lvm-opts", metavar="OPTS", type=str,
+    parser.add_argument("--lvm-opts", "--lvmopts", metavar="OPTS", type=str,
                         help="A template option string for LVM2 devices")
-    parser.add_argument("-m", "--machine-id", metavar="MACHINE_ID", type=str,
+    parser.add_argument("-m", "--machine-id", "--machineid",
+                        metavar="MACHINE_ID", type=str,
                         help="The machine_id value to use")
     parser.add_argument("-n", "--name", metavar="OSNAME", type=str,
-                        help="The name of a Boom OsProfile"),
-    parser.add_argument("--nameprefixes", action='store_true',
-                        help="Add a prefix to report field names"),
-    parser.add_argument("--noheadings", action='store_true',
+                        help="The name of a Boom OsProfile")
+    parser.add_argument("--name-prefixes", "--nameprefixes",
+                        help="Add a prefix to report field names",
+                        action='store_true'),
+    parser.add_argument("--no-headings", "--noheadings", action='store_true',
                         help="Suppress output of report headings"),
     parser.add_argument("-o", "--options", metavar="FIELDS", type=str,
                         help="Specify which fields to display")
-    parser.add_argument("--os-version", metavar="OSVERSION", type=str,
-                        help="A Boom OsProfile version")
+    parser.add_argument("--os-version", "--osversion", metavar="OSVERSION",
+                        help="A Boom OsProfile version", type=str)
     parser.add_argument("-O", "--sort", metavar="SORTFIELDS", type=str,
                         help="Specify which fields to sort by")
-    parser.add_argument("-I", "--os-version-id", metavar="OSVERSIONID",
-                        type=str, help="A Boom OsProfile version ID")
-    parser.add_argument("--os-options", metavar="OPTIONS", type=str,
-                        help="A Boom OsProfile options template")
-    parser.add_argument("--os-release", metavar="OSRELEASE", type=str,
-                        help="Path to an os-release file")
+    parser.add_argument("-I", "--os-version-id", "--osversionid",
+                        help="A Boom OsProfile version ID",
+                        metavar="OSVERSIONID", type=str)
+    parser.add_argument("--os-options", "--osoptions", metavar="OPTIONS",
+                        help="A Boom OsProfile options template", type=str)
+    parser.add_argument("--os-release", "--osrelease", metavar="OSRELEASE",
+                        help="Path to an os-release file", type=str)
     parser.add_argument("-p", "--profile", metavar="OS_ID", type=str,
                         help="A boom operating system profile "
                         "identifier")
-    parser.add_argument("-r", "--root-device", metavar="ROOT", type=str,
-                        help="The root device for a boot entry")
-    parser.add_argument("-R", "--initramfs-pattern", metavar="PATTERN",
+    parser.add_argument("-r", "--root-device", "--rootdevice", metavar="ROOT",
+                        help="The root device for a boot entry", type=str)
+    parser.add_argument("-R", "--initramfs-pattern", "--initramfspattern",
                         type=str, help="A pattern for generating initramfs "
-                        "paths")
+                        "paths", metavar="PATTERN")
     parser.add_argument("--rows", action="store_true",
                         help="Output report columnes as rows")
     parser.add_argument("--separator", metavar="SEP", type=str,
                         help="Report field separator")
-    parser.add_argument("-s", "--short-name", metavar="OSSHORTNAME", type=str,
-                        help="A Boom OsProfile short name")
+    parser.add_argument("-s", "--short-name", "--shortname",
+                        help="A Boom OsProfile short name",
+                        metavar="OSSHORTNAME", type=str)
     parser.add_argument("-t", "--title", metavar="TITLE", type=str,
                         help="The title of a boom boot entry")
-    parser.add_argument("-u", "--uname-pattern", metavar="PATTERN", type=str,
-                        help="A Boom OsProfile uname pattern")
+    parser.add_argument("-u", "--uname-pattern", "--unamepattern",
+                        help="A Boom OsProfile uname pattern",
+                        metavar="PATTERN", type=str)
     parser.add_argument("-V", "--verbose", help="Enable verbose ouput",
                         action="count")
     parser.add_argument("-v", "--version", metavar="VERSION", type=str,
@@ -1692,8 +1700,8 @@ def main(args):
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
         set_boot_path(boot_path)
 
-    if not cmd_args.root_device and cmd_args.rootlv:
-        cmd_args.root_device = DEV_PATTERN % cmd_args.rootlv
+    if not cmd_args.root_device and cmd_args.root_lv:
+        cmd_args.root_device = DEV_PATTERN % cmd_args.root_lv
 
     if not cmd_type:
         print("Unknown command type: %s" % cmd_args.type)

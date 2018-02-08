@@ -39,7 +39,7 @@ Boom \(em linux boot manager
 .  IR version ]
 .  RB [ --root-device
 .  IR device ]
-.  RB [ --rootlv
+.  RB [ --root-lv
 .  IR lv ]
 .  RB [ --linux
 .  IR kernel_path ]
@@ -83,7 +83,7 @@ Boom \(em linux boot manager
 .  IR version ]
 .  RB [ --root-device
 .  IR device ]
-.  RB [ --rootlv
+.  RB [ --root-lv
 .  IR lv ]
 .  RB [ --linux
 .  IR kernel_path ]
@@ -116,7 +116,7 @@ Boom \(em linux boot manager
 .  IR version ]
 .  RB [ --root-device
 .  IR device ]
-.  RB [ --rootlv
+.  RB [ --root-lv
 .  IR lv ]
 .  RB [ --linux
 .  IR kernel_path ]
@@ -149,7 +149,7 @@ Boom \(em linux boot manager
 .  IR version ]
 .  RB [ --root-device
 .  IR device ]
-.  RB [ --rootlv
+.  RB [ --root-lv
 .  IR lv ]
 .  RB [ --btrfs-subvol
 .  IR subvol ]
@@ -306,30 +306,34 @@ Boom requires a BLS compatible boot loader to function: either the
 \fIsystemd-boot\fP project, or \fIGrub2\fP with the `bls` patch. The
 \fIgrub2\fP boot loader included in \fBFedora\fP and \fBRed Hat
 Enterprise Linux\fP include this support.
-.
+
+All long options supported by boom may be written with or without
+dashes separating words. For example, \fB--boot-id\fP and \fB--bootid\fP
+are synonymous.
+
 .SH OPTIONS
 .
 .HP
-.BR -b | --boot-id
+.BR -b | --boot-id | --bootid
 .IR boot_id
 .br
 Specify a boot identifier to operate on.
 .
 .HP
-.BR --boot-dir
+.BR --boot-dir | --bootdir
 .IR path
 .br
 Specify the location of the /boot file system. Useful for testing or
 for accessing boom data from a system image.
 .
 .HP
-.BR -B | --btrfs-subvolme
+.BR -B | --btrfs-subvolme | --btrfssubvolume
 .RI [ subvol_path | subvol_id ]
 .br
 Specify a BTRFS subvolume by its path or identifier.
 .br
 .HP
-.BR --btrfs-opts
+.BR --btrfs-opts | --btrfsopts
 .IR btrfs_options_template
 .br
 An OS profile template string for BTRFS boot options.
@@ -349,7 +353,7 @@ are: profile, entry, command, report.
 Specify an EFI application image for a boot entry.
 .
 .HP
-.BR -H | --from-host
+.BR -H | --from-host | --fromhost
 .br
 When creating a new OS profile, use \fIos-release\fP data from the
 running host.
@@ -361,7 +365,7 @@ running host.
 A Linux initial ramfs image path.
 .
 .HP
-.BR -k | --kernel-pattern
+.BR -k | --kernel-pattern | --kernelpattern
 .IR pattern
 .br
 An OS profile template used to generate kernel image paths.
@@ -373,11 +377,11 @@ An OS profile template used to generate kernel image paths.
 A Linux kernel image path.
 .
 .HP
-.BR -L | --rootlv
+.BR -L | --root-lv | --rootlv
 .IR root_lv
 .br
 The logical volume containing the root file system for a boot entry.
-If \fB--rootlv\fP is given, but \fB--root-device\fP is not, the root
+If \fB--root-lv\fP is given, but \fB--root-device\fP is not, the root
 device is assumed to be the specified logical volume.
 .
 .HP
@@ -387,7 +391,7 @@ device is assumed to be the specified logical volume.
 An OS profile template used to generate LVM2 boot options.
 .
 .HP
-.BR -m | --machine-id
+.BR -m | --machine-id | --machineid
 .IR machine_id
 .br
 .
@@ -398,12 +402,12 @@ An OS profile template used to generate LVM2 boot options.
 The name of a boom operating system profile.
 .
 .HP
-.BR --nameprefixes
+.BR --name-prefixes | --nameprefixes
 .br
 Add a prefix to report field output names.
 .
 .HP
-.BR --noheadings
+.BR --no-headings | --noheadings
 .br
 Suppress output of report headings.
 .
@@ -427,20 +431,20 @@ per-field prefix of \fB+\fP or \fB-\fP to force ascending or
 descending sort order respectively for that field.
 .
 .HP
-.BR -I | --os-version-id
+.BR -I | --os-version-id | --osversionid
 .IR os_version_id
 .br
 A boom operating system profile version identifier.
 .
 .HP
-.BR --os-options
+.BR --os-options | --osoptions
 .IR options_template
 .br
 An operating system profile template string used to generate the
 kernel command line options string.
 .
 .HP
-.BR --os-release
+.BR --os-release | --osrelease
 .IR os_release_path
 .br
 A path to a file in \fIos-release(5)\fP from which to create a new
@@ -455,13 +459,13 @@ system profile to use for the current operation. Defaults to the
 OS profile of the running system if absent.
 .
 .HP
-.BR -r | --root-device
+.BR -r | --root-device | --rootdevice
 .IR root_dev
 .br
 The system root device for a new boot entry.
 .
 .HP
-.BR -R | --initramfs-pattern
+.BR -R | --initramfs-pattern | --initramfspattern
 .IR initramfs_pattern
 .br
 An OS profile template used to generate initial ramfs image paths.
@@ -478,7 +482,7 @@ Output report columns as rows.
 Report field separator
 .
 .HP
-.BR -s | --short-name
+.BR -s | --short-name | --shortname
 .IR short_name
 The short name of a boom operating system profile.
 .
@@ -489,7 +493,7 @@ The short name of a boom operating system profile.
 The title for a new boot entry.
 .
 .HP
-.BR -u | --uname-pattern
+.BR -u | --uname-pattern | --unamepattern
 .IR uname_pattern
 .br
 An uname pattern to match for an operating system profile.
@@ -560,7 +564,7 @@ overridden by the \fB--machine-id\fP switch.
 
 A root device may be explicitly specified with the \fB--root-device\fP
 option or if an LVM2 logical volume is used this may be specified
-with \fB--rootlv\fP: in this case the root device is assumed to be
+with \fB--root-lv\fP: in this case the root device is assumed to be
 the normal device path of the specified logical volume.
 
 A BTRFS subvolume may be set by either the subvolume path or subvolume
@@ -570,7 +574,7 @@ The newly created entry and its boot identifier are printed to the
 terminal on success:
 .br
 #
-.B boom create --title 'System Snapshot' --rootlv vg00/lvol0
+.B boom create --title 'System Snapshot' --root-lv vg00/lvol0
 .br
 Created entry with boot_id 14d6b6e:
 .br
@@ -1095,7 +1099,7 @@ OsID    Name                            OsVersion
 c0b921e Red Hat Enterprise Linux Server 7 (Server)
 .P
 #
-.B boom create --profile 3fc389b --title \(dqRHEL7 snapshot\(dq --version 3.10-272.el7 --rootlv vg00/lvol0-snap
+.B boom create --profile 3fc389b --title \(dqRHEL7 snapshot\(dq --version 3.10-272.el7 --root-lv vg00/lvol0-snap
 .br
 Created entry with boot_id a5aef11:
 .br
@@ -1114,7 +1118,7 @@ options root=/dev/vg00/lvol0-snap ro rd.lvm.lv=vg00/lvol0-snap rhgb quiet
 Create a new boot entry for the running system, changing only the root logical volume
 .br
 #
-.B boom create --title Snap1 --rootlv vg00/lvol0-snap1
+.B boom create --title Snap1 --root-lv vg00/lvol0-snap1
 .br
 Created entry with boot_id e077490:
 .br

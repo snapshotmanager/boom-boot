@@ -456,7 +456,7 @@ class Selection(object):
                       version=args.version, machine_id=args.machine_id,
                       linux=args.linux, initrd=args.initrd, efi=args.efi,
                       root_device=args.root_device,
-                      lvm_root_lv=args.rootlv,
+                      lvm_root_lv=args.root_lv,
                       btrfs_subvol_path=btrfs_subvol_path,
                       btrfs_subvol_id=btrfs_subvol_id,
                       os_id=args.profile, os_name=args.name,
