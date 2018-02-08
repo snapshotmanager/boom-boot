@@ -260,7 +260,7 @@ def _str_indent(string, indent):
 
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None, osprofile=None,
-                 write=True):
+                 write=True, allow_no_dev=False):
     """Create new boot loader entry.
 
         Create the specified boot entry in the configured loader directory.
@@ -273,6 +273,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
         :param osprofile: The ``OsProfile`` for this entry.
+        :param allow_no_dev: Accept a non-existent or invalid root dev.
         :returns: a ``BootEntry`` object corresponding to the new entry.
         :returntype: ``BootEntry``
         :raises: ``ValueError`` if either required values are missing or
@@ -301,7 +302,9 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                     btrfs_subvol_id=btrfs_subvol_id)
 
     be = BootEntry(title=title, machine_id=machine_id,
-                   osprofile=osprofile, boot_params=bp)
+                   osprofile=osprofile, boot_params=bp,
+                   allow_no_dev=allow_no_dev)
+
     if find_entries(Selection(boot_id=be.boot_id)):
         raise ValueError("Entry already exists (boot_id=%s)." %
                          be.disp_boot_id)
@@ -953,6 +956,8 @@ def _create_cmd(cmd_args, select, opts, identifier):
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
 
+    no_dev = cmd_args.no_dev
+
     # FIXME: default to host OsProfile
     if not cmd_args.profile:
         # Attempt to find a matching OsProfile by version string
@@ -981,7 +986,11 @@ def _create_cmd(cmd_args, select, opts, identifier):
                           root_device, lvm_root_lv=lvm_root_lv,
                           btrfs_subvol_path=btrfs_subvol_path,
                           btrfs_subvol_id=btrfs_subvol_id, osprofile=osp,
-                          write=False)
+                          write=False, allow_no_dev=no_dev)
+    except BoomRootDeviceError as brde:
+        print(brde)
+        print("Creating an entry with no valid root device requires --no-dev")
+        return 1
     except ValueError as e:
         print(e)
         return 1
@@ -1652,6 +1661,8 @@ def main(args):
                         action='store_true'),
     parser.add_argument("--no-headings", "--noheadings", action='store_true',
                         help="Suppress output of report headings"),
+    parser.add_argument("--no-dev", "--nodev", action='store_true',
+                        help="Disable checks for a valid root device")
     parser.add_argument("-o", "--options", metavar="FIELDS", type=str,
                         help="Specify which fields to display")
     parser.add_argument("--os-version", "--osversion", metavar="OSVERSION",

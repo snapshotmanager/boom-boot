@@ -107,7 +107,8 @@ class CommandTests(unittest.TestCase):
 
         with self.assertRaises(ValueError) as cm:
             create_entry(title, version, machine_id, root_device,
-                         btrfs_subvol_id=btrfs_subvol_id, osprofile=osp)
+                         btrfs_subvol_id=btrfs_subvol_id, osprofile=osp,
+                         allow_no_dev=True)
 
     def test_create_delete_entry(self):
         # Fedora 24 (Workstation Edition)

@@ -112,6 +112,13 @@ BOOM_DEBUG_ALL = (BOOM_DEBUG_PROFILE |
 
 __debug_mask = 0
 
+
+class BoomError(Exception):
+    """Base class of all Boom exceptions.
+    """
+    pass
+
+
 class BoomLogger(logging.Logger):
     """BoomLogger()
 
@@ -663,6 +670,9 @@ __all__ = [
     'get_boom_path',
     'set_boot_path',
     'set_boom_path',
+
+    # boom exception base class
+    'BoomError',
 
     # Debug logging
     'get_debug_mask',

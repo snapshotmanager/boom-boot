@@ -149,12 +149,13 @@ class BootEntryTests(unittest.TestCase):
                         lvm_root_lv="vg/lv")
 
         return BootEntry(title="title", machine_id="ffffffff",
-                         boot_params=bp, osprofile=osp)
+                         boot_params=bp, osprofile=osp, allow_no_dev=True)
 
     # BootEntry tests
 
     def test_BootEntry__str__(self):
-        be = BootEntry(title="title", machine_id="ffffffff", osprofile=None)
+        be = BootEntry(title="title", machine_id="ffffffff", osprofile=None,
+                       allow_no_dev=True)
         xstr = ('title title\nmachine-id ffffffff\n'
                 'linux /vmlinuz-%{version}\n'
                 'initrd /initramfs-%{version}.img\n'
@@ -162,7 +163,8 @@ class BootEntryTests(unittest.TestCase):
         self.assertEqual(str(be), xstr)
 
     def test_BootEntry__repr__(self):
-        be = BootEntry(title="title", machine_id="ffffffff", osprofile=None)
+        be = BootEntry(title="title", machine_id="ffffffff", osprofile=None,
+                       allow_no_dev=True)
         xrepr = ('BootEntry(entry_data={BOOT_TITLE: "title", '
                  'BOOT_MACHINE_ID: "ffffffff", '
                  'BOOT_LINUX: "/vmlinuz-%{version}", '
@@ -174,13 +176,16 @@ class BootEntryTests(unittest.TestCase):
     def test_BootEntry(self):
         # Test BootEntry init from kwargs
         with self.assertRaises(ValueError) as cm:
-            be = BootEntry(title=None, machine_id="ffffffff", osprofile=None)
+            be = BootEntry(title=None, machine_id="ffffffff", osprofile=None,
+                           allow_no_dev=True)
 
         with self.assertRaises(ValueError) as cm:
-            be = BootEntry(title="title", machine_id=None, osprofile=None)
+            be = BootEntry(title="title", machine_id=None, osprofile=None,
+                           allow_no_dev=True)
 
         with self.assertRaises(ValueError) as cm:
-            be = BootEntry(title=None, machine_id=None, osprofile=None)
+            be = BootEntry(title=None, machine_id=None, osprofile=None,
+                           allow_no_dev=True)
 
         be = BootEntry(title="title", machine_id="ffffffff")
 
@@ -237,7 +242,7 @@ class BootEntryTests(unittest.TestCase):
                        BOOT_INITRD: "/initramfs-1.1.1.img",
                        BOOT_OPTIONS: "root=/dev/vg_root/root "
                                      "rd.lvm.lv=vg_root/root"},
-                       boot_params=bp)
+                       boot_params=bp, allow_no_dev=True)
         # boot_params overrides BootEntry
         self.assertEqual(be.version, bp.version)
         self.assertNotEqual(be.version, "1.1.1")
@@ -253,7 +258,8 @@ class BootEntryTests(unittest.TestCase):
         be = BootEntry(entry_data={BOOT_TITLE: "title",
                        BOOT_MACHINE_ID: "ffffffff",
                        BOOT_LINUX: "/vmlinuz",
-                       BOOT_VERSION: "1.1.1"}, boot_params=bp)
+                       BOOT_VERSION: "1.1.1"}, boot_params=bp,
+                       allow_no_dev=True)
 
         xoptions = "root=/dev/vg00/lvol0 ro rd.lvm.lv=vg00/lvol0"
         self.assertEqual(be.options, xoptions)
@@ -275,7 +281,7 @@ class BootEntryTests(unittest.TestCase):
                        BOOT_MACHINE_ID: "ffffffff",
                        BOOT_VERSION: "1.1.1", BOOT_LINUX: "/vmlinuz-1.1.1",
                        BOOT_INITRD: "/initramfs-1.1.1.img"},
-                       osprofile=osp, boot_params=bp)
+                       osprofile=osp, boot_params=bp, allow_no_dev=True)
 
         self.assertEqual(be.options, "")
 
@@ -284,7 +290,7 @@ class BootEntryTests(unittest.TestCase):
         bp = BootParams("1.1.1-1.di1", root_device="/dev/vg00/lvol0",
                         lvm_root_lv="vg00/lvol0")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
-                       osprofile=osp)
+                       osprofile=osp, allow_no_dev=True)
 
         boot_id = be.boot_id
         be.write_entry()
@@ -306,7 +312,7 @@ class BootEntryTests(unittest.TestCase):
         osp = self._get_test_OsProfile()
         bp = BootParams("1.1", lvm_root_lv="vg00/lvol0")
         be = BootEntry(title="title", machine_id="ffffffff",
-                       osprofile=osp, boot_params=bp)
+                       osprofile=osp, boot_params=bp, allow_no_dev=True)
         self.assertEqual(be.root_opts, "rd.lvm.lv=vg00/lvol0")
         self.assertEqual(be.options, "root=/dev/vg00/lvol0 "
                          "rd.lvm.lv=vg00/lvol0 rhgb quiet")
@@ -315,7 +321,7 @@ class BootEntryTests(unittest.TestCase):
         osp = self._get_test_OsProfile()
         bp = BootParams("1.1", root_device="/dev/sda5", btrfs_subvol_id="232")
         be = BootEntry(title="title", machine_id="ffffffff",
-                       osprofile=osp, boot_params=bp)
+                       osprofile=osp, boot_params=bp, allow_no_dev=True)
         self.assertEqual(be.root_opts, "rootflags=subvolid=232")
         self.assertEqual(be.options, "root=/dev/sda5 "
                          "rootflags=subvolid=232 rhgb quiet")
@@ -325,7 +331,7 @@ class BootEntryTests(unittest.TestCase):
         bp = BootParams("1.1", root_device="/dev/sda5",
                         btrfs_subvol_path="/snapshots/20170523-1")
         be = BootEntry(title="title", machine_id="ffffffff",
-                       osprofile=osp, boot_params=bp)
+                       osprofile=osp, boot_params=bp, allow_no_dev=True)
         self.assertEqual(be.root_opts,
                          "rootflags=subvol=/snapshots/20170523-1")
         self.assertEqual(be.options, "root=/dev/sda5 "
@@ -334,7 +340,8 @@ class BootEntryTests(unittest.TestCase):
     def test_BootEntry_boot_id(self):
         xboot_id = '7825f7c8396b1ae7a512bc37dee1aba137cd24ac'
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
         self.assertEqual(xboot_id, be.boot_id)
 
     def test_BootEntry_root_opts_no_values(self):
@@ -348,7 +355,7 @@ class BootEntryTests(unittest.TestCase):
         be = BootEntry(entry_data={BOOT_TITLE: "title",
                        BOOT_LINUX: "/vmlinuz",
                        BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
-                       BOOT_OPTIONS: "root=/dev/sda5 ro"})
+                       BOOT_OPTIONS: "root=/dev/sda5 ro"}, allow_no_dev=True)
         self.assertEqual(xroot_opts, be.root_opts)
 
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
@@ -356,42 +363,47 @@ class BootEntryTests(unittest.TestCase):
                        BOOT_LINUX: "/vmlinuz",
                        BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
                        BOOT_OPTIONS: "root=%{root_device} %{root_opts}"},
-                       osprofile=osp, boot_params=bp)
+                       osprofile=osp, boot_params=bp, allow_no_dev=True)
         self.assertEqual(xroot_opts, be.root_opts)
 
     # BootEntry properties get/set tests
     # Simple properties: direct set to self._entry_data.
     def test_BootEntry_options_set_get(self):
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
         xoptions = "testoptions root=%{root_device}"
         be.options = xoptions
         self.assertEqual(xoptions, be.options)
 
     def test_BootEntry_linux_set_get(self):
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
         xlinux = "/vmlinuz"
         be.linux = xlinux
         self.assertEqual(xlinux, be.linux)
 
     def test_BootEntry_initrd_set_get(self):
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
         xinitrd = "/initrd.img"
         be.initrd = xinitrd
         self.assertEqual(xinitrd, be.initrd)
 
     def test_BootEntry_efi_set_get(self):
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
         xefi = "/some.efi.img"
         be.efi = xefi
         self.assertEqual(xefi, be.efi)
 
     def test_BootEntry_devicetree_set_get(self):
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
         xdevicetree = "/tegra20-paz00.dtb"
         be.devicetree = xdevicetree
         self.assertEqual(xdevicetree, be.devicetree)
@@ -402,7 +414,8 @@ class BootEntryTests(unittest.TestCase):
 
         xos_id = "6bf746bb7231693b2903585f171e4290ff0602b5"
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
         self.assertEqual(be._osp.os_id, xos_id)
 
     def test_BootEntry__getitem__(self):
@@ -421,7 +434,8 @@ class BootEntryTests(unittest.TestCase):
         xdevicetree = "device.tree"
 
         bp = BootParams(xversion, root_device="/dev/sda5")
-        be = BootEntry(title=xtitle, machine_id=xmachine_id, boot_params=bp)
+        be = BootEntry(title=xtitle, machine_id=xmachine_id, boot_params=bp,
+                       allow_no_dev=True)
         be.devicetree = xdevicetree
 
         self.assertEqual(be[BOOT_VERSION], "4.11.5-100.fc24.x86_64")
@@ -457,7 +471,8 @@ class BootEntryTests(unittest.TestCase):
         xdevicetree = "device.tree"
 
         bp = BootParams(xversion, root_device="/dev/sda5")
-        be = BootEntry(title="qux", machine_id="11111111", boot_params=bp)
+        be = BootEntry(title="qux", machine_id="11111111", boot_params=bp,
+                       allow_no_dev=True)
         be.devicetree = xdevicetree
 
         be[BOOT_VERSION] = xversion
@@ -480,7 +495,8 @@ class BootEntryTests(unittest.TestCase):
         load_profiles()
 
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
         with self.assertRaises(TypeError) as cm:
             be[123] = "qux"
 
@@ -492,7 +508,8 @@ class BootEntryTests(unittest.TestCase):
                  'BOOT_OPTIONS', 'BOOT_VERSION']
 
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
 
         self.assertEqual(be.keys(), xkeys)
 
@@ -510,7 +527,8 @@ class BootEntryTests(unittest.TestCase):
         ]
 
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
 
         self.assertEqual(be.values(), xvalues)
 
@@ -536,7 +554,7 @@ class BootEntryTests(unittest.TestCase):
         xitems = list(zip(xkeys, xvalues))
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
-                       osprofile=osp)
+                       osprofile=osp, allow_no_dev=True)
         self.assertEqual(be.items(), xitems)
 
     def test__add_entry_loads_entries(self):
@@ -650,13 +668,15 @@ class BootEntryTests(unittest.TestCase):
 
     def test_delete_unwritten_BootEntry_raises(self):
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                      allow_no_dev=True)
         with self.assertRaises(ValueError) as cm:
             be.delete_entry()
 
     def test_delete_BootEntry_deletes(self):
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
         be.write_entry()
         be.delete_entry()
         self.assertFalse(exists(be._entry_path))
@@ -708,5 +728,19 @@ class BootLoaderTests(unittest.TestCase):
 
         entries = find_entries(Selection(machine_id="ffffffff"))
         self.assertEqual(len(entries), self._nr_machine_id("ffffffff"))
+
+    def test_check_root_device_real(self):
+        # Real block device node
+        boom.bootloader.check_root_device("tests/dev/sda")
+
+    def test_check_root_device_nonex(self):
+        # Non-existent device node
+        with self.assertRaises(BoomRootDeviceError) as cm:
+            boom.bootloader.check_root_device("tests/dev/sdb")
+
+    def test_check_root_device_nonblock(self):
+        # Non-existent device node
+        with self.assertRaises(BoomRootDeviceError) as cm:
+            boom.bootloader.check_root_device("tests/dev/null")
 
 # vim: set et ts=4 sw=4 :

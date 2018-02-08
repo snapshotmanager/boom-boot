@@ -42,7 +42,8 @@ from boom.osprofile import *
 
 from os.path import basename, exists as path_exists, join as path_join
 from tempfile import mkstemp
-from os import listdir, rename, fdopen, chmod, unlink, fdatasync
+from os import listdir, rename, fdopen, chmod, unlink, fdatasync, stat
+from stat import S_ISBLK
 from hashlib import sha1
 import logging
 import re
@@ -192,8 +193,31 @@ def check_bootloader():
     return found_boom_grub or found_bls
 
 
+class BoomRootDeviceError(BoomError):
+    """Boom exception indicating an invalid root device.
+    """
+    pass
+
+
+def check_root_device(dev):
+    """Test for the presence of root device ``dev`` and return ``True``
+        if it exists in the configured /dev directory and is a block
+        device, or ``False`` otherwise.
+
+        :param dev: the root device to check for.
+        :returns: ``True`` if the device is found or ``False`` otherwise.
+        :returntype: bool
+    """
+    if not path_exists(dev):
+        raise BoomRootDeviceError("Device '%s' not found." % dev)
+
+    st = stat(dev)
+    if not S_ISBLK(st.st_mode):
+        raise BoomRootDeviceError("Path '%s' is not a block device." % dev)
+
+
 class BootParams(object):
-    """ The ``BootParams`` class encapsulates the information needed to
+    """The ``BootParams`` class encapsulates the information needed to
         boot an instance of the operating system: the kernel version,
         root device, and root device options.
 
@@ -1046,7 +1070,8 @@ class BootEntry(object):
                           entry_basename)
 
     def __init__(self, title=None, machine_id=None, osprofile=None,
-                 boot_params=None, entry_file=None, entry_data=None):
+                 boot_params=None, entry_file=None, entry_data=None,
+                 allow_no_dev=False):
         """Initialise new BootEntry.
 
             Initialise a new ``BootEntry`` object from the specified
@@ -1124,6 +1149,10 @@ class BootEntry(object):
 
         if not self._osp:
             self.__match_os_profile()
+
+        if self.bp:
+            if not allow_no_dev:
+                check_root_device(self.bp.root_device)
 
     def _apply_format(self, fmt):
         """Apply key format string substitution.
@@ -1529,6 +1558,9 @@ __all__ = [
 
     # Root device pattern
     'DEV_PATTERN',
+
+    # Boom root device error class
+    'BoomRootDeviceError',
 
     # BootParams and BootEntry objects
     'BootParams', 'BootEntry',
