@@ -1740,6 +1740,15 @@ def main(args):
         cmd_args.root_device = root_device
         cmd_args.root_lv = root_lv
 
+    # Try parsing an LV name from root_device and rewrite root_lv if found
+    elif cmd_args.root_device:
+        try:
+            root_lv = _canonicalize_lv_name(cmd_args.root_device)
+            cmd_args.root_lv = root_lv
+        except ValueError:
+            # No valid VG name
+            pass
+
     if not cmd_type:
         print("Unknown command type: %s" % cmd_args.type)
         return 1
