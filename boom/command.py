@@ -250,6 +250,19 @@ def _str_indent(string, indent):
     return outstr.rstrip('\n')
 
 
+def _canonicalize_lv_name(lvname):
+    """Canonicalize an LVM2 logical volume name as "VG/LV", removing any
+        "/dev/" prefix and return the result as a string.
+
+        The use of "/dev/mapper/VG-LV" names is not supported.
+    """
+    dev_prefix = DEV_PATTERN % ""
+    if lvname.startswith(dev_prefix):
+        lvname = lvname[len(dev_prefix):]
+    if not '/' in lvname or lvname.count('/') != 1:
+        raise ValueError("Root logical volume name must be in VG/LV format.")
+    return lvname
+
 #
 # Command driven API: BootEntry and OsProfile management and reporting.
 #
@@ -952,7 +965,6 @@ def _create_cmd(cmd_args, select, opts, identifier):
         root_device = cmd_args.root_device
 
     lvm_root_lv = cmd_args.root_lv if cmd_args.root_lv else None
-
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
 
@@ -1711,8 +1723,22 @@ def main(args):
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
         set_boot_path(boot_path)
 
-    if not cmd_args.root_device and cmd_args.root_lv:
-        cmd_args.root_device = DEV_PATTERN % cmd_args.root_lv
+    # Parse an LV name from root_lv and re-write the root_device if found
+    if cmd_args.root_lv:
+        try:
+            root_lv = _canonicalize_lv_name(cmd_args.root_lv)
+        except ValueError as e:
+            print(e)
+            print("Invalid logical volume name: '%s'" % cmd_args.root_lv)
+            return 1
+        root_device = DEV_PATTERN % root_lv
+        print(root_lv)
+        if cmd_args.root_device and cmd_args.root_device != root_device:
+            print("Options --root-lv %s and --root-device %s do not match." %
+                  (root_lv, root_device))
+            return 1
+        cmd_args.root_device = root_device
+        cmd_args.root_lv = root_lv
 
     if not cmd_type:
         print("Unknown command type: %s" % cmd_args.type)

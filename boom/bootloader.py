@@ -353,10 +353,10 @@ class BootParams(object):
 
         if root_device:
             self.root_device = root_device
-        elif lvm_root_lv:
-            self.root_device = DEV_PATTERN % lvm_root_lv
 
         if lvm_root_lv:
+            if not root_device:
+                self.root_device = DEV_PATTERN % lvm_root_lv
             self.lvm_root_lv = lvm_root_lv
 
         if btrfs_subvol_path and btrfs_subvol_id:
