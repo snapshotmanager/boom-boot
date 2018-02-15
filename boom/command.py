@@ -1732,7 +1732,6 @@ def main(args):
             print("Invalid logical volume name: '%s'" % cmd_args.root_lv)
             return 1
         root_device = DEV_PATTERN % root_lv
-        print(root_lv)
         if cmd_args.root_device and cmd_args.root_device != root_device:
             print("Options --root-lv %s and --root-device %s do not match." %
                   (root_lv, root_device))
