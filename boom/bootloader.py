@@ -1491,6 +1491,10 @@ class BootEntry(object):
         entry_path = self._entry_path
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_entries_path())
         with fdopen(tmp_fd, "w") as f:
+            # Our original file descriptor will be closed on exit from the
+            # fdopen with statement: save a copy so that we can call fdatasync
+            # once at the end of writing rather than on each loop iteration.
+            tmp_fd = dup(tmp_fd)
             if self._osp:
                 # Insert OsIdentifier comment at top-of-file
                 f.write("#OsIdentifier: %s\n" % self._osp.os_id)
@@ -1503,8 +1507,8 @@ class BootEntry(object):
                 key_data = (_transform_key(key), getattr(self, key))
                 f.write(key_fmt % key_data)
                 f.flush()
-                fdatasync(f.fileno())
         try:
+            fdatasync(tmp_fd)
             rename(tmp_path, entry_path)
             chmod(entry_path, BOOT_ENTRY_MODE)
         except Exception as e:
