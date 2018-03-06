@@ -28,6 +28,7 @@ from boom import *
 from boom.osprofile import *
 from boom.report import *
 from boom.bootloader import *
+from boom.config import *
 
 import sys
 from os import environ, uname
@@ -1645,6 +1646,8 @@ def main(args):
                         help="The path or ID of a BTRFS subvolume")
     parser.add_argument("--btrfs-opts", "--btrfsopts", metavar="OPTS", type=str,
                         help="A template option string for BTRFS devices")
+    parser.add_argument("-c", "--config", metavar="FILE", type=str,
+                        help="Path to a boom configuration file", default=None)
     parser.add_argument("--debug", metavar="DEBUGOPTS", type=str,
                         help="A list of debug options to enable")
     parser.add_argument("-e", "--efi", metavar="IMG", type=str,
@@ -1722,6 +1725,12 @@ def main(args):
     if cmd_args.boot_dir or BOOM_BOOT_PATH_ENV in environ:
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
         set_boot_path(boot_path)
+        set_boom_config_path("boom.conf")
+
+    if cmd_args.config:
+        set_boom_config_path(cmd_args.config)
+
+    load_boom_config(path=cmd_args.config)
 
     # Parse an LV name from root_lv and re-write the root_device if found
     if cmd_args.root_lv:
