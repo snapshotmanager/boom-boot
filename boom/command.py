@@ -28,6 +28,7 @@ from boom import *
 from boom.osprofile import *
 from boom.report import *
 from boom.bootloader import *
+from boom.legacy import *
 from boom.config import *
 
 import sys
@@ -907,6 +908,20 @@ def print_profiles(selection=None, opts=None, output_fields=None,
 
     return br.report_output()
 
+
+def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
+    """Print boot entries in legacy boot loader formats.
+
+        :param selection: A Selection object giving selection criteria
+                          for the operation
+        :param fmt: The name of a legacy boot loader format
+    """
+    (name, decorator, path)  = find_legacy_loader(loader, None)
+    bes = find_entries(selection=selection)
+    for be in bes:
+        gbe = Grub1BootEntry(entry_data=be._entry_data)
+        print(gbe)
+
 #
 # boom command line tool
 #
@@ -1475,7 +1490,40 @@ def _edit_profile_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-pass
+def _write_legacy_cmd(cmd_args, select, opts, identifier):
+    if identifier:
+        print("write legacy does not accept a boot_id")
+        return 1
+    config = get_boom_config()
+    try:
+        clear_legacy_loader()
+        write_legacy_loader(selection=select, loader=config.legacy_format)
+    except Exception as e:
+        print(e)
+        return 1
+
+
+def _clear_legacy_cmd(cmd_args, select, opts, identifier):
+    """Remove all boom entries from the legacy bootloader configuration.
+
+        :param cmd_args: Command line arguments for the command
+        :returns: integer status code returned from ``main()``
+    """
+    if identifier:
+        print("write legacy does not accept a boot_id")
+        return 1
+
+    try:
+        clear_legacy_loader()
+    except BoomLegacyFormatError as e:
+        print(e)
+        return 1
+
+
+def _show_legacy_cmd(cmd_args, select, opts, identifier):
+    # FIXME: args
+    config = get_boom_config()
+    show_legacy(selection=select, loader=config.legacy_format)
 
 
 boom_usage = """%(prog}s [type] <command> [options]\n\n"
@@ -1488,17 +1536,23 @@ boom_usage = """%(prog}s [type] <command> [options]\n\n"
                 profile delete [...]
                 profile list [...]
                 profile edit [...]
+                legacy write [...]
+                legacy delete [...]
              """
 
 CREATE_CMD = "create"
 DELETE_CMD = "delete"
 CLONE_CMD = "clone"
+CLEAR_CMD = "clear"
 SHOW_CMD = "show"
 LIST_CMD = "list"
 EDIT_CMD = "edit"
 
+WRITE_CMD = "write"
+
 ENTRY_TYPE = "entry"
 PROFILE_TYPE = "profile"
+LEGACY_TYPE = "legacy"
 
 _boom_entry_commands = [
     (CREATE_CMD, _create_cmd),
@@ -1518,9 +1572,16 @@ _boom_profile_commands = [
     (EDIT_CMD, _edit_profile_cmd)
 ]
 
+_boom_legacy_commands = [
+    (WRITE_CMD, _write_legacy_cmd),
+    (CLEAR_CMD, _clear_legacy_cmd),
+    (SHOW_CMD, _show_legacy_cmd)
+]
+
 _boom_command_types = [
     (ENTRY_TYPE, _boom_entry_commands),
-    (PROFILE_TYPE, _boom_profile_commands)
+    (PROFILE_TYPE, _boom_profile_commands),
+    (LEGACY_TYPE, _boom_legacy_commands)
 ]
 
 
