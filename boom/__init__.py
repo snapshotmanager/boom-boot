@@ -37,14 +37,12 @@ __version__ = "0.8"
 
 #: The location of the system ``/boot`` directory.
 DEFAULT_BOOT_PATH = "/boot"
-__boot_root = DEFAULT_BOOT_PATH
 
 #: The default path for Boom configuration files.
-_DEFAULT_BOOM_DIR = "boom"
+DEFAULT_BOOM_DIR = "boom"
 
 #: The root directory for Boom configuration files.
-DEFAULT_BOOM_PATH = path_join(DEFAULT_BOOT_PATH, _DEFAULT_BOOM_DIR)
-__boom_root = DEFAULT_BOOM_PATH
+DEFAULT_BOOM_PATH = path_join(DEFAULT_BOOT_PATH, DEFAULT_BOOM_DIR)
 
 #: Kernel version string, in ``uname -r`` format.
 FMT_VERSION = "version"
@@ -185,13 +183,102 @@ def set_debug_mask(mask):
     __debug_mask = mask
 
 
+class BoomConfig(object):
+    """Class representing boom persistent configuration values.
+    """
+
+    # Initialise members from global defaults
+
+    boot_path = DEFAULT_BOOT_PATH
+    boom_path = DEFAULT_BOOM_PATH
+
+    legacy_enable = False
+    legacy_format = "grub1"
+    legacy_sync = "always"
+
+    def __str__(self):
+        """Return a string representation of this ``BoomConfig`` in
+            boom.conf (INI) notation.
+        """
+        cstr = ""
+        cstr += '[defaults]\n'
+        cstr += 'boot_path = "%s"\n' % self.boot_path
+        cstr += 'boom_path = "%s"\n\n' % self.boom_path
+
+        cstr += '[legacy]\n'
+        cstr += 'enable = "%s"\n' % self.legacy_enable
+        cstr += 'format = "%s"\n' % self.legacy_format
+        cstr += 'sync = "%s"' % self.legacy_sync
+
+        return cstr
+
+    def __repr__(self):
+        """Return a string representation of this ``BoomConfig`` in
+            BoomConfig initialiser notation.
+        """
+        cstr = ('BoomConfig(boot_path="%s",boom_path="%s",' %
+                (self.boot_path, self.boom_path))
+        cstr += ('enable_legacy="%s",legacy_format="%s",' %
+                 (self.legacy_enable, self.legacy_format))
+        cstr += 'legacy_sync="%s")' % self.legacy_sync
+        return cstr
+
+    def __init__(self, boot_path=None, boom_path=None, legacy_enable=None,
+                 legacy_format=None, legacy_sync=None):
+        """Initialise a new ``BoomConfig`` object with the supplied
+            configuration values, or defaults for any unset arguments.
+
+            :param boot_path: the path to the system /boot volume
+            :param boom_path: the path to the boom configuration dir
+            :param legacy_enable: enable legacy bootloader support
+            :param legacy_format: the legacy bootlodaer format to write
+            :param legacy_sync: the legacy sync mode
+        """
+        self.boot_path = boot_path or self.boot_path
+        self.boom_path = boom_path or self.boom_path
+        self.legacy_enable = legacy_enable or self.legacy_enable
+        self.legacy_format = legacy_format or self.legacy_format
+        self.legacy_sync = legacy_sync or self.legacy_sync
+
+
+__config = BoomConfig()
+
+def set_boom_config(config):
+    """Set the active configuration to the object ``config`` (which may
+        be any class that includes the ``BoomConfig`` attributes).
+
+        :param config: a configuration object
+        :returns: None
+        :raises: TypeError if ``config`` does not appear to have the
+                 correct attributes.
+    """
+    global __config
+
+    def has_value(obj, attr):
+        return hasattr(obj, attr) and getattr(obj, attr) is not None
+
+    if not has_value(config, "boot_path") or not has_value(config, "boom_path"):
+        raise TypeError("config does not appear to be a BoomConfig object.")
+
+    __config = config
+
+
+def get_boom_config():
+    """Return the active ``BoomConfig`` object.
+
+        :returntype: BoomConfig
+        :returns: the active configuration object
+    """
+    return __config
+
+
 def get_boot_path():
     """Return the currently configured boot file system path.
 
         :returns: the path to the /boot file system.
         :returntype: str
     """
-    return __boot_root
+    return __config.boot_path
 
 def get_boom_path():
     """Return the currently configured boom configuration path.
@@ -199,7 +286,7 @@ def get_boom_path():
         :returns: the path to the BOOT/boom directory.
         :returntype: str
     """
-    return __boom_root
+    return __config.boom_path
 
 def set_boot_path(boot_path):
     """Sets the location of the boot file system to ``boot_path``.
@@ -216,53 +303,51 @@ def set_boot_path(boot_path):
 
         :param boot_path: the path to the 'boom/' directory containing
                           boom profiles and configuration.
-        :returns: ``None``
+        :returnsNone: ``None``
         :raises: ValueError if ``boot_path`` does not exist.
     """
-    global __boot_root, __boom_root
+    global __config
     if not isabs(boot_path):
         raise ValueError("boot_path must be an absolute path: %s" % boot_path)
 
     if not path_exists(boot_path):
         raise ValueError("Path '%s' does not exist" % boot_path)
 
-    __boot_root = boot_path
-    _log_debug("Set boot path to: %s" % __boot_root)
-    __boom_root = path_join(boot_path, _DEFAULT_BOOM_DIR)
-    _log_debug("Set boom path to: %s" % __boom_root)
+    __config.boot_path = boot_path
+    _log_debug("Set boot path to: %s" % boot_path)
+    __config.boom_path = path_join(boot_path, DEFAULT_BOOM_DIR)
+    _log_debug("Set boom path to: %s" % __config.boom_path)
 
 
-def set_boom_path(root_path):
+def set_boom_path(boom_path):
     """Set the location of the boom configuration directory.
 
         Set the location of the boom configuration path stored in
-        ``__boom_root`` to ``root_path``. ``__boom_root`` defaults to the
+        the active configuration to ``boom_path``. This defaults to the
         'boom/' sub-directory in the boot file system specified by
-        ``__boot_root``: this may be overridden by calling this function
-        with a different path.
+        ``config.boot_path``: this may be overridden by calling this
+        function with a different path.
 
-        Paths must be set before importing any other boom API module:
-        changes are not automatically propagated to sub-modules.
-
-        :param root_path: the path to the 'boom/' directory containing
+        :param boom_path: the path to the 'boom/' directory containing
                           boom profiles and configuration.
         :returns: ``None``
-        :raises: ValueError if ``root_path`` does not exist.
+        :raises: ValueError if ``boom_path`` does not exist.
     """
-    global __boot_root, __boom_root
-    if isabs(root_path) and not path_exists(root_path):
-        raise ValueError("Root path %s does not exist" % root_path)
-    elif not path_exists(path_join(__boot_root, root_path)):
-        raise ValueError("Root path %s does not exist" % root_path)
+    global __config
+    if isabs(boom_path) and not path_exists(boom_path):
+        raise ValueError("Boom path %s does not exist" % boom_path)
+    elif not path_exists(path_join(__config.boot_path, boom_path)):
+        raise ValueError("Boom path %s does not exist" % boom_path)
 
-    if not isabs(root_path):
-        root_path = path_join(__boot_root, root_path)
+    if not isabs(boom_path):
+        boom_path = path_join(__config.boot_bath, boom_path)
 
-    if not path_exists(path_join(root_path, "profiles")):
-        raise ValueError("Root path is not a boom configuration path.")
+    if not path_exists(path_join(boom_path, "profiles")):
+        raise ValueError("Path does not contain a valid boom configuration"
+                         ": %s" % path_join(boom_path, "profiles"))
 
-    _log_debug("Set boom path to: %s" % _DEFAULT_BOOM_DIR)
-    __boom_root = root_path
+    _log_debug("Set boom path to: %s" % DEFAULT_BOOM_DIR)
+    __config.boom_path = boom_path
 
 
 def _parse_btrfs_subvol(subvol):
@@ -648,6 +733,9 @@ __all__ = [
     # boom module constants
     'DEFAULT_BOOT_PATH', 'DEFAULT_BOOM_PATH',
 
+    # Configuration class
+    'BoomConfig',
+
     # Profile format keys
     'FMT_VERSION',
     'FMT_LVM_ROOT_LV',
@@ -670,6 +758,10 @@ __all__ = [
     'get_boom_path',
     'set_boot_path',
     'set_boom_path',
+
+    # Persistent configuration
+    'set_boom_config',
+    'get_boom_config',
 
     # boom exception base class
     'BoomError',
