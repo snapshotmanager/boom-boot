@@ -265,6 +265,16 @@ def _canonicalize_lv_name(lvname):
         raise ValueError("Root logical volume name must be in VG/LV format.")
     return lvname
 
+
+def __sync_legacy():
+    """Synchronise boom boot entries with the configured legacy
+        bootloader format.
+    """
+    config = get_boom_config()
+    if config.legacy_sync:
+        write_legacy_loader(selection=Selection(), loader=config.legacy_format)
+
+
 #
 # Command driven API: BootEntry and OsProfile management and reporting.
 #
@@ -327,6 +337,8 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
     if write:
         be.write_entry()
 
+    __sync_legacy()
+
     return be
 
 
@@ -358,6 +370,8 @@ def delete_entries(selection=None):
     for be in bes:
         be.delete_entry()
         deleted += 1
+
+    __sync_legacy()
 
     return deleted
 
@@ -431,6 +445,8 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
     if write:
         clone_be.write_entry()
 
+    __sync_legacy()
+
     return clone_be
 
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
@@ -492,6 +508,9 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
     if write:
         be.write_entry()
+
+    __sync_legacy()
+
     return be
 
 
@@ -593,6 +612,7 @@ def _os_profile_from_file(os_release, uname_pattern,
 
     osp.write_profile()
     return osp
+
 
 def create_profile(name, short_name, version, version_id,
                    uname_pattern=None, kernel_pattern=None,
@@ -927,11 +947,17 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
 #
 
 def _apply_profile_overrides(boot_entry, cmd_args):
+    modified = False
     if cmd_args.linux:
         boot_entry.linux = cmd_args.linux
+        modified = True
 
     if cmd_args.initrd:
         boot_entry.initrd = cmd_args.initrd
+        modified = True
+
+    return modified
+
 
 def _create_cmd(cmd_args, select, opts, identifier):
     """Create entry command handler.
@@ -1023,7 +1049,8 @@ def _create_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
-    _apply_profile_overrides(be, cmd_args)
+    if _apply_profile_overrides(be, cmd_args):
+        __sync_legacy()
 
     try:
         be.write_entry()
@@ -1067,6 +1094,7 @@ def _delete_cmd(cmd_args, select, opts, identifier):
     except (ValueError, IndexError) as e:
         print(e)
         return 1
+
     print("Deleted %d entr%s" % (nr, "ies" if nr > 1 else "y"))
 
 
@@ -1119,7 +1147,8 @@ def _clone_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
-    _apply_profile_overrides(be, cmd_args)
+    if _apply_profile_overrides(be, cmd_args):
+        __sync_legacy()
 
     try:
         be.write_entry()
@@ -1221,7 +1250,8 @@ def _edit_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
-    _apply_profile_overrides(be, cmd_args)
+    if _apply_profile_overrides(be, cmd_args):
+        __sync_legacy()
 
     try:
         be.write_entry()

@@ -28,36 +28,39 @@ log = logging.getLogger()
 log.level = logging.DEBUG
 log.addHandler(logging.FileHandler("test.log"))
 
-import boom
-BOOT_ROOT_TEST = abspath("./tests")
-boom.set_boot_path(BOOT_ROOT_TEST)
-
-from boom import Selection
+from boom import *
 from boom.osprofile import *
 from boom.bootloader import *
 from boom.command import *
 from boom.report import *
+
+BOOT_ROOT_TEST = abspath("./tests")
+config = BoomConfig()
+config.legacy_enable = False
+config.legacy_sync = False
+set_boom_config(config)
+set_boot_path(BOOT_ROOT_TEST)
 
 
 class CommandTests(unittest.TestCase):
     def test_list_entries(self):
         path = boom_entries_path()
         nr = len([p for p in listdir(path) if p.endswith(".conf")])
-        bes = boom.command.list_entries()
+        bes = list_entries()
         self.assertTrue(len(bes), nr)
 
     def test_list_entries_match_machine_id(self):
         machine_id = "611f38fd887d41dea7eb3403b2730a76"
         path = boom_entries_path()
         nr = len([p for p in listdir(path) if p.startswith(machine_id)])
-        bes = boom.command.list_entries(Selection(machine_id=machine_id))
+        bes = list_entries(Selection(machine_id=machine_id))
         self.assertTrue(len(bes), nr)
 
     def test_list_entries_match_version(self):
         version = "4.10.17-100.fc24.x86_64"
         path = boom_entries_path()
         nr = len([p for p in listdir(path) if version in p])
-        bes = boom.command.list_entries(Selection(version=version))
+        bes = list_entries(Selection(version=version))
         self.assertEqual(len(bes), nr)
 
     def test_create_entry_notitle(self):
@@ -127,7 +130,7 @@ class CommandTests(unittest.TestCase):
     def test_print_entries_no_matching(self):
         xoutput = r"BootID.*Version.*Name.*RootDevice"
         output = StringIO()
-        opts = boom.report.BoomReportOpts(report_file=output)
+        opts = BoomReportOpts(report_file=output)
         print_entries(selection=Selection(boot_id="thereisnoboot"), opts=opts)
         self.assertTrue(re.match(xoutput, output.getvalue()))
 
@@ -139,7 +142,7 @@ class CommandTests(unittest.TestCase):
                    r"debfd7f.*4.11.12-100.fc24.x86_64.*Fedora.*"
                    r"/dev/vg00/lvol0-snapshot"]
         output = StringIO()
-        opts = boom.report.BoomReportOpts(report_file=output)
+        opts = BoomReportOpts(report_file=output)
         print_entries(selection=Selection(boot_id="debfd7f"), opts=opts)
         print(output.getvalue())
         for pair in zip(xoutput, output.getvalue().splitlines()):
@@ -149,6 +152,6 @@ class CommandTests(unittest.TestCase):
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
 #        args = [abspath('bin/boom'), '--help']
-#        boom.command.main(args)
+#        main(args)
 
 # vim: set et ts=4 sw=4 :
