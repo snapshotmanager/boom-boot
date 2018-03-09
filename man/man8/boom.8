@@ -292,7 +292,82 @@ Boom \(em linux boot manager
 .  ad b
 ..
 .CMD_PROFILE_SHOW
-
+.
+.HP
+.B boom
+.de CMD_LEGACY_WRITE
+.  ad l
+.  BR legacy
+.  BR \fBwrite
+.  IR [ boot_id ]
+.  RB [ --boot-id
+.  IR boot_id ]
+.  RB [ --profile
+.  IR os_id ]
+.  RB [ --version
+.  IR version ]
+.  RB [ --name
+.  IR osname ]
+.  RB [ --short-name
+.  IR osshortname ]
+.  RB [ --os-version
+.  IR version ]
+.  RB [ --root-device
+.  IR device ]
+.  RB [ --root-lv
+.  IR lv ]
+.  RB [ --linux
+.  IR kernel_path ]
+.  RB [ --initrd
+.  IR initrd_path ]
+.  RB [ --btrfs-subvol
+.  IR subvol ]
+.  ad b
+..
+.CMD_LEGACY_WRITE
+.
+.HP
+.B boom
+.de CMD_LEGACY_CLEAR
+.  ad l
+.  BR legacy
+.  BR \fBclear
+.  ad b
+..
+.CMD_LEGACY_CLEAR
+.
+.HP
+.B boom
+.de CMD_LEGACY_SHOW
+.  ad l
+.  BR legacy
+.  BR \fBshow
+.  IR [ boot_id ]
+.  RB [ --boot-id
+.  IR boot_id ]
+.  RB [ --profile
+.  IR os_id ]
+.  RB [ --version
+.  IR version ]
+.  RB [ --name
+.  IR osname ]
+.  RB [ --short-name
+.  IR osshortname ]
+.  RB [ --os-version
+.  IR version ]
+.  RB [ --root-device
+.  IR device ]
+.  RB [ --root-lv
+.  IR lv ]
+.  RB [ --linux
+.  IR kernel_path ]
+.  RB [ --initrd
+.  IR initrd_path ]
+.  RB [ --btrfs-subvol
+.  IR subvol ]
+.  ad b
+..
+.CMD_LEGACY_SHOW
 .
 .PD
 .ad b
@@ -302,10 +377,14 @@ Boom \(em linux boot manager
 Boom is a \fIboot manager\fP for Linux systems using boot loaders that
 support the \fBBootLoader Specification\fP for boot entry configuration.
 
-Boom requires a BLS compatible boot loader to function: either the
+Boom works best with a BLS compatible boot loader: either the
 \fIsystemd-boot\fP project, or \fIGrub2\fP with the `bls` patch. The
 \fIgrub2\fP boot loader included in \fBFedora\fP and \fBRed Hat
 Enterprise Linux\fP include this support.
+
+Boom also supports writing configuration in legacy boot loader format:
+currently the syntax used by the \fBGrub1\fP configuration file is
+supported.
 
 All long options supported by boom may be written with or without
 dashes separating words. For example, \fB--boot-id\fP and \fB--bootid\fP
@@ -747,6 +826,43 @@ Display OS profiles matching selection criteria on standard out.
 
 OS profiles matching the criteria given on the command line are
 printed to the terminal in a compact multi-line format.
+.
+.SH LEGACY BOOTLOADER FORMATS
+Boom is able to write the current set of boot entries into the
+configuration file of a legacy boot loader installed on the
+system. This may be used either on platforms that do not have
+a native bootloader supporting the Boot Loader Specification,
+or to allow upgrades and recovery from an installation lacking
+BLS support (if the system is updated to a distribution that
+does support the BLS boot loader configuration it will be used
+automatically when present).
+
+Legacy support is enabled and configured via the \fBboom.conf(5)\fP
+configuration file.
+.
+.HP
+.B boom
+.CMD_LEGACY_WRITE
+.br
+Write out the current set of Boom boot entries in the configured
+legacy configuration file. The normal command line selection
+options may be used to control the set of entries written to the
+file.
+.
+.HP
+.B boom
+.CMD_LEGACY_CLEAR
+.br
+Remove all Boom boot entries from the configured legacy
+configuration file.
+.
+.HP
+.B boom
+.CMD_LEGACY_SHOW
+Display the selected boot entries as they would appear in the
+configured legacy boot loader format. The normal command line
+selection options may be used to control the set of entries
+written to the terminal.
 .
 .SH REPORT FIELDS
 .

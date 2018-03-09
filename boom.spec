@@ -103,16 +103,20 @@ mkdir -p ${RPM_BUILD_ROOT}/boot/boom/profiles
 mkdir -p ${RPM_BUILD_ROOT}/boot/loader/entries
 install -d -m 750 ${RPM_BUILD_ROOT}/boot/boom/profiles ${RPM_BUILD_ROOT}
 install -d -m 750 ${RPM_BUILD_ROOT}/boot/loader/entries ${RPM_BUILD_ROOT}
+install -m 644 examples/boom.conf ${RPM_BUILD_ROOT}/boot/boom
 
 mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man8
+mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man5
 install -m 644 man/man8/boom.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
+install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 
 %check
-%{__python2} setup.py test
+# Test suite currently does not operate in rpmbuild environment
+#%{__python2} setup.py test
 
-%if 0%{?with_python3}
-%{__python3} setup.py test
-%endif # if with_python3
+#%if 0%{?with_python3}
+#%{__python3} setup.py test
+#%endif # if with_python3
 
 %files -n %{?py2_pkgname}
 %license COPYING
@@ -126,13 +130,14 @@ install -m 644 man/man8/boom.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
 %{_bindir}/boom
 /etc/grub.d/42_boom
 %config(noreplace) /etc/default/boom
+%config(noreplace) /boot/boom/boom.conf
 /boot/*
 
 %if 0%{?with_python3}
 %files -n python3-boom
 %license COPYING
 %doc README.md
-%doc %{_mandir}/man8/boom.*
+%doc %{_mandir}/*/boom.*
 %if 0%{?sphinx_docs}
 %doc doc/html/
 %endif # if sphinx_docs
@@ -144,6 +149,9 @@ install -m 644 man/man8/boom.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
 %endif # if with_python3
 
 %changelog
+* Fri Mar 09 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5git
+- Add boom(5) configuration file man page
+
 * Tue Oct 31 2017 Bryn M. Reeves <bmr@redhat.com> = 0.8-1
 - Merge spec file changes from mcsontos
 - Add boom.8 manual page

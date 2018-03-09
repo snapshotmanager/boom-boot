@@ -1,0 +1,52 @@
+.TH BOOM 5 "Mar 09 2018" "Linux" "FILE FORMATS MANUAL"
+
+.
+.SH NAME
+.
+boom.conf \(em boom configuration file
+.
+.SH SYNOPSIS
+\fB/boot/boom/boom.conf\fP
+.
+.SH DESCRIPTION
+\fBboom.conf\fP is loaded during the initialisation of boom and contains
+configuration keys affecting boom's global behaviour and the setting of
+boom's legacy configuration support.
+
+The file is structured in \fBINI\fP format: section headers appear in
+square brackets and configuration values appear as key-value pairs with
+one pair per line.
+.
+.SH SECTIONS
+.TP
+.B global
+The global section contains the \fBboot_path\fP and \fBboom_path\fP
+keys that may be used to override the location of the \fB/boot\fP
+mount point and \fB/boot/boom\fP configuration directory respectively.
+.TP
+.B legacy
+The legacy section contains settings to enable and configure support
+for non-BLS boot loader configuration formats.
+
+To enable legacy boot loader support set the \fBenable\fP key to
+\fByes\fP or \fBtrue\fP and set the \fBformat\fP key to the required
+format (currently only \fbgrub\fP syntax is supported).
+
+If the value of the \fBsync\fP key is true the legacy configuration
+will be automatically written whenever entries are added, removed, or
+modified.
+.
+.SH AUTHORS
+.
+Bryn M. Reeves <bmr@redhat.com>
+.
+.SH SEE ALSO
+.
+Boom project page: https://github.com/bmr-cymru/boom
+.br
+Boot to snapshot documentation: https://github.com/bmr-cymru/snapshot-boot-docs
+.br
+LVM2 resource page: https://www.sourceware.org/lvm2/
+.br
+Device-mapper resource page: http://sources.redhat.com/dm/
+.br
