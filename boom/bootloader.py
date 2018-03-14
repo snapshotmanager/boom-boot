@@ -42,7 +42,7 @@ from boom.osprofile import *
 
 from os.path import basename, exists as path_exists, join as path_join
 from tempfile import mkstemp
-from os import listdir, rename, fdopen, chmod, unlink, fdatasync, stat
+from os import listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
 from stat import S_ISBLK
 from hashlib import sha1
 import logging
