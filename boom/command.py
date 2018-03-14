@@ -1050,6 +1050,8 @@ def _create_cmd(cmd_args, select, opts, identifier):
         be.write_entry()
         __write_legacy()
     except Exception as e:
+        if cmd_args.debug:
+            raise
         print(e)
         return 1
 
@@ -1149,6 +1151,8 @@ def _clone_cmd(cmd_args, select, opts, identifier):
         be.write_entry()
         __write_legacy()
     except Exception as e:
+        if cmd_args.debug:
+            raise
         print(e)
         return 1
 
@@ -1253,6 +1257,8 @@ def _edit_cmd(cmd_args, select, opts, identifier):
         be.write_entry()
         __write_legacy()
     except Exception as e:
+        if cmd_args.debug:
+            raise
         print(e)
         return 1
 
