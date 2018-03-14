@@ -1,3 +1,8 @@
+%{!?__python2: %global __python2 /usr/bin/python2}
+%{!?py2_build: %global py2_build %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} build --executable="%{__python2} -s"}}
+%{!?py2_install: %global py2_install %{expand: CFLAGS="%{optflags}" %{__python2} setup.py %{?py_setup_args} install -O1 --skip-build --root %{buildroot}}}
+%{!?python2_sitelib: %global python2_sitelib %{python_sitelib}}
+
 %if 0%{?rhel}
 %global py2_pkgname python-boom
 %else
@@ -123,9 +128,11 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 #%endif # if with_python3
 
 %files -n %{?py2_pkgname}
+%{!?_licensedir:%global license %%doc}
 %license COPYING
 %doc README.md
 %doc %{_mandir}/man8/boom.*
+%doc %{_mandir}/man5/boom.*
 %if 0%{?sphinx_docs}
 %doc doc/html/
 %endif # if sphinx_docs
@@ -153,7 +160,7 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 %endif # if with_python3
 
 %changelog
-* Fri Mar 09 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5git
+* Fri Mar 09 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5
 - Add boom(5) configuration file man page
 
 * Tue Oct 31 2017 Bryn M. Reeves <bmr@redhat.com> = 0.8-1
