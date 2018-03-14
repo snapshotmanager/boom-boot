@@ -106,8 +106,20 @@ KEY_MAP = {
     BOOT_DEVICETREE: "devicetree"
 }
 
+
+def __make_map_key(key_map):
+    """Compatibility function to generate a reverse dictionary on
+        Python 2.6 which does not support dictionary comprehension
+        notation.
+    """
+    map_key = {}
+    for k, v in key_map.items():
+	map_key[v] = k
+    return map_key
+
+
 #: Map BLS entry keys to Boom names
-MAP_KEY = {v: k for k, v in KEY_MAP.items()}
+MAP_KEY = __make_map_key(KEY_MAP)
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
