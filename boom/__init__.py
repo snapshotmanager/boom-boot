@@ -194,7 +194,7 @@ class BoomConfig(object):
 
     legacy_enable = False
     legacy_format = "grub1"
-    legacy_sync = "always"
+    legacy_sync = True
 
     def __str__(self):
         """Return a string representation of this ``BoomConfig`` in

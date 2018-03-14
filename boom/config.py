@@ -140,8 +140,9 @@ def read_boom_config(path=None):
                                        _CFG_LEGACY_FMT)
 
         if cfg.has_option(_CFG_SECT_LEGACY, _CFG_LEGACY_SYNC):
-            bc.legacy_sync = cfg.get(_CFG_SECT_LEGACY,
-                                     _CFG_LEGACY_SYNC)
+            _log_debug("Found legacy.sync")
+            sync = cfg.get(_CFG_SECT_LEGACY, _CFG_LEGACY_SYNC)
+            bc.legacy_sync = any([t for t in trues if t in sync])
 
     _log_debug("read configuration: %s" % repr(bc))
     bc._cfg = cfg
