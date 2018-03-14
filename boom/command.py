@@ -271,7 +271,7 @@ def __sync_legacy():
         bootloader format.
     """
     config = get_boom_config()
-    if config.legacy_sync:
+    if config.legacy_enable and config.legacy_sync:
         write_legacy_loader(selection=Selection(), loader=config.legacy_format)
 
 
