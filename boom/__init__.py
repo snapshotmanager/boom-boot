@@ -78,6 +78,7 @@ FORMAT_KEYS = [
 ]
 
 _MACHINE_ID = "/etc/machine-id"
+_DBUS_MACHINE_ID = "/var/lib/dbus/machine-id"
 
 BOOM_LOG_DEBUG = logging.DEBUG
 BOOM_LOG_INFO = logging.INFO
@@ -719,7 +720,14 @@ def _get_machine_id():
         :returns: The ``machine_id`` as a string
         :returntype: str
     """
-    with open(_MACHINE_ID, "r") as f:
+    if path_exists(_MACHINE_ID):
+        path = _MACHINE_ID
+    elif path_exists(_DBUS_MACHINE_ID):
+        path = _DBUS_MACHINE_ID
+    else:
+        return None
+
+    with open(path, "r") as f:
         try:
             machine_id = f.read().strip()
         except Exception as e:
