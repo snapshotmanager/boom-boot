@@ -158,7 +158,7 @@ class BoomLogger(logging.Logger):
             :returntype: None
         """
         if self.mask_bits & get_debug_mask():
-            super(BoomLogger, self).debug(msg, *args, **kwargs)
+            self.debug(msg, *args, **kwargs)
 
 logging.setLoggerClass(BoomLogger)
 
