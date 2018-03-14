@@ -20,13 +20,17 @@ Source0: boom-%{version}.tar.gz
 BuildArch: noarch
 
 BuildRequires: python2-devel
+%if 0%{?rhel}
+BuildRequires: python-sphinx
+%else
+BuildRequires: python2-sphinx
+%endif
 %if 0%{!?with_python3:1}
 BuildRequires: python-setuptools
 %endif
 
 %if 0%{?with_python3}
 BuildRequires: python2-setuptools
-#BuildRequires: python2-sphinx
 BuildRequires: python3-devel
 BuildRequires: python3-sphinx
 BuildRequires: python3-setuptools
