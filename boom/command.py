@@ -266,7 +266,7 @@ def _canonicalize_lv_name(lvname):
     return lvname
 
 
-def __sync_legacy():
+def __write_legacy():
     """Synchronise boom boot entries with the configured legacy
         bootloader format.
     """
@@ -336,8 +336,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
 
     if write:
         be.write_entry()
-
-    __sync_legacy()
+        __write_legacy()
 
     return be
 
@@ -371,7 +370,7 @@ def delete_entries(selection=None):
         be.delete_entry()
         deleted += 1
 
-    __sync_legacy()
+    __write_legacy()
 
     return deleted
 
@@ -444,8 +443,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 
     if write:
         clone_be.write_entry()
-
-    __sync_legacy()
+        __write_legacy()
 
     return clone_be
 
@@ -506,10 +504,10 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
     be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
     be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
+
     if write:
         be.write_entry()
-
-    __sync_legacy()
+        __write_legacy()
 
     return be
 
@@ -947,7 +945,6 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
 #
 
 def _apply_profile_overrides(boot_entry, cmd_args):
-    modified = False
     if cmd_args.linux:
         boot_entry.linux = cmd_args.linux
         modified = True
@@ -955,8 +952,6 @@ def _apply_profile_overrides(boot_entry, cmd_args):
     if cmd_args.initrd:
         boot_entry.initrd = cmd_args.initrd
         modified = True
-
-    return modified
 
 
 def _create_cmd(cmd_args, select, opts, identifier):
@@ -1049,12 +1044,13 @@ def _create_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
-    if _apply_profile_overrides(be, cmd_args):
-        __sync_legacy()
+    _apply_profile_overrides(be, cmd_args)
 
     try:
         be.write_entry()
+        __write_legacy()
     except Exception as e:
+        print(e)
         return 1
 
     print("Created entry with boot_id %s:" % be.disp_boot_id)
@@ -1147,12 +1143,13 @@ def _clone_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
-    if _apply_profile_overrides(be, cmd_args):
-        __sync_legacy()
+    _apply_profile_overrides(be, cmd_args)
 
     try:
         be.write_entry()
-    except:
+        __write_legacy()
+    except Exception as e:
+        print(e)
         return 1
 
     print("Cloned entry with boot_id %s as boot_id %s:" %
@@ -1250,12 +1247,13 @@ def _edit_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
-    if _apply_profile_overrides(be, cmd_args):
-        __sync_legacy()
+    _apply_profile_overrides(be, cmd_args)
 
     try:
         be.write_entry()
-    except:
+        __write_legacy()
+    except Exception as e:
+        print(e)
         return 1
 
     print("Edited entry, boot_id now: %s" % be.disp_boot_id)
