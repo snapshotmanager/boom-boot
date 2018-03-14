@@ -131,8 +131,7 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 %{!?_licensedir:%global license %%doc}
 %license COPYING
 %doc README.md
-%doc %{_mandir}/man8/boom.*
-%doc %{_mandir}/man5/boom.*
+%doc %{_mandir}/man*/boom.*
 %if 0%{?sphinx_docs}
 %doc doc/html/
 %endif # if sphinx_docs
@@ -148,7 +147,7 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 %files -n python3-boom
 %license COPYING
 %doc README.md
-%doc %{_mandir}/*/boom.*
+%doc %{_mandir}/man*/boom.*
 %if 0%{?sphinx_docs}
 %doc doc/html/
 %endif # if sphinx_docs
