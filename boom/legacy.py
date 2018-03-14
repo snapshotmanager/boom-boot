@@ -79,6 +79,8 @@ def _get_grub1_device(force=False):
     except OSError:
         raise BoomLegacyLoaderError("Could not execute grub1 shell.")
 
+    out = out[0]
+
     for line in out:
         if re.match(find_rgx, line):
             __grub1_device = line.lstrip().rstrip()
