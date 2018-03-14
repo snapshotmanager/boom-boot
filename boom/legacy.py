@@ -172,7 +172,7 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
         tmp_f.write(begin_tag + "\n")
         bes = find_entries(selection=selection)
         for be in bes:
-            dbe = decorator(entry_data=be._entry_data)
+            dbe = decorator(be)
             tmp_f.write(str(dbe) + "\n")
         tmp_f.write(end_tag + "\n")
 
@@ -315,7 +315,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         raise e
 
 
-class Grub1BootEntry(BootEntry):
+class Grub1BootEntry(object):
     """Class transforming a Boom ``BootEntry`` into legacy Grub1
         boot entry notation.
 
@@ -332,13 +332,18 @@ class Grub1BootEntry(BootEntry):
         equivalent in BLS notation).
     """
 
+    be = None
+
+    def __init__(self, boot_entry):
+        self.be = boot_entry
+
     def __str__(self):
         grub1_tab = " " * 8
         grub1_fmt = ("title %s\n" + grub1_tab + "root %s\n" + grub1_tab +
                      "kernel %s %s\n" + grub1_tab + "initrd %s")
 
-        return grub1_fmt % (self.title, _get_grub1_device(),
-                            self.linux, self.options, self.initrd)
+        return grub1_fmt % (self.be.title, _get_grub1_device(),
+                            self.be.linux, self.be.options, self.be.initrd)
 
 #: Map of legacy boot loader decorator classes and defaults.
 #: Each entry in _loader_map is a three tuple containing the
