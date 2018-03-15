@@ -14,7 +14,7 @@
 
 Name: boom
 Version: 0.8
-Release: 1%{?dist}
+Release: 5.1%{?dist}
 Summary: %{summary}
 
 Group: Applications/System
@@ -112,6 +112,7 @@ mkdir -p ${RPM_BUILD_ROOT}/boot/boom/profiles
 mkdir -p ${RPM_BUILD_ROOT}/boot/loader/entries
 install -d -m 750 ${RPM_BUILD_ROOT}/boot/boom/profiles ${RPM_BUILD_ROOT}
 install -d -m 750 ${RPM_BUILD_ROOT}/boot/loader/entries ${RPM_BUILD_ROOT}
+install -m 644 examples/profiles/*.profile ${RPM_BUILD_ROOT}/boot/boom/profiles
 install -m 644 examples/boom.conf ${RPM_BUILD_ROOT}/boot/boom
 
 mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man8
@@ -159,6 +160,10 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 %endif # if with_python3
 
 %changelog
+* Thu Mar 15 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5.1
+- Add built-in profiles to RPM package
+- Bump package release
+
 * Fri Mar 09 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5
 - Add boom(5) configuration file man page
 
