@@ -1813,7 +1813,11 @@ def main(args):
                         "boot entry")
     cmd_args = parser.parse_args()
 
-    set_debug(cmd_args.debug)
+    try:
+        set_debug(cmd_args.debug)
+    except ValueError as e:
+        print(e)
+        return 1
     setup_logging(cmd_args)
     cmd_type = _match_cmd_type(cmd_args.type)
 
