@@ -69,7 +69,7 @@ def _get_grub1_device(force=False):
     # The grub1 binary
     grub_cmd = "grub"
     # The command to issue to discover the /boot device
-    find_cmd = "find " + _loader_map[BOOM_LOADER_GRUB1][2]
+    find_cmd = "find /%s\n" % _loader_map[BOOM_LOADER_GRUB1][2]
     # Regular expression matching a valid grub device string
     find_rgx = r" \(hd\d+,\d+\)"
 
@@ -80,11 +80,10 @@ def _get_grub1_device(force=False):
     except OSError:
         raise BoomLegacyLoaderError("Could not execute grub1 shell.")
 
-    out = out[0]
-
-    for line in out:
+    for line in out[0].splitlines():
         if re.match(find_rgx, line):
             __grub1_device = line.lstrip().rstrip()
+            _log_debug("Set grub1 device to '%s'" % __grub1_device)
             return _get_grub1_device()
 
 
