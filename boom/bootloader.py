@@ -114,7 +114,7 @@ def __make_map_key(key_map):
     """
     map_key = {}
     for k, v in key_map.items():
-	map_key[v] = k
+        map_key[v] = k
     return map_key
 
 
