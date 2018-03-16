@@ -74,7 +74,8 @@ def _get_grub1_device(force=False):
     find_rgx = r" \(hd\d+,\d+\)"
 
     try:
-        p = Popen(grub_cmd, stdin=PIPE, stdout=PIPE)
+        _log_debug("Calling grub1 shell with '%s'" % find_cmd)
+        p = Popen(grub_cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         out = p.communicate(input=find_cmd)
     except OSError:
         raise BoomLegacyLoaderError("Could not execute grub1 shell.")
