@@ -133,6 +133,11 @@ install -d -m 750 ${RPM_BUILD_ROOT}/boot/loader/entries ${RPM_BUILD_ROOT}
 install -m 644 examples/profiles/*.profile ${RPM_BUILD_ROOT}/boot/boom/profiles
 install -m 644 examples/boom.conf ${RPM_BUILD_ROOT}/boot/boom
 
+# Automatically enable legacy bootloader support for RHEL6 builds
+%if 0%{?rhel} == 6
+sed -i 's/enable = False/enable = True/' ${RPM_BUILD_ROOT}/boot/boom/boom.conf
+%endif
+
 mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man8
 mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man5
 install -m 644 man/man8/boom.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
@@ -179,6 +184,7 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 
 %changelog
 * Fri Apr 06 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5.5
+- Automatically enable legacy support on RHEL6 builds
 - Add %post snippet to generate machine_id on RHEL6
 - Add additional needed dependencies for RHEL6 builds
 - Print error if machine_id cannot be found
