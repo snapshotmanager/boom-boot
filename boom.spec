@@ -53,6 +53,13 @@ include this support in both Red Hat Enterprise Linux 7 and Fedora).
 Summary: %{summary}
 %{?python_provide:%python_provide python2-boom}
 
+# RHEL6 requires the dbus package for machine_id, and the argparse module
+# is packaged as a separate RPM.
+%if 0%{?rhel} == 6
+Requires: python-argparse
+Requires: dbus
+%endif
+
 %description -n %{?py2_pkgname}
 Boom is a boot manager for Linux systems using boot loaders that support
 the BootLoader Specification for boot entry configuration.
@@ -160,6 +167,10 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 %endif # if with_python3
 
 %changelog
+* Fri Apr 06 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5.4
+- Add additional needed dependencies for RHEL6 builds
+- Print error if machine_id cannot be found
+
 * Tue Mar 27 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5.3
 - Include fixes for issue #11 in Copr build
 
