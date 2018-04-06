@@ -53,11 +53,22 @@ include this support in both Red Hat Enterprise Linux 7 and Fedora).
 Summary: %{summary}
 %{?python_provide:%python_provide python2-boom}
 
-# RHEL6 requires the dbus package for machine_id, and the argparse module
-# is packaged as a separate RPM.
+# RHEL6's Python-2.6 does not include the python-argparse module in
+# the main python-libs pacage, and the dbus package is required to
+# provide a machine_id on this release.
+#
+# Since the machine_id is only automatically generated at boot time
+# (and since the machine may not have been rebooted since the package
+# was installed), ensure the file is present by generating it in the
+# %post script.
 %if 0%{?rhel} == 6
 Requires: python-argparse
 Requires: dbus
+
+%post -n %{?py2_pkgname}
+if [ ! -e /var/lib/dbus/machine-id ]; then
+    dbus-uuidgen > /var/lib/dbus/machine-id
+fi
 %endif
 
 %description -n %{?py2_pkgname}
@@ -168,6 +179,7 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 
 %changelog
 * Fri Apr 06 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5.4
+- Add %post snippet to generate machine_id on RHEL6
 - Add additional needed dependencies for RHEL6 builds
 - Print error if machine_id cannot be found
 
