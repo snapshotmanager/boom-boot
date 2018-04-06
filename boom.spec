@@ -14,7 +14,7 @@
 
 Name: boom
 Version: 0.8
-Release: 5.3%{?dist}
+Release: 5.4%{?dist}
 Summary: %{summary}
 
 Group: Applications/System
