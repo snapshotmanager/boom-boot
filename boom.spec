@@ -14,7 +14,7 @@
 
 Name: boom
 Version: 0.8
-Release: 5.4%{?dist}
+Release: 5.5%{?dist}
 Summary: %{summary}
 
 Group: Applications/System
@@ -178,7 +178,7 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 %endif # if with_python3
 
 %changelog
-* Fri Apr 06 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5.4
+* Fri Apr 06 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5.5
 - Add %post snippet to generate machine_id on RHEL6
 - Add additional needed dependencies for RHEL6 builds
 - Print error if machine_id cannot be found
