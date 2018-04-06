@@ -991,6 +991,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
         # Use host machine-id by default
         machine_id = _get_machine_id()
         if not machine_id:
+            print("Could not determine machine_id")
             return 1
     else:
         machine_id = cmd_args.machine_id
