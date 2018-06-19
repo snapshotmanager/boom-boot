@@ -683,6 +683,9 @@ class BootEntry(object):
     _osp = None
     bp = None
 
+    # boot_id cache
+    __boot_id = None
+
     def __str(self, quote=False, prefix="", suffix="", tail="\n",
               sep=" ", bls=True, no_boot_id=False):
         """Format BootEntry as a string.
@@ -1312,7 +1315,9 @@ class BootEntry(object):
             :getter: return this ``BootEntry``'s ``boot_id``.
             :type: string
         """
-        return self.__generate_boot_id()
+        if not self.__boot_id or self._unwritten:
+            self.__boot_id = self.__generate_boot_id()
+        return self.__boot_id
 
     @property
     def root_opts(self):
