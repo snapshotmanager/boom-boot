@@ -33,7 +33,7 @@ manual page for information on using the command line interface.
 from os.path import exists as path_exists, isabs, join as path_join
 import logging
 
-__version__ = "0.8"
+__version__ = "0.9"
 
 #: The location of the system ``/boot`` directory.
 DEFAULT_BOOT_PATH = "/boot"

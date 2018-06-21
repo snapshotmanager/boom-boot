@@ -13,8 +13,8 @@
 %global summary A set of libraries and tools for managing boot loader entries
 
 Name: boom
-Version: 0.8
-Release: 5.6%{?dist}
+Version: 0.9
+Release: 1%{?dist}
 Summary: %{summary}
 
 Group: Applications/System
@@ -183,6 +183,9 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 %endif # if with_python3
 
 %changelog
+* Thu Jun 21 2018 Bryn M. Reeves <bmr@redhat.com> = 0.9-1
+- Bump package release
+
 * Fri Apr 06 2018 Bryn M. Reeves <bmr@redhat.com> = 0.8-5.6
 - Automatically enable legacy support on RHEL6 builds
 - Add %post snippet to generate machine_id on RHEL6
