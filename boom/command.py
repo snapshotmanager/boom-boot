@@ -285,7 +285,7 @@ def __write_legacy():
 
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None, osprofile=None,
-                 write=True, allow_no_dev=False):
+                 add_opts=None, del_opts=None, write=True, allow_no_dev=False):
     """Create new boot loader entry.
 
         Create the specified boot entry in the configured loader directory.
@@ -298,7 +298,8 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
         :param osprofile: The ``OsProfile`` for this entry.
-        :param append: A list of additional kernel options to append.
+        :param add_opts: A list of additional kernel options to append.
+        :param del_opts: A list of template-supplied options to drop.
         :param write: ``True`` if the entry should be written to disk,
                       or ``False`` otherwise.
         :param allow_no_dev: Accept a non-existent or invalid root dev.
@@ -325,9 +326,16 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
 
     btrfs = any([btrfs_subvol_path, btrfs_subvol_id])
 
+    add_opts = add_opts.split() if add_opts else []
+    del_opts = del_opts.split() if del_opts else []
+
+    _log_debug_cmd("Effective add options: %s" % add_opts)
+    _log_debug_cmd("Effective del options: %s" % del_opts)
+
     bp = BootParams(version, root_device, lvm_root_lv=lvm_root_lv,
                     btrfs_subvol_path=btrfs_subvol_path,
-                    btrfs_subvol_id=btrfs_subvol_id)
+                    btrfs_subvol_id=btrfs_subvol_id,
+                    add_opts=add_opts, del_opts=del_opts)
 
     be = BootEntry(title=title, machine_id=machine_id,
                    osprofile=osprofile, boot_params=bp,
@@ -380,7 +388,8 @@ def delete_entries(selection=None):
 
 def clone_entry(selection=None, title=None, version=None, machine_id=None,
                 root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
-                btrfs_subvol_id=None, osprofile=None, write=True):
+                btrfs_subvol_id=None, osprofile=None, add_opts=None, del_opts=None,
+                write=True, allow_no_dev=False):
     """Clone an existing boot loader entry.
 
         Create the specified boot entry in the configured loader directory
@@ -397,6 +406,10 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
         :param osprofile: The ``OsProfile`` for this entry.
+        :param add_opts: A list of additional kernel options to append.
+        :param del_opts: A list of template-supplied options to drop.
+        :param write: ``True`` if the entry should be written to disk,
+                      or ``False`` otherwise.
         :returns: a ``BootEntry`` object corresponding to the new entry.
         :returntype: ``BootEntry``
         :raises: ``ValueError`` if either required values are missing or
@@ -423,6 +436,8 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 
     be = bes[0]
 
+    _log_debug("Cloning entry with boot_id='%s'" % be.disp_boot_id)
+
     title = title if title else be.title
     version = version if version else be.version
     machine_id = machine_id if machine_id else be.machine_id
@@ -434,12 +449,26 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                        else be.bp.btrfs_subvol_id)
     osprofile = osprofile if osprofile else be._osp
 
+    # Merge new and cloned appended kernel options
+    all_add_opts = set()
+    if add_opts:
+        all_add_opts.update(add_opts.split())
+    if be.bp.add_opts:
+        all_add_opts.update(be.bp.add_opts)
+
+    del_opts = del_opts.split() if del_opts else []
+
+    _log_debug_cmd("Effective add options: %s" % all_add_opts)
+    _log_debug_cmd("Effective del options: %s" % del_opts)
+
     bp = BootParams(version, root_device, lvm_root_lv=lvm_root_lv,
                     btrfs_subvol_path=btrfs_subvol_path,
-                    btrfs_subvol_id=btrfs_subvol_id)
+                    btrfs_subvol_id=btrfs_subvol_id,
+                    add_opts=all_add_opts, del_opts=del_opts)
 
     clone_be = BootEntry(title=title, machine_id=machine_id,
-                         osprofile=osprofile, boot_params=bp)
+                         osprofile=osprofile, boot_params=bp,
+                         allow_no_dev=allow_no_dev)
     if find_entries(Selection(boot_id=clone_be.boot_id)):
         raise ValueError("Entry already exists (boot_id=%s)." %
                          clone_be.disp_boot_id)
@@ -1034,12 +1063,17 @@ def _create_cmd(cmd_args, select, opts, identifier):
 
     osp = osps[0]
 
+    add_opts = cmd_args.add_opts
+    del_opts = cmd_args.del_opts
+
     try:
         be = create_entry(title, version, machine_id,
                           root_device, lvm_root_lv=lvm_root_lv,
                           btrfs_subvol_path=btrfs_subvol_path,
                           btrfs_subvol_id=btrfs_subvol_id, osprofile=osp,
+                          add_opts=add_opts, del_opts=del_opts,
                           write=False, allow_no_dev=no_dev)
+
     except BoomRootDeviceError as brde:
         print(brde)
         print("Creating an entry with no valid root device requires --no-dev")
@@ -1139,12 +1173,18 @@ def _clone_cmd(cmd_args, select, opts, identifier):
             return 1
         osp = osps[0]
 
+    add_opts = cmd_args.add_opts
+    del_opts = cmd_args.del_opts
+
     try:
         be = clone_entry(select, title=title, version=version,
                          machine_id=machine_id, root_device=root_device,
                          lvm_root_lv=lvm_root_lv,
                          btrfs_subvol_path=btrfs_subvol_path,
-                         btrfs_subvol_id=btrfs_subvol_id, osprofile=osp)
+                         btrfs_subvol_id=btrfs_subvol_id, osprofile=osp,
+                         add_opts=add_opts, del_opts=del_opts,
+                         allow_no_dev=cmd_args.no_dev)
+
     except ValueError as e:
         print(e)
         return 1
@@ -1736,6 +1776,8 @@ def main(args):
     parser.add_argument("identifier", metavar="ID", type=str, action="store",
                         help="An optional profile or boot identifier to "
                         "operate on", nargs="?", default=None)
+    parser.add_argument("-a", "--add-opts", "--addopts", metavar="OPTIONS",
+                        help="Additional kernel options to append", type=str)
     parser.add_argument("-b", "--boot-id", "--bootid", metavar="BOOT_ID",
                         type=str, help="The BOOT_ID of a boom boot entry")
     parser.add_argument("--boot-dir", "--bootdir", metavar="PATH", type=str,
@@ -1747,6 +1789,8 @@ def main(args):
                         help="A template option string for BTRFS devices")
     parser.add_argument("-c", "--config", metavar="FILE", type=str,
                         help="Path to a boom configuration file", default=None)
+    parser.add_argument("-d", "--del-opts", "--delopts", metavar="OPTIONS",
+                        help="List of kernel options to be dropped", type=str)
     parser.add_argument("--debug", metavar="DEBUGOPTS", type=str,
                         help="A list of debug options to enable")
     parser.add_argument("-e", "--efi", metavar="IMG", type=str,
