@@ -158,8 +158,7 @@ class BootEntryTests(unittest.TestCase):
                        allow_no_dev=True)
         xstr = ('title title\nmachine-id ffffffff\n'
                 'linux /vmlinuz-%{version}\n'
-                'initrd /initramfs-%{version}.img\n'
-                'options root=%{root_device} ro %{root_opts}')
+                'initrd /initramfs-%{version}.img')
         self.assertEqual(str(be), xstr)
 
     def test_BootEntry__repr__(self):
@@ -169,8 +168,7 @@ class BootEntryTests(unittest.TestCase):
                  'BOOT_MACHINE_ID: "ffffffff", '
                  'BOOT_LINUX: "/vmlinuz-%{version}", '
                  'BOOT_INITRD: "/initramfs-%{version}.img", '
-                 'BOOT_OPTIONS: "root=%{root_device} ro %{root_opts}", '
-                 'BOOT_ID: "9232133455077cbae6c4075b43472121e71a6835"})')
+                 'BOOT_ID: "40c7c3158e626ed25cc2066b7c308fca0cb57be2"})')
         self.assertEqual(repr(be), xrepr)
 
     def test_BootEntry(self):
@@ -338,7 +336,7 @@ class BootEntryTests(unittest.TestCase):
                          "rootflags=subvol=/snapshots/20170523-1 rhgb quiet")
 
     def test_BootEntry_boot_id(self):
-        xboot_id = '7825f7c8396b1ae7a512bc37dee1aba137cd24ac'
+        xboot_id = 'f0a46b7a6e982cab4163af6b45087e87691a0c43'
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
                        allow_no_dev=True)
@@ -430,7 +428,7 @@ class BootEntryTests(unittest.TestCase):
         xversion = "4.11.5-100.fc24.x86_64"
         xlinux = "/vmlinuz-4.11.5-100.fc24.x86_64"
         xinitrd = "/initramfs-4.11.5-100.fc24.x86_64.img"
-        xoptions = "root=/dev/sda5 ro  rhgb quiet"
+        xoptions = "root=/dev/sda5 ro rhgb quiet"
         xdevicetree = "device.tree"
 
         bp = BootParams(xversion, root_device="/dev/sda5")
@@ -467,7 +465,7 @@ class BootEntryTests(unittest.TestCase):
         xversion = "4.11.5-100.fc24.x86_64"
         xlinux = "/vmlinuz-4.11.5-100.fc24.x86_64"
         xinitrd = "/initramfs-4.11.5-100.fc24.x86_64.img"
-        xoptions = "root=/dev/sda5 ro  rhgb quiet"
+        xoptions = "root=/dev/sda5 ro rhgb quiet"
         xdevicetree = "device.tree"
 
         bp = BootParams(xversion, root_device="/dev/sda5")
@@ -522,7 +520,7 @@ class BootEntryTests(unittest.TestCase):
             'ffffffff',
             '/vmlinuz-4.11.5-100.fc24.x86_64',
             '/initramfs-4.11.5-100.fc24.x86_64.img',
-            'root=/dev/sda5 ro  rhgb quiet',
+            'root=/dev/sda5 ro rhgb quiet',
             '4.11.5-100.fc24.x86_64'
         ]
 
@@ -547,7 +545,7 @@ class BootEntryTests(unittest.TestCase):
             'ffffffff',
             '/vmlinuz-4.11.5-100.fc24.x86_64',
             '/initramfs-4.11.5-100.fc24.x86_64.img',
-            'root=/dev/sda5 ro  rhgb quiet',
+            'root=/dev/sda5 ro rhgb quiet',
             '4.11.5-100.fc24.x86_64'
         ]
 

@@ -255,6 +255,12 @@ class BootParams(object):
     #: The ID of the BTRFS subvolume to be used as the root file system.
     btrfs_subvol_id = None
 
+    #: A list of additional kernel options to append
+    add_opts = []
+
+    #: A list of kernel options to drop
+    del_opts = []
+
     def __str(self, quote=False, prefix="", suffix=""):
         """Format BootParams as a string.
 
@@ -316,7 +322,8 @@ class BootParams(object):
         return self.__str(quote=True, prefix="BootParams(", suffix=")")
 
     def __init__(self, version, root_device=None, lvm_root_lv=None,
-                 btrfs_subvol_path=None, btrfs_subvol_id=None):
+                 btrfs_subvol_path=None, btrfs_subvol_id=None,
+                 add_opts=None, del_opts=None):
         """Initialise a new ``BootParams`` object.
 
             The root device is specified via the ``root_device``
@@ -354,6 +361,10 @@ class BootParams(object):
             :param btrfs_subvol_id: The BTRFS subvolume ID containing
                                     the root file system, for systems
                                     using BTRFS.
+            :param add_opts: A list containing additional kernel
+                             options to be appended to the command line.
+            :param del_opts: A list containing kernel options to be
+                             dropped from the command line.
             :returns: a newly initialised BootParams object.
             :returntype: class BootParams
             :raises: ValueError
@@ -379,6 +390,9 @@ class BootParams(object):
             self.btrfs_subvol_path = btrfs_subvol_path
         if btrfs_subvol_id:
             self.btrfs_subvol_id = btrfs_subvol_id
+
+        self.add_opts = add_opts or []
+        self.del_opts = del_opts or []
 
         _log_debug_entry("Initialised %s" % repr(self))
 
@@ -424,31 +438,74 @@ class BootParams(object):
         # Version is written directly from BootParams
         version = be.version
         bp = BootParams(version)
+        matches = {}
 
         _log_debug_entry("Initialising BootParams() from "
                          "BootEntry(boot_id='%s')" % be.boot_id)
 
-        opts_regex_words = osp.make_format_regexes(osp.options)
-
-        if not opts_regex_words:
+        opts_regexes = osp.make_format_regexes(osp.options)
+        if not opts_regexes:
             return None
 
         _log_debug_entry("Matching options regex list with %d entries" %
-                         len(opts_regex_words))
-        _log_debug_entry("Options regex list: %s" % str(opts_regex_words))
+                         len(opts_regexes))
+        _log_debug_entry("Options regex list: %s" % str(opts_regexes))
 
-        for rgx_word in opts_regex_words:
-            # FIXME: capture options not present in template
-            name = rgx_word[0]
-            exp = rgx_word[1]
+        opts_matched = []
+        for rgx_word in opts_regexes:
+            (name, exp) = rgx_word
+            value = ""
             for word in be.options.split():
-                match = re.search(exp, word)
+                match = re.search(exp, word) if name else re.match(exp, word)
                 if match:
+                    matches[word] = True
                     if len(match.groups()):
                         value = match.group(1)
                         _log_debug_entry("Matched: '%s' (%s)" %
                                          (value, name))
                     setattr(bp, name, value)
+                    continue
+
+            # The root_device key is handled specially since it is required
+            # for a valid BootEntry.
+            if name == 'root_device' and not value:
+                _log_warn("Entry with boot_id=%s has no root_device"
+                          % be.boot_id)
+                setattr(bp, name, "")
+
+        def is_add(opt):
+            """Return ``True`` if ``opt`` was appended to this options line,
+                and was not generated from an ``OsProfile`` template.
+            """
+            return opt not in matches.keys()
+
+        def is_del(opt):
+            """Return ``True`` if the option regex `opt` has been deleted
+                from this options line. An option is dropped if it is in
+                the ``OsProfile`` template and is absent from the option
+                line.
+
+                Optional boot parameters (e.g. rd.lvm.lv and rootflags)
+                are ignored since these are only templated when the
+                corresponding boot parameter is set.
+
+                The fact that an option is dropped is recorded for later
+                templating operations.
+            """
+            # Ignore optional boot parameters
+            ignore_bp = ['rootflags', 'rd.lvm.lv', 'subvol', 'subvolid']
+            opt_name = opt.split('=')[0]
+            matched_opts = [k.split('=')[0] for k in matches.keys()]
+            if opt_name not in matched_opts and opt_name not in ignore_bp:
+                return True
+            return False
+
+        # Compile list of unique non-template options
+        bp.add_opts = [opt for opt in be.options.split() if is_add(opt)]
+        bp.add_opts = list(set(bp.add_opts))
+
+        # Compile list of deleted template options
+        bp.del_opts = [o for o in [r[1] for r in opts_regexes] if is_del(o)]
 
         _log_debug_entry("Parsed %s" % repr(bp))
 
@@ -1013,6 +1070,9 @@ class BootEntry(object):
         else:
             # Attempt to recover BootParams from entry data
             self.bp = BootParams.from_entry(self)
+            if self.bp:
+                # Clear be.options to allow re-templating
+                self._entry_data.pop(BOOT_OPTIONS)
 
         if self.bp:
             def _pop_if_set(key):
@@ -1399,10 +1459,55 @@ class BootEntry(object):
             :setter: sets the command line for this ``BootEntry``.
             :type: string
         """
-        if not self._osp or BOOT_OPTIONS in self._entry_data:
-            return self._entry_data_property(BOOT_OPTIONS)
+        def add_opts(opts, append):
+            """Append additional kernel options to this ``BootEntry``'s
+                options property.
+            """
+            extra = " ".join(append)
+            return "%s %s" % (opts, extra) if append else opts
 
-        return self._apply_format(self._osp.options)
+        def del_opt(opt, drop):
+            """Return ``True`` if option ``opt`` should be dropped or
+                ``False`` otherwise.
+            """
+            # "name" or "name=value"
+            if opt in drop:
+                return True
+
+            # "name=" wildcard
+            if ("%s=" % opt.split('=')[0]) in drop:
+                return True
+
+            return False
+
+        def del_opts(opts, drop):
+            """Drop specified template supplied kernel options from this
+                ``BootEntry``.
+
+                A drop specification matches either a simple name, a name and
+                its full value (in which case both must match), or a name,
+                followed by '=', indicating that an option with value should
+                be dropped regardless of the actual value:
+
+                <name>         drop name
+                <name>=        drop name and any value
+                <name>=<value> drop name only if its value == value
+            """
+            return " ".join([o for o in opts.split() if not del_opt(o, drop)])
+
+        if BOOT_OPTIONS in self._entry_data:
+            opts = self._entry_data_property(BOOT_OPTIONS)
+            if self.bp:
+                return add_opts(opts, self.bp.add_opts)
+            return opts
+
+        if self._osp and self.bp:
+            opts = self._apply_format(self._osp.options)
+            opts = add_opts(opts, self.bp.add_opts)
+            opts = del_opts(opts, self.bp.del_opts)
+            return opts
+
+        return ""
 
     @options.setter
     def options(self, options):
