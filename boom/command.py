@@ -298,6 +298,9 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
         :param osprofile: The ``OsProfile`` for this entry.
+        :param append: A list of additional kernel options to append.
+        :param write: ``True`` if the entry should be written to disk,
+                      or ``False`` otherwise.
         :param allow_no_dev: Accept a non-existent or invalid root dev.
         :returns: a ``BootEntry`` object corresponding to the new entry.
         :returntype: ``BootEntry``
