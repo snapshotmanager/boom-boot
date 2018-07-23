@@ -176,7 +176,6 @@ def profiles_loaded():
         :returns: ``True`` if profiles are loaded in memory or ``False``
                   otherwise
     """
-    global _profiles_loaded
     return _profiles_loaded
 
 
@@ -263,9 +262,10 @@ def select_profile(s, osp):
         in ``s`` and return ``True`` if it passes, or ``False``
         otherwise.
 
-        :param osp: The OsProfile to test
+        :param osp: The ``OsProfile`` to test
         :returntype: bool
-        :returns: True if osp passes selection or ``False`` otherwise.
+        :returns: True if ``osp`` passes selection or ``False``
+                  otherwise.
     """
     if _is_null_profile(osp):
         return False
@@ -367,7 +367,7 @@ def match_os_profile(entry):
                       ``OsProfile``.
         :returns: The corresponding ``OsProfile`` for the supplied
                   ``BootEntry`` or ``None`` if no match is found.
-        :returntype: ``BootEntry`` or ``NoneType``.
+        :returntype: ``OsProfile``
     """
     global _profiles, _profiles_loaded
 
