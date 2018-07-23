@@ -37,8 +37,20 @@ boom.osprofile module
     :show-inheritance:
 
 
+boom.hostprofile module
+-----------------------
+
+.. automodule:: boom.hostprofile
+    :members:
+    :special-members:
+    :private-members:
+    :exclude-members: __dict__, __module__, __weakref__
+    :undoc-members:
+    :show-inheritance:
+
+
 boom.command module
----------------------
+-------------------
 
 .. automodule:: boom.command
     :members:

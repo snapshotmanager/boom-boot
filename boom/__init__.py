@@ -418,6 +418,13 @@ class Selection(object):
     os_root_opts_btrfs = None
     os_options = None
 
+    # HostProfile fields
+    host_id = None
+    host_name = None
+    host_label = None
+    host_add_opts = None
+    host_del_opts = None
+
     #: Selection criteria applying to BootEntry objects
     entry_attrs = [
         "boot_id", "title", "version", "machine_id", "linux", "initrd", "efi",
@@ -436,6 +443,13 @@ class Selection(object):
         "os_root_opts_lvm2", "os_root_opts_btrfs", "os_options"
     ]
 
+    host_attrs = [
+        "host_id", "host_name", "host_label",
+        "host_add_opts", "host_del_opts", "machine_id"
+    ]
+
+    all_attrs = entry_attrs + params_attrs + profile_attrs + host_attrs
+
     def __str__(self):
         """Format this ``Selection`` object as a human readable string.
 
@@ -443,7 +457,10 @@ class Selection(object):
                       Selection object
             :returntype: string
         """
-        all_attrs = self.entry_attrs + self.params_attrs + self.profile_attrs
+        all_attrs = (
+            self.entry_attrs + self.params_attrs +
+            self.profile_attrs + self.host_attrs
+        )
         attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
         strval = ""
         tail = ", "
@@ -470,7 +487,9 @@ class Selection(object):
                  os_id=None, os_name=None, os_short_name=None,
                  os_version=None, os_version_id=None, os_options=None,
                  os_uname_pattern=None, kernel_pattern=None,
-                 initramfs_pattern=None):
+                 initramfs_pattern=None, host_id=None,
+                 host_name=None, host_label=None,
+                 host_add_opts=None, host_del_opts=None):
         """Initialise a new Selection object.
 
             Initialise a new Selection object with the specified selection
@@ -496,6 +515,11 @@ class Selection(object):
             :param os_uname_pattern: The os_uname_pattern to match
             :param os_kernel_pattern: The kernel_pattern to match
             :param os_initramfs_pattern: The initramfs_pattern to match
+            :param host_id: The host identifier to match
+            :param host_name: The host name to match
+            :param host_label: The host label to match
+            :param host_add_opts: Host add options to match
+            :param host_del_opts: Host del options to match
             :returns: A new Selection instance
             :returntype: Selection
         """
@@ -519,6 +543,11 @@ class Selection(object):
         self.os_uname_pattern = os_uname_pattern
         self.os_kernel_pattern = kernel_pattern
         self.os_initramfs_pattern = initramfs_pattern
+        self.host_id = host_id
+        self.host_name = host_name
+        self.host_label = host_label
+        self.host_add_opts = host_add_opts
+        self.host_del_opts = host_del_opts
 
     @classmethod
     def from_cmd_args(cls, args):
@@ -558,7 +587,10 @@ class Selection(object):
                       os_version=args.os_version,
                       os_version_id=args.os_version_id,
                       os_options=args.os_options,
-                      os_uname_pattern=args.uname_pattern)
+                      os_uname_pattern=args.uname_pattern,
+                      host_id=args.host_profile,
+                      host_add_opts=args.add_opts,
+                      host_del_opts=args.del_opts)
 
         _log_debug("Initialised %s from arguments" % repr(s))
         return s
@@ -575,7 +607,8 @@ class Selection(object):
         """
         return hasattr(self, attr) and getattr(self, attr) is not None
 
-    def check_valid_selection(self, entry=False, params=False, profile=False):
+    def check_valid_selection(self, entry=False, params=False,
+                              profile=False, host=False):
         """Check a Selection for valid criteria.
 
             Check this ``Selection`` object to ensure it contains only
@@ -591,8 +624,6 @@ class Selection(object):
             :returntype: ``NoneType``
             :raises: ``ValueError`` if excluded criteria are present
         """
-
-        all_attrs = self.entry_attrs + self.params_attrs + self.profile_attrs
         valid_attrs = []
         invalid_attrs = []
 
@@ -600,10 +631,12 @@ class Selection(object):
             valid_attrs += self.entry_attrs
         if entry or params:
             valid_attrs += self.params_attrs
-        if profile:
+        if profile or host:
             valid_attrs += self.profile_attrs
+        if host:
+            valid_attrs += self.host_attrs
 
-        for attr in all_attrs:
+        for attr in self.all_attrs:
             if self.__attr_has_value(attr) and attr not in valid_attrs:
                 invalid_attrs.append(attr)
 
@@ -621,7 +654,7 @@ class Selection(object):
             :returns: ``True`` if this Selection is null
             :returntype: bool
         """
-        all_attrs = self.entry_attrs + self.params_attrs + self.profile_attrs
+        all_attrs = self.all_attrs
         attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
         return not any(attrs)
 

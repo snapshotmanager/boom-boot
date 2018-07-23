@@ -39,6 +39,7 @@ is also provided in the ``MAP_KEY`` member).
 """
 from boom import *
 from boom.osprofile import *
+from boom.hostprofile import find_host_profiles
 
 from os.path import basename, exists as path_exists, join as path_join
 from tempfile import mkstemp
@@ -1122,6 +1123,28 @@ class BootEntry(object):
         """
         self._osp = match_os_profile(self)
 
+    def __match_host_profile(self):
+        """Attempt to find a matching HostProfile for this BootEntry.
+
+            Try to find a ``HostProfile`` with a matching machine_id,
+            and if one is found, wrap this ``BootEntry``'s operating
+            system profile with the host.
+
+            This method must be called with a valid ``BootParams``
+            object attached.
+        """
+        if BOOM_ENTRY_MACHINE_ID in self._entry_data:
+            machine_id = self._entry_data[BOOM_ENTRY_MACHINE_ID]
+            hps = find_host_profiles(Selection(machine_id=machine_id))
+            self._osp = hps[0] if hps else self._osp
+
+        # Import add/del options from HostProfile if attached.
+        if hasattr(self._osp, "add_opts"):
+            self.bp.add_opts = self._osp.add_opts.split()
+
+        if hasattr(self._osp, "del_opts"):
+            self.bp.del_opts = self._osp.del_opts.split()
+
     def __from_data(self, entry_data, boot_params):
         """Initialise a new BootEntry from in-memory data.
 
@@ -1132,7 +1155,7 @@ class BootEntry(object):
 
             Raises ``ValueError`` if required keys are missing
             (``BOOM_ENTRY_TITLE``, and either ``BOOM_ENTRY_LINUX`` or
-             ``BOOM_ENTRY_EFI``).
+            ``BOOM_ENTRY_EFI``).
 
             This method should not be called directly: to build a new
             ``BootEntry`` object from in-memory data, use the class
@@ -1169,6 +1192,9 @@ class BootEntry(object):
             # Attempt to recover BootParams from entry data
             self.bp = BootParams.from_entry(self)
 
+        # Wrap OsProfile in HostProfile if available
+        self.__match_host_profile()
+
         if self.bp:
             def _pop_if_set(key):
                 if key in _entry_data:
@@ -1198,7 +1224,7 @@ class BootEntry(object):
 
             Raises ``ValueError`` if required keys are missing
             (``BOOM_ENTRY_TITLE``, and either ``BOOM_ENTRY_LINUX`` or
-             ``BOOM_ENTRY_EFI``).
+            ``BOOM_ENTRY_EFI``).
 
             This method should not be called directly: to build a new
             ``BootEntry`` object from entry file data, use the class
@@ -1329,6 +1355,9 @@ class BootEntry(object):
 
         if not self._osp:
             self.__match_os_profile()
+
+        # Wrap OsProfile in HostProfile if available
+        self.__match_host_profile()
 
         if self.bp:
             if not allow_no_dev:
