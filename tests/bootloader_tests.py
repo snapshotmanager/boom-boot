@@ -164,11 +164,12 @@ class BootEntryTests(unittest.TestCase):
     def test_BootEntry__repr__(self):
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=None,
                        allow_no_dev=True)
-        xrepr = ('BootEntry(entry_data={BOOT_TITLE: "title", '
-                 'BOOT_MACHINE_ID: "ffffffff", '
-                 'BOOT_LINUX: "/vmlinuz-%{version}", '
-                 'BOOT_INITRD: "/initramfs-%{version}.img", '
-                 'BOOT_ID: "40c7c3158e626ed25cc2066b7c308fca0cb57be2"})')
+        xrepr = ('BootEntry(entry_data={BOOM_ENTRY_TITLE: "title", '
+                 'BOOM_ENTRY_MACHINE_ID: "ffffffff", '
+                 'BOOM_ENTRY_LINUX: "/vmlinuz-%{version}", '
+                 'BOOM_ENTRY_INITRD: "/initramfs-%{version}.img", '
+                 'BOOM_ENTRY_BOOT_ID: '
+                 '"40c7c3158e626ed25cc2066b7c308fca0cb57be2"})')
         self.assertEqual(repr(be), xrepr)
 
     def test_BootEntry(self):
@@ -190,55 +191,63 @@ class BootEntryTests(unittest.TestCase):
         self.assertTrue(be)
 
     def test_BootEntry_from_entry_data(self):
-        # Pull in all the BOOT_* constants to the local namespace.
+        # Pull in all the BOOM_ENTRY_* constants to the local namespace.
         from boom.bootloader import (
-            BOOT_TITLE, BOOT_MACHINE_ID, BOOT_VERSION,
-            BOOT_LINUX, BOOT_EFI, BOOT_INITRD, BOOT_OPTIONS
+            BOOM_ENTRY_TITLE, BOOM_ENTRY_MACHINE_ID, BOOM_ENTRY_VERSION,
+            BOOM_ENTRY_LINUX, BOOM_ENTRY_EFI, BOOM_ENTRY_INITRD,
+            BOOM_ENTRY_OPTIONS
         )
         with self.assertRaises(ValueError) as cm:
-            # Missing BOOT_TITLE
-            be = BootEntry(entry_data={BOOT_MACHINE_ID: "ffffffff",
-                           BOOT_VERSION: "1.1.1", BOOT_LINUX: "/vmlinuz-1.1.1",
-                           BOOT_INITRD: "/initramfs-1.1.1.img",
-                           BOOT_OPTIONS: "root=/dev/sda5 ro"})
+            # Missing BOOM_ENTRY_TITLE
+            be = BootEntry(entry_data={BOOM_ENTRY_MACHINE_ID: "ffffffff",
+                           BOOM_ENTRY_VERSION: "1.1.1",
+                           BOOM_ENTRY_LINUX: "/vmlinuz-1.1.1",
+                           BOOM_ENTRY_INITRD: "/initramfs-1.1.1.img",
+                           BOOM_ENTRY_OPTIONS: "root=/dev/sda5 ro"})
 
         # Valid entry
-        be = BootEntry(entry_data={BOOT_TITLE: "title",
-                       BOOT_MACHINE_ID: "ffffffff",
-                       BOOT_VERSION: "1.1.1", BOOT_LINUX: "/vmlinuz-1.1.1",
-                       BOOT_INITRD: "/initramfs-1.1.1.img",
-                       BOOT_OPTIONS: "root=/dev/sda5 ro"})
+        be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
+                       BOOM_ENTRY_MACHINE_ID: "ffffffff",
+                       BOOM_ENTRY_VERSION: "1.1.1",
+                       BOOM_ENTRY_LINUX: "/vmlinuz-1.1.1",
+                       BOOM_ENTRY_INITRD: "/initramfs-1.1.1.img",
+                       BOOM_ENTRY_OPTIONS: "root=/dev/sda5 ro"})
 
         with self.assertRaises(ValueError) as cm:
-            # Missing BOOT_LINUX or BOOT_EFI
-            be = BootEntry(entry_data={BOOT_TITLE: "title",
-                           BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
-                           BOOT_INITRD: "/initramfs-1.1.1.img",
-                           BOOT_OPTIONS: "root=/dev/sda5 ro"})
+            # Missing BOOM_ENTRY_LINUX or BOOM_ENTRY_EFI
+            be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
+                           BOOM_ENTRY_MACHINE_ID: "ffffffff",
+                           BOOM_ENTRY_VERSION: "1.1.1",
+                           BOOM_ENTRY_INITRD: "/initramfs-1.1.1.img",
+                           BOOM_ENTRY_OPTIONS: "root=/dev/sda5 ro"})
 
         # Valid Linux entry
-        be = BootEntry(entry_data={BOOT_TITLE: "title",
-                       BOOT_LINUX: "/vmlinuz",
-                       BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
-                       BOOT_OPTIONS: "root=/dev/sda5 ro"})
+        be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
+                       BOOM_ENTRY_LINUX: "/vmlinuz",
+                       BOOM_ENTRY_MACHINE_ID: "ffffffff",
+                       BOOM_ENTRY_VERSION: "1.1.1",
+                       BOOM_ENTRY_OPTIONS: "root=/dev/sda5 ro"})
 
         # Valid EFI entry
-        be = BootEntry(entry_data={BOOT_TITLE: "title",
-                       BOOT_EFI: "/some.efi.thing",
-                       BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
-                       BOOT_OPTIONS: "root=/dev/sda5 ro"})
+        be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
+                       BOOM_ENTRY_EFI: "/some.efi.thing",
+                       BOOM_ENTRY_MACHINE_ID: "ffffffff",
+                       BOOM_ENTRY_VERSION: "1.1.1",
+                       BOOM_ENTRY_OPTIONS: "root=/dev/sda5 ro"})
 
     def test_BootEntry_with_boot_params(self):
         from boom.bootloader import (
-            BOOT_TITLE, BOOT_MACHINE_ID, BOOT_VERSION,
-            BOOT_LINUX, BOOT_EFI, BOOT_INITRD, BOOT_OPTIONS
+            BOOM_ENTRY_TITLE, BOOM_ENTRY_MACHINE_ID, BOOM_ENTRY_VERSION,
+            BOOM_ENTRY_LINUX, BOOM_ENTRY_EFI, BOOM_ENTRY_INITRD,
+            BOOM_ENTRY_OPTIONS
         )
         bp = BootParams(version="2.2.2", lvm_root_lv="vg00/lvol0")
-        be = BootEntry(entry_data={BOOT_TITLE: "title",
-                       BOOT_MACHINE_ID: "ffffffff",
-                       BOOT_VERSION: "1.1.1", BOOT_LINUX: "/vmlinuz-1.1.1",
-                       BOOT_INITRD: "/initramfs-1.1.1.img",
-                       BOOT_OPTIONS: "root=/dev/vg_root/root "
+        be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
+                       BOOM_ENTRY_MACHINE_ID: "ffffffff",
+                       BOOM_ENTRY_VERSION: "1.1.1",
+                       BOOM_ENTRY_LINUX: "/vmlinuz-1.1.1",
+                       BOOM_ENTRY_INITRD: "/initramfs-1.1.1.img",
+                       BOOM_ENTRY_OPTIONS: "root=/dev/vg_root/root "
                                      "rd.lvm.lv=vg_root/root"},
                        boot_params=bp, allow_no_dev=True)
         # boot_params overrides BootEntry
@@ -249,14 +258,15 @@ class BootEntryTests(unittest.TestCase):
         # Assert that key properties of a BootEntry with no attached osprofile
         # return None.
         from boom.bootloader import (
-            BOOT_TITLE, BOOT_MACHINE_ID, BOOT_VERSION,
-            BOOT_LINUX, BOOT_EFI, BOOT_INITRD, BOOT_OPTIONS
+            BOOM_ENTRY_TITLE, BOOM_ENTRY_MACHINE_ID, BOOM_ENTRY_VERSION,
+            BOOM_ENTRY_LINUX, BOOM_ENTRY_EFI, BOOM_ENTRY_INITRD,
+            BOOM_ENTRY_OPTIONS
         )
         bp = BootParams(version="2.2.2", lvm_root_lv="vg00/lvol0")
-        be = BootEntry(entry_data={BOOT_TITLE: "title",
-                       BOOT_MACHINE_ID: "ffffffff",
-                       BOOT_LINUX: "/vmlinuz",
-                       BOOT_VERSION: "1.1.1"}, boot_params=bp,
+        be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
+                       BOOM_ENTRY_MACHINE_ID: "ffffffff",
+                       BOOM_ENTRY_LINUX: "/vmlinuz",
+                       BOOM_ENTRY_VERSION: "1.1.1"}, boot_params=bp,
                        allow_no_dev=True)
 
         xoptions = "root=/dev/vg00/lvol0 ro rd.lvm.lv=vg00/lvol0"
@@ -266,8 +276,9 @@ class BootEntryTests(unittest.TestCase):
         # Assert that key properties of a BootEntry with empty format keys
         # return the empty string.
         from boom.bootloader import (
-            BOOT_TITLE, BOOT_MACHINE_ID, BOOT_VERSION,
-            BOOT_LINUX, BOOT_EFI, BOOT_INITRD, BOOT_OPTIONS
+            BOOM_ENTRY_TITLE, BOOM_ENTRY_MACHINE_ID, BOOM_ENTRY_VERSION,
+            BOOM_ENTRY_LINUX, BOOM_ENTRY_EFI, BOOM_ENTRY_INITRD,
+            BOOM_ENTRY_OPTIONS
         )
 
         osp = self._get_test_OsProfile()
@@ -275,10 +286,11 @@ class BootEntryTests(unittest.TestCase):
         osp.options = ""
 
         bp = BootParams(version="2.2.2", lvm_root_lv="vg00/lvol0")
-        be = BootEntry(entry_data={BOOT_TITLE: "title",
-                       BOOT_MACHINE_ID: "ffffffff",
-                       BOOT_VERSION: "1.1.1", BOOT_LINUX: "/vmlinuz-1.1.1",
-                       BOOT_INITRD: "/initramfs-1.1.1.img"},
+        be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
+                       BOOM_ENTRY_MACHINE_ID: "ffffffff",
+                       BOOM_ENTRY_VERSION: "1.1.1",
+                       BOOM_ENTRY_LINUX: "/vmlinuz-1.1.1",
+                       BOOM_ENTRY_INITRD: "/initramfs-1.1.1.img"},
                        osprofile=osp, boot_params=bp, allow_no_dev=True)
 
         self.assertEqual(be.options, "")
@@ -344,23 +356,28 @@ class BootEntryTests(unittest.TestCase):
 
     def test_BootEntry_root_opts_no_values(self):
         from boom.bootloader import (
-            BOOT_TITLE, BOOT_MACHINE_ID, BOOT_VERSION,
-            BOOT_LINUX, BOOT_EFI, BOOT_INITRD, BOOT_OPTIONS
+            BOOM_ENTRY_TITLE, BOOM_ENTRY_MACHINE_ID, BOOM_ENTRY_VERSION,
+            BOOM_ENTRY_LINUX, BOOM_ENTRY_EFI, BOOM_ENTRY_INITRD,
+            BOOM_ENTRY_OPTIONS
         )
         osp = self._get_test_OsProfile()
         xroot_opts = ""
 
-        be = BootEntry(entry_data={BOOT_TITLE: "title",
-                       BOOT_LINUX: "/vmlinuz",
-                       BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
-                       BOOT_OPTIONS: "root=/dev/sda5 ro"}, allow_no_dev=True)
+        be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
+                                   BOOM_ENTRY_LINUX: "/vmlinuz",
+                                   BOOM_ENTRY_MACHINE_ID: "ffffffff",
+                                   BOOM_ENTRY_VERSION: "1.1.1",
+                                   BOOM_ENTRY_OPTIONS: "root=/dev/sda5 ro"
+                       }, allow_no_dev=True)
+
         self.assertEqual(xroot_opts, be.root_opts)
 
         bp = BootParams("1.1.1.x86_64", root_device="/dev/sda5")
-        be = BootEntry(entry_data={BOOT_TITLE: "title",
-                       BOOT_LINUX: "/vmlinuz",
-                       BOOT_MACHINE_ID: "ffffffff", BOOT_VERSION: "1.1.1",
-                       BOOT_OPTIONS: "root=%{root_device} %{root_opts}"},
+        be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
+                       BOOM_ENTRY_LINUX: "/vmlinuz",
+                       BOOM_ENTRY_MACHINE_ID: "ffffffff",
+                       BOOM_ENTRY_VERSION: "1.1.1",
+                       BOOM_ENTRY_OPTIONS: "root=%{root_device} %{root_opts}"},
                        osprofile=osp, boot_params=bp, allow_no_dev=True)
         self.assertEqual(xroot_opts, be.root_opts)
 
@@ -420,9 +437,10 @@ class BootEntryTests(unittest.TestCase):
         from boom.osprofile import OsProfile, load_profiles
         load_profiles()
 
-        from boom.bootloader import (BOOT_VERSION, BOOT_TITLE, BOOT_MACHINE_ID,
-                                     BOOT_LINUX, BOOT_INITRD, BOOT_OPTIONS,
-                                     BOOT_DEVICETREE)
+        from boom.bootloader import (BOOM_ENTRY_VERSION, BOOM_ENTRY_TITLE,
+                                     BOOM_ENTRY_MACHINE_ID, BOOM_ENTRY_LINUX,
+                                     BOOM_ENTRY_INITRD, BOOM_ENTRY_OPTIONS,
+                                     BOOM_ENTRY_DEVICETREE)
         xtitle = "title"
         xmachine_id = "ffffffff"
         xversion = "4.11.5-100.fc24.x86_64"
@@ -436,13 +454,13 @@ class BootEntryTests(unittest.TestCase):
                        allow_no_dev=True)
         be.devicetree = xdevicetree
 
-        self.assertEqual(be[BOOT_VERSION], "4.11.5-100.fc24.x86_64")
-        self.assertEqual(be[BOOT_TITLE], "title")
-        self.assertEqual(be[BOOT_MACHINE_ID], "ffffffff")
-        self.assertEqual(be[BOOT_LINUX], xlinux)
-        self.assertEqual(be[BOOT_INITRD], xinitrd)
-        self.assertEqual(be[BOOT_OPTIONS], xoptions)
-        self.assertEqual(be[BOOT_DEVICETREE], xdevicetree)
+        self.assertEqual(be[BOOM_ENTRY_VERSION], "4.11.5-100.fc24.x86_64")
+        self.assertEqual(be[BOOM_ENTRY_TITLE], "title")
+        self.assertEqual(be[BOOM_ENTRY_MACHINE_ID], "ffffffff")
+        self.assertEqual(be[BOOM_ENTRY_LINUX], xlinux)
+        self.assertEqual(be[BOOM_ENTRY_INITRD], xinitrd)
+        self.assertEqual(be[BOOM_ENTRY_OPTIONS], xoptions)
+        self.assertEqual(be[BOOM_ENTRY_DEVICETREE], xdevicetree)
 
     def test_BootEntry__getitem__bad_key_raises(self):
         from boom.osprofile import OsProfile, load_profiles
@@ -457,9 +475,11 @@ class BootEntryTests(unittest.TestCase):
         from boom.osprofile import OsProfile, load_profiles
         load_profiles()
 
-        from boom.bootloader import (BOOT_VERSION, BOOT_TITLE, BOOT_MACHINE_ID,
-                                     BOOT_LINUX, BOOT_INITRD, BOOT_OPTIONS,
-                                     BOOT_DEVICETREE)
+        from boom.bootloader import (BOOM_ENTRY_VERSION, BOOM_ENTRY_TITLE,
+                                     BOOM_ENTRY_MACHINE_ID, BOOM_ENTRY_LINUX,
+                                     BOOM_ENTRY_INITRD, BOOM_ENTRY_OPTIONS,
+                                     BOOM_ENTRY_DEVICETREE)
+
         xtitle = "title"
         xmachine_id = "ffffffff"
         xversion = "4.11.5-100.fc24.x86_64"
@@ -473,12 +493,12 @@ class BootEntryTests(unittest.TestCase):
                        allow_no_dev=True)
         be.devicetree = xdevicetree
 
-        be[BOOT_VERSION] = xversion
-        be[BOOT_TITLE] = xtitle
-        be[BOOT_MACHINE_ID] = xmachine_id
-        be[BOOT_LINUX] = xlinux
-        be[BOOT_INITRD] = xinitrd
-        be[BOOT_DEVICETREE] = xdevicetree
+        be[BOOM_ENTRY_VERSION] = xversion
+        be[BOOM_ENTRY_TITLE] = xtitle
+        be[BOOM_ENTRY_MACHINE_ID] = xmachine_id
+        be[BOOM_ENTRY_LINUX] = xlinux
+        be[BOOM_ENTRY_INITRD] = xinitrd
+        be[BOOM_ENTRY_DEVICETREE] = xdevicetree
 
         self.assertEqual(be.version, "4.11.5-100.fc24.x86_64")
         self.assertEqual(be.title, "title")
@@ -502,8 +522,11 @@ class BootEntryTests(unittest.TestCase):
         from boom.osprofile import OsProfile, load_profiles
         load_profiles()
 
-        xkeys = ['BOOT_TITLE', 'BOOT_MACHINE_ID', 'BOOT_LINUX', 'BOOT_INITRD',
-                 'BOOT_OPTIONS', 'BOOT_VERSION']
+        xkeys = [
+            'BOOM_ENTRY_TITLE', 'BOOM_ENTRY_MACHINE_ID',
+            'BOOM_ENTRY_LINUX', 'BOOM_ENTRY_INITRD',
+            'BOOM_ENTRY_OPTIONS', 'BOOM_ENTRY_VERSION'
+        ]
 
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
@@ -537,8 +560,10 @@ class BootEntryTests(unittest.TestCase):
         os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"
         osp = boom.osprofile.get_os_profile_by_id(os_id)
 
-        xkeys = ['BOOT_TITLE', 'BOOT_MACHINE_ID', 'BOOT_LINUX', 'BOOT_INITRD',
-                 'BOOT_OPTIONS', 'BOOT_VERSION']
+        xkeys = [
+            'BOOM_ENTRY_TITLE', 'BOOM_ENTRY_MACHINE_ID', 'BOOM_ENTRY_LINUX',
+            'BOOM_ENTRY_INITRD', 'BOOM_ENTRY_OPTIONS', 'BOOM_ENTRY_VERSION'
+        ]
 
         xvalues = [
             'title',
@@ -645,14 +670,16 @@ class BootEntryTests(unittest.TestCase):
                     if "subvolid=23" in l:
                         nr += 1
 
-        bes = boom.bootloader.find_entries(Selection(btrfs_subvol_id=btrfs_subvol_id))
+        select = Selection(btrfs_subvol_id=btrfs_subvol_id)
+        bes = boom.bootloader.find_entries(select)
         self.assertEqual(len(bes), nr)
 
     def test_find_entries_by_btrfs_subvol_path(self):
         entries_path = boom_entries_path()
         btrfs_subvol_path = "/snapshot/today"
         boom.bootloader._entries = None
-        bes = boom.bootloader.find_entries(Selection(btrfs_subvol_path=btrfs_subvol_path))
+        select = Selection(btrfs_subvol_path=btrfs_subvol_path)
+        bes = boom.bootloader.find_entries(select)
         nr = 0
 
         # count entries

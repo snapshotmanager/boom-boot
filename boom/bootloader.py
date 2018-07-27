@@ -61,49 +61,49 @@ BOOT_ENTRIES_PATTERN = r"(\w*)-(\w{1,7})-([a-zA-Z0-9.\-_]*)"
 BOOT_ENTRY_MODE = 0o644
 
 #: The ``BootEntry`` title key.
-BOOT_TITLE = "BOOT_TITLE"
+BOOM_ENTRY_TITLE = "BOOM_ENTRY_TITLE"
 #: The ``BootEntry`` version key.
-BOOT_VERSION = "BOOT_VERSION"
+BOOM_ENTRY_VERSION = "BOOM_ENTRY_VERSION"
 #: The ``BootEntry`` machine_id key.
-BOOT_MACHINE_ID = "BOOT_MACHINE_ID"
+BOOM_ENTRY_MACHINE_ID = "BOOM_ENTRY_MACHINE_ID"
 #: The ``BootEntry`` linux key.
-BOOT_LINUX = "BOOT_LINUX"
+BOOM_ENTRY_LINUX = "BOOM_ENTRY_LINUX"
 #: The ``BootEntry`` initrd key.
-BOOT_INITRD = "BOOT_INITRD"
+BOOM_ENTRY_INITRD = "BOOM_ENTRY_INITRD"
 #: The ``BootEntry`` efi key.
-BOOT_EFI = "BOOT_EFI"
+BOOM_ENTRY_EFI = "BOOM_ENTRY_EFI"
 #: The ``BootEntry`` options key.
-BOOT_OPTIONS = "BOOT_OPTIONS"
+BOOM_ENTRY_OPTIONS = "BOOM_ENTRY_OPTIONS"
 #: The ``BootEntry`` device tree key.
-BOOT_DEVICETREE = "BOOT_DEVICETREE"
+BOOM_ENTRY_DEVICETREE = "BOOM_ENTRY_DEVICETREE"
 #: The ``BootEntry`` boot identifier key.
-BOOT_ID = "BOOT_ID"
+BOOM_ENTRY_BOOT_ID = "BOOM_ENTRY_BOOT_ID"
 
 #: An ordered list of all possible ``BootEntry`` keys.
 ENTRY_KEYS = [
     # We require a title for each entry (BLS does not)
-    BOOT_TITLE,
+    BOOM_ENTRY_TITLE,
     # MACHINE_ID is optional in BLS, however, since the standard suggests
     # that it form part of the file name for compliant snippets, it is
     # effectively mandatory.
-    BOOT_MACHINE_ID,
-    BOOT_VERSION,
-    # One of either BOOT_LINUX or BOOT_EFI must be present.
-    BOOT_LINUX, BOOT_EFI,
-    BOOT_INITRD, BOOT_OPTIONS,
-    BOOT_DEVICETREE
+    BOOM_ENTRY_MACHINE_ID,
+    BOOM_ENTRY_VERSION,
+    # One of either BOOM_ENTRY_LINUX or BOOM_ENTRY_EFI must be present.
+    BOOM_ENTRY_LINUX, BOOM_ENTRY_EFI,
+    BOOM_ENTRY_INITRD, BOOM_ENTRY_OPTIONS,
+    BOOM_ENTRY_DEVICETREE
 ]
 
 #: Map Boom entry names to BLS keys
 KEY_MAP = {
-    BOOT_TITLE: "title",
-    BOOT_VERSION: "version",
-    BOOT_MACHINE_ID: "machine_id",
-    BOOT_LINUX: "linux",
-    BOOT_INITRD: "initrd",
-    BOOT_EFI: "efi",
-    BOOT_OPTIONS: "options",
-    BOOT_DEVICETREE: "devicetree"
+    BOOM_ENTRY_TITLE: "title",
+    BOOM_ENTRY_VERSION: "version",
+    BOOM_ENTRY_MACHINE_ID: "machine_id",
+    BOOM_ENTRY_LINUX: "linux",
+    BOOM_ENTRY_INITRD: "initrd",
+    BOOM_ENTRY_EFI: "efi",
+    BOOM_ENTRY_OPTIONS: "options",
+    BOOM_ENTRY_DEVICETREE: "devicetree"
 }
 
 
@@ -760,10 +760,10 @@ class BootEntry(object):
             :param bls: Generate output using BootLoader Specification
                         syntax and key names.
 
-            :param no_boot_id: Do not include the BOOT_ID key in the
+            :param no_boot_id: Do not include the BOOM_ENTRY_BOOT_ID key in the
                                returned string. Used internally in
                                order to avoid recursion when calculating
-                               the BOOT_ID checksum.
+                               the BOOM_ENTRY_BOOT_ID checksum.
 
             :returns: A string representation.
 
@@ -782,14 +782,15 @@ class BootEntry(object):
                 key_data = (key, sep, attr_val)
             be_str += key_fmt % key_data
 
-        # BOOT_ID requires special handling to avoid recursion from the
-        # boot_id property method (which uses the string representation
-        # of the object to calculate the checksum).
+        # BOOM_ENTRY_BOOT_ID requires special handling to avoid
+        # recursion from the boot_id property method (which uses the
+        # string representation of the object to calculate the
+        # checksum).
         if not bls and not no_boot_id:
             key_fmt = ('%s%s"%s"' if quote else '%s%s%s') + tail
-            boot_id_data = [BOOT_ID, sep, self.boot_id]
+            boot_id_data = [BOOM_ENTRY_BOOT_ID, sep, self.boot_id]
             if bls:
-                boot_id_data[0] = _transform_key(BOOT_ID)
+                boot_id_data[0] = _transform_key(BOOM_ENTRY_BOOT_ID)
             be_str += key_fmt % tuple(boot_id_data)
 
         return be_str.rstrip(tail) + suffix
@@ -840,19 +841,19 @@ class BootEntry(object):
 
         if key in self._entry_data:
             return self._entry_data[key]
-        if key == BOOT_LINUX:
+        if key == BOOM_ENTRY_LINUX:
             return self.linux
-        if key == BOOT_INITRD:
+        if key == BOOM_ENTRY_INITRD:
             return self.initrd
-        if key == BOOT_OPTIONS:
+        if key == BOOM_ENTRY_OPTIONS:
             return self.options
-        if key == BOOT_DEVICETREE:
+        if key == BOOM_ENTRY_DEVICETREE:
             return self.devicetree
-        if key == BOOT_EFI:
+        if key == BOOM_ENTRY_EFI:
             return self.efi
-        if key == BOOT_ID:
+        if key == BOOM_ENTRY_BOOT_ID:
             return self.boot_id
-        if self.bp and key == BOOT_VERSION:
+        if self.bp and key == BOOM_ENTRY_VERSION:
             return self.bp.version
 
         raise KeyError("BootEntry key %s not present." % key)
@@ -866,19 +867,19 @@ class BootEntry(object):
         if not isinstance(key, str):
             raise TypeError("BootEntry key must be a string.")
 
-        if key == BOOT_VERSION and self.bp:
+        if key == BOOM_ENTRY_VERSION and self.bp:
             self.bp.version = value
-        elif key == BOOT_LINUX and self.bp:
+        elif key == BOOM_ENTRY_LINUX and self.bp:
             self.linux = value
-        elif key == BOOT_INITRD and self.bp:
+        elif key == BOOM_ENTRY_INITRD and self.bp:
             self.initrd = value
-        elif key == BOOT_OPTIONS and self.bp:
+        elif key == BOOM_ENTRY_OPTIONS and self.bp:
             self.options = value
-        elif key == BOOT_DEVICETREE and self.bp:
+        elif key == BOOM_ENTRY_DEVICETREE and self.bp:
             self.devicetree = value
-        elif key == BOOT_EFI and self.bp:
+        elif key == BOOM_ENTRY_EFI and self.bp:
             self.efi = value
-        elif key == BOOT_ID:
+        elif key == BOOM_ENTRY_BOOT_ID:
             raise TypeError("'boot_id' property does not support assignment")
         elif key in self._entry_data:
             self._entry_data[key] = value
@@ -895,13 +896,13 @@ class BootEntry(object):
             :returntype: list of str
         """
         keys = list(self._entry_data.keys())
-        add_keys = [BOOT_LINUX, BOOT_INITRD, BOOT_OPTIONS]
+        add_keys = [BOOM_ENTRY_LINUX, BOOM_ENTRY_INITRD, BOOM_ENTRY_OPTIONS]
 
         # Sort the item list to give stable list ordering on Py3.
         keys = sorted(keys, reverse=True)
 
         if self.bp:
-            add_keys.append(BOOT_VERSION)
+            add_keys.append(BOOM_ENTRY_VERSION)
 
         for k in add_keys:
             if k not in self._entry_data:
@@ -940,13 +941,13 @@ class BootEntry(object):
         items = list(self._entry_data.items())
 
         add_items = [
-            (BOOT_LINUX, self.linux),
-            (BOOT_INITRD, self.initrd),
-            (BOOT_OPTIONS, self.options)
+            (BOOM_ENTRY_LINUX, self.linux),
+            (BOOM_ENTRY_INITRD, self.initrd),
+            (BOOM_ENTRY_OPTIONS, self.options)
         ]
 
         if self.bp:
-            add_items.append((BOOT_VERSION, self.version))
+            add_items.append((BOOM_ENTRY_VERSION, self.version))
 
         # Sort the item list to give stable list ordering on Py3.
         items = sorted(items, key=lambda i:i[0], reverse=True)
@@ -1026,10 +1027,11 @@ class BootEntry(object):
             Initialise a new ``BootEntry`` object with data from the
             dictionary ``entry_data`` (and optionally the supplied
             ``BootParams`` object). The supplied dictionary should be
-            indexed by Boom entry key names (``BOOT_*``).
+            indexed by Boom entry key names (``BOOM_ENTRY_*``).
 
             Raises ``ValueError`` if required keys are missing
-            (``BOOT_TITLE``, and either ``BOOT_LINUX`` or ``BOOT_EFI``).
+            (``BOOM_ENTRY_TITLE``, and either ``BOOM_ENTRY_LINUX`` or
+             ``BOOM_ENTRY_EFI``).
 
             This method should not be called directly: to build a new
             ``BootEntry`` object from in-memory data, use the class
@@ -1043,11 +1045,13 @@ class BootEntry(object):
             :returntype: None
             :raises: ValueError
         """
-        if BOOT_TITLE not in entry_data:
-            raise ValueError("BootEntry missing BOOT_TITLE")
+        if BOOM_ENTRY_TITLE not in entry_data:
+            raise ValueError("BootEntry missing BOOM_ENTRY_TITLE")
 
-        if BOOT_LINUX not in entry_data and BOOT_EFI not in entry_data:
-            raise ValueError("BootEntry missing BOOT_LINUX or BOOT_EFI")
+        if BOOM_ENTRY_LINUX not in entry_data:
+            if BOOM_ENTRY_EFI not in entry_data:
+                raise ValueError("BootEntry missing BOOM_ENTRY_LINUX or"
+                                 " BOOM_ENTRY_EFI")
 
         self._entry_data = {}
         for key in [k for k in ENTRY_KEYS if k in entry_data]:
@@ -1059,13 +1063,13 @@ class BootEntry(object):
         if boot_params:
             self.bp = boot_params
             # boot_params is always authoritative
-            self._entry_data[BOOT_VERSION] = self.bp.version
+            self._entry_data[BOOM_ENTRY_VERSION] = self.bp.version
         else:
             # Attempt to recover BootParams from entry data
             self.bp = BootParams.from_entry(self)
             if self.bp:
                 # Clear be.options to allow re-templating
-                self._entry_data.pop(BOOT_OPTIONS)
+                self._entry_data.pop(BOOM_ENTRY_OPTIONS)
 
         if self.bp:
             def _pop_if_set(key):
@@ -1079,10 +1083,10 @@ class BootEntry(object):
             # Clear templated keys from _entry_data and if the value
             # read from entry_data is identical to that generated by the
             # current OsProfile and BootParams.
-            _pop_if_set(BOOT_VERSION)
-            _pop_if_set(BOOT_LINUX)
-            _pop_if_set(BOOT_INITRD)
-            _pop_if_set(BOOT_OPTIONS)
+            _pop_if_set(BOOM_ENTRY_VERSION)
+            _pop_if_set(BOOM_ENTRY_LINUX)
+            _pop_if_set(BOOM_ENTRY_INITRD)
+            _pop_if_set(BOOM_ENTRY_OPTIONS)
             self._entry_data = _entry_data
 
     def __from_file(self, entry_file, boot_params):
@@ -1093,7 +1097,8 @@ class BootEntry(object):
             object).
 
             Raises ``ValueError`` if required keys are missing
-            (``BOOT_TITLE``, and either ``BOOT_LINUX`` or ``BOOT_EFI``).
+            (``BOOM_ENTRY_TITLE``, and either ``BOOM_ENTRY_LINUX`` or
+             ``BOOM_ENTRY_EFI``).
 
             This method should not be called directly: to build a new
             ``BootEntry`` object from entry file data, use the class
@@ -1168,7 +1173,7 @@ class BootEntry(object):
 
             The ``entry_data`` keyword argument is an optional argument
             used to initialise a ``BootEntry`` from a dictionary mapping
-            ``BOOT_*`` keys to ``BootEntry`` values. It may be used to
+            ``BOOM_ENTRY_*`` keys to ``BootEntry`` values. It may be used to
             initialised a new ``BootEntry`` using the strings obtained
             from a call to ``BootEntry.__repr__()``.
 
@@ -1405,11 +1410,11 @@ class BootEntry(object):
             :setter: sets this ``BootEntry`` object's title.
             :type: string
         """
-        return self._entry_data_property(BOOT_TITLE)
+        return self._entry_data_property(BOOM_ENTRY_TITLE)
 
     @title.setter
     def title(self, title):
-        self._entry_data[BOOT_TITLE] = title
+        self._entry_data[BOOM_ENTRY_TITLE] = title
         self._dirty()
 
     @property
@@ -1420,11 +1425,11 @@ class BootEntry(object):
             :setter: sets this ``BootEntry`` object's ``machine_id``.
             :type: string
         """
-        return self._entry_data_property(BOOT_MACHINE_ID)
+        return self._entry_data_property(BOOM_ENTRY_MACHINE_ID)
 
     @machine_id.setter
     def machine_id(self, machine_id):
-        self._entry_data[BOOT_MACHINE_ID] = machine_id
+        self._entry_data[BOOM_ENTRY_MACHINE_ID] = machine_id
         self._dirty()
 
     @property
@@ -1435,13 +1440,13 @@ class BootEntry(object):
             :setter: sets this ``BootEntry`` object's ``version``.
             :type: string
         """
-        if self.bp and BOOT_VERSION not in self._entry_data:
+        if self.bp and BOOM_ENTRY_VERSION not in self._entry_data:
             return self.bp.version
-        return self._entry_data_property(BOOT_VERSION)
+        return self._entry_data_property(BOOM_ENTRY_VERSION)
 
     @version.setter
     def version(self, version):
-        self._entry_data[BOOT_VERSION] = version
+        self._entry_data[BOOM_ENTRY_VERSION] = version
         self._dirty()
 
     @property
@@ -1488,8 +1493,8 @@ class BootEntry(object):
             """
             return " ".join([o for o in opts.split() if not del_opt(o, drop)])
 
-        if BOOT_OPTIONS in self._entry_data:
-            opts = self._entry_data_property(BOOT_OPTIONS)
+        if BOOM_ENTRY_OPTIONS in self._entry_data:
+            opts = self._entry_data_property(BOOM_ENTRY_OPTIONS)
             if self.bp:
                 return add_opts(opts, self.bp.add_opts)
             return opts
@@ -1504,7 +1509,7 @@ class BootEntry(object):
 
     @options.setter
     def options(self, options):
-        self._entry_data[BOOT_OPTIONS] = options
+        self._entry_data[BOOM_ENTRY_OPTIONS] = options
         self._dirty()
 
     @property
@@ -1515,15 +1520,15 @@ class BootEntry(object):
             :setter: sets the configured ``linux`` image.
             :type: string
         """
-        if not self._osp or BOOT_LINUX in self._entry_data:
-            return self._entry_data_property(BOOT_LINUX)
+        if not self._osp or BOOM_ENTRY_LINUX in self._entry_data:
+            return self._entry_data_property(BOOM_ENTRY_LINUX)
 
         kernel_path = self._apply_format(self._osp.kernel_pattern)
         return kernel_path
 
     @linux.setter
     def linux(self, linux):
-        self._entry_data[BOOT_LINUX] = linux
+        self._entry_data[BOOM_ENTRY_LINUX] = linux
         self._dirty()
 
     @property
@@ -1534,15 +1539,15 @@ class BootEntry(object):
             :getter: sets the configured ``initrd`` image.
             :type: string
         """
-        if not self._osp or BOOT_INITRD in self._entry_data:
-            return self._entry_data_property(BOOT_INITRD)
+        if not self._osp or BOOM_ENTRY_INITRD in self._entry_data:
+            return self._entry_data_property(BOOM_ENTRY_INITRD)
 
         initramfs_path = self._apply_format(self._osp.initramfs_pattern)
         return initramfs_path
 
     @initrd.setter
     def initrd(self, initrd):
-        self._entry_data[BOOT_INITRD] = initrd
+        self._entry_data[BOOM_ENTRY_INITRD] = initrd
         self._dirty()
 
     @property
@@ -1553,11 +1558,11 @@ class BootEntry(object):
             :getter: sets the configured EFI application image.
             :type: string
         """
-        return self._entry_data_property(BOOT_EFI)
+        return self._entry_data_property(BOOM_ENTRY_EFI)
 
     @efi.setter
     def efi(self, efi):
-        self._entry_data[BOOT_EFI] = efi
+        self._entry_data[BOOM_ENTRY_EFI] = efi
         self._dirty()
 
     @property
@@ -1568,11 +1573,11 @@ class BootEntry(object):
             :getter: sets the configured device tree archive.
             :type: string
         """
-        return self._entry_data_property(BOOT_DEVICETREE)
+        return self._entry_data_property(BOOM_ENTRY_DEVICETREE)
 
     @devicetree.setter
     def devicetree(self, devicetree):
-        self._entry_data[BOOT_DEVICETREE] = devicetree
+        self._entry_data[BOOM_ENTRY_DEVICETREE] = devicetree
         self._dirty()
 
     @property
@@ -1669,14 +1674,14 @@ __all__ = [
     'BOOT_ENTRY_MODE',
 
     # BootEntry keys
-    'BOOT_TITLE',
-    'BOOT_VERSION',
-    'BOOT_MACHINE_ID',
-    'BOOT_LINUX',
-    'BOOT_INITRD',
-    'BOOT_EFI',
-    'BOOT_OPTIONS',
-    'BOOT_DEVICETREE',
+    'BOOM_ENTRY_TITLE',
+    'BOOM_ENTRY_VERSION',
+    'BOOM_ENTRY_MACHINE_ID',
+    'BOOM_ENTRY_LINUX',
+    'BOOM_ENTRY_INITRD',
+    'BOOM_ENTRY_EFI',
+    'BOOM_ENTRY_OPTIONS',
+    'BOOM_ENTRY_DEVICETREE',
 
     # Root device pattern
     'DEV_PATTERN',
