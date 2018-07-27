@@ -27,8 +27,8 @@ This simplifies iteration over a profile's key / value pairs and allows
 straightforward access to all members in scripts and the Python shell.
 
 All profile key names are made available as named members of the module:
-``BOOM_OS_*``, and the ``PROFILE_KEYS`` list. Human-readable names for
-all the profile keys are stored in the ``KEY_NAMES`` dictionary: these
+``BOOM_OS_*``, and the ``OS_PROFILE_KEYS`` list. Human-readable names for
+all the profile keys are stored in the ``OS_KEY_NAMES`` dictionary: these
 are suitable for display use and are used by default by the
 ``OsProfile`` string formatting routines.
 """
@@ -78,7 +78,7 @@ BOOM_OS_OPTIONS = "BOOM_OS_OPTIONS"
 #: Ordered list of possible profile keys, partitioned into mandatory
 #: keys, root option keys, and optional keys (currently the Linux
 #: kernel command line).
-PROFILE_KEYS = [
+OS_PROFILE_KEYS = [
     # Keys 0-7 (ID to INITRAMFS_PATTERN) are mandatory.
     BOOM_OS_ID, BOOM_OS_NAME, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION,
     BOOM_OS_VERSION_ID, BOOM_OS_UNAME_PATTERN,
@@ -90,9 +90,9 @@ PROFILE_KEYS = [
 ]
 
 #: A map of Boom profile keys to human readable key names suitable
-#: for use in formatted output. These key names are used when an
-#: ``OsProfile`` object is formatted as a string.
-KEY_NAMES = {
+#: for use in formatted output. These key names are used to format
+#: a ``OsProfile`` object as a human readable string.
+OS_KEY_NAMES = {
     BOOM_OS_ID: "OS ID",
     BOOM_OS_NAME: "Name",
     BOOM_OS_SHORT_NAME: "Short name",
@@ -107,10 +107,10 @@ KEY_NAMES = {
 }
 
 #: Boom profile keys that must exist in a valid profile.
-REQUIRED_KEYS = PROFILE_KEYS[0:8]
+OS_REQUIRED_KEYS = OS_PROFILE_KEYS[0:8]
 
 #: Boom profile keys for different forms of root device specification.
-ROOT_KEYS = PROFILE_KEYS[9:10]
+OS_ROOT_KEYS = OS_PROFILE_KEYS[8:10]
 
 #: Keys with default values
 _DEFAULT_KEYS = {
@@ -460,11 +460,11 @@ class OsProfile(object):
                   BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
                   BOOM_OS_OPTIONS]
 
-        fields = [f for f in PROFILE_KEYS if f in self._profile_data]
+        fields = [f for f in OS_PROFILE_KEYS if f in self._profile_data]
         osp_str = ""
         tail = ""
         for f in fields:
-            osp_str += '%s: "%s"' % (KEY_NAMES[f], self._profile_data[f])
+            osp_str += '%s: "%s"' % (OS_KEY_NAMES[f], self._profile_data[f])
             tail = ",\n" if f in breaks else ", "
             osp_str += tail
         osp_str = osp_str.rstrip(tail)
@@ -473,17 +473,16 @@ class OsProfile(object):
     def __repr__(self):
         """Format this OsProfile as a machine readable string.
 
-            Return a machine-readable representation of this `OsProfile`
-            object. The string is formatted as a call to the `OsProfile`
+            Return a machine-readable representation of this ``OsProfile``
+            object. The string is formatted as a call to the ``OsProfile``
             constructor, with values passed as a dictionary to the
-            `profile_data` keyword argument.
+            ``profile_data`` keyword argument.
 
-            :returns: a string representation of this `OsProfile`.
-
-            :returntype: <class 'boom.osprofile.OsProfile>
+            :returns: a string representation of this ``OsProfile``.
+            :returntype: string
         """
         osp_str = "OsProfile(profile_data={"
-        fields = [f for f in PROFILE_KEYS if f in self._profile_data]
+        fields = [f for f in OS_PROFILE_KEYS if f in self._profile_data]
         for f in fields:
             osp_str += '%s:"%s", ' % (f, self._profile_data[f])
         osp_str = osp_str.rstrip(", ")
@@ -538,7 +537,7 @@ class OsProfile(object):
         if not isinstance(key, str):
             raise TypeError("OsProfile key must be a string.")
 
-        if key not in PROFILE_KEYS:
+        if key not in OS_PROFILE_KEYS:
             raise ValueError("Invalid OsProfile key: %s" % key)
 
         if key in bad_key_map:
@@ -621,13 +620,13 @@ class OsProfile(object):
             if key not in profile_data:
                 profile_data[key] = _DEFAULT_KEYS[key]
 
-        for key in REQUIRED_KEYS:
+        for key in OS_REQUIRED_KEYS:
             if key == BOOM_OS_ID:
                 continue
             if key not in profile_data:
                 raise ValueError(err_str % key)
 
-        root_opts = [key for key in ROOT_KEYS if key in profile_data]
+        root_opts = [key for key in OS_ROOT_KEYS if key in profile_data]
         if not any(root_opts):
             root_opts_err = err_str % "ROOT_OPTS"
             raise ValueError(root_opts_err)
@@ -728,7 +727,7 @@ class OsProfile(object):
         required_args = [name, short_name, version, version_id]
         if all([not val for val in required_args]):
             # NULL profile
-            for key in PROFILE_KEYS:
+            for key in OS_PROFILE_KEYS:
                 self._profile_data[key] = ""
         elif any([not val for val in required_args]):
             raise ValueError("Invalid profile arguments: name, "
@@ -881,7 +880,8 @@ class OsProfile(object):
                     did_subst += 1
                 elif k in fmt and key in key_exp:
                     # Recursive expansion and substitution
-                    pk = key if not keyname and key in preserve_keys else keyname
+                    pk = key if (not keyname and
+                                 key in preserve_keys) else keyname
                     for e in key_exp[key]:
                         subst += _substitute_keys(e, keyname=pk)
                     did_subst += 1
@@ -1014,7 +1014,8 @@ class OsProfile(object):
     def initramfs_pattern(self, value):
         initramfs_key = _key_from_key_name(FMT_INITRAMFS)
         if initramfs_key in value:
-            raise ValueError("OsProfile.initramfs cannot contain %s" % initramfs_key)
+            raise ValueError("OsProfile.initramfs cannot contain %s" %
+                             initramfs_key)
         self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
         self._dirty()
 
@@ -1174,7 +1175,7 @@ class OsProfile(object):
 
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_profiles_path())
         with fdopen(tmp_fd, "w") as f:
-            for key in [k for k in PROFILE_KEYS if k in self._profile_data]:
+            for key in [k for k in OS_PROFILE_KEYS if k in self._profile_data]:
                 if self._comments and key in self._comments:
                     f.write(self._comments[key].rstrip() + '\n')
                 f.write('%s="%s"\n' % (key, self._profile_data[key]))
@@ -1245,7 +1246,7 @@ __all__ = [
     'BOOM_OS_ROOT_OPTS_LVM2', 'BOOM_OS_ROOT_OPTS_BTRFS',
     'BOOM_OS_OPTIONS',
 
-    'PROFILE_KEYS', 'KEY_NAMES', 'REQUIRED_KEYS', 'ROOT_KEYS',
+    'OS_PROFILE_KEYS', 'OS_KEY_NAMES', 'OS_REQUIRED_KEYS', 'OS_ROOT_KEYS',
 
     # Path configuration
     'boom_profiles_path',
