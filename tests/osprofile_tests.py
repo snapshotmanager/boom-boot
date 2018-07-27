@@ -144,10 +144,10 @@ class OsProfileTests(unittest.TestCase):
         osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
         osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
         osp.options = "root=%{root_device} %{root_opts} rhgb quiet"
-        self.assertEqual(osp.name, "Fedora")
-        self.assertEqual(osp.short_name, "fedora")
-        self.assertEqual(osp.version, "24 (Workstation Edition)")
-        self.assertEqual(osp.version_id, "24")
+        self.assertEqual(osp.os_name, "Fedora")
+        self.assertEqual(osp.os_short_name, "fedora")
+        self.assertEqual(osp.os_version, "24 (Workstation Edition)")
+        self.assertEqual(osp.os_version_id, "24")
         self.assertEqual(osp.kernel_pattern, "/vmlinuz-%{version}")
         self.assertEqual(osp.initramfs_pattern,
                          "/initramfs-%{version}.img")

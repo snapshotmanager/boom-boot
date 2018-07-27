@@ -115,16 +115,16 @@ _profile_fields = [
         REP_SHA, lambda f, d: f.report_sha(d.os_id)),
     BoomFieldType(
         BR_PROFILE, "osname", "Name", "OS name", 24,
-        REP_STR, lambda f, d: f.report_str(d.name)),
+        REP_STR, lambda f, d: f.report_str(d.os_name)),
     BoomFieldType(
         BR_PROFILE, "osshortname", "OsShortName", "OS short name", 12,
-        REP_STR, lambda f, d: f.report_str(d.short_name)),
+        REP_STR, lambda f, d: f.report_str(d.os_short_name)),
     BoomFieldType(
         BR_PROFILE, "osversion", "OsVersion", "OS version", 10,
-        REP_STR, lambda f, d: f.report_str(d.version)),
+        REP_STR, lambda f, d: f.report_str(d.os_version)),
     BoomFieldType(
         BR_PROFILE, "osversion_id", "VersionID", "Version identifier", 10,
-        REP_STR, lambda f, d: f.report_str(d.version_id)),
+        REP_STR, lambda f, d: f.report_str(d.os_version_id)),
     BoomFieldType(
         BR_PROFILE, "unamepattern", "UnamePattern", "UTS name pattern", 12,
         REP_STR, lambda f, d: f.report_str(d.uname_pattern)),
@@ -820,10 +820,10 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
     osp = osps.pop()
 
     # Clone unset keys
-    name = name if name else osp.name
-    short_name = short_name if short_name else osp.short_name
-    version = version if version else osp.version
-    version_id = version_id if version_id else osp.version_id
+    name = name if name else osp.os_name
+    short_name = short_name if short_name else osp.os_short_name
+    version = version if version else osp.os_version
+    version_id = version_id if version_id else osp.os_version_id
     uname_pattern = uname_pattern if uname_pattern else osp.uname_pattern
     kernel_pattern = kernel_pattern if kernel_pattern else osp.kernel_pattern
     root_opts_lvm2 = root_opts_lvm2 if root_opts_lvm2 else osp.root_opts_lvm2
@@ -1338,11 +1338,11 @@ def _create_profile_cmd(cmd_args, select, opts, identifier):
         else:
             name = cmd_args.name
 
-        if not cmd_args.short_name:
+        if not cmd_args.os_short_name:
             print("profile create requires --short-name")
             return 1
         else:
-            short_name = cmd_args.short_name
+            short_name = cmd_args.os_short_name
 
         if not cmd_args.os_version:
             print("profile create requires --os-version")

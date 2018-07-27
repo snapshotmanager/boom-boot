@@ -271,13 +271,13 @@ def select_profile(s, osp):
         return False
     if s.os_id and not osp.os_id.startswith(s.os_id):
         return False
-    if s.os_name and osp.name != s.os_name:
+    if s.os_name and osp.os_name != s.os_name:
         return False
-    if s.os_short_name and osp.short_name != s.os_short_name:
+    if s.os_short_name and osp.os_short_name != s.os_short_name:
         return False
-    if s.os_version and osp.version != s.os_version:
+    if s.os_version and osp.os_version != s.os_version:
         return False
-    if s.os_version_id and osp.version_id != s.os_version_id:
+    if s.os_version_id and osp.os_version_id != s.os_version_id:
         return False
     if s.os_uname_pattern and osp.uname_pattern != s.os_uname_pattern:
         return False
@@ -334,7 +334,7 @@ def find_profiles(selection=None, match_fn=select_profile):
         if match_fn(selection, osp):
             matches.append(osp)
     _log_debug_profile("Found %d profiles" % len(matches))
-    matches.sort(key=lambda o: (o.name, o.version))
+    matches.sort(key=lambda o: (o.os_name, o.os_version))
 
     return matches
 
@@ -381,13 +381,13 @@ def match_os_profile(entry):
                (entry.title, entry.version))
 
     # Attempt to match by uname pattern
-    for osp in sorted(_profiles, key=lambda o: (o.name, o.version)):
+    for osp in sorted(_profiles, key=lambda o: (o.os_name, o.os_version)):
         if _is_null_profile(osp):
             continue
         if osp.match_uname_version(entry.version):
             _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
                        "to OsProfile(name='%s', os_id='%s')" %
-                        (entry.version, entry.disp_boot_id, osp.name,
+                        (entry.version, entry.disp_boot_id, osp.os_name,
                          osp.disp_os_id))
             return osp
 
@@ -398,7 +398,7 @@ def match_os_profile(entry):
         if osp.match_options(entry):
             _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
                        "to OsProfile(name='%s', os_id='%s')" %
-                       (entry.version, entry.disp_boot_id, osp.name,
+                       (entry.version, entry.disp_boot_id, osp.os_name,
                        osp.disp_os_id))
             return osp
 
@@ -592,12 +592,12 @@ class OsProfile(object):
         """Generate a new OS identifier.
 
             Generate a new sha1 profile identifier for this profile,
-            using the short_name, version, and version_id values and
+            using the os_short_name, version, and version_id values and
             store it in _profile_data.
 
             :returns: None
         """
-        hashdata = (self.short_name + self.version + self.version_id)
+        hashdata = (self.os_short_name + self.os_version + self.os_version_id)
 
         digest = sha1(hashdata.encode('utf-8')).hexdigest()
         self._profile_data[BOOM_OS_ID] = digest
@@ -929,7 +929,7 @@ class OsProfile(object):
         return self._profile_data[BOOM_OS_ID]
 
     @property
-    def name(self):
+    def os_name(self):
         """The ``name`` of this profile.
 
             :getter: returns the ``name`` as a string.
@@ -938,7 +938,7 @@ class OsProfile(object):
         return self._profile_data[BOOM_OS_NAME]
 
     @property
-    def short_name(self):
+    def os_short_name(self):
         """The ``short_name`` of this profile.
 
             :getter: returns the ``short_name`` as a string.
@@ -947,7 +947,7 @@ class OsProfile(object):
         return self._profile_data[BOOM_OS_SHORT_NAME]
 
     @property
-    def version(self):
+    def os_version(self):
         """The ``version`` of this profile.
 
             :getter: returns the ``version`` as a string.
@@ -956,7 +956,7 @@ class OsProfile(object):
         return self._profile_data[BOOM_OS_VERSION]
 
     @property
-    def version_id(self):
+    def os_version_id(self):
         """The ``version_id`` of this profile.
 
             :getter: returns the ``version_id`` as a string.
@@ -1141,7 +1141,7 @@ class OsProfile(object):
             :returntype: str
             :returns: The absolute path for this OsProfile's file
         """
-        profile_id = (self.os_id, self.short_name, self.version_id)
+        profile_id = (self.os_id, self.os_short_name, self.os_version_id)
         profile_path_name = BOOM_OS_PROFILE_FORMAT % (profile_id)
         return path_join(boom_profiles_path(), profile_path_name)
 
@@ -1170,7 +1170,7 @@ class OsProfile(object):
         profile_path = self._profile_path()
 
         _log_debug("Writing OsProfile(name='%s', os_id='%s') to '%s'" %
-                   (self.name, self.disp_os_id, basename(profile_path)))
+                   (self.os_name, self.disp_os_id, basename(profile_path)))
 
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_profiles_path())
         with fdopen(tmp_fd, "w") as f:
@@ -1210,7 +1210,7 @@ class OsProfile(object):
         global _profiles
         profile_path = self._profile_path()
         _log_debug("Deleting OsProfile(name='%s', os_id='%s') from '%s'" %
-                   (self.name, self.disp_os_id, basename(profile_path)))
+                   (self.os_name, self.disp_os_id, basename(profile_path)))
         if _profiles and self in _profiles:
             _profiles.remove(self)
 
