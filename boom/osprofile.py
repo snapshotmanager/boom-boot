@@ -307,7 +307,7 @@ def find_profiles(selection=None, match_fn=select_profile):
     global _profiles
 
     # Use null search criteria if unspecified
-    s = selection if selection else Selection()
+    selection = selection if selection else Selection()
 
     selection.check_valid_selection(profile=True)
 
