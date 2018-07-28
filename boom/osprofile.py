@@ -915,6 +915,8 @@ class OsProfile(object):
             :getter: returns the ``os_id`` as a string.
             :type: string
         """
+        if BOOM_OS_ID not in self._profile_data:
+            self._generate_os_id
         return self._profile_data[BOOM_OS_ID]
 
     @property
