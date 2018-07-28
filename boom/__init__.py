@@ -31,6 +31,7 @@ classes and interfaces provided, and the ``boom`` tool help output and
 manual page for information on using the command line interface.
 """
 from os.path import exists as path_exists, isabs, join as path_join
+from os import listdir
 import logging
 
 __version__ = "0.9"
@@ -736,6 +737,54 @@ def _get_machine_id():
             machine_id = None
     return machine_id
 
+def load_profiles_as_list(profiles, profiles_by_id,
+                          profile_class, profile_type,
+                          profiles_path, profile_ext, profile_id):
+    """Load profiles from disk.
+
+        Load the set of profiles found at the path ``profiles_path``
+        into the list ``profiles``. The list should be cleared before
+        calling this function if the prior contents are no longer
+        required.
+
+        The profile class to be instantiated is specified by the
+        ``profile_class`` argument. An optional ``type`` may be
+        specified to describe the profile type in error messages.
+        If ``type`` is unset the class name is used instead.
+
+        This function is intended for use by profile implementations
+        that share common on-disk profile handling.
+
+        :param profiles: A list to which loaded profiles are added.
+        :param profile_class: The profile class to instantiate.
+        :param profile_type: A string description of the profile type.
+        :param profiles_path: Path to the on-disk profile directory.
+        :param profiles_ext: Extension of profile files.
+        :param profile_id: A string containing the name of the ID attr.
+
+        :returns: None
+    """
+    if not any([profiles is not None, profiles_by_id is not None]):
+        raise ValueError("profiles and profiles_by_id cannot both be None")
+
+    profiles = profiles if profiles is not None else []
+    profiles_by_id = profiles_by_id if profiles_by_id is not None else {}
+
+    profile_files = listdir(profiles_path)
+    _log_info("Loading %s profiles from %s" % (profile_type, profiles_path))
+    for pf in profile_files:
+        if not pf.endswith(".%s" % profile_ext):
+            continue
+        pf_path = path_join(profiles_path, pf)
+        try:
+            profile = profile_class(profile_file=pf_path)
+        except Exception as e:
+            _log_warn("Failed to load %s from '%s': %s" %
+                      (profile_class.__name__, pf_path, e))
+            continue
+        profiles.append(profile)
+        profiles_by_id[getattr(profile, profile_id)] = profile
+
 
 __all__ = [
     # boom module constants
@@ -788,7 +837,8 @@ __all__ = [
     '_parse_name_value',
     '_parse_btrfs_subvol',
     '_find_minimum_sha_prefix',
-    '_get_machine_id'
+    '_get_machine_id',
+    'load_profiles_as_list'
 ]
 
 # vim: set et ts=4 sw=4 :

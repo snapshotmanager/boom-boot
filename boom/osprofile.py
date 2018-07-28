@@ -198,19 +198,8 @@ def load_profiles():
     _profiles_by_id = {}
     _profiles.append(_null_profile)
     _profiles_by_id[_null_profile.os_id] = _null_profile
-    profiles_path = boom_profiles_path()
-    profile_files = listdir(profiles_path)
-    _log_info("Loading profiles from %s" % profiles_path)
-    for pf in profile_files:
-        if not pf.endswith(".profile"):
-            continue
-        pf_path = path_join(profiles_path, pf)
-        try:
-            osp = OsProfile(profile_file=pf_path)
-        except Exception as e:
-            _log_warn("Failed to load OsProfile from '%s'" % pf_path)
-        _profiles.append(osp)
-        _profiles_by_id[osp.os_id] = osp
+    load_profiles_as_list(_profiles, _profiles_by_id, OsProfile, "OS",
+                          boom_profiles_path(), "profile", "os_id")
     _profiles_loaded = True
     _log_info("Loaded %d profiles" % (len(_profiles) - 1))
 
