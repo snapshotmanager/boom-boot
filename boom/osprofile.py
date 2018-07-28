@@ -419,7 +419,7 @@ def match_os_profile_by_version(version):
     return None
 
 
-def _key_from_key_name(key_name):
+def key_from_key_name(key_name):
     key_format = "%%{%s}"
     return key_format % key_name
 
@@ -521,7 +521,7 @@ class OsProfile(object):
             for bad_key in bad_keys:
                 if bad_key in value:
                     raise ValueError("OsProfile.%s cannot contain %s"
-                                     % (key, _key_from_key_name(bad_key)))
+                                     % (key, key_from_key_name(bad_key)))
 
         if not isinstance(key, str):
             raise TypeError("OsProfile key must be a string.")
@@ -983,7 +983,7 @@ class OsProfile(object):
 
     @kernel_pattern.setter
     def kernel_pattern(self, value):
-        kernel_key = _key_from_key_name(FMT_KERNEL)
+        kernel_key = key_from_key_name(FMT_KERNEL)
         if kernel_key in value:
             raise ValueError("OsProfile.kernel cannot contain %s" % kernel_key)
         self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
@@ -1001,7 +1001,7 @@ class OsProfile(object):
 
     @initramfs_pattern.setter
     def initramfs_pattern(self, value):
-        initramfs_key = _key_from_key_name(FMT_INITRAMFS)
+        initramfs_key = key_from_key_name(FMT_INITRAMFS)
         if initramfs_key in value:
             raise ValueError("OsProfile.initramfs cannot contain %s" %
                              initramfs_key)
@@ -1022,7 +1022,7 @@ class OsProfile(object):
 
     @root_opts_lvm2.setter
     def root_opts_lvm2(self, value):
-        root_opts_key = _key_from_key_name(FMT_ROOT_OPTS)
+        root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
         if root_opts_key in value:
                 raise ValueError("OsProfile.root_opts_lvm2 cannot contain %s" %
                                  root_opts_key)
@@ -1043,7 +1043,7 @@ class OsProfile(object):
 
     @root_opts_btrfs.setter
     def root_opts_btrfs(self, value):
-        root_opts_key = _key_from_key_name(FMT_ROOT_OPTS)
+        root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
         if root_opts_key in value:
                 raise ValueError("OsProfile.root_opts_btrfs cannot contain"
                                  " %s" % root_opts_key)
@@ -1222,7 +1222,7 @@ __all__ = [
     'OsProfile',
     'profiles_loaded', 'load_profiles', 'write_profiles', 'find_profiles',
     'get_os_profile_by_id', 'match_os_profile', 'select_profile',
-    'match_os_profile_by_version',
+    'match_os_profile_by_version', 'key_from_key_name',
 
     # Module constants
     'BOOM_PROFILES', 'BOOM_OS_PROFILE_FORMAT',
