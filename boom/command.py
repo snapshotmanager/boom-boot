@@ -1338,11 +1338,11 @@ def _create_profile_cmd(cmd_args, select, opts, identifier):
         else:
             name = cmd_args.name
 
-        if not cmd_args.os_short_name:
+        if not cmd_args.short_name:
             print("profile create requires --short-name")
             return 1
         else:
-            short_name = cmd_args.os_short_name
+            short_name = cmd_args.short_name
 
         if not cmd_args.os_version:
             print("profile create requires --os-version")
