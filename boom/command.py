@@ -182,7 +182,7 @@ _entry_fields = [
         BR_ENTRY, "initramfs", "Initramfs", "Initramfs image", 40,
         REP_STR, lambda f, d: f.report_str(d.initrd)),
     BoomFieldType(
-        BR_ENTRY, "machineid", "Machine ID", "Machine identifier", 12,
+        BR_ENTRY, "machineid", "Machine ID", "Machine identifier", 10,
         REP_SHA, lambda f, d: f.report_sha(d.machine_id)),
     BoomFieldType(
         BR_ENTRY, "entrypath", "Entry path", "On-disk entry path", 12,
