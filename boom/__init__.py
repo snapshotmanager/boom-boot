@@ -690,7 +690,7 @@ def _parse_name_value(nvp, separator="="):
     return (name, value)
 
 
-def _find_minimum_sha_prefix(shas, min_prefix):
+def find_minimum_sha_prefix(shas, min_prefix):
     """Find the minimum SHA prefix length guaranteeing uniqueness.
 
         Find the minimum unique prefix for the set of SHA IDs in the set
@@ -710,6 +710,30 @@ def _find_minimum_sha_prefix(shas, min_prefix):
         while sha[:min_prefix] == _next_sha(shas, sha)[:min_prefix]:
             min_prefix += 1
     return min_prefix
+
+
+def min_id_width(min_prefix, objs, attr):
+    """Calculate the minimum unique width for id values.
+
+        Calculate the minimum width to ensure uniqueness when displaying
+        id values.
+
+        :param min_prefix: The minimum allowed unique prefix.
+        :param objs: An interrable containing objects to check.
+        :param attr: The attribute to compare.
+
+        :returns: the minimum id width.
+        :returntype: int
+    """
+    # FIXME: factor out (similar to min_os_id_width())
+    min_prefix = 7
+    if not objs:
+        return min_prefix
+
+    ids = set()
+    for obj in objs:
+        ids.add(getattr(obj, attr))
+    return find_minimum_sha_prefix(ids, min_prefix)
 
 
 def _get_machine_id():
@@ -836,8 +860,9 @@ __all__ = [
     '_blank_or_comment',
     '_parse_name_value',
     '_parse_btrfs_subvol',
-    '_find_minimum_sha_prefix',
     '_get_machine_id',
+    'find_minimum_sha_prefix',
+    'min_id_width',
     'load_profiles_as_list'
 ]
 

@@ -27,7 +27,7 @@ The ``BoomReport`` module is closely based on the ``device-mapper``
 reporting engine and shares many features and behaviours with device
 mapper reports.
 """
-from boom import _find_minimum_sha_prefix, BOOM_DEBUG_REPORT
+from boom import find_minimum_sha_prefix, BOOM_DEBUG_REPORT
 import logging
 import sys
 
@@ -751,7 +751,7 @@ class BoomReport(object):
                     shas[num].add(field.report_string)
         for num in shas.keys():
             min_prefix = max(MIN_SHA_WIDTH, props_map[num].width)
-            props_map[num].width = _find_minimum_sha_prefix(shas[num], min_prefix)
+            props_map[num].width = find_minimum_sha_prefix(shas[num], min_prefix)
 
     def __recalculate_fields(self):
         """Recalculate field widths.

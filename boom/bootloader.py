@@ -591,14 +591,7 @@ def min_boot_id_width():
         :returns: the minimum boot_id width.
         :returntype: int
     """
-    min_prefix = 7
-    if not _entries:
-        return min_prefix
-
-    shas = set()
-    for be in _entries:
-        shas.add(be.boot_id)
-    return _find_minimum_sha_prefix(shas, min_prefix)
+    return min_id_width(7, _entries, "boot_id")
 
 def select_params(s, bp):
     """Test BootParams against Selection criteria.

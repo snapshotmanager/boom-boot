@@ -234,14 +234,7 @@ def min_os_id_width():
         :returns: the minimum os_id width.
         :returntype: int
     """
-    min_prefix = 7
-    if not _profiles:
-        return min_prefix
-
-    shas = set()
-    for osp in _profiles:
-        shas.add(osp.os_id)
-    return _find_minimum_sha_prefix(shas, min_prefix)
+    return min_id_width(7, _profiles, "os_id")
 
 
 def select_profile(s, osp):
