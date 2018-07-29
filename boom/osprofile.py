@@ -644,10 +644,10 @@ class OsProfile(object):
         _log_debug("Loading OsProfile from '%s'" % basename(profile_file))
         with open(profile_file, "r") as pf:
             for line in pf:
-                if _blank_or_comment(line):
+                if blank_or_comment(line):
                     comment += line if line else ""
                 else:
-                    name, value = _parse_name_value(line)
+                    name, value = parse_name_value(line)
                     profile_data[name] = value
                     if comment:
                         comments[name] = comment
@@ -1091,9 +1091,9 @@ class OsProfile(object):
         """
         release_data = {}
         for line in os_release:
-            if _blank_or_comment(line):
+            if blank_or_comment(line):
                 continue
-            name, value = _parse_name_value(line)
+            name, value = parse_name_value(line)
             release_data[name] = value
         osp = OsProfile(release_data["NAME"],
                         release_data["ID"],

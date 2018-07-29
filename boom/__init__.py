@@ -352,7 +352,7 @@ def set_boom_path(boom_path):
     __config.boom_path = boom_path
 
 
-def _parse_btrfs_subvol(subvol):
+def parse_btrfs_subvol(subvol):
     """Parse a BTRFS subvolume string.
 
         Parse a BTRFS subvolume specification into either a subvolume
@@ -536,7 +536,7 @@ class Selection(object):
             :returns: A new Selection instance
             :returntype: Selection
         """
-        subvol = _parse_btrfs_subvol(args.btrfs_subvolume)
+        subvol = parse_btrfs_subvol(args.btrfs_subvolume)
         if subvol and subvol.startswith('/'):
             btrfs_subvol_path = subvol
             btrfs_subvol_id = None
@@ -629,7 +629,7 @@ class Selection(object):
 # Generic routines for parsing name-value pairs.
 #
 
-def _blank_or_comment(line):
+def blank_or_comment(line):
     """Test whether line is empty of contains a comment.
 
         Test whether the ``line`` argument is either blank, or a
@@ -643,7 +643,7 @@ def _blank_or_comment(line):
     return not line.strip() or line.lstrip().startswith('#')
 
 
-def _parse_name_value(nvp, separator="="):
+def parse_name_value(nvp, separator="="):
     """Parse a name value pair string.
 
         Parse a ``name='value'`` style string into its component parts,
@@ -857,9 +857,9 @@ __all__ = [
     'BOOM_DEBUG_ALL',
 
     # Utility routines
-    '_blank_or_comment',
-    '_parse_name_value',
-    '_parse_btrfs_subvol',
+    'blank_or_comment',
+    'parse_name_value',
+    'parse_btrfs_subvol',
     '_get_machine_id',
     'find_minimum_sha_prefix',
     'min_id_width',

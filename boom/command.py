@@ -226,7 +226,7 @@ def _subvol_from_arg(subvol):
     """
     if not subvol:
         return (None, None)
-    subvol = _parse_btrfs_subvol(subvol)
+    subvol = parse_btrfs_subvol(subvol)
     if subvol.startswith('/'):
         btrfs_subvol_path = subvol
         btrfs_subvol_id = None

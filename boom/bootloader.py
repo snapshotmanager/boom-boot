@@ -179,7 +179,7 @@ def check_bootloader():
     submenu_enabled = False
     with open(defaults_file, "r") as dfile:
         for line in dfile:
-            (name, value) = _parse_name_value(line)
+            (name, value) = parse_name_value(line)
             if name == "BOOM_ENABLE_GRUB" and not is_yes(value):
                 _log_warn("Boom grub2 integration is disabled in '%s'" %
                           defaults_file)
@@ -1116,10 +1116,10 @@ class BootEntry(object):
 
         with open(entry_file, "r") as ef:
             for line in ef:
-                if _blank_or_comment(line):
+                if blank_or_comment(line):
                     comment += line if line else ""
                 else:
-                    bls_key, value = _parse_name_value(line, separator=None)
+                    bls_key, value = parse_name_value(line, separator=None)
                     key = MAP_KEY[_transform_key(bls_key)]
                     entry_data[key] = value
                     if comment:
