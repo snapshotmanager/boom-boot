@@ -47,6 +47,10 @@ Boom \(em linux boot manager
 .  IR initrd_path ]
 .  RB [ --btrfs-subvol
 .  IR subvol ]
+.  RB [ --add-opts
+.  IR opts ]
+.  RB [ --del-opts
+.  IR opts ]
 .  ad b
 ..
 .CMD_ENTRY_CREATE
@@ -91,6 +95,10 @@ Boom \(em linux boot manager
 .  IR initrd_path ]
 .  RB [ --btrfs-subvol
 .  IR subvol ]
+.  RB [ --add-opts
+.  IR opts ]
+.  RB [ --del-opts
+.  IR opts ]
 .  ad b
 ..
 .CMD_ENTRY_CLONE
@@ -393,6 +401,18 @@ are synonymous.
 .SH OPTIONS
 .
 .HP
+.BR -a | --add-opts
+.IR opts
+.br
+Specify additional boot options for this entry.
+.
+.HP
+.BR -d | --del-opts
+.IR opts
+.br
+Specify boot options to exclude from this entry.
+.
+.HP
 .BR -b | --boot-id | --bootid
 .IR boot_id
 .br
@@ -648,6 +668,11 @@ the normal device path of the specified logical volume.
 
 A BTRFS subvolume may be set by either the subvolume path or subvolume
 identifier using the \fB--btrfs-subvol\fP option.
+
+Additional boot options not defined by the corresponding \fBOsProfile\fP
+templates may be specified with \fB--add-opts\fP. Options may also be
+removed from the entry using \fB--del-opts\fP (for example to disable
+graphical boot or the "quiet" flag for a particular entry).
 
 The newly created entry and its boot identifier are printed to the
 terminal on success:
