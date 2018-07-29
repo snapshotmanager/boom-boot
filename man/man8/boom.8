@@ -300,6 +300,161 @@ Boom \(em linux boot manager
 .  ad b
 ..
 .CMD_PROFILE_SHOW
+
+.
+.HP
+.B boom
+.de CMD_HOST_CREATE
+.  ad l
+.  BR host
+.  BR \fBcreate
+.  RB [ --name
+.  IR name ]
+.  RB [ --short-name
+.  IR short_name ]
+.  RB [ --profile
+.  IR os_id ]
+.  RB [ --machine-id
+.  IR machine_id ]
+.  RB [ --kernel-pattern
+.  IR kernel_pattern ]
+.  RB [ --initramfs-pattern
+.  IR initramfs_pattern ]
+.  RB [ --lvm-opts
+.  IR lvm_opts ]
+.  RB [ --btrfs-opts
+.  IR btrfs_opts ]
+.  RB [ --os-options
+.  IR os_options ]
+.  ad b
+..
+.CMD_HOST_CREATE
+.
+.HP
+.B boom
+.de CMD_HOST_DELETE
+.  ad l
+.  BR host
+.  BR \fBdelete
+.  IR [ host_id ]
+.  RB [ --host-profile
+.  IR host_id ]
+.  ad b
+..
+.CMD_HOST_DELETE
+.
+.HP
+.B boom
+.de CMD_HOST_CLONE
+.  ad l
+.  BR host
+.  BR \fBclone
+.  IR [ host_id ]
+.  RB [ --host-profile
+.  IR host_id ]
+.  RB [ --name
+.  IR name ]
+.  RB [ --short-name
+.  IR short_name ]
+.  RB [ --profile
+.  IR os_id ]
+.  RB [ --machine-id
+.  IR machine_id ]
+.  RB [ --kernel-pattern
+.  IR kernel_pattern ]
+.  RB [ --initramfs-pattern
+.  IR initramfs_pattern ]
+.  RB [ --lvm-opts
+.  IR lvm_opts ]
+.  RB [ --btrfs-opts
+.  IR btrfs_opts ]
+.  RB [ --os-options
+.  IR os_options ]
+.  ad b
+..
+.CMD_HOST_CLONE
+.
+.HP
+.B boom
+.de CMD_HOST_EDIT
+.  BR host
+.  BR \fBedit
+.  IR [ host_id ]
+.  RB [ --host-profile
+.  IR host_id ]
+.  RB [ --name
+.  IR name ]
+.  RB [ --short-name
+.  IR short_name ]
+.  RB [ --profile
+.  IR os_id ]
+.  RB [ --machine-id
+.  IR machine_id ]
+.  RB [ --kernel-pattern
+.  IR kernel_pattern ]
+.  RB [ --initramfs-pattern
+.  IR initramfs_pattern ]
+.  RB [ --lvm-opts
+.  IR lvm_opts ]
+.  RB [ --btrfs-opts
+.  IR btrfs_opts ]
+.  RB [ --os-options
+.  IR os_options ]
+.  ad b
+..
+.CMD_HOST_CLONE
+.
+.HP
+.B boom
+.de CMD_HOST_LIST
+.  ad l
+.  BR profile
+.  BR \fBlist
+.  IR [ host_id ]
+.  RB [ --host-profile
+.  IR host_id ]
+.  RB [ --name
+.  IR name ]
+.  RB [ --short-name
+.  IR short_name ]
+.  RB [ --profile
+.  IR os_id ]
+.  RB [ --machine-id
+.  IR machine_id ]
+.  RB [ --kernel-pattern
+.  IR kernel_pattern ]
+.  RB [ --initramfs-pattern
+.  IR initramfs_pattern ]
+.  RB [ --lvm-opts
+.  IR lvm_opts ]
+.  RB [ --btrfs-opts
+.  IR btrfs_opts ]
+.  RB [ --os-options
+.  IR os_options ]
+.  ad b
+..
+.CMD_HOST_LIST
+.
+.HP
+.B boom
+.de CMD_HOST_SHOW
+.  ad l
+.  BR profile
+.  BR \fBshow
+.  IR [ profile_id ]
+.  RB [ --profile
+.  IR os_id ]
+.  RB [ --version
+.  IR version ]
+.  RB [ --name
+.  IR osname ]
+.  RB [ --short-name
+.  IR osshortname ]
+.  RB [ --os-version
+.  IR version ]
+.  ad b
+..
+.CMD_HOST_SHOW
 .
 .HP
 .B boom
@@ -456,6 +611,11 @@ Specify an EFI application image for a boot entry.
 .br
 When creating a new OS profile, use \fIos-release\fP data from the
 running host.
+.
+.HP
+.BR -P | --host-profile
+.br
+Use the specified host profile for search or create operations.
 .
 .HP
 .BR -i | --initrd
@@ -635,6 +795,22 @@ Since the boot entry's identifier is based on the boot parameters
 used to create the entry, the \fBboot_id\fP will change if an
 existing entry is modified (for e.g. with the \fBboom entry edit\fP
 command).
+
+.
+.P
+.B Host Profiles
+.P
+.
+Host profiles provide an additional mechanism to control boot entry
+templates on a per-host basis. A host profile is bound to a specific
+\fBmachine_id\fP and is used whenever new boot entries are created for
+the corresponding host.
+
+A host profile can add and delete boot options from the set supplied by
+the active \fBOS Profile\fP, or override specific BOS Profile keys
+completely. Any keys not set in a host profile are mapped directly to
+the original OS profile.
+
 .
 .P
 .B Boot Entry Commands
@@ -851,7 +1027,89 @@ Display OS profiles matching selection criteria on standard out.
 
 OS profiles matching the criteria given on the command line are
 printed to the terminal in a compact multi-line format.
+.br
 .
+.P
+.B Host Profile Commands
+.P
+
+.
+.HP
+.B boom
+.CMD_HOST_CREATE
+.br
+Create a new host profile for the specified \fBmachine_id\fP and using
+the given profile option arguments. Any \fBOS Profile\fP keys that are
+given values will override the values in the underlying profile.
+.
+.HP
+.B boom
+.CMD_HOST_DELETE
+.br
+Delete the specified host profile or profiles.
+
+Delete all host profiles matching the provided selection criteria. If
+the \fB--host-profile\fP option is used to specify an host identifier
+then at most one profile will be removed.
+
+On success the number of profiles removed is printed to the terminal.
+If the \fB--verbose\fP option is given then a report of the profiles
+removed will also be displayed.
+.
+.HP
+.B boom
+.CMD_HOST_CLONE
+.br
+Clone an existing host profile and modify its configuration.
+
+The entry to clone must be specified by its \fBhost identifier\fP.
+Any remaining command line arguments are taken to be modifications
+to the original entry.
+
+On success the new entry and its host identifier are printed to the
+terminal.
+.
+.HP
+.B boom
+.CMD_HOST_EDIT
+.br
+Edit an existing host profile and modify its configuration.
+
+The entry to edit must be specified by its \fBhost identifier\fP.
+Any remaining command line arguments are taken to be modifications
+to the original profile.
+
+On success the new profile and its host identifier are printed to the
+terminal.
+.
+.HP
+.B boom
+.CMD_HOST_LIST .
+Output a tabular report of host profiles.
+
+Displays a report with one host profile per line, containing fields
+describing the properties of the configured host profiles.
+
+The list of fields to display is given with \fB--options\fP as a comma
+separated list of field names. To obtain a list of available fields run
+'\fBboom host list -o help\fP'. If the list of fields begins with the
+'\fB+\fP' character the specified fields are appended to the default
+field list. Otherwise the given list of fields replaces the default set
+of report fields.
+
+Report output may be sorted by multiple user-defined keys using
+the \fB--sort\fP option. The option expects a comma separated list
+of keys, with optional '\fB+\fP' and '\fB-\fP' prefixes indicating
+ascending and descending sort for that field respectively.
+.HP
+.B boom
+.CMD_HOST_SHOW
+.br
+Display host profiles matching selection criteria on standard out.
+
+Host profiles matching the criteria given on the command line are
+printed to the terminal in a compact multi-line format.
+
 .SH LEGACY BOOTLOADER FORMATS
 Boom is able to write the current set of boot entries into the
 configuration file of a legacy boot loader installed on the
