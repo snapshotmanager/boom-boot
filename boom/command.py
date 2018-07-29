@@ -275,6 +275,38 @@ def __write_legacy():
         write_legacy_loader(selection=Selection(), loader=config.legacy_format)
 
 
+def _do_print_type(report_fields, selected, output_fields=None,
+                   opts=None, sort_keys=None):
+    """Print an object type report (entry, osprofile, hostprofile).
+
+        Helper for list function that generate BoomReports.
+
+        Format a set of entry or profile objects matching the given
+        criteria and format them as a report, returning the output
+        as a string.
+
+        Selection criteria may be expressed via a Selection object
+        passed to the call using the ``selection`` parameter.
+
+        :param selection: A Selection object giving selection
+                          criteria for the operation
+        :param output_fields: a comma-separated list of output fields
+        :param opts: output formatting and control options
+        :param sort_keys: a comma-separated list of sort keys
+        :returntype: str
+    """
+    opts = opts if opts is not None else BoomReportOpts()
+
+    br = BoomReport(_report_obj_types, report_fields, output_fields,
+                    opts, sort_keys, None)
+
+    for obj in selected:
+        # Fixme: handle bes with embedded hp (class test)
+        br.report_object(obj)
+
+    return br.report_output()
+
+
 #
 # Command driven API: BootEntry and OsProfile management and reporting.
 #
@@ -563,6 +595,17 @@ def list_entries(selection=None):
     return bes
 
 
+def _expand_fields(default_fields, output_fields):
+    """Expand output fields list from command line arguments.
+    """
+
+    if not output_fields:
+        output_fields = default_fields
+    elif output_fields.startswith('+'):
+        output_fields = default_fields + ',' + output_fields[1:]
+    return output_fields
+
+
 def print_entries(selection=None, output_fields=None, opts=None,
                   sort_keys=None):
     """Print boot loader entries matching selection criteria.
@@ -583,21 +626,14 @@ def print_entries(selection=None, output_fields=None, opts=None,
         :returns: the ``boot_id`` of the new entry
         :returntype: str
     """
-    opts = opts if opts is not None else BoomReportOpts()
-
-    if not output_fields:
-        output_fields = _default_entry_fields
-    elif output_fields.startswith('+'):
-        output_fields = _default_entry_fields + ',' + output_fields[1:]
+    output_fields = _expand_fields(_default_entry_fields, output_fields)
 
     bes = find_entries(selection=selection)
+    selected = [BoomReportObj(be, be._osp) for be in bes]
 
-    br = BoomReport(_report_obj_types, _entry_fields + _profile_fields +
-                    _params_fields, output_fields, opts, sort_keys, None)
-    for be in bes:
-        br.report_object(BoomReportObj(be, be._osp))
-
-    return br.report_output()
+    report_fields = _entry_fields + _profile_fields + _params_fields
+    return _do_print_type(report_fields, selected, output_fields=output_fields,
+                          opts=opts, sort_keys=sort_keys)
 
 #
 # OsProfile manipulation
@@ -941,22 +977,14 @@ def print_profiles(selection=None, opts=None, output_fields=None,
         :returns: the number of matching profiles output.
         :returntype: int
     """
-    opts = opts if opts else BoomReportOpts()
-
-    if not output_fields:
-        output_fields = _default_profile_fields
-    elif output_fields.startswith('+'):
-        output_fields = _default_profile_fields + ',' + output_fields[1:]
+    output_fields = _expand_fields(_default_profile_fields, output_fields)
 
     osps = find_profiles(selection=selection)
+    selected = [BoomReportObj(None, osp) for osp in osps]
 
-    br = BoomReport(_report_obj_types, _profile_fields, output_fields,
-                    opts, sort_keys, None)
-
-    for osp in osps:
-        br.report_object(BoomReportObj(None, osp))
-
-    return br.report_output()
+    report_fields = _profile_fields
+    return _do_print_type(report_fields, selected, output_fields=output_fields,
+                          opts=opts, sort_keys=sort_keys)
 
 
 def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
