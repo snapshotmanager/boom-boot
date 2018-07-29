@@ -32,6 +32,7 @@ from boom import *
 from boom.osprofile import *
 from boom.bootloader import *
 from boom.command import *
+from boom.config import *
 from boom.report import *
 
 BOOT_ROOT_TEST = abspath("./tests")
