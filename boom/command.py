@@ -28,6 +28,7 @@ from boom import *
 from boom.osprofile import *
 from boom.report import *
 from boom.bootloader import *
+from boom.hostprofile import *
 from boom.legacy import *
 from boom.config import *
 
@@ -73,8 +74,9 @@ class BoomReportObj(object):
     """
     be = None
     osp = None
+    hp = None
 
-    def __init__(self, boot_entry=None, os_profile=None):
+    def __init__(self, boot_entry=None, os_profile=None, host_profile=None):
         """Initialise new BoomReportObj objects.
 
             Construct a new BoomReportObj object containing the
@@ -85,7 +87,7 @@ class BoomReportObj(object):
         """
         self.be = boot_entry
         self.osp = os_profile
-
+        self.hp = host_profile
 
 #: BootEntry report object type
 BR_ENTRY = 1
@@ -93,6 +95,8 @@ BR_ENTRY = 1
 BR_PROFILE = 2
 #: BootParams report object type
 BR_PARAMS = 4
+#: HostProfile report object type
+BR_HOST = 8
 
 #: Report object type table for ``boom.command`` reports.
 _report_obj_types = [
@@ -101,7 +105,9 @@ _report_obj_types = [
     BoomReportObjType(
         BR_PROFILE, "OS profiles", "profile_", lambda o: o.osp),
     BoomReportObjType(
-        BR_PARAMS, "Boot parameters", "param_", lambda o: o.be.bp)
+        BR_PARAMS, "Boot parameters", "param_", lambda o: o.be.bp),
+    BoomReportObjType(
+        BR_HOST, "Host profiles", "host_", lambda o: o.hp)
 ]
 
 #
@@ -150,6 +156,52 @@ _profile_fields = [
 
 _default_profile_fields = "osid,osname,osversion"
 _verbose_profile_fields = _default_profile_fields + ",unamepattern,options"
+
+_host_fields = [
+    BoomFieldType(
+        BR_HOST, "hostid", "HostID", "Host identifier", 7,
+        REP_SHA, lambda f, d: f.report_sha(d.host_id)),
+    BoomFieldType(
+        BR_HOST, "machineid", "MachineID", "Machine identifier", 20,
+        REP_SHA, lambda f, d: f.report_sha(d.disp_machine_id)),
+    BoomFieldType(
+        BR_HOST, "osid", "OsID", "OS identifier", 7,
+        REP_SHA, lambda f, d: f.report_sha(d.os_id)),
+    BoomFieldType(
+        BR_HOST, "hostname", "HostName", "Host name", 28,
+        REP_STR, lambda f, d: f.report_str(d.host_name)),
+    BoomFieldType(
+        BR_HOST, "label", "Label", "Host label", 12,
+        REP_STR, lambda f, d: f.report_str(d.label)),
+    BoomFieldType(
+        BR_HOST, "kernelpattern", "KernPattern", "Kernel image pattern", 13,
+        REP_STR, lambda f, d: f.report_str(d.kernel_pattern)),
+    BoomFieldType(
+        BR_HOST, "initrdpattern", "InitrdPattern", "Initrd pattern", 13,
+        REP_STR, lambda f, d: f.report_str(d.initramfs_pattern)),
+    BoomFieldType(
+        BR_HOST, "lvm2opts", "LVM2Opts", "LVM2 options", 12,
+        REP_STR, lambda f, d: f.report_str(d.root_opts_lvm2)),
+    BoomFieldType(
+        BR_HOST, "btrfsopts", "BTRFSOpts", "BTRFS options", 13,
+        REP_STR, lambda f, d: f.report_str(d.root_opts_btrfs)),
+    BoomFieldType(
+        BR_HOST, "options", "Options", "Kernel options", 24,
+        REP_STR, lambda f, d: f.report_str(d.options)),
+    BoomFieldType(
+        BR_HOST, "profilepath", "Profile path", "On-disk profile path", 12,
+        REP_STR, lambda f, d: f.report_str(d._profile_path())),
+    BoomFieldType(
+        BR_HOST, "addopts", "AddOptions", "Added Options", 12,
+        REP_STR, lambda f, d: f.report_str(d.add_opts)),
+    BoomFieldType(
+        BR_HOST, "delopts", "DelOptions", "Deleted Options", 12,
+        REP_STR, lambda f, d: f.report_str(d.del_opts))
+]
+
+_default_host_fields = "hostid,machineid,osid"
+_verbose_host_fields = "hostid,hostname,machineid,osid,options,"
+_verbose_host_fields += "addopts,delopts"
 
 def _int_if_val(val):
     """Return an int if val is defined or None otherwise.
@@ -364,13 +416,16 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
     _log_debug_cmd("Effective add options: %s" % add_opts)
     _log_debug_cmd("Effective del options: %s" % del_opts)
 
+    hps = find_host_profiles(Selection(machine_id=machine_id))
+    profile = hps[0] if hps else osprofile
+
     bp = BootParams(version, root_device, lvm_root_lv=lvm_root_lv,
                     btrfs_subvol_path=btrfs_subvol_path,
                     btrfs_subvol_id=btrfs_subvol_id,
                     add_opts=add_opts, del_opts=del_opts)
 
     be = BootEntry(title=title, machine_id=machine_id,
-                   osprofile=osprofile, boot_params=bp,
+                   osprofile=profile, boot_params=bp,
                    allow_no_dev=allow_no_dev)
 
     if find_entries(Selection(boot_id=be.boot_id)):
@@ -557,10 +612,13 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
                          selection.boot_id)
         return 1
 
+    hps = find_host_profiles(Selection(machine_id=machine_id))
+    profile = hps[0] if hps else osp
+
     be = bes.pop()
     # Boot ID will change: clean up old file.
     be.delete_entry()
-    be._osp = osp or be._osp
+    be._osp = profile or be._osp
     be.title = title or be.title
     be.version = version or be.version
     be.machine_id = machine_id or be.machine_id
@@ -629,7 +687,7 @@ def print_entries(selection=None, output_fields=None, opts=None,
     output_fields = _expand_fields(_default_entry_fields, output_fields)
 
     bes = find_entries(selection=selection)
-    selected = [BoomReportObj(be, be._osp) for be in bes]
+    selected = [BoomReportObj(be, be._osp, None) for be in bes]
 
     report_fields = _entry_fields + _profile_fields + _params_fields
     return _do_print_type(report_fields, selected, output_fields=output_fields,
@@ -862,6 +920,8 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
     version_id = version_id if version_id else osp.os_version_id
     uname_pattern = uname_pattern if uname_pattern else osp.uname_pattern
     kernel_pattern = kernel_pattern if kernel_pattern else osp.kernel_pattern
+    initramfs_pattern = (initramfs_pattern if initramfs_pattern
+                         else osp.initramfs_pattern)
     root_opts_lvm2 = root_opts_lvm2 if root_opts_lvm2 else osp.root_opts_lvm2
     root_opts_btrfs = (root_opts_btrfs if root_opts_btrfs
                          else osp.root_opts_btrfs)
@@ -980,9 +1040,308 @@ def print_profiles(selection=None, opts=None, output_fields=None,
     output_fields = _expand_fields(_default_profile_fields, output_fields)
 
     osps = find_profiles(selection=selection)
-    selected = [BoomReportObj(None, osp) for osp in osps]
+    selected = [BoomReportObj(None, osp, None) for osp in osps]
 
     report_fields = _profile_fields
+    return _do_print_type(report_fields, selected, output_fields=output_fields,
+                          opts=opts, sort_keys=sort_keys)
+
+
+def create_host(machine_id=None, host_name=None, os_id=None,
+                kernel_pattern=None, initramfs_pattern=None,
+                root_opts_lvm2=None, root_opts_btrfs=None,
+                options=None, add_opts=None, del_opts=None,
+                host_data=None):
+    """Create new host profile.
+
+        Create the specified HostProfile in the configured profiles
+        directory.
+
+        HostProfile key values may be specified either by passing
+        individual keyword arguments, or by passing a dictionary
+        of HostProfile key name to value pairs as the ``host_data``
+        argument. If a key is present as both a keyword argument
+        and in the ``host_data`` dictionary, the argument will
+        take precedence.
+
+        An error is raised if a matching profile already exists.
+
+        :param machine_id: The machine_id of the host
+        :param name: The full name of the new HostProfile
+        :param kernel_pattern: Pattern to generate kernel paths
+        :param initramfs_pattern: Pattern to generate initramfs paths
+        :param root_opts_lvm2: Template options for LVM2 entries
+        :param root_opts_btrfs: Template options for BTRFS entries
+        :param options: Template kernel command line options
+        :param add_opts: Additional boot options for this profile
+        :param del_opts: Boot options to delete for this profile
+        :param host_data: Dictionary of profile key:value pairs
+
+        :returns: a ``HostProfile`` object for the new profile
+        :returntype: ``HostProfile``
+        :raises: ``ValueError`` if either required values are missing or
+                 a duplicate profile exists, or``OsError`` if an error
+                 occurs while writing the profile file.
+    """
+    def _have_key(hd, arg, key):
+        return arg or hd and key in hd
+
+    if  not _have_key(host_data, name, BOOM_OS_NAME):
+        raise ValueError("Host name cannot be empty.")
+
+    if not _have_key(host_data, machine_id, BOOM_OS_VERSION):
+        raise ValueError("Host machine_id cannot be empty.")
+
+    if not _have_key(host_data, os_id, BOOM_OS_ID):
+        raise ValueError("Host OS ID cannot be empty.")
+
+    if not host_data:
+        host_data = {}
+
+    # Allow keyword arguments to override
+    if host_name:
+        host_data[BOOM_HOST_NAME] = name
+    if machine_id:
+        host_data[BOOM_ENTRY_MACHINE_ID] = machine_id
+    if os_id:
+        host_data[BOOM_OS_ID] = os_id
+    if kernel_pattern:
+        host_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
+    if initramfs_pattern:
+        host_data[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
+    if root_opts_lvm2:
+        host_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
+    if root_opts_btrfs:
+        host_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
+    if options:
+        host_data[BOOM_OS_OPTIONS] = options
+    if add_opts:
+        host_data[BOOM_HOST_ADD_OPTS] = add_opts
+    if del_opts:
+        host_data[BOOM_HOST_DEL_OPTS] = del_opts
+
+    hp = HostProfile(machine_id=machine_id, profile_data=host_data)
+
+    if find_host_profiles(selection=Selection(host_id=hp.host_id)):
+        raise ValueError("Host profile already exists (host_id=%s)" %
+                         hp.disp_host_id)
+
+    hp.write_profile()
+    return hp
+
+
+def delete_hosts(selection=None):
+    """Delete host profiles matching selection criteria.
+
+        Delete the specified ``HostProfile`` or profiles from the
+        configured profile directory. If ``os_id`` is used, or if the
+        criteria specified match exactly one profile, a single entry is
+        removed. If ``host_id`` is not used, and more than one matching
+        profile is present, all matching profiles will be removed.
+
+        Selection criteria are expressed via a Selection object
+        passed to the call using the ``selection`` parameter.
+
+        On success the number of profiles removed is returned.
+
+        :param selection: A Selection object giving selection
+                          criteria for the operation.
+        :returns: the number of entries removed.
+        :returntype: ``int``
+    """
+    hps = find_host_profiles(selection=selection)
+
+    if not hps:
+        raise IndexError("No matching host profiles found.")
+
+    deleted = 0
+    for hp in hps:
+        hp.delete_profile()
+        deleted += 1
+
+    return deleted
+
+
+def clone_host(selection=None, machine_id=None, host_name=None, os_id=None,
+               kernel_pattern=None, initramfs_pattern=None,
+               root_opts_lvm2=None, root_opts_btrfs=None,
+               add_opts=None, del_opts=None, options=None):
+    """Clone an existing host profile.
+
+        Create the specified profile in the configured profile directory
+        by cloning all un-set parameters from the profile selected by
+        the ``selection`` argument.
+
+        An error is raised if a matching profile already exists, or if
+        the selection criteria match more than one profile.
+
+        :param selection: criteria matching the profile to clone.
+        :param machine_id: the machine_id of the new host profile.
+        :param host_name: the hostname of the new host profile.
+        :param os_id: the operating system identifier for the host.
+        :param kernel_pattern: The kernel pattern for the host.
+        :param initramfs_pattern: The initramfs pattern for the host.
+        :param root_opts_lvm2: LVM2 root options template.
+        :param root_opts_btrfs: BTRFS root options template.
+        :param add_opts: Additional boot options for this profile.
+        :param del_opts: Boot options to delete for this profile.
+        :param options: Kernel options template.
+        :returns: a new ``OsProfile`` object.
+        :returntype: ``OsProfile``
+        :raises: ``ValueError`` if either required values are missing or
+                 a duplicate profile exists, or``OsError`` if an error
+                 occurs while writing the profile file.
+    """
+    if not selection.host_id:
+        raise ValueError("clone requires host_id")
+        return 1
+
+    all_args = (
+        machine_id, host_name, os_id,
+        kernel_pattern, initramfs_pattern,
+        root_opts_lvm2, root_opts_btrfs,
+        add_opts, del_opts, options
+    )
+
+    if not any(all_args):
+        raise ValueError(
+            'clone requires one or more of:\n'
+            '--machine-id, --name,  --os-id, '
+            '--kernel-pattern, --initramfs_pattern, '
+            '--root-opts-lvm2, --root_opts-btrfs, '
+            '--add-opts, --del-opts, --options'
+        )
+        return 1
+
+    hps = find_host_profiles(selection)
+    if not(hps):
+        raise ValueError("No matching host profile found: %s" %
+                         selection.host_id)
+
+    if len(hps) > 1:
+        raise ValueError("Clone criteria must match exactly one profile")
+        return 1
+
+    hp = hps.pop()
+
+    # Clone unset keys
+    host_name = host_name or hp.host_name
+    os_id = os_id or hp.os_id
+    initramfs_pattern = initramfs_pattern or hp.initramfs_pattern
+    kernel_pattern = kernel_pattern or hp.kernel_pattern
+    root_opts_lvm2 = root_opts_lvm2 or hp.root_opts_lvm2
+    root_opts_btrfs = root_opts_btrfs or hp.root_opts_btrfs
+    add_opts = add_opts or hp.add_opts
+    del_opts = del_opts or hp.del_opts
+    options = options or hp.options
+
+    clone_hp = HostProfile(machine_id=machine_id, host_name=host_name,
+                           os_id=os_id, kernel_pattern=kernel_pattern,
+                           initramfs_pattern=initramfs_pattern,
+                           root_opts_lvm2=root_opts_lvm2,
+                           root_opts_btrfs=root_opts_btrfs,
+                           add_opts=add_opts, del_opts=del_opts,
+                           options=options)
+
+    if find_host_profiles(Selection(host_id=clone_hp.host_id)):
+        raise ValueError("Host profile already exists (host_id=%s)." %
+                         clone_hp.disp_host_id)
+
+    clone_hp.write_profile()
+
+    return clone_hp
+    pass
+
+
+def edit_host(selection=None, machine_id=None, os_id=None, host_name=None,
+              kernel_pattern=None, initramfs_pattern=None,
+              root_opts_lvm2=None, root_opts_btrfs=None,
+              add_opts=None, del_opts=None, options=None):
+    """Edit an existing host profile.
+
+        Modify an existing HostProfile by changing one or more of the
+        profile values.
+
+        The modified HostProfile is written to disk and returned on
+        success.
+
+        :param selection: A Selection specifying the boot_id to edit
+        :param kernel_pattern: The new kernel pattern
+        :param initramfs_pattern: The new initramfs pattern
+        :param root_opts_lvm2: The new LVM2 root options
+        :param root_opts_btrfs: The new BTRFS root options
+        :param add_opts: Additional boot options for this profile.
+        :param del_opts: Boot options to delete for this profile.
+        :param options: The new kernel options template
+
+        :returns: The modified ``HostProfile``
+        :returntype: ``HostProfile``
+    """
+    # Discard all selection criteria but host_id.
+    selection = Selection(host_id=selection.host_id)
+
+    hps = None
+    hps = find_host_profiles(selection)
+    if not hps:
+        raise ValueError("No matching profile found: %s" % selection.host_id)
+    if len(hps) > 1:
+        raise ValueError("OS profile identifier '%s' is ambiguous" %
+                         selection.os_id)
+        return 1
+
+    hp = hps.pop()
+    hp.delete_profile()
+    hp.machine_id = machine_id or hp.os_id
+    hp.os_id = os_id or hp.os_id
+    hp.host_name = name or hp.host_name
+    hp.kernel_pattern = kernel_pattern or hp.kernel_pattern
+    hp.initramfs_pattern = initramfs_pattern or hp.initramfs_pattern
+    hp.root_opts_lvm2 = root_opts_lvm2 or hp.root_opts_lvm2
+    hp.root_opts_btrfs = root_opts_btrfs or hp.root_opts_btrfs
+    hp.options = options or hp.options
+    hp.write_profile()
+    return hp
+
+
+def list_hosts(selection=None):
+    """List host profiles matching selection criteria.
+
+        Return a list of ``boom.hostprofile.HostProfile`` objects
+        matching the given criteria.
+
+        Selection criteria may be expressed via a Selection object
+        passed to the call using the ``selection`` parameter.
+
+        :param selection: A Selection object giving selection
+                          criteria for the operation.
+        :returns: a list of ``HostProfile`` objects.
+        :returntype: list
+    """
+    hps = find_host_profiles(selection=selection)
+
+    return hps
+
+
+def print_hosts(selection=None, opts=None, output_fields=None,
+                sort_keys=None):
+    """Print host profiles matching selection criteria.
+
+        Selection criteria may be expressed via a Selection object
+        passed to the call using the ``selection`` parameter.
+
+        :param selection: A Selection object giving selection
+                          criteria for the operation
+        :param output_fields: a comma-separated list of output fields
+        :param opts: output formatting and control options
+        :param sort_keys: a comma-separated list of sort keys
+        :returns: the number of matching profiles output.
+        :returntype: int
+    """
+    output_fields = _expand_fields(_default_host_fields, output_fields)
+
+    hps = find_host_profiles(selection=selection)
+    selected = [BoomReportObj(None, None, hp) for hp in hps]
+    report_fields = _host_fields
     return _do_print_type(report_fields, selected, output_fields=output_fields,
                           opts=opts, sort_keys=sort_keys)
 
@@ -1201,6 +1560,9 @@ def _clone_cmd(cmd_args, select, opts, identifier):
             return 1
         osp = osps[0]
 
+    hps = find_host_profiles(Selection(machine_id=machine_id))
+    profile = hps[0] or osprofile
+
     add_opts = cmd_args.add_opts
     del_opts = cmd_args.del_opts
 
@@ -1209,7 +1571,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
                          machine_id=machine_id, root_device=root_device,
                          lvm_root_lv=lvm_root_lv,
                          btrfs_subvol_path=btrfs_subvol_path,
-                         btrfs_subvol_id=btrfs_subvol_id, osprofile=osp,
+                         btrfs_subvol_id=btrfs_subvol_id, osprofile=profile,
                          add_opts=add_opts, del_opts=del_opts,
                          allow_no_dev=cmd_args.no_dev)
 
@@ -1596,6 +1958,249 @@ def _edit_profile_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
+def _create_host_cmd(cmd_args, select, opts, identifier):
+    """Create host profile command handler.
+
+        Attempt to create a new host profile using the arguments
+        supplied in ``cmd_args`` and return the command status
+        as an integer.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Unused
+        :returns: integer status code returned from ``main()``
+    """
+    if identifier is not None:
+        print("host profile create does not accept <identifier>")
+        return 1
+
+    if not cmd_args.name:
+        print("host profile create requires --name")
+        return 1
+    else:
+        name = cmd_args.name
+
+    if not cmd_args.machine_id:
+        # Use host machine-id by default
+        machine_id = _get_machine_id()
+        if not machine_id:
+            print("Could not determine machine_id")
+            return 1
+    else:
+        machine_id = cmd_args.machine_id
+
+    if not cmd_args.profile:
+        print("host profile create requires --profile")
+        return 1
+    else:
+        os_id = cmd_args.profile
+
+    try:
+        hp = create_host(machine_id=machine_id, os_id=os_id, name=name,
+                         kernel_pattern=cmd_args.kernel_pattern,
+                         initramfs_pattern=cmd_args.initramfs_pattern,
+                         root_opts_lvm2=cmd_args.lvm_opts,
+                         root_opts_btrfs=cmd_args.btrfs_opts,
+                         add_opts=cmd_args.add_opts,
+                         del_opts=cmd_args.del_opts,
+                         options=cmd_args.os_options)
+    except ValueError as e:
+        print(e)
+        return 1
+    print("Created host profile with host_id %s:" % hp.disp_host_id)
+    print(_str_indent(str(hp), 2))
+    return 0
+
+
+def _delete_host_cmd(cmd_args, select, opts, identifier):
+    """Delete host profile command handler.
+
+        Attempt to delete host profiles matching the selection criteria
+        given in ``select``.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria for the profiles to remove
+        :returns: integer status code returned from ``main()``
+    """
+    # If a host_id is given as a command line argument treat it as
+    # a single HostProfile to delete and ignore any other criteria.
+    if identifier is not None:
+        select = Selection(host_id=identifier)
+
+    if not select or select.is_null():
+        print("profile delete requires selection criteria")
+        return 1
+
+    if cmd_args.options:
+        fields = cmd_args.options
+    elif cmd_args.verbose:
+        fields = _verbose_host_fields
+    else:
+        fields = _default_host_fields
+
+    try:
+        if cmd_args.verbose:
+            print_hosts(select, output_fields=fields,
+                        sort_keys=cmd_args.sort)
+        nr = delete_hosts(select)
+    except (ValueError, IndexError) as e:
+        print(e)
+        return 1
+    print("Deleted %d profile%s" % (nr, "s" if nr > 1 else ""))
+
+
+def _clone_host_cmd(cmd_args, select, opts, identifier):
+    """Clone host profile command handler.
+
+        Attempt to create a new host profile by cloning an existing
+        profile. The ``host_id`` of the supplied ``Selection`` object
+        is used to select the profile to clone. Any set profile values
+        supplied in ``cmd_args`` will be used to modify the newly
+        cloned profile.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: The ``host_id`` to clone
+        :returns: integer status code returned from ``main()``
+    """
+    name = cmd_args.name
+    version = cmd_args.os_version
+    version_id = cmd_args.os_version_id
+    uname_pattern = cmd_args.uname_pattern
+    kernel_pattern = cmd_args.kernel_pattern
+    initramfs_pattern = cmd_args.initramfs_pattern
+    root_opts_lvm2 = cmd_args.lvm_opts
+    root_opts_btrfs = cmd_args.btrfs_opts
+    options = cmd_args.os_options
+
+    if identifier is not None:
+        select = Selection(host_id=identifier)
+
+    # Discard all selection criteria but host_id.
+    select = Selection(host_id=select.host_id)
+
+    try:
+        be = clone_profile(selection=select,
+                           machine_id=machine_id, os_id=os_id, name=name,
+                           kernel_pattern=cmd_args.kernel_pattern,
+                           initramfs_pattern=cmd_args.initramfs_pattern,
+                           root_opts_lvm2=cmd_args.lvm_opts,
+                           root_opts_btrfs=cmd_args.btrfs_opts,
+                           add_opts=cmd_args.add_opts,
+                           del_opts=cmd_args.del_opts,
+                           options=cmd_args.os_options)
+    except ValueError as e:
+        print(e)
+        return 1
+    print("Cloned profile with os_id %s as %s:" %
+          (select.os_id, osp.disp_os_id))
+    print(_str_indent(str(osp), 2))
+    return 0
+
+
+def _show_host_cmd(cmd_args, select, opts, identifier):
+    """Show host profile command handler.
+
+        Show the host profiles that match the given selection criteria
+        in human readable form. Each matching profile is printed as a
+        multi-line record, with like attributes grouped together on a
+        line.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria for the profiles to show.
+        :returns: integer status code returned from ``main()``
+    """
+    if identifier is not None:
+        select = Selection(host_id=identifier)
+
+    try:
+        hps = find_host_profiles(select)
+    except ValueError as e:
+        print(e)
+        return 1
+    first = True
+    for hp in hps:
+        ws = "" if first else "\n"
+        hp_str = _str_indent(str(hp), 2)
+        print("%sHost Profile (host_id=%s)\n%s" % (ws, hp.disp_host_id, hp_str))
+        first = False
+    return 0
+
+
+def _list_host_cmd(cmd_args, select, opts, identifier):
+    """List host profile command handler.
+
+        List the host profiles that match the given selection criteria
+        as a tabular report, with one profile per row.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria fore the profiles to list
+        :returns: integer status code returned from ``main()``
+    """
+    if identifier is not None:
+        select = Selection(host_id=identifier)
+
+    fields = _host_fields
+    if cmd_args.options:
+        fields = cmd_args.options
+    elif cmd_args.verbose:
+        fields = _verbose_host_fields
+    else:
+        fields = None
+
+    try:
+        print_hosts(selection=select, output_fields=fields,
+                    opts=opts, sort_keys=cmd_args.sort)
+    except ValueError as e:
+        print(e)
+        return 1
+
+
+def _edit_host_cmd(cmd_args, select, opts, identifier):
+    """Edit profile command handler.
+
+        Attempt to edit an existing host profile. The ``host_id`` of the
+        supplied ``Selection`` object is used to select the profile to
+        edit. Any set entry values supplied in ``cmd_args`` will be used
+        to modify the edited profile.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: The ``host_id`` of the profile to edit
+        :returns: integer status code returned from ``main()``
+    """
+    if identifier is not None:
+        select = Selection(host_id=identifier)
+
+    if cmd_args.options:
+        print("Invalid argument for 'host edit': --options\n"
+              "To modify profile options template use --os-options")
+        return 1
+
+    machine_id = cmd_args.machine_id
+    os_id = cmd_args.profile
+    name = cmd_args.name
+    kernel_pattern = cmd_args.kernel_pattern
+    initramfs_pattern = cmd_args.initramfs_pattern
+    root_opts_lvm2 = cmd_args.lvm_opts
+    root_opts_btrfs = cmd_args.btrfs_opts
+    add_opts = cmd_args.add_opts
+    del_opts = cmd_args.del_opts
+    options = cmd_args.os_options
+
+    try:
+        hp = edit_host(selection=select,
+                       machine_id=machine_id, os_id=os_id, name=name,
+                       kernel_pattern=kernel_pattern,
+                       initramfs_pattern=initramfs_pattern,
+                       root_opts_lvm2=root_opts_lvm2,
+                       root_opts_btrfs=root_opts_btrfs, options=options)
+    except ValueError as e:
+        print(e)
+        return 1
+
+    print("Edited profile:")
+    print(_str_indent(str(hp), 2))
+    return 0
+
+
 def _write_legacy_cmd(cmd_args, select, opts, identifier):
     if identifier:
         print("write legacy does not accept a boot_id")
@@ -1642,6 +2247,10 @@ boom_usage = """%(prog}s [type] <command> [options]\n\n"
                 profile delete [...]
                 profile list [...]
                 profile edit [...]
+                host create <name> <machineid> [...]
+                host delete [...]
+                host list [...]
+                host edit [...]
                 legacy write [...]
                 legacy delete [...]
              """
@@ -1658,6 +2267,7 @@ WRITE_CMD = "write"
 
 ENTRY_TYPE = "entry"
 PROFILE_TYPE = "profile"
+HOST_TYPE = "host"
 LEGACY_TYPE = "legacy"
 
 _boom_entry_commands = [
@@ -1678,6 +2288,15 @@ _boom_profile_commands = [
     (EDIT_CMD, _edit_profile_cmd)
 ]
 
+_boom_host_commands = [
+    (CREATE_CMD, _create_host_cmd),
+    (DELETE_CMD, _delete_host_cmd),
+    (CLONE_CMD, _clone_host_cmd),
+    (SHOW_CMD, _show_host_cmd),
+    (LIST_CMD, _list_host_cmd),
+    (EDIT_CMD, _edit_host_cmd)
+]
+
 _boom_legacy_commands = [
     (WRITE_CMD, _write_legacy_cmd),
     (CLEAR_CMD, _clear_legacy_cmd),
@@ -1687,6 +2306,7 @@ _boom_legacy_commands = [
 _boom_command_types = [
     (ENTRY_TYPE, _boom_entry_commands),
     (PROFILE_TYPE, _boom_profile_commands),
+    (HOST_TYPE, _boom_host_commands),
     (LEGACY_TYPE, _boom_legacy_commands)
 ]
 
@@ -1826,6 +2446,8 @@ def main(args):
     parser.add_argument("-H", "--from-host", "--fromhost",
                         help="Take os-release values from the running host",
                         action="store_true")
+    parser.add_argument("-P", "--host-profile", metavar="PROFILE", type=str,
+                        help="A boom host profile identifier")
     parser.add_argument("-i", "--initrd", metavar="IMG", type=str,
                         help="A linux initrd image path")
     parser.add_argument("-k", "--kernel-pattern", "--kernelpattern",
@@ -1966,6 +2588,10 @@ __all__ = [
     # OsProfile manipulation
     'create_profile', 'delete_profiles', 'clone_profile', 'edit_profile',
     'list_profiles', 'print_profiles',
+
+    # HostProfile manipulation
+    'create_host', 'delete_hosts', 'clone_host', 'edit_host',
+    'list_hosts'#, 'print_hosts'
 ]
 
 # vim: set et ts=4 sw=4 :
