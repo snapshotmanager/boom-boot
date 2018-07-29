@@ -896,6 +896,21 @@ class OsProfile(object):
     # Keys obtained from os-release data form the profile's identity:
     # the corresponding attributes are read-only.
 
+    # OSProfile properties:
+    #
+    #   disp_os_id
+    #   os_id
+    #   os_name
+    #   os_short_name
+    #   os_version
+    #   os_version_id
+    #   uname_pattern
+    #   kernel_pattern
+    #   initramfs_pattern
+    #   root_opts_lvm2
+    #   root_opts_btrfs
+    #   options
+
     @property
     def disp_os_id(self):
         """The display os_id of this profile.
@@ -921,27 +936,27 @@ class OsProfile(object):
 
     @property
     def os_name(self):
-        """The ``name`` of this profile.
+        """The ``os_name`` of this profile.
 
-            :getter: returns the ``name`` as a string.
+            :getter: returns the ``os_name`` as a string.
             :type: string
         """
         return self._profile_data[BOOM_OS_NAME]
 
     @property
     def os_short_name(self):
-        """The ``short_name`` of this profile.
+        """The ``os_short_name`` of this profile.
 
-            :getter: returns the ``short_name`` as a string.
+            :getter: returns the ``os_short_name`` as a string.
             :type: string
         """
         return self._profile_data[BOOM_OS_SHORT_NAME]
 
     @property
     def os_version(self):
-        """The ``version`` of this profile.
+        """The ``os_version`` of this profile.
 
-            :getter: returns the ``version`` as a string.
+            :getter: returns the ``os_version`` as a string.
             :type: string
         """
         return self._profile_data[BOOM_OS_VERSION]
@@ -950,7 +965,7 @@ class OsProfile(object):
     def os_version_id(self):
         """The ``version_id`` of this profile.
 
-            :getter: returns the ``version_id`` as a string.
+            :getter: returns the ``os_version_id`` as a string.
             :type: string
         """
         return self._profile_data[BOOM_OS_VERSION_ID]
