@@ -232,6 +232,7 @@ def write_boom_config(config=None, path=None):
 
 
 __all__ = [
+    'BoomConfigError', 'BoomConfig',
     'BOOM_CONFIG_FILE',
 
     # Configuration file handling
