@@ -828,6 +828,7 @@ class BootEntry(object):
     """
     _entry_data = None
     _unwritten = False
+    _last_path = None
     _comments = None
     _osp = None
     _bp = None
@@ -1274,6 +1275,8 @@ class BootEntry(object):
             if self.disp_boot_id != match.group(2):
                 _log_info("Entry file name does not match boot_id: %s" %
                           entry_basename)
+
+        self._last_path = entry_file
 
     def __init__(self, title=None, machine_id=None, osprofile=None,
                  boot_params=None, entry_file=None, entry_data=None,
@@ -1850,7 +1853,7 @@ class BootEntry(object):
             The file will be named according to the entry's key values,
             and the value of the ``BOOT_ENTRIES_FORMAT`` constant.
             Currently the ``machine_id`` and ``version`` keys are used
-            to contstuct the file name.
+            to construct the file name.
 
             If the value of ``force`` is ``False`` and the ``OsProfile``
             is not currently marked as dirty (either new, or modified
@@ -1895,8 +1898,48 @@ class BootEntry(object):
                 pass
             raise e
 
+        self._last_path = entry_path
+
         # Add this entry to the list of known on-disk entries
         _add_entry(self)
+
+    def update_entry(self, force=False):
+        """Update on-disk entry.
+
+            Update this ``BootEntry``'s on-disk data.
+
+            The file will be named according to the entry's key values,
+            and the value of the ``BOOT_ENTRIES_FORMAT`` constant.
+            Currently the ``machine_id`` and ``version`` keys are used
+            to construct the file name.
+
+            If this ``BootEntry`` previously existed on-disk, and the
+            ``boot_id`` has changed due to a change in entry key
+            values, the old ``BootEntry`` file will be unlinked once
+            the new data has been successfully written. If the entry
+            does not already exist then calling this method is the
+            equivalent of calling ``BootEntry.write_entry()``.
+
+            If the value of ``force`` is ``False`` and the ``BootEntry``
+            is not currently marked as dirty (either new, or modified
+            since the last load operation) the write will be skipped.
+
+            :param force: Force this entry to be written to disk even
+                          if the entry is unmodified.
+            :raises: ``OSError`` if the temporary entry file cannot be
+                     renamed, or if setting file permissions on the
+                     new entry file fails.
+            :returntype: None
+        """
+        # Cache old entry path
+        to_unlink = self._last_path
+        self.write_entry(force=force)
+        if self._entry_path != to_unlink:
+            try:
+                unlink(to_unlink)
+            except Exception as e:
+                _log_error("Error unlinking entry file %s: %s" %
+                           (to_unlink, e))
 
     def delete_entry(self):
         """Remove on-disk BootEntry file.
