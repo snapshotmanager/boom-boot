@@ -241,25 +241,28 @@ class BootParams(object):
         attached OsProfile.
     """
     #: The kernel version of the instance.
-    version = None
+    _version = None
 
     #: The path to the root device
-    root_device = None
+    _root_device = None
 
     #: The LVM2 logical volume containing the root file system
-    lvm_root_lv = None
+    _lvm_root_lv = None
 
     #: The BTRFS subvolume path to be used as the root file system.
-    btrfs_subvol_path = None
+    _btrfs_subvol_path = None
 
     #: The ID of the BTRFS subvolume to be used as the root file system.
-    btrfs_subvol_id = None
+    _btrfs_subvol_id = None
 
     #: A list of additional kernel options to append
-    add_opts = []
+    _add_opts = []
 
     #: A list of kernel options to drop
-    del_opts = []
+    _del_opts = []
+
+    #: Generation counter for dirty detection
+    generation = 0
 
     def __str(self, quote=False, prefix="", suffix=""):
         """Format BootParams as a string.
@@ -395,6 +398,101 @@ class BootParams(object):
         self.del_opts = del_opts or []
 
         _log_debug_entry("Initialised %s" % repr(self))
+
+    # We have to use explicit properties for BootParam attributes since
+    # we need to track modifications to the BootParams values to allow
+    # a containing BootEntry to mark itself as dirty.
+
+    @property
+    def version(self):
+        """Return this ``BootParams`` object's version.
+        """
+        return self._version
+
+    @version.setter
+    def version(self, value):
+        """Set this ``BootParams`` object's version.
+        """
+        self.generation += 1
+        self._version = value
+
+    @property
+    def root_device(self):
+        """Return this ``BootParams`` object's root_device.
+        """
+        return self._root_device
+
+    @root_device.setter
+    def root_device(self, value):
+        """Set this ``BootParams`` object's root_device.
+        """
+        self.generation += 1
+        self._root_device = value
+
+    @property
+    def lvm_root_lv(self):
+        """Return this ``BootParams`` object's lvm_root_lv.
+        """
+        return self._lvm_root_lv
+
+    @lvm_root_lv.setter
+    def lvm_root_lv(self, value):
+        """Set this ``BootParams`` object's lvm_root_lv.
+        """
+        self.generation += 1
+        self._lvm_root_lv = value
+
+    @property
+    def btrfs_subvol_path(self):
+        """Return this ``BootParams`` object's btrfs_subvol_path.
+        """
+        return self._btrfs_subvol_path
+
+    @btrfs_subvol_path.setter
+    def btrfs_subvol_path(self, value):
+        """Set this ``BootParams`` object's btrfs_subvol_path.
+        """
+        self.generation += 1
+        self._btrfs_subvol_path = value
+
+    @property
+    def btrfs_subvol_id(self):
+        """Return this ``BootParams`` object's btrfs_subvol_id.
+        """
+        return self._btrfs_subvol_id
+
+    @btrfs_subvol_id.setter
+    def btrfs_subvol_id(self, value):
+        """Set this ``BootParams`` object's btrfs_subvol_id.
+        """
+        self.generation += 1
+        self._btrfs_subvol_id = value
+
+    @property
+    def add_opts(self):
+        """Return this ``BootParams`` object's add_opts.
+        """
+        return self._add_opts
+
+    @add_opts.setter
+    def add_opts(self, value):
+        """Set this ``BootParams`` object's add_opts.
+        """
+        self.generation += 1
+        self._add_opts = value
+
+    @property
+    def del_opts(self):
+        """Return this ``BootParams`` object's del_opts.
+        """
+        return self._del_opts
+
+    @del_opts.setter
+    def del_opts(self, value):
+        """Set this ``BootParams`` object's del_opts.
+        """
+        self.generation += 1
+        self._del_opts = value
 
     def has_btrfs(self):
         """Return ``True`` if this BootParams object is configured to
@@ -731,7 +829,8 @@ class BootEntry(object):
     _unwritten = False
     _comments = None
     _osp = None
-    bp = None
+    _bp = None
+    _bp_generation = None
 
     # boot_id cache
     __boot_id = None
@@ -967,6 +1066,8 @@ class BootEntry(object):
 
             :returntype: None
         """
+        # Clear cached boot_id: it will be regenerated on next access
+        self.__boot_id = None
         self._unwritten = True
 
     def __os_id_from_comment(self, comment):
@@ -1355,6 +1456,21 @@ class BootEntry(object):
         return None
 
     @property
+    def bp(self):
+        """The ``BootParams`` object associated with this ``BootEntry``.
+        """
+        return self._bp
+
+    @bp.setter
+    def bp(self, value):
+        """Set the ``BootParams`` object associated with this
+            ``BootEntry``.
+        """
+        self._dirty()
+        self._bp = value
+        self._bp_generation = self._bp.generation if self._bp else 0
+
+    @property
     def disp_boot_id(self):
         """The display boot_id of this entry.
 
@@ -1373,6 +1489,10 @@ class BootEntry(object):
             :getter: return this ``BootEntry``'s ``boot_id``.
             :type: string
         """
+        # Mark ourself dirty if boot parameters have changed.
+        if self.bp and self.bp.generation != self._bp_generation:
+            self._bp_generation = self.bp.generation
+            self._dirty()
         if not self.__boot_id or self._unwritten:
             self.__boot_id = self.__generate_boot_id()
         return self.__boot_id
