@@ -65,6 +65,14 @@ FMT_ROOT_OPTS = "root_opts"
 FMT_KERNEL = "kernel"
 #: Initramfs image
 FMT_INITRAMFS = "initramfs"
+#: OS Profile name
+FMT_OS_NAME = "os_name"
+#: OS Profile short name
+FMT_OS_SHORT_NAME = "os_short_name"
+#: OS Profile version
+FMT_OS_VERSION = "os_version"
+#: OS Profile version ID
+FMT_OS_VERSION_ID = "os_version_id"
 
 #: List of all possible format keys.
 FORMAT_KEYS = [
@@ -73,7 +81,9 @@ FORMAT_KEYS = [
     FMT_BTRFS_SUBVOL_ID, FMT_BTRFS_SUBVOL_PATH,
     FMT_BTRFS_SUBVOLUME, FMT_BTRFS_ROOT_OPTS,
     FMT_ROOT_DEVICE, FMT_ROOT_OPTS,
-    FMT_KERNEL, FMT_INITRAMFS
+    FMT_KERNEL, FMT_INITRAMFS,
+    FMT_OS_NAME, FMT_OS_SHORT_NAME,
+    FMT_OS_VERSION, FMT_OS_VERSION_ID
 ]
 
 _MACHINE_ID = "/etc/machine-id"
@@ -854,6 +864,10 @@ __all__ = [
     'FMT_ROOT_OPTS',
     'FMT_KERNEL',
     'FMT_INITRAMFS',
+    'FMT_OS_NAME',
+    'FMT_OS_SHORT_NAME',
+    'FMT_OS_VERSION',
+    'FMT_OS_VERSION_ID',
     'FORMAT_KEYS',
 
     # API Classes

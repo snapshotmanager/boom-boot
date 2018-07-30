@@ -1386,6 +1386,10 @@ class BootEntry(object):
             * ``%{root_opts}`` The command line options required for the
               root file system.
             * ``%{linux}`` The linux image to boot
+            * ``%{os_name}`` The OS Profile name
+            * ``%{os_short_name`` The OS Profile short name
+            * ``%{os_version}`` The OS Profile version
+            * ``%{os_version id`` The OS Profile version ID
 
             :param fmt: The string to be formatted.
 
@@ -1450,6 +1454,22 @@ class BootEntry(object):
         key = key_format % FMT_INITRAMFS
         if bp and key in fmt:
             fmt = fmt.replace(key, self.initrd)
+
+        key = key_format % FMT_OS_NAME
+        if bp and key in fmt:
+            fmt = fmt.replace(key, self._osp.os_name)
+
+        key = key_format % FMT_OS_SHORT_NAME
+        if bp and key in fmt:
+            fmt = fmt.replace(key, self._osp.os_short_name)
+
+        key = key_format % FMT_OS_VERSION
+        if key in fmt:
+            fmt = fmt.replace(key, self._osp.os_version)
+
+        key = key_format % FMT_OS_VERSION_ID
+        if key in fmt:
+            fmt = fmt.replace(key, self._osp.os_version_id)
 
         return fmt
 
