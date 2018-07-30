@@ -74,6 +74,7 @@ BOOM_OS_ROOT_OPTS_LVM2 = "BOOM_OS_ROOT_OPTS_LVM2"
 BOOM_OS_ROOT_OPTS_BTRFS = "BOOM_OS_ROOT_OPTS_BTRFS"
 #: Constant for the Boom OS command line options key.
 BOOM_OS_OPTIONS = "BOOM_OS_OPTIONS"
+BOOM_OS_TITLE = "BOOM_OS_TITLE"
 
 #: Ordered list of possible profile keys, partitioned into mandatory
 #: keys, root option keys, and optional keys (currently the Linux
@@ -85,8 +86,8 @@ OS_PROFILE_KEYS = [
     BOOM_OS_KERNEL_PATTERN, BOOM_OS_INITRAMFS_PATTERN,
     # At least one of keys 8-9 (ROOT_OPTS) is required.
     BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
-    # The OPTIONS key is optional.
-    BOOM_OS_OPTIONS
+    # The OPTIONS and TITLE keys are optional.
+    BOOM_OS_OPTIONS, BOOM_OS_TITLE
 ]
 
 #: A map of Boom profile keys to human readable key names suitable
@@ -103,7 +104,8 @@ OS_KEY_NAMES = {
     BOOM_OS_INITRAMFS_PATTERN: "Initramfs pattern",
     BOOM_OS_ROOT_OPTS_LVM2: "Root options (LVM2)",
     BOOM_OS_ROOT_OPTS_BTRFS: "Root options (BTRFS)",
-    BOOM_OS_OPTIONS: "Options"
+    BOOM_OS_OPTIONS: "Options",
+    BOOM_OS_TITLE: "Title"
 }
 
 #: Boom profile keys that must exist in a valid profile.
@@ -118,7 +120,8 @@ _DEFAULT_KEYS = {
     BOOM_OS_INITRAMFS_PATTERN: "/initramfs-%{version}.img",
     BOOM_OS_ROOT_OPTS_LVM2: "rd.lvm.lv=%{lvm_root_lv}",
     BOOM_OS_ROOT_OPTS_BTRFS: "rootflags=%{btrfs_subvolume}",
-    BOOM_OS_OPTIONS: "root=%{root_device} ro %{root_opts}"
+    BOOM_OS_OPTIONS: "root=%{root_device} ro %{root_opts}",
+    BOOM_OS_TITLE: "%{os_name} %{os_version_id} (%{version})"
 }
 
 # Module logging configuration
@@ -1076,6 +1079,23 @@ class OsProfile(object):
     @options.setter
     def options(self, value):
         self._profile_data[BOOM_OS_OPTIONS] = value
+        self._dirty()
+
+    @property
+    def title(self):
+        """The current title template for this profile.
+
+            :getter: returns the ``title`` value as a string.
+            :setter: store a new ``title`` value.
+            :type: string
+        """
+        if BOOM_OS_TITLE not in self._profile_data:
+            return None
+        return self._profile_data[BOOM_OS_TITLE]
+
+    @title.setter
+    def title(self, value):
+        self._profile_data[BOOM_OS_TITLE] = value
         self._dirty()
 
     @classmethod

@@ -56,7 +56,8 @@ class OsProfileTests(unittest.TestCase):
                 'Initramfs pattern: "/initramfs-%{version}.img",\n'
                 'Root options (LVM2): "rd.lvm.lv=%{lvm_root_lv}",\n'
                 'Root options (BTRFS): "rootflags=%{btrfs_subvolume}",\n'
-                'Options: "root=%{root_device} ro %{root_opts}"')
+                'Options: "root=%{root_device} ro %{root_opts}",\n'
+                'Title: "%{os_name} %{os_version_id} (%{version})"')
 
         self.assertEqual(str(osp), xstr)
 
@@ -72,7 +73,8 @@ class OsProfileTests(unittest.TestCase):
                  'BOOM_OS_INITRAMFS_PATTERN:"/initramfs-%{version}.img", '
                  'BOOM_OS_ROOT_OPTS_LVM2:"rd.lvm.lv=%{lvm_root_lv}", '
                  'BOOM_OS_ROOT_OPTS_BTRFS:"rootflags=%{btrfs_subvolume}", '
-                 'BOOM_OS_OPTIONS:"root=%{root_device} ro %{root_opts}"})')
+                 'BOOM_OS_OPTIONS:"root=%{root_device} ro %{root_opts}", '
+                 'BOOM_OS_TITLE:"%{os_name} %{os_version_id} (%{version})"})')
 
         self.assertEqual(repr(osp), xrepr)
 

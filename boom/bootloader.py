@@ -1340,8 +1340,8 @@ class BootEntry(object):
 
         self._unwritten = True
 
-        if not title or not machine_id:
-            raise ValueError("BootEntry title and machine_id cannot be None")
+        if not machine_id:
+            raise ValueError("BootEntry machine_id cannot be None")
 
         self.bp = boot_params
 
@@ -1350,7 +1350,18 @@ class BootEntry(object):
         # fields for a new BootEntry with an OsProfile attached.
         self._entry_data = {}
 
-        self.title = title
+        def title_empty(osp, title):
+            if self._osp and not self._osp.title:
+                return True
+            elif not self._osp and not title:
+                return True
+            return False
+
+        if title:
+            self.title = title
+        elif title_empty(self._osp, title):
+            raise ValueError("BootEntry title cannot be empty")
+
         self.machine_id = machine_id
 
         if not self._osp:
@@ -1582,10 +1593,22 @@ class BootEntry(object):
             :setter: sets this ``BootEntry`` object's title.
             :type: string
         """
-        return self._entry_data_property(BOOM_ENTRY_TITLE)
+        if BOOM_ENTRY_TITLE in self._entry_data:
+            return self._entry_data_property(BOOM_ENTRY_TITLE)
+
+        if not self._osp or not self.bp:
+            return ""
+
+        osp = self._osp
+        return self._apply_format(osp.title)
 
     @title.setter
     def title(self, title):
+        if not title:
+            # It is valid to set an empty title in a HostProfile as long
+            # as the OsProfile defines one.
+            if not self._osp or not self._osp.title:
+                raise ValueError("Entry title cannot be empty")
         self._entry_data[BOOM_ENTRY_TITLE] = title
         self._dirty()
 

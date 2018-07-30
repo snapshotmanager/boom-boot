@@ -990,6 +990,28 @@ class HostProfile(OsProfile):
         self._host_data[BOOM_OS_OPTIONS] = value
         self._dirty()
 
+    @property
+    def title(self):
+        """The current title template for this profile.
+
+            :getter: returns the ``title`` value as a string.
+            :setter: store a new ``title`` value.
+            :type: string
+        """
+        if BOOM_OS_TITLE not in self._profile_data:
+            return None
+        return self._host_data[BOOM_OS_TITLE]
+
+    @title.setter
+    def title(self, value):
+        if not title:
+            # It is valid to set an empty title in a HostProfile as long
+            # as the OsProfile defines one.
+            if not self.osp or not self.osp.title:
+                raise ValueError("Entry title cannot be empty")
+        self._host_data[BOOM_OS_TITLE] = value
+        self._dirty()
+
     #
     # HostProfile specific properties
     #
