@@ -1496,14 +1496,14 @@ class BootEntry(object):
         if BOOM_ENTRY_OPTIONS in self._entry_data:
             opts = self._entry_data_property(BOOM_ENTRY_OPTIONS)
             if self.bp:
-                return add_opts(opts, self.bp.add_opts)
+                opts = add_opts(opts, self.bp.add_opts)
+                return del_opts(opts, self.bp.del_opts)
             return opts
 
         if self._osp and self.bp:
             opts = self._apply_format(self._osp.options)
             opts = add_opts(opts, self.bp.add_opts)
-            opts = del_opts(opts, self.bp.del_opts)
-            return opts
+            return del_opts(opts, self.bp.del_opts)
 
         return ""
 
