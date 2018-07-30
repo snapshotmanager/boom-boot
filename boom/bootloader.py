@@ -1168,16 +1168,15 @@ class BootEntry(object):
         else:
             # Attempt to recover BootParams from entry data
             self.bp = BootParams.from_entry(self)
-            if self.bp:
-                # Clear be.options to allow re-templating
-                self._entry_data.pop(BOOM_ENTRY_OPTIONS)
 
         if self.bp:
             def _pop_if_set(key):
-                if key in self._entry_data:
+                if key in _entry_data:
                     if _entry_data[key] == getattr(self, KEY_MAP[key]):
                         _entry_data.pop(key)
 
+            # Copy the current _entry_data and clear self._entry_data to
+            # allow comparison of stored value with template.
             _entry_data = self._entry_data
             self._entry_data = {}
 
