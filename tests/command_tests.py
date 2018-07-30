@@ -67,6 +67,7 @@ class CommandTests(unittest.TestCase):
     def test_create_entry_notitle(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp.title = None
         with self.assertRaises(ValueError) as cm:
             be = create_entry(None, "2.6.0", "ffffffff", "/dev/vg_hex/root",
                               lvm_root_lv="vg_hex/root", osprofile=osp)

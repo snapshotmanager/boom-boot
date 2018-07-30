@@ -393,7 +393,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  a duplicate entry exists, or``OsError`` if an error
                  occurs while writing the entry file.
     """
-    if not title:
+    if not title and not osprofile.title:
         raise ValueError("Entry title cannot be empty.")
 
     if not version:
@@ -1400,12 +1400,6 @@ def _create_cmd(cmd_args, select, opts, identifier):
     else:
         version = cmd_args.version
 
-    if not cmd_args.title:
-        print("create requires --title")
-        return 1
-    else:
-        title = cmd_args.title
-
     if not cmd_args.machine_id:
         # Use host machine-id by default
         machine_id = _get_machine_id()
@@ -1449,6 +1443,13 @@ def _create_cmd(cmd_args, select, opts, identifier):
         return 1
 
     osp = osps[0]
+
+    if not cmd_args.title and not osp.title:
+        print("create requires --title")
+        return 1
+    else:
+        # Empty title will be filled out by profile
+        title = cmd_args.title
 
     add_opts = cmd_args.add_opts
     del_opts = cmd_args.del_opts
