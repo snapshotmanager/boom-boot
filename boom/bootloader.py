@@ -1414,73 +1414,136 @@ class BootEntry(object):
         if not fmt:
             return ""
 
-        version = None
-        if not bp and self.version:
-            version = self.version
-        elif bp:
-            version = bp.version
+        # Table-driven key formatting
+        #
+        # Each entry in the format_key_specs table specifies a list of
+        # possible key substitutions to perform for the named key. Each
+        # entry of the key_spec list contains a dictionary containing
+        # one or more attribute sources or predicates.
+        #
+        # A key substitution is evaluated if at least one of the listed
+        # attribute sources is defined, and if all defined predicates
+        # evaluate to True. A predicate must be a Python callable
+        # accepting no arguments and returning a boolean. A key_spec
+        # may also specify an explicit list of needed objects, "bp",
+        # or "osp", that must exist to evaluate predicates.
+        #
+        # Several helper functions exist to obtain key values from the
+        # appropriate data source (accounting for keys that exist in
+        # multiple objects as well as keys that return None or empty
+        # values), to test key_spec predicates, and to safely obtain
+        # function attributes where the containing object may or may
+        # not exist.
+        def get_key_attr(key_spec):
+            """Return a key's value attribute.
 
-        key = key_format % FMT_VERSION
-        if key in fmt and version:
-            fmt = fmt.replace(key, version)
+                Return a value from either `BootParams`, `OsProfile`,
+                or `BootEntry`. Each source is tested in order and the
+                value is taken from the first object type with a value
+                for the named key.
+            """
+            def have_attr():
+                """Test whether any attribute source for this key exists.
+                """
+                attrs_vals = [
+                    (BP_ATTR, bp), (OSP_ATTR, self._osp), (BE_ATTR, True)
+                ]
+                have = False
+                for attr, source in attrs_vals:
+                    if attr in key_spec:
+                        have |= source is not None
+                return have
 
-        key = key_format % FMT_LVM_ROOT_OPTS
-        if key in fmt and self._osp:
-            value_fmt = self._osp.root_opts_lvm2
-            value = self._apply_format(value_fmt)
-            fmt = fmt.replace(key, value)
+            val_fmt = "%s" if VAL_FMT not in key_spec else key_spec[VAL_FMT]
 
-        key = key_format % FMT_LVM_ROOT_LV
-        if bp and key in fmt and bp.lvm_root_lv:
-            fmt = fmt.replace(key, bp.lvm_root_lv)
+            if have_attr():
+                if BP_ATTR in key_spec and bp:
+                    value = getattr(bp, key_spec[BP_ATTR])
+                elif OSP_ATTR in key_spec:
+                    value = getattr(self._osp, key_spec[OSP_ATTR])
+                elif BE_ATTR in key_spec:
+                    value = getattr(self, key_spec[BE_ATTR])
+                return val_fmt % value if value is not None else None
+            else:
+                return None
 
-        key = key_format % FMT_BTRFS_ROOT_OPTS
-        if bp and self._osp and key in fmt and bp.has_btrfs():
-            value_fmt = self._osp.root_opts_btrfs
-            value = self._apply_format(value_fmt)
-            fmt = fmt.replace(key, value)
+        def test_predicates(key_spec):
+            """Test all defined predicate functions and return `True` if
+                all evaluate `True`, or `False` otherwise.
+            """
+            needs = key_spec[NEEDS] if NEEDS in key_spec else []
+            for need in needs:
+                if need == "bp" and not bp:
+                    return False
+                if need == "osp" and not self._osp:
+                    return False
+            predicates = key_spec[PRED_FN]
+            # Ignore invalid predicates
+            return all([fn() for fn in predicates if fn])
 
-        key = key_format % FMT_BTRFS_SUBVOLUME
-        if bp and key in fmt and bp.has_btrfs():
-            if bp.btrfs_subvol_id:
-                subvolume = "subvolid=%s" % bp.btrfs_subvol_id
-            if bp.btrfs_subvol_path:
-                subvolume = "subvol=%s" % bp.btrfs_subvol_path
-            fmt = fmt.replace(key, subvolume)
+        def mkpred(obj, fn):
+            """Return a callable predicate function for method ``fn`` of
+                object ``obj`` if ``obj`` is valid and contains ``fn``,
+                or ``None`` otherwise.
 
-        key = key_format % FMT_ROOT_DEVICE
-        if bp and key in fmt:
-            if bp.root_device:
-                fmt = fmt.replace(key, bp.root_device)
+                This is used to safely build predicate function lists
+                whether or not the objects they reference are defined
+                or not for a given substitution key.
+            """
+            return getattr(obj, fn) if obj else None
 
-        key = key_format % FMT_ROOT_OPTS
-        if bp and key in fmt:
-            root_opts = self._apply_format(self.root_opts)
-            fmt = fmt.replace(key, root_opts)
+        # Key spec constants
+        BE_ATTR = "be_attr"
+        BP_ATTR = "bp_attr"
+        OSP_ATTR = "osp_attr"
+        PRED_FN = "fn_pred"
+        VAL_FMT = "val_fmt"
+        NEEDS = "needs"
 
-        key = key_format % FMT_KERNEL
-        if bp and key in fmt:
-            fmt = fmt.replace(key, self.linux)
+        format_key_specs = {
+            FMT_VERSION: [{BE_ATTR:"version", BP_ATTR:"version"}],
+            FMT_LVM_ROOT_LV: [{BP_ATTR: "lvm_root_lv"}],
+            FMT_LVM_ROOT_OPTS: [{OSP_ATTR: "root_opts_lvm2"}],
+            FMT_BTRFS_ROOT_OPTS: [{OSP_ATTR: "root_opts_btrfs"}],
+            FMT_BTRFS_SUBVOLUME: [{BP_ATTR:"btrfs_subvol_id", NEEDS: "bp",
+                                   PRED_FN: [mkpred(bp, "has_btrfs")],
+                                   VAL_FMT: "subvolid=%s"},
+                                  {BP_ATTR:"btrfs_subvol_path", NEEDS: "bp",
+                                   PRED_FN: [mkpred(bp, "has_btrfs")],
+                                   VAL_FMT: "subvol=%s"}],
+            FMT_ROOT_DEVICE: [{BP_ATTR: "root_device", NEEDS: "bp"}],
+            FMT_ROOT_OPTS: [{BE_ATTR: "root_opts", NEEDS: "bp"}],
+            FMT_KERNEL: [{BE_ATTR: "linux", NEEDS: "bp"}],
+            FMT_INITRAMFS: [{BE_ATTR: "initrd", NEEDS: "bp"}],
+            FMT_OS_NAME: [{OSP_ATTR: "os_name"}],
+            FMT_OS_NAME: [{OSP_ATTR: "os_short_name"}],
+            FMT_OS_NAME: [{OSP_ATTR: "os_version"}],
+            FMT_OS_NAME: [{OSP_ATTR: "os_version_id"}]
+        }
 
-        key = key_format % FMT_INITRAMFS
-        if bp and key in fmt:
-            fmt = fmt.replace(key, self.initrd)
-
-        key = key_format % FMT_OS_NAME
-        if bp and key in fmt:
-            fmt = fmt.replace(key, self._osp.os_name)
-
-        key = key_format % FMT_OS_SHORT_NAME
-        if bp and key in fmt:
-            fmt = fmt.replace(key, self._osp.os_short_name)
-
-        key = key_format % FMT_OS_VERSION
-        if key in fmt:
-            fmt = fmt.replace(key, self._osp.os_version)
-
-        key = key_format % FMT_OS_VERSION_ID
-        if key in fmt:
-            fmt = fmt.replace(key, self._osp.os_version_id)
+        for key_name in format_key_specs.keys():
+            key = key_format % key_name
+            if not key in fmt:
+                continue
+            for key_spec in format_key_specs[key_name]:
+                # Check NEEDS
+                for k in key_spec.keys():
+                    if k == NEEDS:
+                        if key_spec[k] == "bp" and not bp:
+                            continue
+                        if key_spec[k] == "osp" and not self._osp:
+                            continue
+                # A key value of None means the key should not be substituted:
+                # this occurs when accessing a templated attribute of an entry
+                # that has no attached OsProfile (in which case the format key
+                # is retained in the formatted text).
+                #
+                # If the value is not None, but contains the empty string, the
+                # value is substituted as normal.
+                value = get_key_attr(key_spec)
+                if value is None:
+                    continue
+                fmt = fmt.replace(key, value)
 
         return fmt
 
@@ -1572,7 +1635,6 @@ class BootEntry(object):
         bp = self.bp
         osp = self._osp
         root_opts = "%s%s%s"
-
         lvm_opts = ""
         if bp.lvm_root_lv:
             lvm_opts = self._apply_format(osp.root_opts_lvm2)
@@ -1580,9 +1642,7 @@ class BootEntry(object):
         btrfs_opts = ""
         if bp.btrfs_subvol_id or bp.btrfs_subvol_path:
             btrfs_opts += self._apply_format(osp.root_opts_btrfs)
-
         spacer = " " if lvm_opts and btrfs_opts else ""
-
         return root_opts % (lvm_opts, spacer, btrfs_opts)
 
     @property
