@@ -554,7 +554,7 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     bes = find_entries(selection=selection)
     if not bes:
         raise ValueError("No matching entry found for boot ID %s" %
-                         selection.disp_boot_id)
+                         selection.boot_id)
         return 1
 
     be = bes.pop()
