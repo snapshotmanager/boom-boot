@@ -568,7 +568,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
-               btrfs_subvol_id=None, osprofile=None, write=True):
+               btrfs_subvol_id=None, osprofile=None):
     """Edit an existing boot loader entry.
 
         Modify an existing BootEntry by changing one or more of the
@@ -595,41 +595,30 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
    # Discard all selection criteria but boot_id.
     selection = Selection(boot_id=selection.boot_id)
 
-    osp = None
-    if osprofile:
-        os_id = osprofile
-        osps = find_profiles(Selection(os_id=os_id))
-        if not osps:
-            raise ValueError("No matching profile found: %s" % os_id)
-        if len(osps) > 1:
-            raise ValueError("OS profile identifier '%s' is ambiguous" % os_id)
-            return 1
-        osp = osps.pop()
-
     bes = find_entries(selection=selection)
     if not bes:
         raise ValueError("No matching entry found for boot ID %s" %
                          selection.boot_id)
         return 1
 
-    hps = find_host_profiles(Selection(machine_id=machine_id))
-    profile = hps[0] if hps else osp
-
     be = bes.pop()
-    # Boot ID will change: clean up old file.
-    be.delete_entry()
+
+    # Use a matching HostProfile is one exists, or the command line
+    # OsProfile argument if set.
+    machine_id = machine_id or be.machine_id
+    hps = find_host_profiles(Selection(machine_id=machine_id))
+    profile = hps[0] if hps else osprofile
+
     be._osp = profile or be._osp
     be.title = title or be.title
-    be.version = version or be.version
     be.machine_id = machine_id or be.machine_id
+    be.bp.version = version or be.version
     be.bp.root_device = root_device or be.bp.root_device
     be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
     be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
     be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
-
-    if write:
-        be.write_entry()
-        __write_legacy()
+    be.update_entry()
+    __write_legacy()
 
     return be
 
@@ -1676,12 +1665,23 @@ def _edit_cmd(cmd_args, select, opts, identifier):
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
 
+    osp = None
+    if cmd_args.profile:
+        os_id = cmd_args.profile
+        osps = find_profiles(Selection(os_id=os_id))
+        if not osps:
+            raise ValueError("No matching profile found: %s" % os_id)
+        if len(osps) > 1:
+            raise ValueError("OS profile identifier '%s' is ambiguous" % os_id)
+            return 1
+        osp = osps.pop()
+
     try:
         be = edit_entry(selection=select, title=title, version=version,
                         machine_id=machine_id, root_device=root_device,
                         lvm_root_lv=lvm_root_lv,
                         btrfs_subvol_path=btrfs_subvol_path,
-                        btrfs_subvol_id=btrfs_subvol_id)
+                        btrfs_subvol_id=btrfs_subvol_id, osprofile=osp)
     except ValueError as e:
         print(e)
         return 1
