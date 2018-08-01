@@ -663,7 +663,10 @@ class OsProfile(object):
             raise ValueError(str(e) + "in %s" % profile_file)
 
     def __init__(self, name=None, short_name=None, version=None,
-                 version_id=None, profile_file=None, profile_data=None):
+                 version_id=None, profile_file=None, profile_data=None,
+                 uname_pattern=None, kernel_pattern=None,
+                 initramfs_pattern=None, root_opts_lvm2=None,
+                 root_opts_btrfs=None, options=None):
         """Initialise a new ``OsProfile`` object.
 
             If neither ``profile_file`` nor ``profile_data`` is given,
@@ -687,6 +690,13 @@ class OsProfile(object):
                                  profile data should be loaded. The file
                                  should be in Boom profile format, with
                                  ``BOOM_OS_*`` key=value pairs.
+            :param uname_pattern: Optional uname pattern.
+            :param kernel_pattern: Optional kernel pattern.
+            :param initramfs_pattern: Optional initramfs pattern.
+            :param root_opts_lvm2: Optional LVM2 root options template.
+            :param root_opts_btrfs: Optional BTRFS options template.
+            :param options: Optional options template.
+
             :returns: A new ``OsProfile`` object.
             :returntype: class OsProfile
         """
@@ -709,6 +719,15 @@ class OsProfile(object):
         self._profile_data[BOOM_OS_VERSION] = version
         self._profile_data[BOOM_OS_VERSION_ID] = version_id
 
+        # Optional arguments: unset values will be replaced by defaults.
+        if uname_pattern:
+            self._profile_data[BOOM_OS_UNAME_PATTERN] = uname_pattern
+        self._profile_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
+        self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
+        self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
+        self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
+        self._profile_data[BOOM_OS_OPTIONS] = options
+
         required_args = [name, short_name, version, version_id]
         if all([not val for val in required_args]):
             # NULL profile
@@ -718,8 +737,15 @@ class OsProfile(object):
             raise ValueError("Invalid profile arguments: name, "
                              "short_name, version, and version_id are"
                              "mandatory.")
+
+        def default_if_unset(key):
+            if key not in self._profile_data:
+                return _DEFAULT_KEYS[key]
+            return self._profile_data[key] or _DEFAULT_KEYS[key]
+
+        # Apply global defaults for unset keys
         for key in _DEFAULT_KEYS:
-            self._profile_data[key] = _DEFAULT_KEYS[key]
+            self._profile_data[key] = default_if_unset(key)
 
         self._generate_os_id()
         _profiles.append(self)
