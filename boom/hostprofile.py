@@ -796,6 +796,7 @@ class HostProfile(OsProfile):
         if value == self._host_data[BOOM_OS_ID]:
             return
         self._host_data[BOOM_OS_ID] = value
+        self.__set_os_profile()
         self._dirty()
         self._generate_host_id()
 
