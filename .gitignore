@@ -2,6 +2,11 @@
 *.swp
 *.egg-info
 *.log
+*.orig
+.coverage
 build/
+dist/
 _build/
 __pycache__
+doc/html
+doc/doctrees
