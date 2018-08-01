@@ -33,6 +33,7 @@ manual page for information on using the command line interface.
 from os.path import exists as path_exists, isabs, join as path_join
 from os import listdir
 import logging
+import string
 
 #: The location of the system ``/boot`` directory.
 DEFAULT_BOOT_PATH = "/boot"
@@ -709,21 +710,18 @@ def parse_name_value(nvp, separator="="):
     if value.startswith('='):
         raise val_err
 
-    invalid_name_chars = [
-        '!', '+', '~', '#', '@', '"', "'", '$', '%', '^', '&', '*',
-        '(', ')', '{', '}', '?', '<', '>', '/', '\\', '[', ']', ',',
-        '|', '=', "'", ':', ';'
-    ]
-    if any([v for v in invalid_name_chars if v in name]):
-        raise ValueError("Invalid characters in name: %s" % name)
+    name = name.strip()
+    value = value.lstrip()
 
-    # FIXME: support preservation of in-line comments for profiles
-    # (BLS currently only allows whole line comments).
     if "#" in value:
         value, comment = value.split("#", 1)
 
-    name = name.strip()
-    value = value.lstrip()
+    valid_name_chars = string.ascii_letters + string.digits + "_-,.'\""
+    bad_chars = [c for c in name if c not in valid_name_chars]
+    if any(bad_chars):
+        raise ValueError("Invalid characters in name: %s (%s)" %
+                         (name, bad_chars))
+
     if value.startswith('"') or value.startswith("'"):
         value = value[1:-1]
     return (name, value)
