@@ -479,7 +479,7 @@ class HostProfile(OsProfile):
         if not isinstance(key, str):
             raise TypeError("HostProfile key must be a string.")
 
-        if key not in PROFILE_KEYS:
+        if key not in HOST_PROFILE_KEYS:
             raise ValueError("Invalid HostProfile key: %s" % key)
 
         if key in bad_key_map:
