@@ -368,7 +368,7 @@ def _do_print_type(report_fields, selected, output_fields=None,
 #
 
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
-                 btrfs_subvol_path=None, btrfs_subvol_id=None, osprofile=None,
+                 btrfs_subvol_path=None, btrfs_subvol_id=None, profile=None,
                  add_opts=None, del_opts=None, write=True, allow_no_dev=False):
     """Create new boot loader entry.
 
@@ -381,7 +381,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         :param lvm_root_lv: an optional LVM2 root logical volume.
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
-        :param osprofile: The ``OsProfile`` for this entry.
+        :param profile: A profile to use for this entry.
         :param add_opts: A list of additional kernel options to append.
         :param del_opts: A list of template-supplied options to drop.
         :param write: ``True`` if the entry should be written to disk,
@@ -393,7 +393,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  a duplicate entry exists, or``OsError`` if an error
                  occurs while writing the entry file.
     """
-    if not title and not osprofile.title:
+    if not title and not profile.title:
         raise ValueError("Entry title cannot be empty.")
 
     if not version:
@@ -405,7 +405,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
     if not root_device:
         raise ValueError("Entry requires a root_device.")
 
-    if not osprofile:
+    if not profile:
         raise ValueError("Cannot create entry without OsProfile.")
 
     btrfs = any([btrfs_subvol_path, btrfs_subvol_id])
@@ -415,9 +415,6 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
 
     _log_debug_cmd("Effective add options: %s" % add_opts)
     _log_debug_cmd("Effective del options: %s" % del_opts)
-
-    hps = find_host_profiles(Selection(machine_id=machine_id))
-    profile = hps[0] if hps else osprofile
 
     bp = BootParams(version, root_device, lvm_root_lv=lvm_root_lv,
                     btrfs_subvol_path=btrfs_subvol_path,
@@ -475,7 +472,8 @@ def delete_entries(selection=None):
 
 def clone_entry(selection=None, title=None, version=None, machine_id=None,
                 root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
-                btrfs_subvol_id=None, osprofile=None, add_opts=None, del_opts=None,
+                btrfs_subvol_id=None, profile=None,
+                add_opts=None, del_opts=None,
                 write=True, allow_no_dev=False):
     """Clone an existing boot loader entry.
 
@@ -492,7 +490,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         :param lvm_root_lv: an optional LVM2 root logical volume.
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
-        :param osprofile: The ``OsProfile`` for this entry.
+        :param profile: A profile to use for this entry.
         :param add_opts: A list of additional kernel options to append.
         :param del_opts: A list of template-supplied options to drop.
         :param write: ``True`` if the entry should be written to disk,
@@ -508,12 +506,12 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         return 1
 
     all_args = (title, version, machine_id, root_device, lvm_root_lv,
-                btrfs_subvol_path, btrfs_subvol_id, osprofile)
+                btrfs_subvol_path, btrfs_subvol_id, profile)
 
     if not any(all_args):
         raise ValueError("clone requires one or more of:\ntitle, version, "
                          "machine_id, root_device, lvm_root_lv, "
-                         "btrfs_subvol_path, btrfs_subvol_id, osprofile")
+                         "btrfs_subvol_path, btrfs_subvol_id, profile")
         return 1
 
     bes = find_entries(selection)
@@ -534,7 +532,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                          else be.bp.btrfs_subvol_path)
     btrfs_subvol_id = (btrfs_subvol_id if btrfs_subvol_id
                        else be.bp.btrfs_subvol_id)
-    osprofile = osprofile if osprofile else be._osp
+    profile = profile if profile else be._osp
 
     # Merge new and cloned appended kernel options
     all_add_opts = set()
@@ -554,7 +552,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                     add_opts=all_add_opts, del_opts=del_opts)
 
     clone_be = BootEntry(title=title, machine_id=machine_id,
-                         osprofile=osprofile, boot_params=bp,
+                         osprofile=profile, boot_params=bp,
                          allow_no_dev=allow_no_dev)
     if find_entries(Selection(boot_id=clone_be.boot_id)):
         raise ValueError("Entry already exists (boot_id=%s)." %
@@ -568,7 +566,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
-               btrfs_subvol_id=None, osprofile=None):
+               btrfs_subvol_id=None, profile=None):
     """Edit an existing boot loader entry.
 
         Modify an existing BootEntry by changing one or more of the
@@ -589,6 +587,8 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
         :param lvm_root_lv: The new LVM root LV
         :param btrfs_subvol_path: The new BTRFS subvolume path
         :param btrfs_subvol_id: The new BTRFS subvolme ID
+        :param profile: The host or OS profile for the edited entry
+
         :returns: The modified ``BootEntry``
         :returntype: ``BootEntry``
     """
@@ -606,8 +606,9 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     # Use a matching HostProfile is one exists, or the command line
     # OsProfile argument if set.
     machine_id = machine_id or be.machine_id
-    hps = find_host_profiles(Selection(machine_id=machine_id))
-    profile = hps[0] if hps else osprofile
+    profile = _find_profile(cmd_args, machine_id, "edit")
+    if not profile:
+         return 1
 
     be._osp = profile or be._osp
     be.title = title or be.title
@@ -1036,7 +1037,7 @@ def print_profiles(selection=None, opts=None, output_fields=None,
                           opts=opts, sort_keys=sort_keys)
 
 
-def create_host(machine_id=None, host_name=None, os_id=None,
+def create_host(machine_id=None, host_name=None, os_id=None, label=None,
                 kernel_pattern=None, initramfs_pattern=None,
                 root_opts_lvm2=None, root_opts_btrfs=None,
                 options=None, add_opts=None, del_opts=None,
@@ -1056,7 +1057,9 @@ def create_host(machine_id=None, host_name=None, os_id=None,
         An error is raised if a matching profile already exists.
 
         :param machine_id: The machine_id of the host
-        :param name: The full name of the new HostProfile
+        :param host_name: The full name of the new HostProfile
+        :param label: An optional host label
+        :param os_id: The os_id for the new host
         :param kernel_pattern: Pattern to generate kernel paths
         :param initramfs_pattern: Pattern to generate initramfs paths
         :param root_opts_lvm2: Template options for LVM2 entries
@@ -1084,14 +1087,20 @@ def create_host(machine_id=None, host_name=None, os_id=None,
     if not _have_key(host_data, os_id, BOOM_OS_ID):
         raise ValueError("Host OS ID cannot be empty.")
 
+    label = label or ""
+
     if not host_data:
         host_data = {}
 
+    # FIXME use kwarg style
+
     # Allow keyword arguments to override
-    if host_name:
-        host_data[BOOM_HOST_NAME] = name
     if machine_id:
         host_data[BOOM_ENTRY_MACHINE_ID] = machine_id
+    if host_name:
+        host_data[BOOM_HOST_NAME] = name
+    if host_label:
+        host_label[BOOM_HOST_LABEL] = label
     if os_id:
         host_data[BOOM_OS_ID] = os_id
     if kernel_pattern:
@@ -1151,8 +1160,8 @@ def delete_hosts(selection=None):
     return deleted
 
 
-def clone_host(selection=None, machine_id=None, host_name=None, os_id=None,
-               kernel_pattern=None, initramfs_pattern=None,
+def clone_host(selection=None, machine_id=None, host_name=None, label=None,
+               os_id=None, kernel_pattern=None, initramfs_pattern=None,
                root_opts_lvm2=None, root_opts_btrfs=None,
                add_opts=None, del_opts=None, options=None):
     """Clone an existing host profile.
@@ -1167,6 +1176,7 @@ def clone_host(selection=None, machine_id=None, host_name=None, os_id=None,
         :param selection: criteria matching the profile to clone.
         :param machine_id: the machine_id of the new host profile.
         :param host_name: the hostname of the new host profile.
+        :param label: an optional host label.
         :param os_id: the operating system identifier for the host.
         :param kernel_pattern: The kernel pattern for the host.
         :param initramfs_pattern: The initramfs pattern for the host.
@@ -1175,8 +1185,9 @@ def clone_host(selection=None, machine_id=None, host_name=None, os_id=None,
         :param add_opts: Additional boot options for this profile.
         :param del_opts: Boot options to delete for this profile.
         :param options: Kernel options template.
-        :returns: a new ``OsProfile`` object.
-        :returntype: ``OsProfile``
+
+        :returns: a new ``HostProfile`` object.
+        :returntype: ``HostProfile``
         :raises: ``ValueError`` if either required values are missing or
                  a duplicate profile exists, or``OsError`` if an error
                  occurs while writing the profile file.
@@ -1214,7 +1225,9 @@ def clone_host(selection=None, machine_id=None, host_name=None, os_id=None,
     hp = hps.pop()
 
     # Clone unset keys
+    machine_id = machine_id or hp.machine_id
     host_name = host_name or hp.host_name
+    label = label or ""
     os_id = os_id or hp.os_id
     initramfs_pattern = initramfs_pattern or hp.initramfs_pattern
     kernel_pattern = kernel_pattern or hp.kernel_pattern
@@ -1225,7 +1238,8 @@ def clone_host(selection=None, machine_id=None, host_name=None, os_id=None,
     options = options or hp.options
 
     clone_hp = HostProfile(machine_id=machine_id, host_name=host_name,
-                           os_id=os_id, kernel_pattern=kernel_pattern,
+                           label=label, os_id=os_id,
+                           kernel_pattern=kernel_pattern,
                            initramfs_pattern=initramfs_pattern,
                            root_opts_lvm2=root_opts_lvm2,
                            root_opts_btrfs=root_opts_btrfs,
@@ -1243,7 +1257,7 @@ def clone_host(selection=None, machine_id=None, host_name=None, os_id=None,
 
 
 def edit_host(selection=None, machine_id=None, os_id=None, host_name=None,
-              kernel_pattern=None, initramfs_pattern=None,
+              label=None, kernel_pattern=None, initramfs_pattern=None,
               root_opts_lvm2=None, root_opts_btrfs=None,
               add_opts=None, del_opts=None, options=None):
     """Edit an existing host profile.
@@ -1255,6 +1269,9 @@ def edit_host(selection=None, machine_id=None, os_id=None, host_name=None,
         success.
 
         :param selection: A Selection specifying the boot_id to edit
+        :param machine_id: The machine id for the edited host profile
+        :param host_name: The host name for the edited host profile
+        :param label: an optional host label
         :param kernel_pattern: The new kernel pattern
         :param initramfs_pattern: The new initramfs pattern
         :param root_opts_lvm2: The new LVM2 root options
@@ -1281,8 +1298,9 @@ def edit_host(selection=None, machine_id=None, os_id=None, host_name=None,
     hp = hps.pop()
     hp.delete_profile()
     hp.machine_id = machine_id or hp.os_id
-    hp.os_id = os_id or hp.os_id
     hp.host_name = name or hp.host_name
+    hp.label = label or hp.label
+    hp.os_id = os_id or hp.os_id
     hp.kernel_pattern = kernel_pattern or hp.kernel_pattern
     hp.initramfs_pattern = initramfs_pattern or hp.initramfs_pattern
     hp.root_opts_lvm2 = root_opts_lvm2 or hp.root_opts_lvm2
@@ -1361,6 +1379,56 @@ def _apply_profile_overrides(boot_entry, cmd_args):
         boot_entry.initrd = cmd_args.initrd
         modified = True
 
+def _find_profile(cmd_args, machine_id, command):
+    """Find a matching profile (HostProfile or OsProfile) for this
+        combination of version, machine_id, label and command line
+        profile argument.
+    """
+    if not cmd_args.profile:
+        # Attempt to find a matching OsProfile by version string
+        osp = match_os_profile_by_version(cmd_args.version)
+        if not osp:
+            print("%s requires --profile" % command)
+            return None
+        os_id = osp.os_id
+    else:
+        os_id = cmd_args.profile
+
+    osps = find_profiles(Selection(os_id=os_id))
+
+    # Fail if an explicit profile was given and it is not found.
+    if not osps and os_id == cmd_args.profile:
+        print("OsProfile not found: %s" % os_id)
+        return None
+
+    if len(osps) > 1:
+        print("OsProfile ID '%s' is ambiguous" % os_id)
+        return None
+
+    osp = osps[0]
+
+    _log_debug("Found OsProfile: %s" % osp.os_id)
+
+    # Attempt to match a host profile to the running host
+    label = cmd_args.label or ""
+    host_select = Selection(machine_id=machine_id, host_label=label)
+    hps = find_host_profiles(host_select)
+    hp = hps[0] if hps else None
+    if len(hps) > 1:
+        # This can only occur if host profiles have been edited outside
+        # boom's control, such that there are one or more profiles with
+        # matching machine_id and label.
+        _log_error("Ambiguous host profile selection")
+        return None
+    elif len(hps) == 1:
+        _log_debug("Found HostProfile: %s" % hps[0].host_id)
+        if osp and not hp.os_id != osp.os_id:
+            _log_warn("HostProfile(host_id=%s).os_id does not match "
+                      "--profile=%s" % (hp.disp_os_id, osp.disp_os_id))
+            _log_warn("Using os_id from HostProfile")
+
+    return hp or osp
+
 
 def _create_cmd(cmd_args, select, opts, identifier):
     """Create entry command handler.
@@ -1410,28 +1478,9 @@ def _create_cmd(cmd_args, select, opts, identifier):
 
     no_dev = cmd_args.no_dev
 
-    # FIXME: default to host OsProfile
-    if not cmd_args.profile:
-        # Attempt to find a matching OsProfile by version string
-        osp = match_os_profile_by_version(version)
-        if not osp:
-            print("create requires --profile")
-            return 1
-        os_id = osp.os_id
-    else:
-        os_id = cmd_args.profile
-
-    osps = find_profiles(Selection(os_id=os_id))
-
-    if not osps:
-        print("OsProfile not found: %s" % os_id)
+    profile = _find_profile(cmd_args, machine_id, "create")
+    if not profile:
         return 1
-
-    if len(osps) > 1:
-        print("OsProfile ID '%s' is ambiguous" % os_id)
-        return 1
-
-    osp = osps[0]
 
     if not cmd_args.title and not osp.title:
         print("create requires --title")
@@ -1447,7 +1496,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
         be = create_entry(title, version, machine_id,
                           root_device, lvm_root_lv=lvm_root_lv,
                           btrfs_subvol_path=btrfs_subvol_path,
-                          btrfs_subvol_id=btrfs_subvol_id, osprofile=osp,
+                          btrfs_subvol_id=btrfs_subvol_id, profile=profile,
                           add_opts=add_opts, del_opts=del_opts,
                           write=False, allow_no_dev=no_dev)
 
@@ -1538,20 +1587,9 @@ def _clone_cmd(cmd_args, select, opts, identifier):
     # Discard all selection criteria but boot_id.
     select = Selection(boot_id=select.boot_id)
 
-    osp = None
-    if cmd_args.profile:
-        osps = find_profiles(Selection(os_id=cmd_args.profile))
-        if not osps:
-            print("OsProfile not found: %s" % cmd_args.profile)
-            return 1
-        if len(osps) > 1:
-            print("OS profile identifier '%s' is ambiguous" %
-                  cmd_args.profile)
-            return 1
-        osp = osps[0]
-
-    hps = find_host_profiles(Selection(machine_id=machine_id))
-    profile = hps[0] or osprofile
+    profile = _find_profile(cmd_args, machine_id, "clone")
+    if not profile:
+        return 1
 
     add_opts = cmd_args.add_opts
     del_opts = cmd_args.del_opts
@@ -1561,7 +1599,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
                          machine_id=machine_id, root_device=root_device,
                          lvm_root_lv=lvm_root_lv,
                          btrfs_subvol_path=btrfs_subvol_path,
-                         btrfs_subvol_id=btrfs_subvol_id, osprofile=profile,
+                         btrfs_subvol_id=btrfs_subvol_id, profile=profile,
                          add_opts=add_opts, del_opts=del_opts,
                          allow_no_dev=cmd_args.no_dev)
 
@@ -1665,23 +1703,16 @@ def _edit_cmd(cmd_args, select, opts, identifier):
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
 
-    osp = None
-    if cmd_args.profile:
-        os_id = cmd_args.profile
-        osps = find_profiles(Selection(os_id=os_id))
-        if not osps:
-            raise ValueError("No matching profile found: %s" % os_id)
-        if len(osps) > 1:
-            raise ValueError("OS profile identifier '%s' is ambiguous" % os_id)
-            return 1
-        osp = osps.pop()
+    profile = _find_profile(cmd_args, machine_id, "edit")
+    if not profile:
+        return 1
 
     try:
         be = edit_entry(selection=select, title=title, version=version,
                         machine_id=machine_id, root_device=root_device,
                         lvm_root_lv=lvm_root_lv,
                         btrfs_subvol_path=btrfs_subvol_path,
-                        btrfs_subvol_id=btrfs_subvol_id, osprofile=osp)
+                        btrfs_subvol_id=btrfs_subvol_id, profile=profile)
     except ValueError as e:
         print(e)
         return 1
@@ -1997,7 +2028,7 @@ def _create_host_cmd(cmd_args, select, opts, identifier):
 
     try:
         hp = create_host(machine_id=machine_id, os_id=os_id, name=name,
-                         kernel_pattern=cmd_args.kernel_pattern,
+                         label=label, kernel_pattern=cmd_args.kernel_pattern,
                          initramfs_pattern=cmd_args.initramfs_pattern,
                          root_opts_lvm2=cmd_args.lvm_opts,
                          root_opts_btrfs=cmd_args.btrfs_opts,
@@ -2454,6 +2485,8 @@ def main(args):
     parser.add_argument("-k", "--kernel-pattern", "--kernelpattern",
                         metavar="PATTERN", type=str,
                         help="A pattern for generating kernel paths")
+    parser.add_argument("--label", metavar="LABEL", type=str,
+                        help="Host profile label")
     parser.add_argument("-l", "--linux", metavar="IMG", type=str,
                         help="A linux kernel image path")
     parser.add_argument("-L", "--root-lv", "--rootlv", metavar="LV", type=str,

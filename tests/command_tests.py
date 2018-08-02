@@ -70,28 +70,28 @@ class CommandTests(unittest.TestCase):
         osp.title = None
         with self.assertRaises(ValueError) as cm:
             be = create_entry(None, "2.6.0", "ffffffff", "/dev/vg_hex/root",
-                              lvm_root_lv="vg_hex/root", osprofile=osp)
+                              lvm_root_lv="vg_hex/root", profile=osp)
 
     def test_create_entry_noversion(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
         with self.assertRaises(ValueError) as cm:
             be = create_entry("ATITLE", None, "ffffffff", "/dev/vg_hex/root",
-                              lvm_root_lv="vg_hex/root", osprofile=osp)
+                              lvm_root_lv="vg_hex/root", profile=osp)
 
     def test_create_entry_nomachineid(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
         with self.assertRaises(ValueError) as cm:
             be = create_entry("ATITLE", "2.6.0", "", "/dev/vg_hex/root",
-                              lvm_root_lv="vg_hex/root", osprofile=osp)
+                              lvm_root_lv="vg_hex/root", profile=osp)
 
     def test_create_entry_norootdevice(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
         with self.assertRaises(ValueError) as cm:
             be = create_entry("ATITLE", "2.6.0", "ffffffff", None,
-                              lvm_root_lv="vg_hex/root", osprofile=osp)
+                              lvm_root_lv="vg_hex/root", profile=osp)
 
     def test_create_entry_noosprofile(self):
         # Fedora 24 (Workstation Edition)
@@ -112,14 +112,14 @@ class CommandTests(unittest.TestCase):
 
         with self.assertRaises(ValueError) as cm:
             create_entry(title, version, machine_id, root_device,
-                         btrfs_subvol_id=btrfs_subvol_id, osprofile=osp,
+                         btrfs_subvol_id=btrfs_subvol_id, profile=osp,
                          allow_no_dev=True)
 
     def test_create_delete_entry(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
         be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
-                          lvm_root_lv="vg_hex/root", osprofile=osp)
+                          lvm_root_lv="vg_hex/root", profile=osp)
         self.assertTrue(exists(be._entry_path))
 
         delete_entries(Selection(boot_id=be.boot_id))
