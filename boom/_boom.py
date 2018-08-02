@@ -430,6 +430,7 @@ class Selection(object):
     # HostProfile fields
     host_id = None
     host_name = None
+    host_label = None
     host_short_name = None
     host_add_opts = None
     host_del_opts = None
@@ -453,7 +454,7 @@ class Selection(object):
     ]
 
     host_attrs = [
-        "host_id", "host_name", "host_short_name",
+        "host_id", "host_name", "host_label", "host_short_name",
         "host_add_opts", "host_del_opts", "machine_id"
     ]
 
@@ -497,7 +498,7 @@ class Selection(object):
                  os_version=None, os_version_id=None, os_options=None,
                  os_uname_pattern=None, kernel_pattern=None,
                  initramfs_pattern=None, host_id=None,
-                 host_name=None, host_short_name=None,
+                 host_name=None, host_label=None, host_short_name=None,
                  host_add_opts=None, host_del_opts=None):
         """Initialise a new Selection object.
 
@@ -526,6 +527,7 @@ class Selection(object):
             :param os_initramfs_pattern: The initramfs_pattern to match
             :param host_id: The host identifier to match
             :param host_name: The host name to match
+            :param host_label: The host label to match
             :param host_short_name: The host short name to match
             :param host_add_opts: Host add options to match
             :param host_del_opts: Host del options to match
@@ -554,6 +556,7 @@ class Selection(object):
         self.os_initramfs_pattern = initramfs_pattern
         self.host_id = host_id
         self.host_name = host_name
+        self.host_label = host_label
         self.host_short_name = host_short_name
         self.host_add_opts = host_add_opts
         self.host_del_opts = host_del_opts
