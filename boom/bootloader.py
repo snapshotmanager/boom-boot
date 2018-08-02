@@ -1277,6 +1277,7 @@ class BootEntry(object):
                           entry_basename)
 
         self._last_path = entry_file
+        self._unwritten = False
 
     def __init__(self, title=None, machine_id=None, osprofile=None,
                  boot_params=None, entry_file=None, entry_data=None,
