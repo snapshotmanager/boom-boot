@@ -1245,6 +1245,35 @@ class OsProfile(object):
 
         _log_debug("Wrote profile (os_id=%s)'" % self.disp_os_id)
 
+    def _delete_profile(self, profile_type, profile_id):
+        """Deletion helper for profile classes.
+
+            Remove the on-disk profile corresponding to this
+            ``OsProfile`` object. This will permanently erase the
+            current file (although the current data may be re-written at
+            any time by calling ``write_profile()`` before the object is
+            disposed of).
+
+            :returntype: ``NoneType``
+            :raises: ``OsError`` if an error occurs removing the file or
+                     ``ValueError`` if the profile does not exist.
+        """
+        profile_path = self._profile_path()
+
+        _log_debug("Deleting %sProfile(%s_id='%s') from '%s'" %
+                   (profile_type, profile_type.lower(), profile_id,
+                    basename(profile_path)))
+
+        if not path_exists(profile_path):
+            return
+        try:
+            unlink(profile_path)
+            _log_debug("Deleted %sProfile(%s_id='%s')" %
+                       (profile_type, profile_type.lower(), profile_id))
+        except Exception as e:
+            _log_error("Error removing %sProfile file '%s': %s" %
+                       (profile_type, profile_path, e))
+
     def delete_profile(self):
         """Delete on-disk data for this profile.
 
@@ -1259,22 +1288,9 @@ class OsProfile(object):
                      ``ValueError`` if the profile does not exist.
         """
         global _profiles
-        profile_path = self._profile_path()
-        _log_debug("Deleting OsProfile(name='%s', os_id='%s') from '%s'" %
-                   (self.os_name, self.disp_os_id, basename(profile_path)))
+        self._delete_profile("Os", self.os_id)
         if _profiles and self in _profiles:
             _profiles.remove(self)
-
-        if not path_exists(profile_path):
-            return
-
-        try:
-            unlink(profile_path)
-        except Exception as e:
-            _log_error("Error removing profile file '%s': %s" %
-                       (profile_path, e))
-
-        _log_debug("Deleted OsProfile(os_id='%s')" % self.disp_os_id)
 
 
 _null_profile = OsProfile(name="", short_name="", version="", version_id="")

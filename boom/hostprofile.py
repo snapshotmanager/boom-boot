@@ -1040,23 +1040,10 @@ class HostProfile(OsProfile):
             :raises: ``OsError`` if an error occurs removing the file or
                      ``ValueError`` if the profile does not exist.
         """
-        global _host_profiles
-        profile_path = self._profile_path()
-        _log_debug("Deleting HostProfile(name='%s', host_id='%s') from '%s'" %
-                   (self.host_name, self.disp_host_id, basename(profile_path)))
-        if _host_profiles and self in _host_profiles:
-            _host_profiles.remove(self)
-
-        if not path_exists(profile_path):
-            return
-
-        try:
-            unlink(profile_path)
-        except Exception as e:
-            _log_error("Error removing profile file '%s': %s" %
-                       (profile_path, e))
-
-        _log_debug("Deleted HostProfile(host_id='%s')" % self.disp_host_id)
+        global _profiles
+        self._delete_profile("Host", self.host_id)
+        if _profiles and self in _profiles:
+            _profiles.remove(self)
 
 
 __all__ = [
