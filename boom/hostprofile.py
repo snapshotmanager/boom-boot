@@ -379,6 +379,7 @@ class HostProfile(OsProfile):
     _unwritten = False
     _comments = None
 
+    _profile_keys = HOST_PROFILE_KEYS
     _required_keys = HOST_REQUIRED_KEYS
     _identity_key = BOOM_HOST_ID
 
@@ -493,7 +494,7 @@ class HostProfile(OsProfile):
 
         self.osp = osps[0]
 
-    def __from_data(self, host_data, dirty=True):
+    def _from_data(self, host_data, dirty=True):
         """Initialise a ``HostProfile`` from in-memory data.
 
             Initialise a new ``HostProfile`` object using the profile
@@ -557,9 +558,9 @@ class HostProfile(OsProfile):
                              "may be specified.")
 
         if profile_data:
-            return self.__from_data(profile_data)
+            return self._from_data(profile_data)
         if profile_file:
-            return self.__from_file(profile_file)
+            return self._from_file(profile_file)
 
         self._dirty()
 
@@ -1004,37 +1005,9 @@ class HostProfile(OsProfile):
                      renamed, or if setting file permissions on the
                      new entry file fails.
         """
-        if not force and not self._unwritten:
-            return
-
-        profile_path = self._profile_path()
-
-        _log_debug("Writing HostProfile(host_name='%s', host_id='%s') "
-                   "to '%s'" % (self.host_name, self.disp_host_id,
-                                basename(profile_path)))
-
-        profiles_path = boom_host_profiles_path()
-        (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=profiles_path)
-        with fdopen(tmp_fd, "w") as f:
-            for key in [k for k in HOST_PROFILE_KEYS if k in self._profile_data]:
-                if self._comments and key in self._comments:
-                    f.write(self._comments[key].rstrip() + '\n')
-                f.write('%s="%s"\n' % (key, self._profile_data[key]))
-                f.flush()
-                fdatasync(f.fileno())
-        try:
-            rename(tmp_path, profile_path)
-            chmod(profile_path, BOOM_HOST_PROFILE_MODE)
-        except Exception as e:
-            _log_error("Error writing host profile file '%s': %s" %
-                       (profile_path, e))
-            try:
-                unlink(tmp_path)
-            except:
-                pass
-            raise e
-
-        _log_debug("Wrote host profile (host_id=%s)'" % self.disp_host_id)
+        path = boom_host_profiles_path()
+        mode = BOOM_HOST_PROFILE_MODE
+        self._write_profile("Host", self.host_id, path, mode, force=force)
 
     def delete_profile(self):
         """Delete on-disk data for this profile.

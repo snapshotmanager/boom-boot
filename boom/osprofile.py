@@ -430,6 +430,7 @@ class OsProfile(object):
     _unwritten = False
     _comments = None
 
+    _profile_keys = OS_PROFILE_KEYS
     _required_keys = OS_REQUIRED_KEYS
     _identity_key = BOOM_OS_ID
 
@@ -591,7 +592,7 @@ class OsProfile(object):
         digest = sha1(hashdata.encode('utf-8')).hexdigest()
         self._profile_data[BOOM_OS_ID] = digest
 
-    def __from_data(self, profile_data, dirty=True):
+    def _from_data(self, profile_data, dirty=True):
         """Initialise an OsProfile from in-memory data.
 
             Initialise a new OsProfile object using the profile data
@@ -633,7 +634,7 @@ class OsProfile(object):
         if dirty:
             self._dirty()
 
-    def __from_file(self, profile_file):
+    def _from_file(self, profile_file):
         """Initialise a new OsProfile from data stored in a file.
 
             Initialise a new OsProfile object using the profile data
@@ -663,7 +664,7 @@ class OsProfile(object):
         self._comments = comments
 
         try:
-            self.__from_data(profile_data, dirty=False)
+            self._from_data(profile_data, dirty=False)
         except ValueError as e:
             raise ValueError(str(e) + "in %s" % profile_file)
 
@@ -713,9 +714,9 @@ class OsProfile(object):
                              "may be specified.")
 
         if profile_data:
-            return self.__from_data(profile_data)
+            return self._from_data(profile_data)
         if profile_file:
-            return self.__from_file(profile_file)
+            return self._from_file(profile_file)
 
         self._dirty()
 
@@ -1196,6 +1197,65 @@ class OsProfile(object):
         profile_path_name = BOOM_OS_PROFILE_FORMAT % (profile_id)
         return path_join(boom_profiles_path(), profile_path_name)
 
+    def _write_profile(self, profile_type, profile_id,
+                       profile_dir, mode, force=False):
+        """Write helper for profile classes.
+
+            Write out this profile's data to a file in Boom format to
+            the paths specified by the current configuration.
+
+            The pathname to write is obtained from self._profile_path().
+
+            If the value of ``force`` is ``False`` and the profile
+            is not currently marked as dirty (either new, or modified
+            since the last load operation) the write will be skipped.
+
+            :param profile_type: The type of profile, Host or Os.
+            :param profile_id: The os_id or host_id of this profile.
+            :param profile_dir: The directory containing this type.
+            :param mode: The mode with which files are created.
+            :param force: Force this profile to be written to disk even
+                          if the entry is unmodified.
+
+            :raises: ``OsError`` if the temporary entry file cannot be
+                     renamed, or if setting file permissions on the
+                     new entry file fails.
+        """
+        if not force and not self._unwritten:
+            return
+
+        profile_path = self._profile_path()
+
+        _log_debug("Writing %sProfile(%s_id='%s') to '%s'" %
+                   (profile_type, profile_type.lower(), profile_id,
+                    basename(profile_path)))
+
+        # List of key names for this profile type
+        profile_keys = self._profile_keys
+
+        (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=profile_dir)
+        with fdopen(tmp_fd, "w") as f:
+            for key in [k for k in profile_keys if k in self._profile_data]:
+                if self._comments and key in self._comments:
+                    f.write(self._comments[key].rstrip() + '\n')
+                f.write('%s="%s"\n' % (key, self._profile_data[key]))
+                f.flush()
+                fdatasync(f.fileno())
+        try:
+            rename(tmp_path, profile_path)
+            chmod(profile_path, mode)
+        except Exception as e:
+            _log_error("Error writing profile file '%s': %s" %
+                       (profile_path, e))
+            try:
+                unlink(tmp_path)
+            except:
+                pass
+            raise e
+
+        _log_debug("Wrote %sProfile (%s_id=%s)'" %
+                   (profile_type, profile_type.lower(), profile_id))
+
     def write_profile(self, force=False):
         """Write out profile data to disk.
 
@@ -1215,35 +1275,9 @@ class OsProfile(object):
                      renamed, or if setting file permissions on the
                      new entry file fails.
         """
-        if not force and not self._unwritten:
-            return
-
-        profile_path = self._profile_path()
-
-        _log_debug("Writing OsProfile(name='%s', os_id='%s') to '%s'" %
-                   (self.os_name, self.disp_os_id, basename(profile_path)))
-
-        (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_profiles_path())
-        with fdopen(tmp_fd, "w") as f:
-            for key in [k for k in OS_PROFILE_KEYS if k in self._profile_data]:
-                if self._comments and key in self._comments:
-                    f.write(self._comments[key].rstrip() + '\n')
-                f.write('%s="%s"\n' % (key, self._profile_data[key]))
-                f.flush()
-                fdatasync(f.fileno())
-        try:
-            rename(tmp_path, profile_path)
-            chmod(profile_path, BOOM_PROFILE_MODE)
-        except Exception as e:
-            _log_error("Error writing profile file '%s': %s" %
-                       (profile_path, e))
-            try:
-                unlink(tmp_path)
-            except:
-                pass
-            raise e
-
-        _log_debug("Wrote profile (os_id=%s)'" % self.disp_os_id)
+        path = boom_profiles_path()
+        mode = BOOM_PROFILE_MODE
+        self._write_profile("Os", self.os_id, path, mode, force=force)
 
     def _delete_profile(self, profile_type, profile_id):
         """Deletion helper for profile classes.
