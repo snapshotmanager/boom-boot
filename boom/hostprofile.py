@@ -397,8 +397,8 @@ class HostProfile(OsProfile):
         breaks = [
             BOOM_HOST_ID, BOOM_HOST_NAME, BOOM_OS_ID, BOOM_ENTRY_MACHINE_ID,
             BOOM_HOST_LABEL, BOOM_OS_VERSION_ID, BOOM_OS_UNAME_PATTERN,
-            BOOM_OS_INITRAMFS_PATTERN, BOOM_OS_ROOT_OPTS_LVM2,
-            BOOM_OS_ROOT_OPTS_BTRFS, BOOM_OS_OPTIONS
+            BOOM_HOST_DEL_OPTS, BOOM_OS_INITRAMFS_PATTERN,
+            BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS, BOOM_OS_OPTIONS
         ]
 
         fields = [f for f in HOST_PROFILE_KEYS if f in self._profile_data]
