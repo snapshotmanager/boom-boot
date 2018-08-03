@@ -683,6 +683,15 @@ class HostProfile(OsProfile):
         self._dirty()
         self._generate_host_id()
 
+    @property
+    def os_id(self):
+        """The ``os_id`` of this profile.
+
+            :getter: returns the ``os_id`` as a string.
+            :type: string
+        """
+        return self._profile_data[BOOM_OS_ID]
+
     @os_id.setter
     def os_id(self, value):
         if value == self._profile_data[BOOM_OS_ID]:
