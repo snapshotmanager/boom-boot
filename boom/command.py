@@ -687,6 +687,63 @@ def print_entries(selection=None, output_fields=None, opts=None,
 # OsProfile manipulation
 #
 
+def _find_profile(cmd_args, machine_id, command):
+    """Find a matching profile (HostProfile or OsProfile) for this
+        combination of version, machine_id, label and command line
+        profile argument.
+    """
+    if not cmd_args.profile:
+        # Attempt to find a matching OsProfile by version string
+        osp = match_os_profile_by_version(cmd_args.version)
+        if not osp:
+            print("%s requires --profile" % command)
+            return None
+        os_id = osp.os_id
+    else:
+        os_id = cmd_args.profile
+
+    osps = find_profiles(Selection(os_id=os_id))
+
+    # Fail if an explicit profile was given and it is not found.
+    if not osps and os_id == cmd_args.profile:
+        print("OsProfile not found: %s" % os_id)
+        return None
+
+    if len(osps) > 1:
+        print("OsProfile ID '%s' is ambiguous" % os_id)
+        return None
+
+    osp = osps[0]
+
+    _log_debug("Found OsProfile: %s" % osp.os_id)
+
+    # Attempt to match a host profile to the running host
+    label = cmd_args.label or ""
+    host_select = Selection(machine_id=machine_id, host_label=label)
+    hps = find_host_profiles(host_select)
+    hp = hps[0] if hps else None
+    if len(hps) > 1:
+        # This can only occur if host profiles have been edited outside
+        # boom's control, such that there are one or more profiles with
+        # matching machine_id and label.
+        _log_error("Ambiguous host profile selection")
+        return None
+    elif len(hps) == 1:
+        _log_debug("Found HostProfile: %s" % hps[0].host_id)
+        if osp and not hp.os_id != osp.os_id:
+            _log_warn("HostProfile(host_id=%s).os_id does not match "
+                      "--profile=%s" % (hp.disp_os_id, osp.disp_os_id))
+            _log_warn("Using os_id from HostProfile")
+
+    if (hp and osp) and osp.os_id != hp.os_id:
+        _log_error("Active host profile (host_id=%s, os_id=%s) "
+                   "conflicts with --profile=%s" %
+                   (hp.disp_host_id, hp.disp_os_id, osp.disp))
+        return None
+
+    return hp or osp
+
+
 def _os_profile_from_file(os_release, uname_pattern,
                           kernel_pattern, initramfs_pattern,
                           root_opts_lvm2, root_opts_btrfs,
@@ -1366,57 +1423,6 @@ def _apply_profile_overrides(boot_entry, cmd_args):
     if cmd_args.initrd:
         boot_entry.initrd = cmd_args.initrd
         modified = True
-
-def _find_profile(cmd_args, machine_id, command):
-    """Find a matching profile (HostProfile or OsProfile) for this
-        combination of version, machine_id, label and command line
-        profile argument.
-    """
-    if not cmd_args.profile:
-        # Attempt to find a matching OsProfile by version string
-        osp = match_os_profile_by_version(cmd_args.version)
-        if not osp:
-            print("%s requires --profile" % command)
-            return None
-        os_id = osp.os_id
-    else:
-        os_id = cmd_args.profile
-
-    osps = find_profiles(Selection(os_id=os_id))
-
-    # Fail if an explicit profile was given and it is not found.
-    if not osps and os_id == cmd_args.profile:
-        print("OsProfile not found: %s" % os_id)
-        return None
-
-    if len(osps) > 1:
-        print("OsProfile ID '%s' is ambiguous" % os_id)
-        return None
-
-    osp = osps[0]
-
-    _log_debug("Found OsProfile: %s" % osp.os_id)
-
-    # Attempt to match a host profile to the running host
-    label = cmd_args.label or ""
-    host_select = Selection(machine_id=machine_id, host_label=label)
-    hps = find_host_profiles(host_select)
-    hp = hps[0] if hps else None
-    if len(hps) > 1:
-        # This can only occur if host profiles have been edited outside
-        # boom's control, such that there are one or more profiles with
-        # matching machine_id and label.
-        _log_error("Ambiguous host profile selection")
-        return None
-    elif len(hps) == 1:
-        _log_debug("Found HostProfile: %s" % hps[0].host_id)
-        if osp and not hp.os_id != osp.os_id:
-            _log_warn("HostProfile(host_id=%s).os_id does not match "
-                      "--profile=%s" % (hp.disp_os_id, osp.disp_os_id))
-            _log_warn("Using os_id from HostProfile")
-
-    return hp or osp
-
 
 def _create_cmd(cmd_args, select, opts, identifier):
     """Create entry command handler.
