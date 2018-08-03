@@ -581,13 +581,21 @@ class HostProfile(OsProfile):
         self._profile_data[BOOM_OS_ID] = os_id
         self._profile_data[BOOM_HOST_LABEL] = label
 
-        self._profile_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
-        self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
-        self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
-        self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
-        self._profile_data[BOOM_HOST_ADD_OPTS] = add_opts
-        self._profile_data[BOOM_HOST_DEL_OPTS] = del_opts
-        self._profile_data[BOOM_OS_OPTIONS] = options
+        # Only set keys that have a value in the host profile data dict
+        if kernel_pattern:
+            self._profile_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
+        if initramfs_pattern:
+            self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
+        if root_opts_lvm2:
+            self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
+        if root_opts_btrfs:
+            self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
+        if add_opts:
+            self._profile_data[BOOM_HOST_ADD_OPTS] = add_opts
+        if del_opts:
+            self._profile_data[BOOM_HOST_DEL_OPTS] = del_opts
+        if options:
+            self._profile_data[BOOM_OS_OPTIONS] = options
 
         self.__set_os_profile()
 
