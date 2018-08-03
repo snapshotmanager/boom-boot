@@ -375,9 +375,12 @@ class HostProfile(OsProfile):
         either adding to or replacing the value defined by an embedded
         ``OsProfile`` instance.
     """
-    _host_data = None
+    _profile_data = None
     _unwritten = False
     _comments = None
+
+    _required_keys = HOST_REQUIRED_KEYS
+    _identity_key = BOOM_HOST_ID
 
     def __str__(self):
         """Format this HostProfile as a human readable string.
@@ -397,11 +400,11 @@ class HostProfile(OsProfile):
             BOOM_OS_ROOT_OPTS_BTRFS, BOOM_OS_OPTIONS
         ]
 
-        fields = [f for f in HOST_PROFILE_KEYS if f in self._host_data]
+        fields = [f for f in HOST_PROFILE_KEYS if f in self._profile_data]
         hp_str = ""
         tail = ""
         for f in fields:
-            hp_str += '%s: "%s"' % (HOST_KEY_NAMES[f], self._host_data[f])
+            hp_str += '%s: "%s"' % (HOST_KEY_NAMES[f], self._profile_data[f])
             tail = ",\n" if f in breaks else ", "
             hp_str += tail
         hp_str = hp_str.rstrip(tail)
@@ -419,35 +422,11 @@ class HostProfile(OsProfile):
             :returntype: string
         """
         hp_str = "HostProfile(profile_data={"
-        fields = [f for f in HOST_PROFILE_KEYS if f in self._host_data]
+        fields = [f for f in HOST_PROFILE_KEYS if f in self._profile_data]
         for f in fields:
-            hp_str += '%s:"%s", ' % (f, self._host_data[f])
+            hp_str += '%s:"%s", ' % (f, self._profile_data[f])
         hp_str = hp_str.rstrip(", ")
         return hp_str + "})"
-
-    def __len__(self):
-        """Return the length (key count) of this ``HostProfile``.
-
-            :returns: the ``HostProfile`` length as an integer.
-            :returntype: ``int``
-        """
-        return len(self._host_data)
-
-    def __getitem__(self, key):
-        """Return an item from this ``HostProfile``.
-
-            :returns: the item corresponding to the key requested.
-            :returntype: the corresponding type of the requested key.
-            :raises: TypeError if ``key`` is of an invalid type.
-                     KeyError if ``key`` is valid but not present.
-        """
-        if not isinstance(key, str):
-            raise TypeError("HostProfile key must be a string.")
-
-        if key in self._host_data:
-            return self._host_data[key]
-
-        raise KeyError("Key %s not in profile." % key)
 
     def __setitem__(self, key, value):
         """Set the specified ``HostProfile`` key to the given value.
@@ -485,65 +464,21 @@ class HostProfile(OsProfile):
         if key in bad_key_map:
             _check_format_key_value(key, value, bad_key_map[key])
 
-        self._host_data[key] = value
-
-    def keys(self):
-        """Return the list of keys for this HostProfile.
-
-            :returntype: list
-            :returns: A list of HostProfile key names
-        """
-        return self._host_data.keys()
-
-    def values(self):
-        """Return the list of key values for this HostProfile.
-
-            :returntype: list
-            :returns: A list of HostProfile key values
-        """
-        return self._host_data.values()
-
-    def items(self):
-        """Return the items list for this HostProfile.
-
-            Return a list of ``(key, value)`` tuples representing the
-            key items in this ``HostProfile``.
-
-            :returntype: list
-            :returns: A list of HostProfile key item tuples
-        """
-        return self._host_data.items()
-
-    def _dirty(self):
-        """Mark this ``HostProfile`` as needing to be written to disk.
-
-            A newly created ``HostProfile`` object is always dirty and
-            a call to its ``write_profile()`` method will always write
-            a new profile file. Writes may be avoided for profiles
-            that are not marked as dirty.
-
-            A clean ``HostProfile`` is marked as dirty if a new value
-            is written to any of its writable properties.
-
-            :returns None:
-        """
-        if BOOM_HOST_ID in self._host_data:
-            self._host_data.pop(BOOM_HOST_ID)
-        self._unwritten = True
+        self._profile_data[key] = value
 
     def _generate_host_id(self):
         """Generate a new host identifier.
 
             Generate a new sha1 profile identifier for this profile,
             using the name, machine_id, and os_id and store it in
-            _host_data.
+            _profile_data.
 
             :returns: None
         """
         hashdata = (self.machine_id + self.label)
 
         digest = sha1(hashdata.encode('utf-8')).hexdigest()
-        self._host_data[BOOM_HOST_ID] = digest
+        self._profile_data[BOOM_HOST_ID] = digest
 
     def __set_os_profile(self):
         """Set this ``HostProfile``'s ``osp`` member to the
@@ -578,9 +513,9 @@ class HostProfile(OsProfile):
             if key not in host_data:
                 raise ValueError(err_str % key)
 
-        self._host_data = dict(host_data)
+        self._profile_data = dict(host_data)
 
-        if BOOM_HOST_ID not in self._host_data:
+        if BOOM_HOST_ID not in self._profile_data:
             self._generate_host_id()
 
         self.__set_os_profile()
@@ -588,40 +523,6 @@ class HostProfile(OsProfile):
         if dirty:
             self._dirty()
 
-
-    def __from_file(self, host_file):
-        """Initialise a new ``HostProfile`` from data stored in a file.
-
-            Initialise a new HostProfile object using the profile data
-            in ``host_file``.
-
-            This method should not be called directly: to build a new
-            ``Hostprofile`` object from in-memory data, use the class
-            initialiser with the ``host_file`` argument.
-
-            :returns: None
-        """
-        host_data = {}
-        comments = {}
-        comment = ""
-
-        _log_debug("Loading HostProfile from '%s'" % basename(host_file))
-        with open(host_file, "r") as hf:
-            for line in hf:
-                if blank_or_comment(line):
-                    comment += line if line else ""
-                else:
-                    name, value = parse_name_value(line)
-                    host_data[name] = value
-                    if comment:
-                        comments[name] = comment
-                        comment = ""
-        self._comments = comments
-
-        try:
-            self.__from_data(host_data, dirty=False)
-        except ValueError as e:
-            raise ValueError(str(e) + "in %s" % host_file)
 
     def __init__(self, machine_id=None, host_name=None, label=None, os_id=None,
                  kernel_pattern=None, initramfs_pattern=None,
@@ -649,7 +550,7 @@ class HostProfile(OsProfile):
             :returntype: class HostProfile
         """
         global _host_profiles
-        self._host_data = {}
+        self._profile_data = {}
 
         if profile_data and profile_file:
             raise ValueError("Only one of 'profile_data' or 'profile_file' "
@@ -674,18 +575,18 @@ class HostProfile(OsProfile):
             raise ValueError("OsProfile ID is ambiguous: %s" % os_id)
         os_id = osps[0].os_id
 
-        self._host_data[BOOM_ENTRY_MACHINE_ID] = machine_id
-        self._host_data[BOOM_HOST_NAME] = host_name
-        self._host_data[BOOM_OS_ID] = os_id
-        self._host_data[BOOM_HOST_LABEL] = label
+        self._profile_data[BOOM_ENTRY_MACHINE_ID] = machine_id
+        self._profile_data[BOOM_HOST_NAME] = host_name
+        self._profile_data[BOOM_OS_ID] = os_id
+        self._profile_data[BOOM_HOST_LABEL] = label
 
-        self._host_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
-        self._host_data[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
-        self._host_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
-        self._host_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
-        self._host_data[BOOM_HOST_ADD_OPTS] = add_opts
-        self._host_data[BOOM_HOST_DEL_OPTS] = del_opts
-        self._host_data[BOOM_OS_OPTIONS] = options
+        self._profile_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
+        self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
+        self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
+        self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
+        self._profile_data[BOOM_HOST_ADD_OPTS] = add_opts
+        self._profile_data[BOOM_HOST_DEL_OPTS] = del_opts
+        self._profile_data[BOOM_OS_OPTIONS] = options
 
         self.__set_os_profile()
 
@@ -734,9 +635,9 @@ class HostProfile(OsProfile):
 
     @property
     def host_id(self):
-        if BOOM_HOST_ID not in self._host_data:
+        if BOOM_HOST_ID not in self._profile_data:
             self._generate_host_id()
-        return self._host_data[BOOM_HOST_ID]
+        return self._profile_data[BOOM_HOST_ID]
 
     @property
     def disp_host_id(self):
@@ -772,30 +673,21 @@ class HostProfile(OsProfile):
                      will change the ``host_id``.
             :type: str
         """
-        return self._host_data[BOOM_ENTRY_MACHINE_ID]
+        return self._profile_data[BOOM_ENTRY_MACHINE_ID]
 
     @machine_id.setter
     def machine_id(self, value):
-        if value == self._host_data[BOOM_ENTRY_MACHINE_ID]:
+        if value == self._profile_data[BOOM_ENTRY_MACHINE_ID]:
             return
-        self._host_data[BOOM_ENTRY_MACHINE_ID] = value
+        self._profile_data[BOOM_ENTRY_MACHINE_ID] = value
         self._dirty()
         self._generate_host_id()
 
-    @property
-    def os_id(self):
-        """The ``os_id`` of this profile.
-
-            :getter: returns the ``os_id`` as a string.
-            :type: string
-        """
-        return self._host_data[BOOM_OS_ID]
-
     @os_id.setter
     def os_id(self, value):
-        if value == self._host_data[BOOM_OS_ID]:
+        if value == self._profile_data[BOOM_OS_ID]:
             return
-        self._host_data[BOOM_OS_ID] = value
+        self._profile_data[BOOM_OS_ID] = value
         self.__set_os_profile()
         self._dirty()
         self._generate_host_id()
@@ -810,13 +702,13 @@ class HostProfile(OsProfile):
             :getter: returns the ``host_name`` as a string.
             :type: string
         """
-        return self._host_data[BOOM_HOST_NAME]
+        return self._profile_data[BOOM_HOST_NAME]
 
     @host_name.setter
     def host_name(self, value):
-        if value == self._host_data[BOOM_HOST_NAME]:
+        if value == self._profile_data[BOOM_HOST_NAME]:
             return
-        self._host_data[BOOM_HOST_NAME] = value
+        self._profile_data[BOOM_HOST_NAME] = value
         self._dirty()
         self._generate_host_id()
 
@@ -830,7 +722,7 @@ class HostProfile(OsProfile):
             :getter: returns the ``short_name`` as a string.
             :type: string
         """
-        host_name = self._host_data[BOOM_HOST_NAME]
+        host_name = self._profile_data[BOOM_HOST_NAME]
         return host_name.split(".")[0] if "." in host_name else host_name
 
     #
@@ -881,8 +773,8 @@ class HostProfile(OsProfile):
             :setter: stores a new ``uname_pattern`` setting.
             :type: string
         """
-        if BOOM_OS_UNAME_PATTERN in self._host_data:
-            return self._host_data[BOOM_OS_UNAME_PATTERN]
+        if BOOM_OS_UNAME_PATTERN in self._profile_data:
+            return self._profile_data[BOOM_OS_UNAME_PATTERN]
         return self.osp.uname_pattern
 
     #
@@ -897,8 +789,8 @@ class HostProfile(OsProfile):
             :setter: stores a new ``kernel_pattern`` setting.
             :type: string
         """
-        if BOOM_OS_KERNEL_PATTERN in self._host_data:
-            return self._host_data[BOOM_OS_KERNEL_PATTERN]
+        if BOOM_OS_KERNEL_PATTERN in self._profile_data:
+            return self._profile_data[BOOM_OS_KERNEL_PATTERN]
         return self.osp.kernel_pattern
 
     @kernel_pattern.setter
@@ -906,7 +798,7 @@ class HostProfile(OsProfile):
         kernel_key = key_from_key_name(FMT_KERNEL)
         if kernel_key in value:
             raise ValueError("HostProfile.kernel cannot contain %s" % kernel_key)
-        self._host_data[BOOM_OS_KERNEL_PATTERN] = value
+        self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
         self._dirty()
 
     @property
@@ -917,8 +809,8 @@ class HostProfile(OsProfile):
             :setter: store a new ``initramfs_pattern`` setting.
             :type: string
         """
-        if BOOM_OS_INITRAMFS_PATTERN in self._host_data:
-            return self._host_data[BOOM_OS_INITRAMFS_PATTERN]
+        if BOOM_OS_INITRAMFS_PATTERN in self._profile_data:
+            return self._profile_data[BOOM_OS_INITRAMFS_PATTERN]
         return self.osp.initramfs_pattern
 
     @initramfs_pattern.setter
@@ -926,7 +818,7 @@ class HostProfile(OsProfile):
         initramfs_key = key_from_key_name(FMT_INITRAMFS)
         if initramfs_key in value:
             raise ValueError("HostProfile.initramfs cannot contain %s" % initramfs_key)
-        self._host_data[BOOM_OS_INITRAMFS_PATTERN] = value
+        self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
         self._dirty()
 
     @property
@@ -937,8 +829,8 @@ class HostProfile(OsProfile):
             :setter: store a new ``root_opts_lvm2`` value.
             :type: string
         """
-        if BOOM_OS_ROOT_OPTS_LVM2 in self._host_data:
-            return self._host_data[BOOM_OS_ROOT_OPTS_LVM2]
+        if BOOM_OS_ROOT_OPTS_LVM2 in self._profile_data:
+            return self._profile_data[BOOM_OS_ROOT_OPTS_LVM2]
 
         return self.osp.root_opts_lvm2
 
@@ -948,7 +840,7 @@ class HostProfile(OsProfile):
         if root_opts_key in value:
                 raise ValueError("HostProfile.root_opts_lvm2 cannot contain %s" %
                                  root_opts_key)
-        self._host_data[BOOM_OS_ROOT_OPTS_LVM2] = value
+        self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = value
         self._dirty()
 
     @property
@@ -959,8 +851,8 @@ class HostProfile(OsProfile):
             :setter: store a new ``root_opts_btrfs`` value.
             :type: string
         """
-        if BOOM_OS_ROOT_OPTS_BTRFS in self._host_data:
-            return self._host_data[BOOM_OS_ROOT_OPTS_BTRFS]
+        if BOOM_OS_ROOT_OPTS_BTRFS in self._profile_data:
+            return self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS]
         return self.osp.root_opts_btrfs
 
     @root_opts_btrfs.setter
@@ -969,7 +861,7 @@ class HostProfile(OsProfile):
         if root_opts_key in value:
                 raise ValueError("HostProfile.root_opts_btrfs cannot contain"
                                  " %s" % root_opts_key)
-        self._host_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
+        self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
         self._dirty()
 
     @property
@@ -981,13 +873,13 @@ class HostProfile(OsProfile):
             :setter: store a new ``options`` value.
             :type: string
         """
-        if BOOM_OS_OPTIONS in self._host_data:
-            return self._host_data[BOOM_OS_OPTIONS]
+        if BOOM_OS_OPTIONS in self._profile_data:
+            return self._profile_data[BOOM_OS_OPTIONS]
         return self.osp.options
 
     @options.setter
     def options(self, value):
-        self._host_data[BOOM_OS_OPTIONS] = value
+        self._profile_data[BOOM_OS_OPTIONS] = value
         self._dirty()
 
     @property
@@ -1000,7 +892,7 @@ class HostProfile(OsProfile):
         """
         if BOOM_OS_TITLE not in self._profile_data:
             return None
-        return self._host_data[BOOM_OS_TITLE]
+        return self._profile_data[BOOM_OS_TITLE]
 
     @title.setter
     def title(self, value):
@@ -1009,7 +901,7 @@ class HostProfile(OsProfile):
             # as the OsProfile defines one.
             if not self.osp or not self.osp.title:
                 raise ValueError("Entry title cannot be empty")
-        self._host_data[BOOM_OS_TITLE] = value
+        self._profile_data[BOOM_OS_TITLE] = value
         self._dirty()
 
     #
@@ -1018,45 +910,45 @@ class HostProfile(OsProfile):
 
     @property
     def add_opts(self):
-        if BOOM_HOST_ADD_OPTS in self._host_data:
-            return self._host_data[BOOM_HOST_ADD_OPTS]
+        if BOOM_HOST_ADD_OPTS in self._profile_data:
+            return self._profile_data[BOOM_HOST_ADD_OPTS]
         return ""
 
     @add_opts.setter
     def add_opts(self, opts):
-        self._host_data[BOOM_HOST_ADD_OPTS] = opts
+        self._profile_data[BOOM_HOST_ADD_OPTS] = opts
         self._dirty()
 
     @property
     def del_opts(self):
-        if BOOM_HOST_DEL_OPTS in self._host_data:
-            return self._host_data[BOOM_HOST_DEL_OPTS]
+        if BOOM_HOST_DEL_OPTS in self._profile_data:
+            return self._profile_data[BOOM_HOST_DEL_OPTS]
         return ""
 
     @del_opts.setter
     def del_opts(self, opts):
-        self._host_data[BOOM_HOST_DEL_OPTS] = opts
+        self._profile_data[BOOM_HOST_DEL_OPTS] = opts
         self._dirty()
 
     @property
     def label(self):
-        if BOOM_HOST_LABEL in self._host_data:
-            return self._host_data[BOOM_HOST_LABEL]
+        if BOOM_HOST_LABEL in self._profile_data:
+            return self._profile_data[BOOM_HOST_LABEL]
         return ""
 
     @label.setter
     def label(self, value):
         valid_chars = string.ascii_letters + string.digits + "_- "
 
-        if BOOM_HOST_LABEL in self._host_data:
-            if self._host_data[BOOM_HOST_LABEL] == value:
+        if BOOM_HOST_LABEL in self._profile_data:
+            if self._profile_data[BOOM_HOST_LABEL] == value:
                 return
 
         for c in value:
             if c not in valid_chars:
                 raise ValueError("Invalid host label character: '%s'" % c)
 
-        self._host_data[BOOM_HOST_LABEL] = value
+        self._profile_data[BOOM_HOST_LABEL] = value
         self._dirty()
         self._generate_host_id()
 
@@ -1115,10 +1007,10 @@ class HostProfile(OsProfile):
         profiles_path = boom_host_profiles_path()
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=profiles_path)
         with fdopen(tmp_fd, "w") as f:
-            for key in [k for k in HOST_PROFILE_KEYS if k in self._host_data]:
+            for key in [k for k in HOST_PROFILE_KEYS if k in self._profile_data]:
                 if self._comments and key in self._comments:
                     f.write(self._comments[key].rstrip() + '\n')
-                f.write('%s="%s"\n' % (key, self._host_data[key]))
+                f.write('%s="%s"\n' % (key, self._profile_data[key]))
                 f.flush()
                 fdatasync(f.fileno())
         try:

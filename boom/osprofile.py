@@ -430,6 +430,9 @@ class OsProfile(object):
     _unwritten = False
     _comments = None
 
+    _required_keys = OS_REQUIRED_KEYS
+    _identity_key = BOOM_OS_ID
+
     def __str__(self):
         """Format this OsProfile as a human readable string.
 
@@ -474,15 +477,15 @@ class OsProfile(object):
         return osp_str + "})"
 
     def __len__(self):
-        """Return the length (key count) of this ``OsProfile``.
+        """Return the length (key count) of this profile.
 
-            :returns: the ``OsProfile`` length as an integer.
+            :returns: the profile length as an integer.
             :returntype: ``int``
         """
         return len(self._profile_data)
 
     def __getitem__(self, key):
-        """Return an item from this ``OsProfile``.
+        """Return an item from this profile.
 
             :returns: the item corresponding to the key requested.
             :returntype: the corresponding type of the requested key.
@@ -490,7 +493,7 @@ class OsProfile(object):
                      KeyError if ``key`` is valid but not present.
         """
         if not isinstance(key, str):
-            raise TypeError("OsProfile key must be a string.")
+            raise TypeError("Profile key must be a string.")
 
         if key in self._profile_data:
             return self._profile_data[key]
@@ -570,6 +573,8 @@ class OsProfile(object):
 
             :returns None:
         """
+        if self._identity_key in self._profile_data:
+            self._profile_data.pop(self._identity_key)
         self._unwritten = True
 
     def _generate_os_id(self):
@@ -605,7 +610,7 @@ class OsProfile(object):
             if key not in profile_data:
                 profile_data[key] = _DEFAULT_KEYS[key]
 
-        for key in OS_REQUIRED_KEYS:
+        for key in self._required_keys:
             if key == BOOM_OS_ID:
                 continue
             if key not in profile_data:
@@ -953,7 +958,7 @@ class OsProfile(object):
             :type: string
         """
         if BOOM_OS_ID not in self._profile_data:
-            self._generate_os_id
+            self._generate_os_id()
         return self._profile_data[BOOM_OS_ID]
 
     @property
