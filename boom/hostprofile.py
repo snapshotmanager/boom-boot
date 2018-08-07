@@ -383,6 +383,13 @@ class HostProfile(OsProfile):
     _required_keys = HOST_REQUIRED_KEYS
     _identity_key = BOOM_HOST_ID
 
+    def _key_data(self, key):
+        if key in self._profile_data:
+            return self._profile_data[key]
+        if key in self.osp._profile_data:
+            return self.osp._profile_data[key]
+        return None
+
     def __str__(self):
         """Format this HostProfile as a human readable string.
 
@@ -405,7 +412,7 @@ class HostProfile(OsProfile):
         hp_str = ""
         tail = ""
         for f in fields:
-            hp_str += '%s: "%s"' % (HOST_KEY_NAMES[f], self._profile_data[f])
+            hp_str += '%s: "%s"' % (HOST_KEY_NAMES[f], self._key_data(f))
             tail = ",\n" if f in breaks else ", "
             hp_str += tail
         hp_str = hp_str.rstrip(tail)
