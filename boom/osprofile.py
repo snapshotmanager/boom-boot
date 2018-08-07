@@ -634,10 +634,10 @@ class OsProfile(object):
         if dirty:
             self._dirty()
 
-    def _from_file(self, profile_file):
-        """Initialise a new OsProfile from data stored in a file.
+    def _from_file(self, profile_file, profile_type):
+        """Initialise a new profile from data stored in a file.
 
-            Initialise a new OsProfile object using the profile data
+            Initialise a new profil object using the profile data
             in profile_file.
 
             This method should not be called directly: to build a new
@@ -650,7 +650,8 @@ class OsProfile(object):
         comments = {}
         comment = ""
 
-        _log_debug("Loading OsProfile from '%s'" % basename(profile_file))
+        _log_debug("Loading %sProfile from '%s'" %
+                   (profile_type, basename(profile_file)))
         with open(profile_file, "r") as pf:
             for line in pf:
                 if blank_or_comment(line):
@@ -716,7 +717,7 @@ class OsProfile(object):
         if profile_data:
             return self._from_data(profile_data)
         if profile_file:
-            return self._from_file(profile_file)
+            return self._from_file(profile_file, "Os")
 
         self._dirty()
 
