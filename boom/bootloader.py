@@ -148,10 +148,11 @@ def boom_entries_path():
 
 
 #: Private constants for Grub2 integration checks
+#: Paths outside /boot are referenced relative to /boot.
 __grub_cfg = "grub2/grub.cfg"
-__etc_grub_d = "/etc/grub.d"
+__etc_grub_d = "../etc/grub.d"
 __boom_grub_d = "42_boom"
-__etc_default = "/etc/default"
+__etc_default = "../etc/default"
 __boom_defaults = "boom"
 
 def check_bootloader():
@@ -159,17 +160,19 @@ def check_bootloader():
         that Boom integration is enabled. Currently only Grub2 with the
         Red Hat BLS patches is supported.
     """
-    grub_cfg = path_join(get_boot_path(), __grub_cfg)
+    boot_path = get_boot_path()
+
+    grub_cfg = path_join(boot_path, __grub_cfg)
     if not path_exists(grub_cfg):
         _log_warn("No Grub2 configuration file found")
         return False
 
-    boom_grub_d = path_join(__etc_grub_d, __boom_grub_d)
+    boom_grub_d = path_join(boot_path, __etc_grub_d, __boom_grub_d)
     if not path_exists(boom_grub_d):
         _log_warn("Boom grub2 script missing from '%s'" % __etc_grub_d)
         return False
 
-    defaults_file = path_join(__etc_default, __boom_defaults)
+    defaults_file = path_join(boot_path, __etc_default, __boom_defaults)
     if not path_exists(defaults_file):
         _log_warn("Boom configuration file missing from '%s'" % defaults_file)
         return False
@@ -199,7 +202,7 @@ def check_bootloader():
             if blscfg in line:
                 _log_info("Found BLS import statement in '%s'" % grub_cfg)
                 found_bls = True
-            if "BEGIN" in line and boom_grub_d in line:
+            if "BEGIN" in line and __boom_grub_d in line:
                 _log_info("Found Boom Grub2 integration in '%s'" % grub_cfg)
                 found_boom_grub = True
 

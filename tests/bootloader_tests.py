@@ -768,4 +768,22 @@ class BootLoaderTests(unittest.TestCase):
         with self.assertRaises(BoomRootDeviceError) as cm:
             boom.bootloader.check_root_device("tests/dev/null")
 
+    def test_check_bootloader(self):
+        # Test with the mock boot environment in tests/
+        boom.set_boot_path(BOOT_ROOT_TEST)
+        self.assertTrue(check_bootloader())
+
+        # Check with required paths missing
+        boom.set_boot_path(BOOT_ROOT_TEST + "/boom")
+        self.assertFalse(check_bootloader())
+        boom.set_boot_path(BOOT_ROOT_TEST + "/bootloader_tests/no_grub_d")
+        self.assertFalse(check_bootloader())
+        boom.set_boot_path(BOOT_ROOT_TEST + "/bootloader_tests/no_boom/boot")
+        self.assertFalse(check_bootloader())
+
+        # Succeed with warning
+        boom.set_boot_path(BOOT_ROOT_TEST + "/bootloader_tests/boom_off/boot")
+        self.assertTrue(check_bootloader())
+        boom.set_boot_path(BOOT_ROOT_TEST)
+
 # vim: set et ts=4 sw=4 :
