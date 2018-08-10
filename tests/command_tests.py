@@ -74,6 +74,28 @@ class CommandTests(unittest.TestCase):
         import boom.command
         self.assertEqual(boom.command._subvol_from_arg(None), (None, None))
 
+    def test_str_indent(self):
+        import boom.command
+        instr = "1\n2\n3\n4"
+        xstr = "    1\n    2\n    3\n    4"
+        indent = 4
+        outstr = boom.command._str_indent(instr, indent)
+        self.assertEqual(outstr, xstr)
+
+    def test_str_indent_bad_indent(self):
+        import boom.command
+        instr = "1\n2\n3\n4"
+        indent = "qux"
+        with self.assertRaises(TypeError) as cm:
+            outstr = boom.command._str_indent(instr, indent)
+
+    def test_str_indent_bad_str(self):
+        import boom.command
+        instr = None
+        indent = 4
+        with self.assertRaises(AttributeError) as cm:
+            outstr = boom.command._str_indent(instr, indent)
+
     def test_list_entries(self):
         path = boom_entries_path()
         nr = len([p for p in listdir(path) if p.endswith(".conf")])
