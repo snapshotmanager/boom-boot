@@ -269,7 +269,7 @@ def select_profile(s, osp):
     if s.os_kernel_pattern and osp.kernel_pattern != s.os_kernel_pattern:
         return False
     if (s.os_initramfs_pattern and
-        osp.os_initramfs_pattern != s.os_initramfs_pattern):
+        s.os_initramfs_pattern != osp.initramfs_pattern):
         return False
     if s.os_options and osp.os_options != s.os_options:
         return False

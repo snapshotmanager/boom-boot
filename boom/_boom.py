@@ -496,8 +496,8 @@ class Selection(object):
                  btrfs_subvol_path=None, btrfs_subvol_id=None,
                  os_id=None, os_name=None, os_short_name=None,
                  os_version=None, os_version_id=None, os_options=None,
-                 os_uname_pattern=None, kernel_pattern=None,
-                 initramfs_pattern=None, host_id=None,
+                 os_uname_pattern=None, os_kernel_pattern=None,
+                 os_initramfs_pattern=None, host_id=None,
                  host_name=None, host_label=None, host_short_name=None,
                  host_add_opts=None, host_del_opts=None):
         """Initialise a new Selection object.
@@ -552,8 +552,8 @@ class Selection(object):
         self.os_version_id = os_version_id
         self.os_options = os_options
         self.os_uname_pattern = os_uname_pattern
-        self.os_kernel_pattern = kernel_pattern
-        self.os_initramfs_pattern = initramfs_pattern
+        self.os_kernel_pattern = os_kernel_pattern
+        self.os_initramfs_pattern = os_initramfs_pattern
         self.host_id = host_id
         self.host_name = host_name
         self.host_label = host_label
