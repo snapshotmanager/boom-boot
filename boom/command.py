@@ -595,7 +595,7 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
         :returns: The modified ``BootEntry``
         :returntype: ``BootEntry``
     """
-   # Discard all selection criteria but boot_id.
+    # Discard all selection criteria but boot_id.
     selection = Selection(boot_id=selection.boot_id)
 
     bes = find_entries(selection=selection)
