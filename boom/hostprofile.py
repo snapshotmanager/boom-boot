@@ -1037,10 +1037,10 @@ class HostProfile(OsProfile):
             :raises: ``OsError`` if an error occurs removing the file or
                      ``ValueError`` if the profile does not exist.
         """
-        global _profiles
+        global _host_profiles
         self._delete_profile("Host", self.host_id)
-        if _profiles and self in _profiles:
-            _profiles.remove(self)
+        if _host_profiles and self in _host_profiles:
+            _host_profiles.remove(self)
 
 
 __all__ = [
