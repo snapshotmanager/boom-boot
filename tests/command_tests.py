@@ -116,6 +116,30 @@ class CommandTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             boom.command._canonicalize_lv_name("/dev/mapper/vg-lv")
 
+    def test_expand_fields_defaults(self):
+        import boom.command
+        default = "f1,f2,f3"
+        xfield = default
+        self.assertEqual(xfield, boom.command._expand_fields(default, ""))
+
+    def test_expand_fields_replace(self):
+        import boom.command
+        default = "f1,f2,f3"
+        options = "f4,f5,f6"
+        xfield = options
+        self.assertEqual(xfield, boom.command._expand_fields(default, options))
+
+    def test_expand_fields_add(self):
+        import boom.command
+        default = "f1,f2,f3"
+        options = "+f4,f5,f6"
+        xfield = default + ',' + options[1:]
+        self.assertEqual(xfield, boom.command._expand_fields(default, options))
+
+    #
+    # API call tests
+    #
+
     def test_list_entries(self):
         path = boom_entries_path()
         nr = len([p for p in listdir(path) if p.endswith(".conf")])
