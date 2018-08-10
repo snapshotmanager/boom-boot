@@ -44,6 +44,11 @@ set_boot_path(BOOT_ROOT_TEST)
 
 
 class CommandTests(unittest.TestCase):
+    #
+    # Test internal boom.command helpers: methods in this part of the
+    # test suite import boom.command directly in order to access the
+    # non-public helper routines not included in __all__.
+    #
     def test_int_if_val_with_val(self):
         import boom.command
         val = "1"
@@ -95,6 +100,21 @@ class CommandTests(unittest.TestCase):
         indent = 4
         with self.assertRaises(AttributeError) as cm:
             outstr = boom.command._str_indent(instr, indent)
+
+    def test_canonicalize_lv_name(self):
+        import boom.command
+        xlv = "vg/lv"
+        for lvstr in  ["vg/lv", "/dev/vg/lv"]:
+            self.assertEqual(xlv, boom.command._canonicalize_lv_name(lvstr))
+
+    def test_canonicalize_lv_name_bad_lv(self):
+        import boom.command
+        with self.assertRaises(ValueError) as cm:
+            boom.command._canonicalize_lv_name("vg/lv/foo/bar/baz")
+        with self.assertRaises(ValueError) as cm:
+            boom.command._canonicalize_lv_name("vg-lv")
+        with self.assertRaises(ValueError) as cm:
+            boom.command._canonicalize_lv_name("/dev/mapper/vg-lv")
 
     def test_list_entries(self):
         path = boom_entries_path()

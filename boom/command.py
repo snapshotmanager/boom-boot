@@ -311,6 +311,9 @@ def _canonicalize_lv_name(lvname):
         The use of "/dev/mapper/VG-LV" names is not supported.
     """
     dev_prefix = DEV_PATTERN % ""
+    if lvname.startswith(dev_prefix + "mapper/"):
+        raise ValueError("Logical volume names in /dev/mapper/VG-LV format "
+                         "are not supported.")
     if lvname.startswith(dev_prefix):
         lvname = lvname[len(dev_prefix):]
     if not '/' in lvname or lvname.count('/') != 1:
