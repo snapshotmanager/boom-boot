@@ -130,4 +130,23 @@ class BoomTests(unittest.TestCase):
         self.assertTrue(boom.blank_or_comment("# this is a comment"))
         self.assertFalse(boom.blank_or_comment("THIS_IS_NOT=foo"))
 
+    def test_BoomLogger(self):
+        bl = boom.BoomLogger("boom", 0)
+        bl.debug("debug")
+
+    def test_BoomLogger_set_debug_mask(self):
+        bl = boom.BoomLogger("boom", 0)
+        bl.set_debug_mask(boom.BOOM_DEBUG_ALL)
+
+    def test_BoomLogger_set_debug_mask_bad_mask(self):
+        bl = boom.BoomLogger("boom", 0)
+        with self.assertRaises(ValueError) as cm:
+            bl.set_debug_mask(boom.BOOM_DEBUG_ALL + 1)
+
+    def test_BoomLogger_debug_masked(self):
+        bl = boom.BoomLogger("boom", 0)
+        boom.set_debug_mask(boom.BOOM_DEBUG_ALL)
+        bl.set_debug_mask(boom.BOOM_DEBUG_ENTRY)
+        bl.debug_masked("qux")
+
 # vim: set et ts=4 sw=4 :
