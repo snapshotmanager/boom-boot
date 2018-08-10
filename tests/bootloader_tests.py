@@ -27,8 +27,10 @@ BOOT_ROOT_TEST = abspath("./tests")
 boom.set_boot_path(BOOT_ROOT_TEST)
 
 from boom.bootloader import *
-from boom.osprofile import OsProfile
+from boom.osprofile import OsProfile, find_profiles
 from boom import Selection
+
+_test_osp = None
 
 class BootParamsTests(unittest.TestCase):
     def test_BootParams_no_version_raises(self):
@@ -122,6 +124,22 @@ class BootParamsTests(unittest.TestCase):
         self.assertEqual(repr(bp), xrepr)
 
 
+def _reset_test_osprofile():
+    global _test_osp
+    # Some tests modify the OsProfile: recycle it each time it is used
+    if _test_osp:
+        _test_osp.delete_profile()
+    osp = OsProfile(name="Distribution", short_name="distro",
+                    version="1 (Workstation Edition)", version_id="1")
+    osp.uname_pattern = "di1"
+    osp.kernel_pattern = "/vmlinuz-%{version}"
+    osp.initramfs_pattern = "/initramfs-%{version}.img"
+    osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
+    osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
+    osp.options = "root=%{root_device} %{root_opts} rhgb quiet"
+    _test_osp = osp
+
+
 class BootEntryTests(unittest.TestCase):
 
     test_version = "1.1.1-1.qux.x86_64"
@@ -134,15 +152,8 @@ class BootEntryTests(unittest.TestCase):
     # Helper routines
 
     def _get_test_OsProfile(self):
-        osp = OsProfile(name="Distribution", short_name="distro",
-                        version="1 (Workstation Edition)", version_id="1")
-        osp.uname_pattern = "di1"
-        osp.kernel_pattern = "/vmlinuz-%{version}"
-        osp.initramfs_pattern = "/initramfs-%{version}.img"
-        osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
-        osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
-        osp.options = "root=%{root_device} %{root_opts} rhgb quiet"
-        return osp
+        _reset_test_osprofile()
+        return _test_osp
 
     def _get_test_BootEntry(self, osp):
         bp = BootParams("1.1.1.fc24", root_device="/dev/vg/lv",
@@ -296,8 +307,11 @@ class BootEntryTests(unittest.TestCase):
         self.assertEqual(be.options, "")
 
     def test_BootEntry_write(self):
-        osp = self._get_test_OsProfile()
-        bp = BootParams("1.1.1-1.di1", root_device="/dev/vg00/lvol0",
+        # Use a real OsProfile here: the entry will be written to disk, and
+        # may be seen during entry loading (to avoid the entry being moved
+        # to the Null profile).
+        osp = find_profiles(Selection(os_id="d4439b7"))[0]
+        bp = BootParams("1.1.1-1.fc26", root_device="/dev/vg00/lvol0",
                         lvm_root_lv="vg00/lvol0")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
                        osprofile=osp, allow_no_dev=True)
@@ -309,6 +323,7 @@ class BootEntryTests(unittest.TestCase):
         self.assertEqual(be.title, be2.title)
         self.assertEqual(be.boot_id, be2.boot_id)
         self.assertEqual(be.version, be2.version)
+        # Profile and entry are non-persistent
         be.delete_entry()
 
     def test_BootEntry_profile_kernel_version(self):
@@ -597,6 +612,8 @@ class BootEntryTests(unittest.TestCase):
 
     def test_load_entries_loads_profiles(self):
         import boom.osprofile
+        boom.osprofile._profiles = []
+        boom.osprofile._profiles_by_id = {}
         boom.osprofile._profiles = [boom.osprofile.OsProfile("","","","","")]
         boom.osprofile._profiles_loaded = False
         boom.bootloader.load_entries()
