@@ -156,6 +156,33 @@ class BoomTests(unittest.TestCase):
         bl.set_debug_mask(boom.BOOM_DEBUG_ENTRY)
         bl.debug_masked("qux")
 
+    def test_BoomConfig__str__(self):
+        bc = boom.BoomConfig(boot_path="/boot", legacy_enable=False)
+        xstr = ('[defaults]\nboot_path = "/boot"\nboom_path = "/boot/boom"\n\n'
+                '[legacy]\nenable = "False"\nformat = "grub1"\nsync = "True"')
+        self.assertEqual(str(bc), xstr)
+
+    def test_BoomConfig__repr__(self):
+        bc = boom.BoomConfig(boot_path="/boot", legacy_enable=False)
+        xrepr = ('BoomConfig(boot_path="/boot",boom_path="/boot/boom",'
+                 'enable_legacy="False",legacy_format="grub1",'
+                 'legacy_sync="True")')
+        self.assertEqual(repr(bc), xrepr)
+
+    def test_set_boom_config(self):
+        bc = boom.BoomConfig(boot_path="/boot", legacy_enable=False)
+        boom.set_boom_config(bc)
+
+    def test_set_boom_config_bad_config(self):
+        class Qux(object):
+            pass
+
+        with self.assertRaises(TypeError) as cm:
+            boom.set_boom_config(None)
+
+        with self.assertRaises(TypeError) as cm:
+            boom.set_boom_config(Qux())
+
     def test_set_boot_path(self):
         boom.set_boot_path(BOOT_ROOT_TEST)
 
