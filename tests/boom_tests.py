@@ -130,6 +130,13 @@ class BoomTests(unittest.TestCase):
         self.assertTrue(boom.blank_or_comment("# this is a comment"))
         self.assertFalse(boom.blank_or_comment("THIS_IS_NOT=foo"))
 
+    def test_set_debug_mask(self):
+        boom.set_debug_mask(boom.BOOM_DEBUG_ALL)
+
+    def test_set_debug_mask_bad_mask(self):
+        with self.assertRaises(ValueError) as cm:
+            boom.set_debug_mask(boom.BOOM_DEBUG_ALL + 1)
+
     def test_BoomLogger(self):
         bl = boom.BoomLogger("boom", 0)
         bl.debug("debug")
