@@ -142,6 +142,27 @@ _profiles_by_id = {}
 _profiles_loaded = False
 
 
+def _profile_exists(os_id):
+    """Test whether the specified ``os_id`` already exists.
+
+        Used during ``OsProfile`` initialisation to test if the new
+        ``os_id`` is already known (and to avoid passing through
+        find_profiles(), which may trigger recursive profile loading).
+
+        :param os_id: the OS identifier to check for
+
+        :returns: ``True`` if the identifier is known or ``False``
+                  otherwise.
+        :returntype: bool
+    """
+    global _profiles
+    if not _profiles:
+        return False
+    for osp in _profiles:
+        if os_id == osp.os_id:
+            return True
+    return False
+
 def boom_profiles_path():
     """Return the path to the boom profiles directory.
 
@@ -166,8 +187,8 @@ def _is_null_profile(osp):
                   otherwise
         :returntype: bool
     """
-    global _null_profile
-    if osp.os_id == _null_profile.os_id:
+    global _profiles
+    if osp.os_id == _profiles[0].os_id:
         return True
     return False
 
@@ -196,11 +217,15 @@ def load_profiles():
 
         :returns: None
     """
-    global _profiles, _profiles_by_id, _profiles_loaded, _null_profile
+    global _profiles, _profiles_by_id, _profiles_loaded
     _profiles = []
     _profiles_by_id = {}
+
+    _null_profile = OsProfile(name="", short_name="",
+                              version="", version_id="")
     _profiles.append(_null_profile)
     _profiles_by_id[_null_profile.os_id] = _null_profile
+
     load_profiles_as_list(_profiles, _profiles_by_id, OsProfile, "OS",
                           boom_profiles_path(), "profile", "os_id")
     _profiles_loaded = True
@@ -388,7 +413,7 @@ def match_os_profile(entry):
     _log_debug_profile("No matching profile found for boot_id=%s" %
                        entry.boot_id)
 
-    return _null_profile
+    return _profiles[0]
 
 
 def match_os_profile_by_version(version):
@@ -753,6 +778,11 @@ class OsProfile(object):
             self._profile_data[key] = default_if_unset(key)
 
         self._generate_os_id()
+
+        if _profile_exists(self.os_id):
+            raise ValueError("Profile already exists (os_id=%s)" %
+                             self.disp_os_id)
+
         _profiles.append(self)
 
     def match_uname_version(self, version):
@@ -1325,8 +1355,6 @@ class OsProfile(object):
         if _profiles and self in _profiles:
             _profiles.remove(self)
 
-
-_null_profile = OsProfile(name="", short_name="", version="", version_id="")
 
 __all__ = [
     'OsProfile',
