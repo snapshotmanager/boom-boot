@@ -314,8 +314,6 @@ def find_profiles(selection=None, match_fn=select_profile):
 
     _log_debug_profile("Finding profiles for %s" % repr(selection))
     for osp in _profiles:
-        if _is_null_profile(osp):
-            continue
         if match_fn(selection, osp):
             matches.append(osp)
     _log_debug_profile("Found %d profiles" % len(matches))
