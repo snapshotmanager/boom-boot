@@ -215,4 +215,14 @@ class BoomTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             boom.set_boom_path("loader")
 
+    def test_parse_btrfs_subvol(self):
+        self.assertEqual("23", boom.parse_btrfs_subvol("23"))
+        self.assertEqual("/svol", boom.parse_btrfs_subvol("/svol"))
+        self.assertEqual(None, boom.parse_btrfs_subvol(None))
+
+    def test_parse_btrfs_subvol_bad_subvol(self):
+        with self.assertRaises(ValueError) as cm:
+            boom.parse_btrfs_subvol("foo23foo")
+            boom.set_boom_path("loader")
+
 # vim: set et ts=4 sw=4 :
