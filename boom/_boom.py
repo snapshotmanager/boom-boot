@@ -351,7 +351,7 @@ def set_boom_path(boom_path):
         raise ValueError("Boom path %s does not exist" % boom_path)
 
     if not isabs(boom_path):
-        boom_path = path_join(__config.boot_bath, boom_path)
+        boom_path = path_join(__config.boot_path, boom_path)
 
     if not path_exists(path_join(boom_path, "profiles")):
         raise ValueError("Path does not contain a valid boom configuration"
