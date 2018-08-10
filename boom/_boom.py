@@ -887,6 +887,8 @@ __all__ = [
     # boom exception base class
     'BoomError',
 
+    # Boom logger class (used by test suite)
+    'BoomLogger',
     # Debug logging
     'get_debug_mask',
     'set_debug_mask',
