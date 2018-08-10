@@ -44,6 +44,22 @@ set_boot_path(BOOT_ROOT_TEST)
 
 
 class CommandTests(unittest.TestCase):
+    def test_int_if_val_with_val(self):
+        import boom.command
+        val = "1"
+        self.assertEqual(boom.command._int_if_val(val), int(val))
+
+    def test_int_if_val_with_none(self):
+        import boom.command
+        val = None
+        self.assertEqual(boom.command._int_if_val(val), None)
+
+    def test_int_if_val_with_badint(self):
+        import boom.command
+        val = "qux"
+        with self.assertRaises(ValueError) as cm:
+            boom.command._int_if_val(val)
+
     def test_list_entries(self):
         path = boom_entries_path()
         nr = len([p for p in listdir(path) if p.endswith(".conf")])
