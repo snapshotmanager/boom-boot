@@ -225,4 +225,39 @@ class BoomTests(unittest.TestCase):
             boom.parse_btrfs_subvol("foo23foo")
             boom.set_boom_path("loader")
 
+    def test_Selection_from_cmd_args(self):
+        class MockArgs(object):
+            boot_id = "12345678"
+            title = ""
+            version = ""
+            machine_id = ""
+            linux = ""
+            initrd = ""
+            efi = ""
+            root_device = ""
+            root_lv = ""
+            btrfs_subvolume = "23"
+            os_id = ""
+            name = ""
+            short_name = ""
+            os_version = ""
+            os_version_id = ""
+            os_options = ""
+            profile = ""
+            uname_pattern = ""
+            host_profile = ""
+
+        cmd_args = MockArgs()
+        s = boom.Selection.from_cmd_args(cmd_args)
+        self.assertEqual(s.btrfs_subvol_id, "23")
+        self.assertEqual(s.boot_id, "12345678")
+
+        cmd_args.btrfs_subvolume = "/svol"
+        s = boom.Selection.from_cmd_args(cmd_args)
+        self.assertEqual(s.btrfs_subvol_path, "/svol")
+
+        cmd_args.root_lv = "vg00/lvol0"
+        s = boom.Selection.from_cmd_args(cmd_args)
+        self.assertEqual(s.lvm_root_lv, "vg00/lvol0")
+
 # vim: set et ts=4 sw=4 :
