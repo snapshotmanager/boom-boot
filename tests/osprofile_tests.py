@@ -60,6 +60,7 @@ class OsProfileTests(unittest.TestCase):
                 'Title: "%{os_name} %{os_version_id} (%{version})"')
 
         self.assertEqual(str(osp), xstr)
+        osp.delete_profile()
 
     def test_OsProfile__repr__(self):
         osp = OsProfile(name="Distribution", short_name="distro",
@@ -77,6 +78,7 @@ class OsProfileTests(unittest.TestCase):
                  'BOOM_OS_TITLE:"%{os_name} %{os_version_id} (%{version})"})')
 
         self.assertEqual(repr(osp), xrepr)
+        osp.delete_profile()
 
     def test_OsProfile(self):
         # Test OsProfile init from kwargs
@@ -139,17 +141,17 @@ class OsProfileTests(unittest.TestCase):
             osp = OsProfile(profile_data=profile_data)
 
     def test_OsProfile_properties(self):
-        osp = OsProfile(name="Fedora", short_name="fedora",
-                        version="24 (Workstation Edition)", version_id="24")
+        osp = OsProfile(name="Fedora Core", short_name="fedora",
+                        version="1 (Workstation Edition)", version_id="1")
         osp.kernel_pattern = "/vmlinuz-%{version}"
         osp.initramfs_pattern = "/initramfs-%{version}.img"
         osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
         osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
         osp.options = "root=%{root_device} %{root_opts} rhgb quiet"
-        self.assertEqual(osp.os_name, "Fedora")
+        self.assertEqual(osp.os_name, "Fedora Core")
         self.assertEqual(osp.os_short_name, "fedora")
-        self.assertEqual(osp.os_version, "24 (Workstation Edition)")
-        self.assertEqual(osp.os_version_id, "24")
+        self.assertEqual(osp.os_version, "1 (Workstation Edition)")
+        self.assertEqual(osp.os_version_id, "1")
         self.assertEqual(osp.kernel_pattern, "/vmlinuz-%{version}")
         self.assertEqual(osp.initramfs_pattern,
                          "/initramfs-%{version}.img")
@@ -158,6 +160,7 @@ class OsProfileTests(unittest.TestCase):
                          "rootflags=%{btrfs_subvolume}")
         self.assertEqual(osp.options,
                          "root=%{root_device} %{root_opts} rhgb quiet")
+        osp.delete_profile()
 
     def test_OsProfile_no_lvm(self):
         osp = OsProfile(name="NoLVM", short_name="nolvm",
@@ -197,14 +200,17 @@ class OsProfileTests(unittest.TestCase):
         self.assertTrue(osp)
 
     def test_OsProfile_from_host(self):
+        # Clear the list of OsProfiles to avoid duplicate exception
+        import boom.osprofile
+        boom.osprofile._profiles = []
         osp = OsProfile.from_host_os_release()
         self.assertTrue(osp)
 
     def test_OsProfile_write(self):
         from os.path import exists, join
-        osp = OsProfile(name="Fedora", short_name="fedora",
-                        version="24 (Workstation Edition)", version_id="24")
-        osp.uname_pattern = "fc24"
+        osp = OsProfile(name="Fedora Core", short_name="fedora",
+                        version="1 (Workstation Edition)", version_id="1")
+        osp.uname_pattern = "fc1"
         osp.kernel_pattern = "/vmlinuz-%{version}"
         osp.initramfs_pattern = "/initramfs-%{version}.img"
         osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
@@ -212,7 +218,7 @@ class OsProfileTests(unittest.TestCase):
         osp.options = "root=%{root_device} ro %{root_opts} rhgb quiet"
         osp.write_profile()
         profile_path = join(boom_profiles_path(),
-                            "%s-fedora24.profile" % osp.os_id)
+                            "%s-fedora1.profile" % osp.os_id)
         self.assertTrue(exists(profile_path))
 
     def test_osprofile_write_profiles(self):
