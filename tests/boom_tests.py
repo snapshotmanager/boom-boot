@@ -18,6 +18,8 @@ import boom
 from sys import stdout
 from os.path import abspath
 
+from tests import MockArgs
+
 log = logging.getLogger()
 log.level = logging.DEBUG
 log.addHandler(logging.FileHandler("test.log"))
@@ -226,27 +228,6 @@ class BoomTests(unittest.TestCase):
             boom.set_boom_path("loader")
 
     def test_Selection_from_cmd_args(self):
-        class MockArgs(object):
-            boot_id = "12345678"
-            title = ""
-            version = ""
-            machine_id = ""
-            linux = ""
-            initrd = ""
-            efi = ""
-            root_device = ""
-            root_lv = ""
-            btrfs_subvolume = "23"
-            os_id = ""
-            name = ""
-            short_name = ""
-            os_version = ""
-            os_version_id = ""
-            os_options = ""
-            profile = ""
-            uname_pattern = ""
-            host_profile = ""
-
         cmd_args = MockArgs()
         s = boom.Selection.from_cmd_args(cmd_args)
         self.assertEqual(s.btrfs_subvol_id, "23")
