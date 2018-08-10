@@ -235,4 +235,33 @@ class OsProfileTests(unittest.TestCase):
                 nr_profiles += 1
         self.assertTrue(len(osp_list), nr_profiles)
 
+    def test_no_select_null_profile(self):
+        osps = find_profiles(Selection(os_id=boom.osprofile._profiles[0].os_id))
+        self.assertFalse(osps)
+
+    def test_find_os_short_name(self):
+        osps = find_profiles(Selection(os_short_name="fedora"))
+        self.assertTrue(osps)
+
+    def test_find_os_version(self):
+        osps = find_profiles(Selection(os_version="26 (Workstation Edition)"))
+        self.assertTrue(osps)
+
+    def test_find_os_version_id(self):
+        osps = find_profiles(Selection(os_version_id="26"))
+        self.assertTrue(osps)
+
+    def test_find_os_uname_pattern(self):
+        osps = find_profiles(Selection(os_uname_pattern="el7"))
+        self.assertTrue(osps)
+
+    def test_find_os_kernel_pattern(self):
+        pattern = "/vmlinuz-%{version}"
+        osps = find_profiles(Selection(os_kernel_pattern=pattern))
+        self.assertTrue(osps)
+
+    def test_find_os_initramfs_pattern(self):
+        osps = find_profiles(Selection(os_initramfs_pattern="/initramfs-%{version}.img"))
+        self.assertTrue(osps)
+
 # vim: set et ts=4 sw=4 :
