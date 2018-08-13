@@ -506,7 +506,6 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
     """
     if not selection.boot_id:
         raise ValueError("clone requires boot_id")
-        return 1
 
     all_args = (title, version, machine_id, root_device, lvm_root_lv,
                 btrfs_subvol_path, btrfs_subvol_id, profile)
@@ -515,12 +514,10 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         raise ValueError("clone requires one or more of:\ntitle, version, "
                          "machine_id, root_device, lvm_root_lv, "
                          "btrfs_subvol_path, btrfs_subvol_id, profile")
-        return 1
 
     bes = find_entries(selection)
     if len(bes) > 1:
         raise ValueError("clone criteria must match exactly one entry")
-        return 1
 
     be = bes[0]
 
@@ -602,7 +599,6 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     if not bes:
         raise ValueError("No matching entry found for boot ID %s" %
                          selection.boot_id)
-        return 1
 
     be = bes.pop()
 
@@ -941,7 +937,6 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
     """
     if not selection.os_id:
         raise ValueError("clone requires os_id")
-        return 1
 
     all_args = (
         name, short_name, version, version_id, uname_pattern,
@@ -956,7 +951,6 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
             'kernel_pattern, initramfs_pattern, root_opts_lvm2, '
             'root_opts_btrfs, options'
         )
-        return 1
 
     osps = find_profiles(selection)
     if not(osps):
@@ -964,7 +958,6 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
 
     if len(osps) > 1:
         raise ValueError("Clone criteria must match exactly one profile")
-        return 1
 
     osp = osps.pop()
 
@@ -1027,7 +1020,6 @@ def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
     if len(osps) > 1:
         raise ValueError("OS profile identifier '%s' is ambiguous" %
                          selection.os_id)
-        return 1
 
     osp = osps.pop()
     osp.uname_pattern = uname_pattern or osp.uname_pattern
@@ -1240,7 +1232,6 @@ def clone_host(selection=None, machine_id=None, host_name=None, label=None,
     """
     if not selection.host_id:
         raise ValueError("clone requires host_id")
-        return 1
 
     all_args = (
         machine_id, host_name, os_id,
@@ -1257,7 +1248,6 @@ def clone_host(selection=None, machine_id=None, host_name=None, label=None,
             '--root-opts-lvm2, --root_opts-btrfs, '
             '--add-opts, --del-opts, --options'
         )
-        return 1
 
     hps = find_host_profiles(selection)
     if not(hps):
@@ -1266,7 +1256,6 @@ def clone_host(selection=None, machine_id=None, host_name=None, label=None,
 
     if len(hps) > 1:
         raise ValueError("Clone criteria must match exactly one profile")
-        return 1
 
     hp = hps.pop()
 
@@ -1339,7 +1328,6 @@ def edit_host(selection=None, machine_id=None, os_id=None, host_name=None,
     if len(hps) > 1:
         raise ValueError("OS profile identifier '%s' is ambiguous" %
                          selection.os_id)
-        return 1
 
     hp = hps.pop()
     hp.delete_profile()
