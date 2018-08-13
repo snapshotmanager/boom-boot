@@ -1905,6 +1905,7 @@ class BootEntry(object):
             raise e
 
         self._last_path = entry_path
+        self._unwritten = False
 
         # Add this entry to the list of known on-disk entries
         _add_entry(self)
