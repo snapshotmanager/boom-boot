@@ -1870,6 +1870,8 @@ class BootEntry(object):
                      new entry file fails.
             :returntype: None
         """
+        if not self._unwritten and not force:
+            return
         entry_path = self._entry_path
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_entries_path())
         with fdopen(tmp_fd, "w") as f:
