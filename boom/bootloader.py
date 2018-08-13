@@ -932,6 +932,25 @@ class BootEntry(object):
         """
         return len(self._entry_data)
 
+    def __eq__(self, other):
+        """Test for equality between this ``BootEntry`` and another
+            object.
+
+            Equality for ``BootEntry`` objects is true if the both
+            ``boot_id`` values match.
+
+            :param other: The object against which to test.
+
+            :returns: ``True`` if the objects are equal and ``False``
+                      otherwise.
+            :returntype: bool
+        """
+        if not hasattr(other, "boot_id"):
+            return False
+        if self.boot_id == other.boot_id:
+            return True
+        return False
+
     def __getitem__(self, key):
         """Return an item from this ``BootEntry``.
 
