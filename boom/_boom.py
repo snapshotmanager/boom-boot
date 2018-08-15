@@ -846,8 +846,17 @@ def load_profiles_as_list(profiles, profiles_by_id,
             _log_warn("Failed to load %s from '%s': %s" %
                       (profile_class.__name__, pf_path, e))
             continue
+
         profiles.append(profile)
-        profiles_by_id[getattr(profile, profile_id)] = profile
+        identifier = getattr(profile, profile_id)
+
+        # Label indexing in by_id dict?
+        if hasattr(profile, "label"):
+            if identifier not in profiles_by_id:
+                profiles_by_id[identifier] = {}
+            profiles_by_id[identifier][profile.label] = profile
+        else:
+            profiles_by_id[identifier] = profile
 
 __all__ = [
     # boom module constants

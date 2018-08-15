@@ -313,7 +313,7 @@ def find_host_profiles(selection=None, match_fn=select_host_profile):
     return matches
 
 
-def get_host_profile_by_id(machine_id):
+def get_host_profile_by_id(machine_id, label=""):
     """Find a HostProfile by its machine_id.
 
         Return the HostProfile object corresponding to ``machine_id``,
@@ -326,7 +326,8 @@ def get_host_profile_by_id(machine_id):
     if not host_profiles_loaded():
         load_host_profiles()
     if machine_id in _host_profiles_by_id:
-        return _host_profiles_by_id[machine_id]
+        if label in _host_profiles_by_id[machine_id]:
+            return _host_profiles_by_id[machine_id][label]
     return None
 
 
