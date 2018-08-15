@@ -162,7 +162,7 @@ _host_fields = [
         BR_HOST, "hostid", "HostID", "Host identifier", 7,
         REP_SHA, lambda f, d: f.report_sha(d.host_id)),
     BoomFieldType(
-        BR_HOST, "machineid", "MachineID", "Machine identifier", 20,
+        BR_HOST, "machineid", "MachineID", "Machine identifier", 10,
         REP_SHA, lambda f, d: f.report_sha(d.disp_machine_id)),
     BoomFieldType(
         BR_HOST, "osid", "OsID", "OS identifier", 7,
