@@ -173,7 +173,8 @@ def load_host_profiles():
     _host_profiles = []
     _host_profiles_by_id = {}
     load_profiles_as_list(_host_profiles, _host_profiles_by_id, HostProfile,
-                          "host", boom_host_profiles_path(), "host", "host_id")
+                          "host", boom_host_profiles_path(),
+                          "host", "machine_id")
     _profiles_loaded = True
     _log_info("Loaded %d host profiles" % len(_host_profiles))
 
