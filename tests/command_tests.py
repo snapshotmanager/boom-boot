@@ -140,81 +140,91 @@ class CommandTests(unittest.TestCase):
 
     def test_command_find_profile_with_profile_arg(self):
         import boom.command
+        _find_profile = boom.command._find_profile
         cmd_args = MockArgs()
         cmd_args.profile = "d4439b7d2f928c39f1160c0b0291407e5990b9e0" # F26
         cmd_args.machine_id = "12345" # No HostProfile
-        osp = boom.command._find_profile(cmd_args, cmd_args.machine_id, "test")
+        osp = _find_profile(cmd_args, "", cmd_args.machine_id, "test")
         self.assertEqual(osp.os_id, cmd_args.profile)
 
     def test_command_find_profile_with_version_arg(self):
         import boom.command
+        _find_profile = boom.command._find_profile
         cmd_args = MockArgs()
         cmd_args.profile = None
         cmd_args.version = "4.16.11-100.fc26.x86_64" # F26
         cmd_args.machine_id = "12345" # No HostProfile
         xprofile = "d4439b7d2f928c39f1160c0b0291407e5990b9e0"
-        osp = boom.command._find_profile(cmd_args, cmd_args.machine_id, "test")
+        osp = _find_profile(cmd_args, cmd_args.version,
+                            cmd_args.machine_id, "test")
         self.assertEqual(osp.os_id, xprofile)
 
     def test_command_find_profile_with_bad_version_arg(self):
         import boom.command
+        _find_profile = boom.command._find_profile
         cmd_args = MockArgs()
         cmd_args.profile = None
         cmd_args.version = "4.16.11-100.x86_64" # no match
         cmd_args.machine_id = "12345" # No HostProfile
         xprofile = "d4439b7d2f928c39f1160c0b0291407e5990b9e0"
-        osp = boom.command._find_profile(cmd_args, cmd_args.machine_id, "test")
+        osp = _find_profile(cmd_args, "", cmd_args.machine_id, "test")
         self.assertEqual(osp, None)
 
     def test_command_find_profile_bad_profile(self):
         import boom.command
+        _find_profile = boom.command._find_profile
         cmd_args = MockArgs()
         cmd_args.profile = "quxquxquxquxquxquxquxqux" # nonexistent
         cmd_args.machine_id = "12345" # No HostProfile
-        osp = boom.command._find_profile(cmd_args, cmd_args.machine_id, "test")
+        osp = _find_profile(cmd_args, "", cmd_args.machine_id, "test")
         self.assertEqual(osp, None)
 
     def test_command_find_profile_ambiguous_profile(self):
         import boom.command
+        _find_profile = boom.command._find_profile
         cmd_args = MockArgs()
         cmd_args.profile = "9" # ambiguous
         cmd_args.machine_id = "12345" # No HostProfile
-        osp = boom.command._find_profile(cmd_args, cmd_args.machine_id, "test")
+        osp = _find_profile(cmd_args, "", cmd_args.machine_id, "test")
         self.assertEqual(osp, None)
 
     def test_command_find_profile_ambiguous_host(self):
         import boom.command
+        _find_profile = boom.command._find_profile
         cmd_args = MockArgs()
         cmd_args.profile = ""
         cmd_args.machine_id = "fffffffffffffff" # Ambiguous HostProfile
-        osp = boom.command._find_profile(cmd_args, cmd_args.machine_id, "test")
+        osp = _find_profile(cmd_args, "", cmd_args.machine_id, "test")
         self.assertEqual(osp, None)
 
     def test_command_find_profile_host(self):
         import boom.command
+        _find_profile = boom.command._find_profile
         cmd_args = MockArgs()
         cmd_args.profile = ""
         cmd_args.machine_id = "ffffffffffffc"
         cmd_args.label = ""
-        hp = boom.command._find_profile(cmd_args, cmd_args.machine_id, "test")
+        hp = _find_profile(cmd_args, "", cmd_args.machine_id, "test")
         self.assertTrue(hp)
         self.assertTrue(hasattr(hp, "add_opts"))
 
     def test_command_find_profile_host_os_mismatch(self):
         import boom.command
+        _find_profile = boom.command._find_profile
         cmd_args = MockArgs()
-        cmd_args.profile = "d4439b7d2f928c39f1160c0b0291407e5990b9e0"
+        cmd_args.profile = "3fc389bba581e5b20c6a46c7fc31b04be465e973"
         cmd_args.machine_id = "ffffffffffffc"
         cmd_args.label = ""
-        hp = boom.command._find_profile(cmd_args, cmd_args.machine_id, "test")
+        hp = _find_profile(cmd_args, "", cmd_args.machine_id, "test")
         self.assertFalse(hp)
 
     def test_command_find_profile_no_matching(self):
         import boom.command
+        _find_profile = boom.command._find_profile
         cmd_args = MockArgs()
         cmd_args.profile = ""
         cmd_args.machine_id = "1111111111111111" # no matching
-        hp = boom.command._find_profile(cmd_args, cmd_args.machine_id, "test")
+        hp = _find_profile(cmd_args, "", cmd_args.machine_id, "test")
         self.assertFalse(hp)
 
     #
