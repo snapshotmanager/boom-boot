@@ -398,6 +398,23 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(orig_be.options, be.options)
         be.delete_entry()
 
+    def test_clone_dupe(self):
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
+                          lvm_root_lv="vg_hex/root", profile=osp)
+        self.assertTrue(exists(be._entry_path))
+
+        be2 = clone_entry(Selection(boot_id=be.boot_id), title="ANEWTITLE",
+                          version="2.6.1")
+
+        with self.assertRaises(ValueError) as cm:
+            be3 = clone_entry(Selection(boot_id=be.boot_id), title="ANEWTITLE",
+                              version="2.6.1")
+
+        be.delete_entry()
+        be2.delete_entry()
+
     def test_print_entries_no_matching(self):
         xoutput = r"BootID.*Version.*Name.*RootDevice"
         output = StringIO()
