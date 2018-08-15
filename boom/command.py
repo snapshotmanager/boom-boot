@@ -604,14 +604,12 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     # Use a matching HostProfile is one exists, or the command line
     # OsProfile argument if set.
     machine_id = machine_id or be.machine_id
-    profile = _find_profile(cmd_args, machine_id, "edit")
-    if not profile:
-         return 1
+    version = version or be.version
 
     be._osp = profile or be._osp
     be.title = title or be.title
     be.machine_id = machine_id or be.machine_id
-    be.bp.version = version or be.version
+    be.bp.version = version
     be.bp.root_device = root_device or be.bp.root_device
     be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
     be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
@@ -685,14 +683,21 @@ def print_entries(selection=None, output_fields=None, opts=None,
 # OsProfile manipulation
 #
 
-def _find_profile(cmd_args, machine_id, command):
+def _find_profile(cmd_args, version, machine_id, command, optional=True):
     """Find a matching profile (HostProfile or OsProfile) for this
         combination of version, machine_id, label and command line
-        profile argument.
+        profile arguments
+
+        :param cmd_args: The command argument namespace
+        :param version: A version string to match
+        :machine_id: The machine identifier to match
+        :command: The command name to use in error messages
+        :returns: A matching ``OsProfile``, ``HostProfile``, or ``None``
+                  if no match is found.
     """
     if not cmd_args.profile:
         # Attempt to find a matching OsProfile by version string
-        osp = match_os_profile_by_version(cmd_args.version)
+        osp = match_os_profile_by_version(version)
         os_id = osp.os_id if osp else None
     else:
         os_id = cmd_args.profile
@@ -700,7 +705,7 @@ def _find_profile(cmd_args, machine_id, command):
     osps = find_profiles(Selection(os_id=os_id)) if os_id else None
 
     # Fail if an explicit profile was given and it is not found.
-    if not osps and os_id == cmd_args.profile:
+    if not osps and os_id is not None and os_id == cmd_args.profile:
         print("OsProfile not found: %s" % os_id)
         return None
 
@@ -726,14 +731,15 @@ def _find_profile(cmd_args, machine_id, command):
         return None
     elif len(hps) == 1:
         _log_debug("Found HostProfile: %s" % hps[0].host_id)
-        if (hp and osp) and osp.os_id != hp.os_id:
+        if (hp and osp) and not osp.os_id.startswith(hp.os_id):
             _log_error("Active host profile (host_id=%s, os_id=%s) "
                        "conflicts with --profile=%s" %
                        (hp.disp_host_id, hp.disp_os_id, osp.disp_os_id))
             return None
     elif not osp and not hps:
-        _log_error("%s requires --profile or a matching HostProfile" %
-                   command)
+        if not optional:
+            _log_error("%s requires --profile or a matching HostProfile" %
+                       command)
         return None
 
 
@@ -1460,7 +1466,8 @@ def _create_cmd(cmd_args, select, opts, identifier):
 
     no_dev = cmd_args.no_dev
 
-    profile = _find_profile(cmd_args, machine_id, "create")
+    profile = _find_profile(cmd_args, version, machine_id,
+                            "create", optional=False)
     if not profile:
         return 1
 
@@ -1569,9 +1576,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
     # Discard all selection criteria but boot_id.
     select = Selection(boot_id=select.boot_id)
 
-    profile = _find_profile(cmd_args, machine_id, "clone")
-    if not profile:
-        return 1
+    profile = _find_profile(cmd_args, version, machine_id, "clone")
 
     add_opts = cmd_args.add_opts
     del_opts = cmd_args.del_opts
@@ -1685,9 +1690,7 @@ def _edit_cmd(cmd_args, select, opts, identifier):
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
 
-    profile = _find_profile(cmd_args, machine_id, "edit")
-    if not profile:
-        return 1
+    profile = _find_profile(cmd_args, version, machine_id, "edit")
 
     try:
         be = edit_entry(selection=select, title=title, version=version,
