@@ -199,9 +199,8 @@ _host_fields = [
         REP_STR, lambda f, d: f.report_str(d.del_opts))
 ]
 
-_default_host_fields = "hostid,machineid,osid"
-_verbose_host_fields = "hostid,hostname,machineid,osid,options,"
-_verbose_host_fields += "addopts,delopts"
+_default_host_fields = "hostid,hostname,machineid,osid"
+_verbose_host_fields = _default_host_fields + "options,addopts,delopts"
 
 def _int_if_val(val):
     """Return an int if val is defined or None otherwise.
