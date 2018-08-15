@@ -779,7 +779,7 @@ class HostProfile(OsProfile):
             :getter: returns the ``os_version`` as a string.
             :type: string
         """
-        return self.osp.version
+        return self.osp.os_version
 
     @property
     def os_version_id(self):
@@ -788,7 +788,7 @@ class HostProfile(OsProfile):
             :getter: returns the ``os_version_id`` as a string.
             :type: string
         """
-        return self.osp.version_id
+        return self.osp.os_version_id
 
     @property
     def uname_pattern(self):
