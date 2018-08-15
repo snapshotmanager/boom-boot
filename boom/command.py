@@ -503,7 +503,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                  a duplicate entry exists, or``OsError`` if an error
                  occurs while writing the entry file.
     """
-    if not selection.boot_id:
+    if not selection.boot_id or selection.boot_id is None:
         raise ValueError("clone requires boot_id")
 
     all_args = (title, version, machine_id, root_device, lvm_root_lv,
