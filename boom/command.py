@@ -2092,15 +2092,15 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
     select = Selection(host_id=select.host_id)
 
     try:
-        be = clone_profile(selection=select,
-                           machine_id=machine_id, os_id=os_id, name=name,
-                           kernel_pattern=cmd_args.kernel_pattern,
-                           initramfs_pattern=cmd_args.initramfs_pattern,
-                           root_opts_lvm2=cmd_args.lvm_opts,
-                           root_opts_btrfs=cmd_args.btrfs_opts,
-                           add_opts=cmd_args.add_opts,
-                           del_opts=cmd_args.del_opts,
-                           options=cmd_args.os_options)
+        be = clone_host(selection=select, machine_id=machine_id,
+                        os_id=os_id, host_name=name,
+                        kernel_pattern=cmd_args.kernel_pattern,
+                        initramfs_pattern=cmd_args.initramfs_pattern,
+                        root_opts_lvm2=cmd_args.lvm_opts,
+                        root_opts_btrfs=cmd_args.btrfs_opts,
+                        add_opts=cmd_args.add_opts,
+                        del_opts=cmd_args.del_opts,
+                        options=cmd_args.os_options)
     except ValueError as e:
         print(e)
         return 1
