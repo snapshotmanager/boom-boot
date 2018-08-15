@@ -474,7 +474,7 @@ class Selection(object):
         attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
         strval = ""
         tail = ", "
-        for attr in attrs:
+        for attr in set(attrs):
             strval += "%s='%s'%s" % (attr, getattr(self, attr), tail)
         return strval.rstrip(tail)
 
