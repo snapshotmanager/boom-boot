@@ -237,13 +237,13 @@ def select_host_profile(s, hp):
         return False
     if s.host_name and hp.host_name != s.host_name:
         return False
-    if s.host_label and hp.host_label != s.host_label:
+    if s.host_label and hp.label != s.host_label:
         return False
-    if s.host_short_name and hp.host_short_name != s.host_short_name:
+    if s.host_short_name and hp.short_name != s.host_short_name:
         return False
-    if s.host_add_opts and hp.host_add_opts != s.host_add_opts:
+    if s.host_add_opts and hp.add_opts != s.host_add_opts:
         return False
-    if s.host_del_opts and hp.host_del_opts != s.host_del_opts:
+    if s.host_del_opts and hp.del_opts != s.host_del_opts:
         return False
     if s.os_id and not hp.os_id.startswith(s.os_id):
         return False
