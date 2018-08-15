@@ -323,8 +323,10 @@ class BootEntryTests(unittest.TestCase):
         self.assertEqual(be.title, be2.title)
         self.assertEqual(be.boot_id, be2.boot_id)
         self.assertEqual(be.version, be2.version)
+        ## Create on-disk entry and add to list of known entries
+        #be.write_entry()
         # Profile and entry are non-persistent
-        be.delete_entry()
+        be2.delete_entry()
 
     def test_BootEntry_profile_kernel_version(self):
         osp = self._get_test_OsProfile()
