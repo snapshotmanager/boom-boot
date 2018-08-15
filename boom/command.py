@@ -1567,11 +1567,19 @@ def _clone_cmd(cmd_args, select, opts, identifier):
 
     title = cmd_args.title
     version = cmd_args.version
-    machine_id = cmd_args.machine_id
     root_device = cmd_args.root_device
     lvm_root_lv = cmd_args.root_lv
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
+
+    if not cmd_args.machine_id:
+        # Use host machine-id by default
+        machine_id = _get_machine_id()
+        if not machine_id:
+            print("Could not determine machine_id")
+            return 1
+    else:
+        machine_id = cmd_args.machine_id
 
     # Discard all selection criteria but boot_id.
     select = Selection(boot_id=select.boot_id)
@@ -1684,11 +1692,19 @@ def _edit_cmd(cmd_args, select, opts, identifier):
 
     title = cmd_args.title
     version = cmd_args.version
-    machine_id = cmd_args.machine_id
     root_device = cmd_args.root_device
     lvm_root_lv = cmd_args.root_lv
     subvol = cmd_args.btrfs_subvolume
     (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
+
+    if not cmd_args.machine_id:
+        # Use host machine-id by default
+        machine_id = _get_machine_id()
+        if not machine_id:
+            print("Could not determine machine_id")
+            return 1
+    else:
+        machine_id = cmd_args.machine_id
 
     profile = _find_profile(cmd_args, version, machine_id, "edit")
 
