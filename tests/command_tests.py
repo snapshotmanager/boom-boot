@@ -387,6 +387,17 @@ class CommandTests(unittest.TestCase):
 
         be.delete_entry()
 
+    def test_clone_entry_with_add_del_opts(self):
+        # Entry with options +"debug" -"rhgb quiet"
+        orig_boot_id = "a16356e"
+        be = clone_entry(Selection(boot_id=orig_boot_id),
+                         title="clone with addopts")
+        orig_be = find_entries(Selection(boot_id=orig_boot_id))[0]
+        self.assertTrue(orig_be)
+        self.assertTrue(be)
+        self.assertEqual(orig_be.options, be.options)
+        be.delete_entry()
+
     def test_print_entries_no_matching(self):
         xoutput = r"BootID.*Version.*Name.*RootDevice"
         output = StringIO()
