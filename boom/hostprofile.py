@@ -352,7 +352,7 @@ def match_host_profile(entry):
 
     _log_debug("Attempting to match profile for BootEntry(title='%s', "
                "version='%s') with machine_id='%s'" %
-               (entry.title, entry.version, entry.disp_machine_id))
+               (entry.title, entry.version, entry.machine_id))
 
     # Attempt to match by uname pattern
     for hp in _host_profiles:
@@ -360,7 +360,7 @@ def match_host_profile(entry):
             _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
                        "to HostProfile(name='%s', machine_id='%s')" %
                         (entry.version, entry.disp_boot_id, hp.host_name,
-                         hp.disp_machine_id))
+                         hp.machine_id))
             return hp
 
     return None
