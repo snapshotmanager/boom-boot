@@ -313,6 +313,23 @@ class CommandTests(unittest.TestCase):
         delete_entries(Selection(boot_id=be.boot_id))
         self.assertFalse(exists(be._entry_path))
 
+    def test_create_delete_entry_with_legacy(self):
+        config = BoomConfig()
+        config.legacy_enable = True
+        config.legacy_sync = True
+        set_boom_config(config)
+        set_boot_path(BOOT_ROOT_TEST)
+
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
+                          lvm_root_lv="vg_hex/root", profile=osp)
+        self.assertTrue(exists(be._entry_path))
+
+        delete_entries(Selection(boot_id=be.boot_id))
+        self.assertFalse(exists(be._entry_path))
+
+
     def test_delete_entries_no_matching_raises(self):
         with self.assertRaises(IndexError) as cm:
             delete_entries(Selection(boot_id="thereisnospoon"))
