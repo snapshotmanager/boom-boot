@@ -2095,6 +2095,7 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
         :returns: integer status code returned from ``main()``
     """
     name = cmd_args.name
+    os_id = cmd_args.profile
     version = cmd_args.os_version
     version_id = cmd_args.os_version_id
     uname_pattern = cmd_args.uname_pattern
@@ -2106,6 +2107,15 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
 
     if identifier is not None:
         select = Selection(host_id=identifier)
+
+    if not cmd_args.machine_id:
+        # Use host machine-id by default
+        machine_id = _get_machine_id()
+        if not machine_id:
+            print("Could not determine machine_id")
+            return 1
+    else:
+        machine_id = cmd_args.machine_id
 
     # Discard all selection criteria but host_id.
     select = Selection(host_id=select.host_id)
