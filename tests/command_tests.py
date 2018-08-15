@@ -317,6 +317,59 @@ class CommandTests(unittest.TestCase):
         with self.assertRaises(IndexError) as cm:
             delete_entries(Selection(boot_id="thereisnospoon"))
 
+    def test_clone_entry_no_boot_id(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_be = clone_entry(Selection())
+
+    def test_clone_entry_ambiguous_boot_id(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_be = clone_entry(Selection(boot_id="6"), title="NEWTITLE")
+
+
+    def test_clone_entry_add_opts(self):
+        be = clone_entry(Selection(boot_id="9591d36"), title="NEWNEWTITLE",
+                         add_opts="foo", allow_no_dev=True)
+        self.assertTrue(exists(be._entry_path))
+        be.delete_entry()
+        self.assertFalse(exists(be._entry_path))
+
+    def test_clone_entry_del_opts(self):
+        be = clone_entry(Selection(boot_id="9591d36"), title="NEWNEWTITLE",
+                         del_opts="rhgb quiet", allow_no_dev=True)
+        self.assertTrue(exists(be._entry_path))
+        be.delete_entry()
+        self.assertFalse(exists(be._entry_path))
+
+    def test_clone_delete_entry(self):
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
+                          lvm_root_lv="vg_hex/root", profile=osp)
+        self.assertTrue(exists(be._entry_path))
+
+        be2 = clone_entry(Selection(boot_id=be.boot_id), title="ANEWTITLE",
+                          version="2.6.1")
+
+        self.assertTrue(exists(be2._entry_path))
+
+        be.delete_entry()
+        be2.delete_entry()
+
+        self.assertFalse(exists(be._entry_path))
+        self.assertFalse(exists(be2._entry_path))
+
+    def test_clone_entry_no_args(self):
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
+                          lvm_root_lv="vg_hex/root", profile=osp)
+        self.assertTrue(exists(be._entry_path))
+
+        with self.assertRaises(ValueError) as cm:
+            be2 = clone_entry(Selection(boot_id=be.boot_id))
+
+        be.delete_entry()
+
     def test_print_entries_no_matching(self):
         xoutput = r"BootID.*Version.*Name.*RootDevice"
         output = StringIO()
