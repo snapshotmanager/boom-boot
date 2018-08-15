@@ -765,8 +765,6 @@ def min_id_width(min_prefix, objs, attr):
         :returns: the minimum id width.
         :returntype: int
     """
-    # FIXME: factor out (similar to min_os_id_width())
-    min_prefix = 7
     if not objs:
         return min_prefix
 
