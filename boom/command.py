@@ -807,9 +807,6 @@ def _os_profile_from_file(os_release, uname_pattern,
     if options:
         osp.options = options
 
-    if find_profiles(selection=Selection(os_id=osp.os_id)):
-        raise ValueError("Profile already exists (os_id=%s)" % osp.disp_os_id)
-
     osp.write_profile()
     return osp
 
@@ -899,10 +896,6 @@ def create_profile(name, short_name, version, version_id,
 
     osp = OsProfile(name, short_name, version, version_id,
                     profile_data=profile_data)
-
-    if find_profiles(selection=Selection(os_id=osp.os_id)):
-        raise ValueError("Profile already exists (os_id=%s)" % osp.disp_os_id)
-
     osp.write_profile()
     return osp
 
