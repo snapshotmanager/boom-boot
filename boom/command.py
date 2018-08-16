@@ -326,6 +326,7 @@ def __write_legacy():
     """
     config = get_boom_config()
     if config.legacy_enable and config.legacy_sync:
+        clear_legacy_loader()
         write_legacy_loader(selection=Selection(), loader=config.legacy_format)
 
 
