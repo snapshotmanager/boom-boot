@@ -570,7 +570,8 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
-               btrfs_subvol_id=None, profile=None):
+               btrfs_subvol_id=None, profile=None,
+               add_opts=None, del_opts=None):
     """Edit an existing boot loader entry.
 
         Modify an existing BootEntry by changing one or more of the
@@ -600,16 +601,35 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     selection = Selection(boot_id=selection.boot_id)
 
     bes = find_entries(selection=selection)
+
     if not bes:
         raise ValueError("No matching entry found for boot ID %s" %
                          selection.boot_id)
 
-    be = bes.pop()
+    if len(bes) > 1:
+        raise ValueError("edit criteria must match exactly one entry")
+
+    be = bes[0]
+
+    _log_debug("Editing entry with boot_id='%s'" % be.disp_boot_id)
 
     # Use a matching HostProfile is one exists, or the command line
     # OsProfile argument if set.
     machine_id = machine_id or be.machine_id
     version = version or be.version
+
+    # Merge new and cloned appended kernel options
+    all_add_opts = set()
+    if add_opts:
+        all_add_opts.update(add_opts.split())
+    if be.bp.add_opts:
+        all_add_opts.update(be.bp.add_opts)
+
+    add_opts = list(all_add_opts)
+    del_opts = del_opts.split() if del_opts else []
+
+    _log_debug_cmd("Effective add options: %s" % add_opts)
+    _log_debug_cmd("Effective del options: %s" % del_opts)
 
     be._osp = profile or be._osp
     be.title = title or be.title
@@ -619,6 +639,8 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
     be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
     be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
+    be.bp.add_opts = add_opts
+    be.bp.del_opts = del_opts
     be.update_entry()
     __write_legacy()
 
