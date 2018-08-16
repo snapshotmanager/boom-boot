@@ -515,7 +515,11 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                          "machine_id, root_device, lvm_root_lv, "
                          "btrfs_subvol_path, btrfs_subvol_id, profile")
 
-    bes = find_entries(selection)
+    bes = find_entries(selection=selection)
+    if not bes:
+        raise ValueError("No matching entry found for boot ID %s" %
+                         selection.boot_id)
+
     if len(bes) > 1:
         raise ValueError("clone criteria must match exactly one entry")
 
