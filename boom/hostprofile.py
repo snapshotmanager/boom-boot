@@ -54,6 +54,7 @@ _log_error = _log.error
 #: Global host profile list
 _host_profiles = []
 _host_profiles_by_id = {}
+_host_profiles_by_host_id = {}
 
 #: Whether profiles have been read from disk
 _profiles_loaded = False
@@ -136,6 +137,26 @@ HOST_REQUIRED_KEYS = HOST_PROFILE_KEYS[0:4]
 HOST_OPTIONAL_KEYS = HOST_PROFILE_KEYS[4:]
 
 
+def _host_exists(host_id):
+    """Test whether the specified ``host_id`` already exists.
+
+        Used during ``HostProfile`` initialisation to test if the new
+        ``host_id`` is already known (and to avoid passing through
+        find_profiles(), which may trigger recursive profile loading).
+
+        :param host_id: the host identifier to check for
+
+        :returns: ``True`` if the identifier is known or ``False``
+                  otherwise.
+        :returntype: bool
+    """
+    global _host_profiles_by_host_id
+    if not _host_profiles_by_host_id:
+        return False
+    if host_id in _host_profiles_by_host_id:
+        return True
+    return False
+
 def boom_host_profiles_path():
     """Return the path to the boom host profiles directory.
 
@@ -169,12 +190,16 @@ def load_host_profiles():
 
         :returns: None
     """
-    global _host_profiles, _host_profiles_by_id, _profiles_loaded
+    global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
+    global _profiles_loaded
+
     _host_profiles = []
     _host_profiles_by_id = {}
-    load_profiles_as_list(_host_profiles, _host_profiles_by_id, HostProfile,
-                          "host", boom_host_profiles_path(),
-                          "host", "machine_id")
+    _host_profiles_by_host_id = {}
+
+    profiles_path = boom_host_profiles_path()
+    load_profiles_for_class(HostProfile, "Host", profiles_path, "host")
+
     _profiles_loaded = True
     _log_info("Loaded %d host profiles" % len(_host_profiles))
 
@@ -324,6 +349,7 @@ def get_host_profile_by_id(machine_id, label=""):
         :returns: An HostProfile matching machine_id or None if no match
                   was found.
     """
+    global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
     if not host_profiles_loaded():
         load_host_profiles()
     if machine_id in _host_profiles_by_id:
@@ -503,6 +529,21 @@ class HostProfile(OsProfile):
 
         self.osp = osps[0]
 
+    def _append_profile(self):
+        """Append a HostProfile to the global profile list
+        """
+        global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
+        if _host_exists(self.host_id):
+            raise ValueError("Profile already exists (host_id=%s)" %
+                             self.disp_host_id)
+
+        _host_profiles.append(self)
+        machine_id = self.machine_id
+        if machine_id not in _host_profiles_by_id:
+            _host_profiles_by_id[machine_id] = {}
+        _host_profiles_by_id[machine_id][self.label] = self
+        _host_profiles_by_host_id[self.host_id] = self
+
     def _from_data(self, host_data, dirty=True):
         """Initialise a ``HostProfile`` from in-memory data.
 
@@ -532,6 +573,8 @@ class HostProfile(OsProfile):
 
         if dirty:
             self._dirty()
+
+        self._append_profile()
 
 
     def __init__(self, machine_id=None, host_name=None, label=None, os_id=None,
@@ -1039,10 +1082,17 @@ class HostProfile(OsProfile):
             :raises: ``OsError`` if an error occurs removing the file or
                      ``ValueError`` if the profile does not exist.
         """
-        global _host_profiles
+        global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
         self._delete_profile("Host", self.host_id)
+
+        machine_id = self.machine_id
+        host_id = self.host_id
         if _host_profiles and self in _host_profiles:
             _host_profiles.remove(self)
+        if _host_profiles_by_id and machine_id in _host_profiles_by_id:
+            _host_profiles_by_id.pop(machine_id)
+        if _host_profiles_by_host_id and host_id in _host_profiles_by_host_id:
+            _host_profiles_by_host_id.pop(host_id)
 
 
 __all__ = [

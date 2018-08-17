@@ -799,9 +799,8 @@ def _get_machine_id():
             machine_id = None
     return machine_id
 
-def load_profiles_as_list(profiles, profiles_by_id,
-                          profile_class, profile_type,
-                          profiles_path, profile_ext, profile_id):
+def load_profiles_for_class(profile_class, profile_type,
+                            profiles_path, profile_ext):
     """Load profiles from disk.
 
         Load the set of profiles found at the path ``profiles_path``
@@ -817,21 +816,13 @@ def load_profiles_as_list(profiles, profiles_by_id,
         This function is intended for use by profile implementations
         that share common on-disk profile handling.
 
-        :param profiles: A list to which loaded profiles are added.
         :param profile_class: The profile class to instantiate.
         :param profile_type: A string description of the profile type.
         :param profiles_path: Path to the on-disk profile directory.
         :param profiles_ext: Extension of profile files.
-        :param profile_id: A string containing the name of the ID attr.
 
         :returns: None
     """
-    if not any([profiles is not None, profiles_by_id is not None]):
-        raise ValueError("profiles and profiles_by_id cannot both be None")
-
-    profiles = profiles if profiles is not None else []
-    profiles_by_id = profiles_by_id if profiles_by_id is not None else {}
-
     profile_files = listdir(profiles_path)
     _log_info("Loading %s profiles from %s" % (profile_type, profiles_path))
     for pf in profile_files:
@@ -845,16 +836,6 @@ def load_profiles_as_list(profiles, profiles_by_id,
                       (profile_class.__name__, pf_path, e))
             continue
 
-        profiles.append(profile)
-        identifier = getattr(profile, profile_id)
-
-        # Label indexing in by_id dict?
-        if hasattr(profile, "label"):
-            if identifier not in profiles_by_id:
-                profiles_by_id[identifier] = {}
-            profiles_by_id[identifier][profile.label] = profile
-        else:
-            profiles_by_id[identifier] = profile
 
 __all__ = [
     # boom module constants
@@ -912,7 +893,7 @@ __all__ = [
     '_get_machine_id',
     'find_minimum_sha_prefix',
     'min_id_width',
-    'load_profiles_as_list'
+    'load_profiles_for_class'
 ]
 
 # vim: set et ts=4 sw=4 

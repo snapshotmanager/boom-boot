@@ -155,12 +155,11 @@ def _profile_exists(os_id):
                   otherwise.
         :returntype: bool
     """
-    global _profiles
-    if not _profiles:
+    global _profiles_by_id
+    if not _profiles_by_id:
         return False
-    for osp in _profiles:
-        if os_id == osp.os_id:
-            return True
+    if os_id in _profiles_by_id:
+        return True
     return False
 
 def boom_profiles_path():
@@ -226,8 +225,8 @@ def load_profiles():
     _profiles.append(_null_profile)
     _profiles_by_id[_null_profile.os_id] = _null_profile
 
-    load_profiles_as_list(_profiles, _profiles_by_id, OsProfile, "OS",
-                          boom_profiles_path(), "profile", "os_id")
+    load_profiles_for_class(OsProfile, "Os", boom_profiles_path(), "profile")
+
     _profiles_loaded = True
     _log_info("Loaded %d profiles" % (len(_profiles) - 1))
 
@@ -615,6 +614,16 @@ class OsProfile(object):
         digest = sha1(hashdata.encode('utf-8')).hexdigest()
         self._profile_data[BOOM_OS_ID] = digest
 
+    def _append_profile(self):
+        """Append an OsProfile to the global profile list
+        """
+        if _profile_exists(self.os_id):
+            raise ValueError("Profile already exists (os_id=%s)" %
+                             self.disp_os_id)
+
+        _profiles.append(self)
+        _profiles_by_id[self.os_id] = self
+
     def _from_data(self, profile_data, dirty=True):
         """Initialise an OsProfile from in-memory data.
 
@@ -656,6 +665,8 @@ class OsProfile(object):
 
         if dirty:
             self._dirty()
+
+        self._append_profile()
 
     def _from_file(self, profile_file, profile_type):
         """Initialise a new profile from data stored in a file.
@@ -778,12 +789,7 @@ class OsProfile(object):
             self._profile_data[key] = default_if_unset(key)
 
         self._generate_os_id()
-
-        if _profile_exists(self.os_id):
-            raise ValueError("Profile already exists (os_id=%s)" %
-                             self.disp_os_id)
-
-        _profiles.append(self)
+        self._append_profile()
 
     def match_uname_version(self, version):
         """Test OsProfile for version string match.
@@ -1354,6 +1360,8 @@ class OsProfile(object):
         self._delete_profile("Os", self.os_id)
         if _profiles and self in _profiles:
             _profiles.remove(self)
+        if _profiles_by_id and self.os_id in _profiles_by_id:
+            _profiles_by_id.pop(self.os_id)
 
 
 __all__ = [
