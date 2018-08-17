@@ -74,6 +74,7 @@ BOOM_OS_ROOT_OPTS_LVM2 = "BOOM_OS_ROOT_OPTS_LVM2"
 BOOM_OS_ROOT_OPTS_BTRFS = "BOOM_OS_ROOT_OPTS_BTRFS"
 #: Constant for the Boom OS command line options key.
 BOOM_OS_OPTIONS = "BOOM_OS_OPTIONS"
+#: Constant for the Boom OS title template key.
 BOOM_OS_TITLE = "BOOM_OS_TITLE"
 
 #: Ordered list of possible profile keys, partitioned into mandatory
