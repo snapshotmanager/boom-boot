@@ -362,6 +362,26 @@ def _do_print_type(report_fields, selected, output_fields=None,
     return br.report_output()
 
 
+def _merge_add_del_opts(orig_opts, opts):
+    """Merge a set of existing bootparams option alterations with
+        a set of command-line provided values to produce a single
+        set of options to add or remove from a cloned or edited
+        ``BootEntry``.
+        :param orig_opts: A list of original option modifications
+        :param opts: A space-separated string containing a list of
+                     command line option modifications
+        :returns: A single list containing the merged options
+    """
+    # Merge new and cloned kernel options
+    all_opts = set()
+    if opts:
+        all_opts.update(opts.split())
+    if orig_opts:
+        all_opts.update(orig_opts)
+
+    return list(all_opts)
+
+
 #
 # Command driven API: BootEntry and OsProfile management and reporting.
 #
@@ -538,22 +558,15 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                        else be.bp.btrfs_subvol_id)
     profile = profile if profile else be._osp
 
-    # Merge new and cloned appended kernel options
-    all_add_opts = set()
-    if add_opts:
-        all_add_opts.update(add_opts.split())
-    if be.bp.add_opts:
-        all_add_opts.update(be.bp.add_opts)
-
-    del_opts = del_opts.split() if del_opts else []
-
-    _log_debug_cmd("Effective add options: %s" % all_add_opts)
+    add_opts = _merge_add_del_opts(be.bp.add_opts, add_opts)
+    del_opts = _merge_add_del_opts(be.bp.del_opts, del_opts)
+    _log_debug_cmd("Effective add options: %s" % add_opts)
     _log_debug_cmd("Effective del options: %s" % del_opts)
 
     bp = BootParams(version, root_device, lvm_root_lv=lvm_root_lv,
                     btrfs_subvol_path=btrfs_subvol_path,
                     btrfs_subvol_id=btrfs_subvol_id,
-                    add_opts=all_add_opts, del_opts=del_opts)
+                    add_opts=add_opts, del_opts=del_opts)
 
     clone_be = BootEntry(title=title, machine_id=machine_id,
                          osprofile=profile, boot_params=bp,
@@ -618,16 +631,8 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     machine_id = machine_id or be.machine_id
     version = version or be.version
 
-    # Merge new and cloned appended kernel options
-    all_add_opts = set()
-    if add_opts:
-        all_add_opts.update(add_opts.split())
-    if be.bp.add_opts:
-        all_add_opts.update(be.bp.add_opts)
-
-    add_opts = list(all_add_opts)
-    del_opts = del_opts.split() if del_opts else []
-
+    add_opts = _merge_add_del_opts(be.bp.add_opts, add_opts)
+    del_opts = _merge_add_del_opts(be.bp.del_opts, del_opts)
     _log_debug_cmd("Effective add options: %s" % add_opts)
     _log_debug_cmd("Effective del options: %s" % del_opts)
 
