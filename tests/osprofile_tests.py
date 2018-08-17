@@ -31,6 +31,12 @@ from boom import Selection
 
 
 class OsProfileTests(unittest.TestCase):
+    def _clear_profiles(self):
+        import boom.osprofile
+        boom.osprofile._profiles = []
+        boom.osprofile._profiles_by_id = {}
+        boom.osprofile._profiles_loaded = False
+
     # Module tests
     def test_import(self):
         import boom.osprofile
@@ -46,6 +52,7 @@ class OsProfileTests(unittest.TestCase):
     # OsProfile tests
 
     def test_OsProfile__str__(self):
+        self._clear_profiles()
         osp = OsProfile(name="Distribution", short_name="distro",
                         version="1 (Workstation)", version_id="1")
 
@@ -126,6 +133,9 @@ class OsProfileTests(unittest.TestCase):
         osp = OsProfile(profile_data=profile_data)
         self.assertTrue(osp)
 
+        # Cleanup
+        osp.delete_profile()
+
         # Remove the root options keys.
         profile_data.pop(BOOM_OS_ROOT_OPTS_LVM2, None)
         profile_data.pop(BOOM_OS_ROOT_OPTS_BTRFS, None)
@@ -134,6 +144,9 @@ class OsProfileTests(unittest.TestCase):
         # Assert that defaults are restored
         self.assertEqual(osp.root_opts_lvm2, "rd.lvm.lv=%{lvm_root_lv}")
         self.assertEqual(osp.root_opts_btrfs, "rootflags=%{btrfs_subvolume}")
+
+        # Cleanup
+        osp.delete_profile()
 
         # Remove the name key.
         profile_data.pop(BOOM_OS_NAME, None)
@@ -200,9 +213,7 @@ class OsProfileTests(unittest.TestCase):
         self.assertTrue(osp)
 
     def test_OsProfile_from_host(self):
-        # Clear the list of OsProfiles to avoid duplicate exception
-        import boom.osprofile
-        boom.osprofile._profiles = []
+        self._clear_profiles()
         osp = OsProfile.from_host_os_release()
         self.assertTrue(osp)
 
