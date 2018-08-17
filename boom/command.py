@@ -1306,10 +1306,6 @@ def clone_host(selection=None, machine_id=None, host_name=None, label=None,
                            add_opts=add_opts, del_opts=del_opts,
                            options=options)
 
-    if find_host_profiles(Selection(host_id=clone_hp.host_id)):
-        raise ValueError("Host profile already exists (host_id=%s)." %
-                         clone_hp.disp_host_id)
-
     clone_hp.write_profile()
 
     return clone_hp
