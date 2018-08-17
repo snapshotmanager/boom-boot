@@ -200,7 +200,7 @@ _host_fields = [
 ]
 
 _default_host_fields = "hostid,hostname,machineid,osid"
-_verbose_host_fields = _default_host_fields + "options,addopts,delopts"
+_verbose_host_fields = _default_host_fields + ",options,addopts,delopts"
 
 def _int_if_val(val):
     """Return an int if val is defined or None otherwise.
