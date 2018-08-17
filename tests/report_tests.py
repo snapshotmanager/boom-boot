@@ -116,7 +116,6 @@ class ReportTests(unittest.TestCase):
             br.report_object(obj)
         br.report_output()
 
-        print("\n" + output.getvalue() + "\n")
         self.assertEqual(output.getvalue(), xoutput)
 
 # vim: set et ts=4 sw=4 :
