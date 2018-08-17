@@ -2147,9 +2147,9 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
     except ValueError as e:
         print(e)
         return 1
-    print("Cloned profile with os_id %s as %s:" %
-          (select.os_id, osp.disp_os_id))
-    print(_str_indent(str(osp), 2))
+    print("Cloned profile with host_id %s as %s:" %
+          (select.host_id, hp.disp_host_id))
+    print(_str_indent(str(hp), 2))
     return 0
 
 
