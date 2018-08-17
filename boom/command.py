@@ -1259,7 +1259,7 @@ def clone_host(selection=None, machine_id=None, host_name=None, label=None,
         raise ValueError("clone requires host_id")
 
     all_args = (
-        machine_id, host_name, os_id,
+        machine_id, label, host_name, os_id,
         kernel_pattern, initramfs_pattern,
         root_opts_lvm2, root_opts_btrfs,
         add_opts, del_opts, options
@@ -1268,7 +1268,7 @@ def clone_host(selection=None, machine_id=None, host_name=None, label=None,
     if not any(all_args):
         raise ValueError(
             'clone requires one or more of:\n'
-            '--machine-id, --name,  --os-id, '
+            '--machine-id, --label, --name, --os-id, '
             '--kernel-pattern, --initramfs_pattern, '
             '--root-opts-lvm2, --root_opts-btrfs, '
             '--add-opts, --del-opts, --options'
