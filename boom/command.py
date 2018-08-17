@@ -2128,21 +2128,19 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
     if identifier is not None:
         select = Selection(host_id=identifier)
 
-    if not cmd_args.machine_id:
-        # Use host machine-id by default
-        machine_id = _get_machine_id()
-        if not machine_id:
-            print("Could not determine machine_id")
-            return 1
-    else:
-        machine_id = cmd_args.machine_id
+    # For clone allow the machine_id to be inherited from the original
+    # HostProfile unless the user has given an explicit argument.
+    machine_id = cmd_args.machine_id
+
+    # Cloning to modify only the host label is permitted
+    label = cmd_args.label
 
     # Discard all selection criteria but host_id.
     select = Selection(host_id=select.host_id)
 
     try:
-        be = clone_host(selection=select, machine_id=machine_id,
-                        os_id=os_id, host_name=name,
+        hp = clone_host(selection=select, machine_id=machine_id,
+                        label=label, os_id=os_id, host_name=name,
                         kernel_pattern=cmd_args.kernel_pattern,
                         initramfs_pattern=cmd_args.initramfs_pattern,
                         root_opts_lvm2=cmd_args.lvm_opts,
