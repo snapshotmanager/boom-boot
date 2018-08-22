@@ -1010,10 +1010,6 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
                           root_opts_lvm2=root_opts_lvm2,
                           root_opts_btrfs=root_opts_btrfs, options=options)
 
-    if find_profiles(Selection(os_id=clone_osp.os_id)):
-        raise ValueError("Profile already exists (os_id=%s)." %
-                         clone_osp.disp_os_id)
-
     clone_osp.write_profile()
 
     return clone_osp
