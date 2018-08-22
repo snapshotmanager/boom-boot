@@ -224,12 +224,14 @@ class CommandTests(unittest.TestCase):
         cmd_args = MockArgs()
         cmd_args.profile = ""
         cmd_args.machine_id = "1111111111111111" # no matching
-        hp = _find_profile(cmd_args, "", cmd_args.machine_id, "test")
+        hp = _find_profile(cmd_args, "", cmd_args.machine_id,
+                           "test", optional=False)
         self.assertFalse(hp)
 
     #
-    #
     # API call tests
+    #
+    # BootEntry tests
     #
 
     def test_list_entries(self):
