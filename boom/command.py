@@ -1142,7 +1142,7 @@ def create_host(machine_id=None, host_name=None, os_id=None, label=None,
     def _have_key(hd, arg, key):
         return arg or hd and key in hd
 
-    if  not _have_key(host_data, name, BOOM_OS_NAME):
+    if  not _have_key(host_data, host_name, BOOM_OS_NAME):
         raise ValueError("Host name cannot be empty.")
 
     if not _have_key(host_data, machine_id, BOOM_OS_VERSION):
@@ -1162,8 +1162,8 @@ def create_host(machine_id=None, host_name=None, os_id=None, label=None,
     if machine_id:
         host_data[BOOM_ENTRY_MACHINE_ID] = machine_id
     if host_name:
-        host_data[BOOM_HOST_NAME] = name
-    if host_label:
+        host_data[BOOM_HOST_NAME] = host_name
+    if label:
         host_label[BOOM_HOST_LABEL] = label
     if os_id:
         host_data[BOOM_OS_ID] = os_id
