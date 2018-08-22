@@ -1184,10 +1184,6 @@ def create_host(machine_id=None, host_name=None, os_id=None, label=None,
 
     hp = HostProfile(machine_id=machine_id, profile_data=host_data)
 
-    if find_host_profiles(selection=Selection(host_id=hp.host_id)):
-        raise ValueError("Host profile already exists (host_id=%s)" %
-                         hp.disp_host_id)
-
     hp.write_profile()
     return hp
 
