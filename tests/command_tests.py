@@ -746,6 +746,30 @@ class CommandTests(unittest.TestCase):
         self.assertEqual("new", osp.os_short_name)
         osp.delete_profile()
 
+    def test_create_edit_profile(self):
+        osp = create_profile("Test1", "test", "1 (Test)", "1",
+                             uname_pattern="t1")
+
+        self.assertTrue(osp)
+
+        edit_osp = edit_profile(Selection(os_id=osp.os_id),
+                                uname_pattern="t2")
+
+        self.assertTrue(edit_osp)
+        self.assertEqual(osp.uname_pattern, "t2")
+        osp.delete_profile()
+        edit_osp.delete_profile()
+
+    def test_edit_no_matching_os_id(self):
+        with self.assertRaises(ValueError) as cm:
+            edit_osp = edit_profile(Selection(os_id="notfound"),
+                                    uname_pattern="nf2")
+
+    def test_edit_ambiguous_os_id(self):
+        with self.assertRaises(ValueError) as cm:
+            edit_osp = edit_profile(Selection(os_id="d"),
+                                    uname_pattern="d2")
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
