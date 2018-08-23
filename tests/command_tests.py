@@ -770,6 +770,205 @@ class CommandTests(unittest.TestCase):
             edit_osp = edit_profile(Selection(os_id="d"),
                                     uname_pattern="d2")
 
+    def test_list_profiles(self):
+        profiles = list_profiles()
+        self.assertTrue(profiles)
+
+    def test_print_profiles(self):
+        repstr = print_profiles()
+
+    #
+    # API call tests
+    #
+    # HostProfile tests
+    #
+
+    def test_create_delete_host(self):
+        osp = create_profile("Some Distro", "somedist", "1 (Qunk)", "1",
+                             uname_pattern="sd1",
+                             kernel_pattern="/vmlinuz-%{version}",
+                             initramfs_pattern="/initramfs-%{version}.img",
+                             root_opts_lvm2="rd.lvm.lv=%{lvm_root_lv}",
+                             root_opts_btrfs="rootflags=%{btrfs_subvolume}",
+                             options="root=%{root_device} %{root_opts}")
+
+        self.assertTrue(osp)
+        self.assertEqual(osp.os_name, "Some Distro")
+
+        host_machine_id = "ffffffffffffffff1234567890"
+        host_name = "somehost.somedomain"
+        host_opts = osp.options + " hostoptions"
+
+        hp = create_host(machine_id=host_machine_id, host_name=host_name,
+                         os_id=osp.os_id, label="", options=host_opts)
+
+        self.assertEqual(host_machine_id, hp.machine_id)
+        self.assertEqual(host_name, hp.host_name)
+        self.assertEqual(host_opts, hp.options)
+
+        # Use the command.delete_hosts() API call
+        delete_hosts(Selection(host_id=hp.host_id))
+
+        # Clean up osp
+        osp.delete_profile()
+
+    def test_create_host_no_os_id(self):
+        os_id = None
+        host_machine_id = "ffffffffffffffff1234567890"
+        host_name = "somehost.somedomain"
+        host_opts = "hostoptions"
+
+        with self.assertRaises(ValueError) as cm:
+            bad_hp = create_host(machine_id=host_machine_id,
+                                 host_name=host_name, os_id=os_id,
+                                 label="", options=host_opts)
+
+    def test_create_host_no_os_id_match(self):
+        os_id = "notfound"
+        host_machine_id = "ffffffffffffffff1234567890"
+        host_name = "somehost.somedomain"
+        host_opts = "hostoptions"
+
+        with self.assertRaises(ValueError) as cm:
+            bad_hp = create_host(machine_id=host_machine_id,
+                                 host_name=host_name, os_id=os_id,
+                                 label="", options=host_opts)
+
+    def test_create_host_no_host_name(self):
+        osp = create_profile("Some Distro", "somedist", "1 (Qunk)", "1",
+                             uname_pattern="sd1",
+                             kernel_pattern="/vmlinuz-%{version}",
+                             initramfs_pattern="/initramfs-%{version}.img",
+                             root_opts_lvm2="rd.lvm.lv=%{lvm_root_lv}",
+                             root_opts_btrfs="rootflags=%{btrfs_subvolume}",
+                             options="root=%{root_device} %{root_opts}")
+
+        self.assertTrue(osp)
+        self.assertEqual(osp.os_name, "Some Distro")
+
+        host_machine_id = "ffffffffffffffff1234567890"
+        host_name = ""
+        host_opts = "hostoptions"
+
+        with self.assertRaises(ValueError) as cm:
+            bad_hp = create_host(machine_id=host_machine_id,
+                                 host_name=host_name, os_id=osp.os_id,
+                                 label="", options=host_opts)
+
+        osp.delete_profile()
+
+    def test_create_host_no_machine_id(self):
+        osp = create_profile("Some Distro", "somedist", "1 (Qunk)", "1",
+                             uname_pattern="sd1",
+                             kernel_pattern="/vmlinuz-%{version}",
+                             initramfs_pattern="/initramfs-%{version}.img",
+                             root_opts_lvm2="rd.lvm.lv=%{lvm_root_lv}",
+                             root_opts_btrfs="rootflags=%{btrfs_subvolume}",
+                             options="root=%{root_device} %{root_opts}")
+
+        self.assertTrue(osp)
+        self.assertEqual(osp.os_name, "Some Distro")
+
+        host_machine_id = ""
+        host_name = "somehost.somedomain"
+        host_opts = "hostoptions"
+
+        with self.assertRaises(ValueError) as cm:
+            bad_hp = create_host(machine_id=host_machine_id,
+                                 host_name=host_name, os_id=osp.os_id,
+                                 label="", options=host_opts)
+
+        osp.delete_profile()
+
+    def test_create_host_all_args(self):
+        osp = create_profile("Some Distro", "somedist", "1 (Qunk)", "1",
+                             uname_pattern="sd1",
+                             kernel_pattern="/vmlinuz-%{version}",
+                             initramfs_pattern="/initramfs-%{version}.img",
+                             root_opts_lvm2="rd.lvm.lv=%{lvm_root_lv}",
+                             root_opts_btrfs="rootflags=%{btrfs_subvolume}",
+                             options="root=%{root_device} %{root_opts}")
+
+        self.assertTrue(osp)
+        self.assertEqual(osp.os_name, "Some Distro")
+
+        host_machine_id = "ffffffffffffffff1234567890"
+        host_name = "somehost.somedomain"
+
+        hp = create_host(machine_id=host_machine_id, host_name=host_name,
+                         os_id=osp.os_id, label="label",
+                         kernel_pattern="/vmlinuz",
+                         initramfs_pattern="/initramfs.img",
+                         root_opts_lvm2="rd.lvm.lv=vg/lv",
+                         root_opts_btrfs="rootflags=subvolid=1",
+                         options=osp.options, add_opts="debug",
+                         del_opts="rhgb quiet")
+
+        self.assertEqual(host_machine_id, hp.machine_id)
+        self.assertEqual(host_name, hp.host_name)
+
+        hp.delete_profile()
+
+        # Clean up osp
+        osp.delete_profile()
+
+    def test_delete_hosts_no_match(self):
+        with self.assertRaises(IndexError) as cm:
+            delete_hosts(Selection(host_id="nomatch"))
+
+    def test_clone_host(self):
+        osp = create_profile("Some Distro", "somedist", "1 (Qunk)", "1",
+                             uname_pattern="sd1",
+                             kernel_pattern="/vmlinuz-%{version}",
+                             initramfs_pattern="/initramfs-%{version}.img",
+                             root_opts_lvm2="rd.lvm.lv=%{lvm_root_lv}",
+                             root_opts_btrfs="rootflags=%{btrfs_subvolume}",
+                             options="root=%{root_device} %{root_opts}")
+
+        self.assertTrue(osp)
+        self.assertEqual(osp.os_name, "Some Distro")
+
+        host_machine_id = "ffffffffffffffff1234567890"
+        clone_machine_id = "ffffffffffffffff0987654321"
+        host_name = "somehost.somedomain"
+        host_opts = osp.options + " hostoptions"
+
+        hp = create_host(machine_id=host_machine_id, host_name=host_name,
+                         os_id=osp.os_id, label="", options=host_opts)
+
+        self.assertEqual(host_machine_id, hp.machine_id)
+        self.assertEqual(host_name, hp.host_name)
+        self.assertEqual(host_opts, hp.options)
+
+        clone_hp = clone_host(Selection(host_id=hp.host_id),
+                              machine_id=clone_machine_id)
+
+        self.assertEqual(clone_machine_id, clone_hp.machine_id)
+        self.assertNotEqual(hp.host_id, clone_hp.host_id)
+
+        hp.delete_profile()
+        clone_hp.delete_profile()
+
+        # Clean up osp
+        osp.delete_profile()
+
+    def test_clone_host_no_host_id(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_hp = clone_host(Selection(host_id=None))
+
+    def test_clone_host_no_host_id_match(self):
+        host_id = "notfound"
+
+        with self.assertRaises(ValueError) as cm:
+            bad_hp = clone_host(Selection(host_id=host_id),
+                                machine_id="ffffffff")
+
+    def test_clone_host_no_args(self):
+        host_id = "5ebcb1f"
+
+        with self.assertRaises(ValueError) as cm:
+            bad_hp = clone_host(Selection(host_id=host_id))
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
