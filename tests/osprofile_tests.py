@@ -88,6 +88,7 @@ class OsProfileTests(unittest.TestCase):
         osp.delete_profile()
 
     def test_OsProfile(self):
+        self._clear_profiles()
         # Test OsProfile init from kwargs
         with self.assertRaises(ValueError) as cm:
             osp = OsProfile(name="Fedora", short_name="fedora",
