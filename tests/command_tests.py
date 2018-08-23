@@ -721,6 +721,31 @@ class CommandTests(unittest.TestCase):
             bad_osp = create_profile(None, None, None, None,
                                      profile_data=profile_data)
 
+    def test_clone_profile_no_os_id(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_osp = clone_profile(Selection())
+
+    def test_clone_profile_no_args(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_osp = clone_profile(Selection(os_id="d4439b7"))
+
+    def test_clone_profile_no_matching_os_id(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_osp = clone_profile(Selection(os_id="fffffff"), name="NEW")
+
+    def test_clone_profile_ambiguous_os_id(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_osp = clone_profile(Selection(os_id="d"), name="NEW")
+
+    def test_clone_profile_new_name(self):
+        osp = clone_profile(Selection(os_id="d4439b7"),
+                            name="NEW", short_name="new", version="26 (Not)",
+                            version_id="~26")
+        self.assertTrue(osp)
+        self.assertEqual("NEW", osp.os_name)
+        self.assertEqual("new", osp.os_short_name)
+        osp.delete_profile()
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
