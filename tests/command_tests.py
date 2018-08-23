@@ -421,6 +421,189 @@ class CommandTests(unittest.TestCase):
         be.delete_entry()
         be2.delete_entry()
 
+    def test_edit_entry_no_boot_id(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_be = edit_entry(Selection())
+
+    def test_edit_entry_no_matching_boot_id(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_be = edit_entry(Selection(boot_id="qqqqqqq"), title="FAIL")
+
+    def test_edit_entry_ambiguous_boot_id(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_be = edit_entry(Selection(boot_id="6"), title="NEWTITLE")
+
+
+    def test_edit_entry_add_opts(self):
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
+                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               profile=osp)
+
+        # Confirm original entry has been written
+        self.assertTrue(exists(orig_be._entry_path))
+
+        # Save these - they will be overwritten by the edit operation
+        orig_id = orig_be.boot_id
+        orig_entry_path = orig_be._entry_path
+
+        edit_title = "EDITED_TITLE"
+        edit_add_opts = "foo"
+
+        # FIXME: restore allow_no_dev
+        edit_be = edit_entry(Selection(boot_id=orig_id), title=edit_title,
+                              add_opts=edit_add_opts)
+
+        # Confirm edited entry has been written
+        self.assertTrue(exists(edit_be._entry_path))
+
+        # Confirm original entry has been removed
+        self.assertFalse(exists(orig_entry_path))
+
+        # Verify new boot_id
+        self.assertFalse(orig_id == edit_be.boot_id)
+
+        # Verify edited title and options
+        self.assertEqual(edit_title, edit_be.title)
+        self.assertEqual(edit_be.bp.add_opts, [edit_add_opts])
+        self.assertTrue(edit_add_opts in edit_be.options)
+
+        # Clean up entries
+        edit_be.delete_entry()
+
+    def test_edit_entry_add_opts_with_add_opts(self):
+        edit_title = "EDITED_TITLE"
+        edit_add_opts = "foo"
+        orig_add_opts = "bar"
+
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
+                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               add_opts="bar", profile=osp)
+
+        # Confirm original entry has been written
+        self.assertTrue(exists(orig_be._entry_path))
+
+        # Save these - they will be overwritten by the edit operation
+        orig_id = orig_be.boot_id
+        orig_entry_path = orig_be._entry_path
+
+        # FIXME: restore allow_no_dev
+        edit_be = edit_entry(Selection(boot_id=orig_id), title=edit_title,
+                             add_opts=edit_add_opts)
+
+        # Confirm edited entry has been written
+        self.assertTrue(exists(edit_be._entry_path))
+
+        # Confirm original entry has been removed
+        self.assertFalse(exists(orig_entry_path))
+
+        # Verify new boot_id
+        self.assertFalse(orig_id == edit_be.boot_id)
+
+        # Verify edited title and options
+        self.assertEqual(edit_title, edit_be.title)
+        self.assertEqual(edit_be.bp.add_opts, [edit_add_opts, orig_add_opts])
+        # Verify original added opts
+        self.assertTrue(orig_add_opts in edit_be.options)
+        # Verify edit added opts
+        self.assertTrue(edit_add_opts in edit_be.options)
+
+        # Clean up entries
+        edit_be.delete_entry()
+
+    def test_edit_entry_del_opts(self):
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
+                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               profile=osp)
+
+        # Confirm original entry has been written
+        self.assertTrue(exists(orig_be._entry_path))
+
+        # Save these - they will be overwritten by the edit operation
+        orig_id = orig_be.boot_id
+        orig_entry_path = orig_be._entry_path
+
+        edit_title = "EDITED_TITLE"
+        edit_del_opts = "rhgb"
+
+        # FIXME: restore allow_no_dev
+        edit_be = edit_entry(Selection(boot_id=orig_id), title=edit_title,
+                             del_opts=edit_del_opts)
+
+        # Confirm edited entry has been written
+        self.assertTrue(exists(edit_be._entry_path))
+
+        # Confirm original entry has been removed
+        self.assertFalse(exists(orig_entry_path))
+
+        # Verify new boot_id
+        self.assertFalse(orig_id == edit_be.boot_id)
+
+        # Verify edited title and options
+        self.assertEqual(edit_title, edit_be.title)
+        self.assertEqual(edit_be.bp.del_opts, [edit_del_opts])
+        self.assertTrue(edit_del_opts not in edit_be.options)
+
+        # Clean up entries
+        edit_be.delete_entry()
+
+    def test_edit_entry_del_opts_with_del_opts(self):
+        edit_title = "EDITED_TITLE"
+        edit_del_opts = "rhgb"
+        orig_del_opts = "quiet"
+
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
+                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               del_opts="quiet", profile=osp)
+
+        # Confirm original entry has been written
+        self.assertTrue(exists(orig_be._entry_path))
+
+        # Save these - they will be overwritten by the edit operation
+        orig_id = orig_be.boot_id
+        orig_entry_path = orig_be._entry_path
+
+        # Verify original deled opts
+        self.assertTrue(orig_del_opts not in orig_be.options)
+        self.assertEqual(orig_be.bp.del_opts, [orig_del_opts])
+
+        print("\nORIG DEL_OPTS: %s" % orig_be.bp.del_opts)
+        print("\nORIG OPTIONS: %s" % orig_be.options)
+
+        # FIXME: restore allow_no_dev
+        edit_be = edit_entry(Selection(boot_id=orig_id), title=edit_title,
+                             del_opts=edit_del_opts)
+
+        print("\nEDIT DEL_OPTS: %s" % edit_be.bp.del_opts)
+        print("\nEDIT OPTIONS: %s" % edit_be.options)
+
+        # Confirm edited entry has been written
+        self.assertTrue(exists(edit_be._entry_path))
+
+        # Confirm original entry has been removed
+        self.assertFalse(exists(orig_entry_path))
+
+        # Verify new boot_id
+        self.assertFalse(orig_id == edit_be.boot_id)
+
+        # Verify edited title and options
+        self.assertEqual(edit_title, edit_be.title)
+        self.assertEqual(edit_be.bp.del_opts, [edit_del_opts, orig_del_opts])
+        # Verify original deleted opts
+        self.assertTrue(orig_del_opts not in edit_be.options)
+        # Verify edit deleted opts
+        self.assertTrue(edit_del_opts not in edit_be.options)
+
+        # Clean up entries
+        edit_be.delete_entry()
+
     def test_print_entries_no_matching(self):
         xoutput = r"BootID.*Version.*Name.*RootDevice"
         output = StringIO()
