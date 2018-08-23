@@ -340,6 +340,10 @@ class CommandTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             bad_be = clone_entry(Selection())
 
+    def test_clone_entry_no_matching_boot_id(self):
+        with self.assertRaises(ValueError) as cm:
+            bad_be = clone_entry(Selection(boot_id="qqqqqqq"), title="FAIL")
+
     def test_clone_entry_ambiguous_boot_id(self):
         with self.assertRaises(ValueError) as cm:
             bad_be = clone_entry(Selection(boot_id="6"), title="NEWTITLE")
