@@ -574,15 +574,9 @@ class CommandTests(unittest.TestCase):
         self.assertTrue(orig_del_opts not in orig_be.options)
         self.assertEqual(orig_be.bp.del_opts, [orig_del_opts])
 
-        print("\nORIG DEL_OPTS: %s" % orig_be.bp.del_opts)
-        print("\nORIG OPTIONS: %s" % orig_be.options)
-
         # FIXME: restore allow_no_dev
         edit_be = edit_entry(Selection(boot_id=orig_id), title=edit_title,
                              del_opts=edit_del_opts)
-
-        print("\nEDIT DEL_OPTS: %s" % edit_be.bp.del_opts)
-        print("\nEDIT OPTIONS: %s" % edit_be.options)
 
         # Confirm edited entry has been written
         self.assertTrue(exists(edit_be._entry_path))
@@ -621,7 +615,6 @@ class CommandTests(unittest.TestCase):
         output = StringIO()
         opts = BoomReportOpts(report_file=output)
         print_entries(selection=Selection(boot_id="debfd7f"), opts=opts)
-        print(output.getvalue())
         for pair in zip(xoutput, output.getvalue().splitlines()):
             self.assertTrue(re.match(pair[0], pair[1]))
 
