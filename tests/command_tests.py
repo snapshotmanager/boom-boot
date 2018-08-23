@@ -1034,6 +1034,45 @@ class CommandTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             bad_hp = clone_host(Selection(host_id=host_id))
 
+    def test_create_edit_host(self):
+        osp = create_profile("Some Distro", "somedist", "1 (Qunk)", "1",
+                             uname_pattern="sd1",
+                             kernel_pattern="/vmlinuz-%{version}",
+                             initramfs_pattern="/initramfs-%{version}.img",
+                             root_opts_lvm2="rd.lvm.lv=%{lvm_root_lv}",
+                             root_opts_btrfs="rootflags=%{btrfs_subvolume}",
+                             options="root=%{root_device} %{root_opts}")
+
+        self.assertTrue(osp)
+        self.assertEqual(osp.os_name, "Some Distro")
+
+        host_machine_id = "ffffffffffffffff1234567890"
+        host_name = "somehost.somedomain"
+        host_opts = osp.options + " hostoptions"
+
+        hp = create_host(machine_id=host_machine_id, host_name=host_name,
+                         os_id=osp.os_id, label="", options=host_opts)
+
+        self.assertEqual(host_machine_id, hp.machine_id)
+        self.assertEqual(host_name, hp.host_name)
+        self.assertEqual(host_opts, hp.options)
+
+        edit_name = "someother.host"
+        edit_opts = osp.options
+
+        edit_hp = edit_host(Selection(host_id=hp.host_id),
+                            machine_id=host_machine_id, host_name=edit_name,
+                            os_id=osp.os_id, label="", options=edit_opts)
+
+        self.assertEqual(host_machine_id, edit_hp.machine_id)
+        self.assertEqual(edit_name, edit_hp.host_name)
+        self.assertEqual(osp.options, edit_hp.options)
+
+        edit_hp.delete_profile()
+
+        # Clean up osp
+        osp.delete_profile()
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
