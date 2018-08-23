@@ -598,6 +598,78 @@ class CommandTests(unittest.TestCase):
         # Clean up entries
         edit_be.delete_entry()
 
+    def test_edit_entry_del_opts(self):
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
+                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               profile=osp)
+
+        be = edit_entry(Selection(boot_id=orig_be.boot_id),
+                        title="NEWNEWTITLE", del_opts="rhgb quiet")
+
+        self.assertTrue(exists(be._entry_path))
+        be.delete_entry()
+        self.assertFalse(exists(be._entry_path))
+
+    def test_edit_delete_entry(self):
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        orig_be = create_entry("ATITLE", "2.6.0", "ffffffff",
+                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               profile=osp)
+        orig_path = orig_be._entry_path
+        self.assertTrue(exists(orig_path))
+
+        edit_be = edit_entry(Selection(boot_id=orig_be.boot_id),
+                             title="ANEWTITLE", version="2.6.1")
+
+        self.assertTrue(exists(edit_be._entry_path))
+        self.assertFalse(exists(orig_path))
+
+        edit_be.delete_entry()
+
+        self.assertFalse(exists(edit_be._entry_path))
+
+    def test_edit_entry_no_args(self):
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
+                          lvm_root_lv="vg_hex/root", profile=osp)
+        self.assertTrue(exists(be._entry_path))
+
+        with self.assertRaises(ValueError) as cm:
+            be2 = edit_entry(Selection(boot_id=be.boot_id))
+
+        be.delete_entry()
+
+    def test_edit_entry_with_add_del_opts(self):
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
+                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               profile=osp)
+        orig_path = orig_be._entry_path
+
+        add_opts = "debug"
+        del_opts = "rhgb quiet"
+
+        # Entry with options +"debug" -"rhgb quiet"
+        orig_boot_id = orig_be.boot_id
+        edit_be = edit_entry(Selection(boot_id=orig_boot_id),
+                             title="edit with addopts", add_opts=add_opts,
+                             del_opts=del_opts)
+
+        self.assertTrue(edit_be)
+
+        self.assertTrue(exists(edit_be._entry_path))
+        self.assertFalse(exists(orig_path))
+
+        self.assertTrue(add_opts in edit_be.options)
+        self.assertTrue(del_opts not in edit_be.options)
+
+        edit_be.delete_entry()
+
     def test_print_entries_no_matching(self):
         xoutput = r"BootID.*Version.*Name.*RootDevice"
         output = StringIO()
