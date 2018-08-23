@@ -1104,7 +1104,7 @@ __all__ = [
 
     # Host profile keys
     'BOOM_HOST_ID', 'BOOM_HOST_NAME',
-    'BOOM_HOST_ADD_OPTS', 'BOOM_HOST_DEL_OPTS',
+    'BOOM_HOST_ADD_OPTS', 'BOOM_HOST_DEL_OPTS', 'BOOM_HOST_LABEL',
     'HOST_PROFILE_KEYS', 'HOST_REQUIRED_KEYS', 'HOST_OPTIONAL_KEYS',
 
     # Path configuration
