@@ -193,7 +193,7 @@ class CommandTests(unittest.TestCase):
         _find_profile = boom.command._find_profile
         cmd_args = MockArgs()
         cmd_args.profile = ""
-        cmd_args.machine_id = "fffffffffffffff" # Ambiguous HostProfile
+        cmd_args.machine_id = "fffffffffff" # Ambiguous HostProfile
         osp = _find_profile(cmd_args, "", cmd_args.machine_id, "test")
         self.assertEqual(osp, None)
 
