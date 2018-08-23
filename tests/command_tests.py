@@ -625,6 +625,102 @@ class CommandTests(unittest.TestCase):
         for pair in zip(xoutput, output.getvalue().splitlines()):
             self.assertTrue(re.match(pair[0], pair[1]))
 
+    #
+    # API call tests
+    #
+    # OsProfile tests
+    #
+
+    def test_command_create_delete_profile(self):
+        osp = create_profile("Some Distro", "somedist", "1 (Qunk)", "1",
+                             uname_pattern="sd1",
+                             kernel_pattern="/vmlinuz-%{version}",
+                             initramfs_pattern="/initramfs-%{version}.img",
+                             root_opts_lvm2="rd.lvm.lv=%{lvm_root_lv}",
+                             root_opts_btrfs="rootflags=%{btrfs_subvolume}",
+                             options="root=%{root_device} %{root_opts}")
+        self.assertTrue(osp)
+        self.assertEqual(osp.os_name, "Some Distro")
+
+        # Use the OsProfile.delete_profile() method
+        osp.delete_profile()
+
+    def test_command_create_delete_profiles(self):
+        osp = create_profile("Some Distro", "somedist", "1 (Qunk)", "1",
+                             uname_pattern="sd1",
+                             kernel_pattern="/vmlinuz-%{version}",
+                             initramfs_pattern="/initramfs-%{version}.img",
+                             root_opts_lvm2="rd.lvm.lv=%{lvm_root_lv}",
+                             root_opts_btrfs="rootflags=%{btrfs_subvolume}",
+                             options="root=%{root_device} %{root_opts}")
+
+        self.assertTrue(osp)
+        self.assertEqual(osp.os_name, "Some Distro")
+
+        # Use the command.delete_profiles() API call
+        delete_profiles(selection=Selection(os_id=osp.os_id))
+
+    def test_command_delete_profiles_no_match(self):
+        with self.assertRaises(IndexError) as cm:
+            delete_profiles(selection=Selection(os_id="XyZZy"))
+
+    def test_command_create_delete_profile_from_file(self):
+        os_release_path = "tests/os-release/fedora26-test-os-release"
+        osp = create_profile(None, None, None, None,
+                             profile_file=os_release_path, uname_pattern="sd1",
+                             kernel_pattern="/vmlinuz-%{version}",
+                             initramfs_pattern="/initramfs-%{version}.img",
+                             root_opts_lvm2="rd.lvm.lv=%{lvm_root_lv}",
+                             root_opts_btrfs="rootflags=%{btrfs_subvolume}",
+                             options="root=%{root_device} %{root_opts}")
+        self.assertTrue(osp)
+        self.assertEqual(osp.os_name, "Fedora")
+        self.assertEqual(osp.os_version, "26 (Testing Edition)")
+        osp.delete_profile()
+
+    def test_command_create_delete_profile_from_profile_data(self):
+        profile_data = {
+            BOOM_OS_NAME: "Some Distro", BOOM_OS_SHORT_NAME: "somedist",
+            BOOM_OS_VERSION: "1 (Qunk)", BOOM_OS_VERSION_ID: "1",
+            BOOM_OS_UNAME_PATTERN: "sd1",
+            BOOM_OS_KERNEL_PATTERN: "/vmlinuz-%{version}",
+            BOOM_OS_INITRAMFS_PATTERN: "/initramfs-%{version}.img",
+            BOOM_OS_ROOT_OPTS_LVM2: "rd.lvm.lv=%{lvm_root_lv}",
+            BOOM_OS_ROOT_OPTS_BTRFS: "rootflags=%{btrfs_subvolume}",
+            BOOM_OS_OPTIONS: "root=%{root_device} %{root_opts}",
+            BOOM_OS_TITLE: "This is a title (%{version})"
+        }
+
+        # All fields: success
+        osp = create_profile(None, None, None, None, profile_data=profile_data)
+        self.assertTrue(osp)
+        self.assertEqual(osp.os_name, "Some Distro")
+        self.assertEqual(osp.os_version, "1 (Qunk)")
+        osp.delete_profile()
+
+        # Pop identity fields in reverse checking order:
+        # OS_VERSION_ID, OS_VERSION, OS_SHORT_NAME, OS_NAME
+
+        profile_data.pop(BOOM_OS_VERSION_ID)
+        with self.assertRaises(ValueError) as cm:
+            bad_osp = create_profile(None, None, None, None,
+                                     profile_data=profile_data)
+
+        profile_data.pop(BOOM_OS_VERSION)
+        with self.assertRaises(ValueError) as cm:
+            bad_osp = create_profile(None, None, None, None,
+                                     profile_data=profile_data)
+
+        profile_data.pop(BOOM_OS_SHORT_NAME)
+        with self.assertRaises(ValueError) as cm:
+            bad_osp = create_profile(None, None, None, None,
+                                     profile_data=profile_data)
+
+        profile_data.pop(BOOM_OS_NAME)
+        with self.assertRaises(ValueError) as cm:
+            bad_osp = create_profile(None, None, None, None,
+                                     profile_data=profile_data)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
