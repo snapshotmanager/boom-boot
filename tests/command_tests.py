@@ -395,7 +395,7 @@ class CommandTests(unittest.TestCase):
 
     def test_clone_entry_with_add_del_opts(self):
         # Entry with options +"debug" -"rhgb quiet"
-        orig_boot_id = "a16356e"
+        orig_boot_id = "78861b7"
         be = clone_entry(Selection(boot_id=orig_boot_id),
                          title="clone with addopts")
         orig_be = find_entries(Selection(boot_id=orig_boot_id))[0]
@@ -407,7 +407,7 @@ class CommandTests(unittest.TestCase):
     def test_clone_dupe(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
-        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
+        be = create_entry("CLONE_TEST", "2.6.0", "ffffffff", "/dev/vg_hex/root",
                           lvm_root_lv="vg_hex/root", profile=osp)
         self.assertTrue(exists(be._entry_path))
 
