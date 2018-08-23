@@ -1164,7 +1164,7 @@ def create_host(machine_id=None, host_name=None, os_id=None, label=None,
     if host_name:
         host_data[BOOM_HOST_NAME] = host_name
     if label:
-        host_label[BOOM_HOST_LABEL] = label
+        host_data[BOOM_HOST_LABEL] = label
     if os_id:
         host_data[BOOM_OS_ID] = os_id
     if kernel_pattern:
@@ -1350,7 +1350,7 @@ def edit_host(selection=None, machine_id=None, os_id=None, host_name=None,
     hp = hps.pop()
     hp.delete_profile()
     hp.machine_id = machine_id or hp.os_id
-    hp.host_name = name or hp.host_name
+    hp.host_name = host_name or hp.host_name
     hp.label = label or hp.label
     hp.os_id = os_id or hp.os_id
     hp.kernel_pattern = kernel_pattern or hp.kernel_pattern
