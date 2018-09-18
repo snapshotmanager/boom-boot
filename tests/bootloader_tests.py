@@ -172,7 +172,18 @@ class BootEntryTests(unittest.TestCase):
         return BootEntry(title="title", machine_id="ffffffff",
                          boot_params=bp, osprofile=osp, allow_no_dev=True)
 
-    # BootEntry tests
+    # BootParams recovery tests
+    def test_BootParams_from_entry_no_opts(self):
+        osp = self._get_test_OsProfile()
+        osp.options = ""
+
+        be = MockBootEntry()
+        be.options = ""
+        be._osp = osp
+
+        self.assertFalse(BootParams.from_entry(be))
+
+     # BootEntry tests
 
     def test_BootEntry__str__(self):
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=None,
