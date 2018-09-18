@@ -183,6 +183,15 @@ class BootEntryTests(unittest.TestCase):
 
         self.assertFalse(BootParams.from_entry(be))
 
+    def test_BootParams_from_entry_no_root_device(self):
+        osp = self._get_test_OsProfile()
+
+        be = MockBootEntry()
+        be.options = "ro rd.lvm.lv=vg00/lvol0 rhgb quiet"
+        be._osp = osp
+
+        self.assertTrue(BootParams.from_entry(be))
+
      # BootEntry tests
 
     def test_BootEntry__str__(self):
