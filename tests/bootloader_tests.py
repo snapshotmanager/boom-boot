@@ -144,6 +144,12 @@ def _reset_test_osprofile():
     _test_osp = osp
 
 
+class MockBootEntry(object):
+    boot_id = "1234567890abcdef"
+    version = "1.1.1"
+    _osp = None
+
+
 class BootEntryTests(unittest.TestCase):
 
     test_version = "1.1.1-1.qux.x86_64"
