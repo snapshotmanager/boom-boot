@@ -282,4 +282,9 @@ class OsProfileTests(unittest.TestCase):
         osps = find_profiles(Selection(os_initramfs_pattern="/initramfs-%{version}.img"))
         self.assertTrue(osps)
 
+    def test_find_os_initramfs_pattern(self):
+        osps = find_profiles(Selection(os_options="root=%{root_device} ro "
+                             "%{root_opts} rhgb quiet"))
+        self.assertTrue(osps)
+
 # vim: set et ts=4 sw=4 :
