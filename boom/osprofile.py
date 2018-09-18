@@ -296,7 +296,7 @@ def select_profile(s, osp):
     if (s.os_initramfs_pattern and
         s.os_initramfs_pattern != osp.initramfs_pattern):
         return False
-    if s.os_options and osp.os_options != s.os_options:
+    if s.options and osp.options != s.os_options:
         return False
     return True
 
