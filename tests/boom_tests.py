@@ -266,4 +266,10 @@ class BoomTests(unittest.TestCase):
         s = boom.Selection(boot_id="1")
         self.assertFalse(s.is_null())
 
+    def test__get_machine_id(self):
+        # FIXME: does not cover _DBUS_MACHINE_ID hosts or exceptions
+        # reading /etc/machine-id.
+        machine_id = boom._get_machine_id()
+        self.assertTrue(machine_id)
+
 # vim: set et ts=4 sw=4 :
