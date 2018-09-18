@@ -893,8 +893,6 @@ class BootEntry(object):
         if not bls and not no_boot_id:
             key_fmt = ('%s%s"%s"' if quote else '%s%s%s') + tail
             boot_id_data = [BOOM_ENTRY_BOOT_ID, sep, self.boot_id]
-            if bls:
-                boot_id_data[0] = _transform_key(BOOM_ENTRY_BOOT_ID)
             be_str += key_fmt % tuple(boot_id_data)
 
         return be_str.rstrip(tail) + suffix
