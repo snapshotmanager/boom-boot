@@ -627,6 +627,13 @@ class BootEntryTests(unittest.TestCase):
                        osprofile=osp, allow_no_dev=True)
         self.assertEqual(be.items(), xitems)
 
+    def test_BootEntry_eq_no_boot_id(self):
+        class NotABootEntry(object):
+            i_have_no_boot_id = True
+        osp = self._get_test_OsProfile()
+        be = self._get_test_BootEntry(osp)
+        self.assertFalse(be == NotABootEntry())
+
     def test__add_entry_loads_entries(self):
         boom.bootloader._entries = None
         osp = self._get_test_OsProfile()
