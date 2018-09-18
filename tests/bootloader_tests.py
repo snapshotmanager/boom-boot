@@ -73,6 +73,8 @@ class BootParamsTests(unittest.TestCase):
                  'root_device="/dev/mapper/vg00-lvol0", '
                  'lvm_root_lv="vg00/lvol0")')
 
+        self.assertFalse(bp.has_btrfs())
+        self.assertTrue(bp.has_lvm2())
         self.assertEqual(str(bp), xstr)
         self.assertEqual(repr(bp), xrepr)
 
@@ -97,6 +99,8 @@ class BootParamsTests(unittest.TestCase):
         xrepr = ('BootParams("1.1.1.x86_64", root_device="/dev/sda5", '
                  'btrfs_subvol_id="232")')
 
+        self.assertTrue(bp.has_btrfs())
+        self.assertFalse(bp.has_lvm2())
         self.assertEqual(str(bp), xstr)
         self.assertEqual(repr(bp), xrepr)
 
