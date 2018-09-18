@@ -227,18 +227,43 @@ class BoomTests(unittest.TestCase):
             boom.parse_btrfs_subvol("foo23foo")
             boom.set_boom_path("loader")
 
-    def test_Selection_from_cmd_args(self):
+    def test_Selection_from_cmd_args_subvol_id(self):
         cmd_args = MockArgs()
         s = boom.Selection.from_cmd_args(cmd_args)
         self.assertEqual(s.btrfs_subvol_id, "23")
         self.assertEqual(s.boot_id, "12345678")
 
+    def test_Selection_from_cmd_args_subvol(self):
+        cmd_args = MockArgs()
         cmd_args.btrfs_subvolume = "/svol"
         s = boom.Selection.from_cmd_args(cmd_args)
         self.assertEqual(s.btrfs_subvol_path, "/svol")
 
+    def test_Selection_from_cmd_args_root_lv(self):
+        cmd_args = MockArgs()
         cmd_args.root_lv = "vg00/lvol0"
         s = boom.Selection.from_cmd_args(cmd_args)
         self.assertEqual(s.lvm_root_lv, "vg00/lvol0")
+
+    def test_Selection_from_cmd_args_no_btrfs(self):
+        cmd_args = MockArgs()
+        cmd_args.btrfs_subvolume = ""
+        cmd_args.root_lv = "vg00/lvol0"
+        s = boom.Selection.from_cmd_args(cmd_args)
+        self.assertEqual(s.lvm_root_lv, "vg00/lvol0")
+
+    def test_Selection_invalid_selection(self):
+        # A boot_id is invalid for an OsProfile select
+        s = boom.Selection(boot_id="12345678")
+        with self.assertRaises(ValueError) as cm:
+            s.check_valid_selection(profile=True)
+
+    def test_Selection_is_null(self):
+        s = boom.Selection()
+        self.assertTrue(s.is_null())
+
+    def test_Selection_is_non_null(self):
+        s = boom.Selection(boot_id="1")
+        self.assertFalse(s.is_null())
 
 # vim: set et ts=4 sw=4 :
