@@ -810,6 +810,10 @@ class BootLoaderTests(unittest.TestCase):
         entries = find_entries(Selection(machine_id="ffffffff"))
         self.assertEqual(len(entries), self._nr_machine_id("ffffffff"))
 
+    def test_Selection_no_osp_match(self):
+        s = Selection(os_id="12345")
+        self.assertFalse(find_entries(s))
+
     def test_check_root_device_real(self):
         # Real block device node
         boom.bootloader.check_root_device("tests/dev/sda")
