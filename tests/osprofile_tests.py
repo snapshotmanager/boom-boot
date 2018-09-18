@@ -108,6 +108,17 @@ class OsProfileTests(unittest.TestCase):
         # os_id for fedora24
         self.assertEqual(osp.os_id, "9cb53ddda889d6285fd9ab985a4c47025884999f")
 
+    def test_OsProfile__profile_exists(self):
+        self._clear_profiles()
+        osp = OsProfile(name="Fedora", short_name="fedora",
+                        version="24 (Workstation Edition)", version_id="24")
+
+        self.assertTrue(osp)
+
+        # os_id for fedora24
+        self.assertEqual(osp.os_id, "9cb53ddda889d6285fd9ab985a4c47025884999f")
+        self.assertTrue(boom.osprofile._profile_exists(osp.os_id))
+
     def test_OsProfile_from_profile_data(self):
         # Pull in all the BOOM_OS_* constants to the local namespace.
         from boom.osprofile import (
