@@ -744,7 +744,7 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(osp.os_version, "26 (Testing Edition)")
         osp.delete_profile()
 
-    def test_command_create_delete_profile_from_profile_data(self):
+    def test_command_create_delete_profile_from_data(self):
         profile_data = {
             BOOM_OS_NAME: "Some Distro", BOOM_OS_SHORT_NAME: "somedist",
             BOOM_OS_VERSION: "1 (Qunk)", BOOM_OS_VERSION_ID: "1",
