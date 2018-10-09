@@ -185,38 +185,6 @@ class BoomTests(unittest.TestCase):
         with self.assertRaises(TypeError) as cm:
             boom.set_boom_config(Qux())
 
-    def test_set_boot_path(self):
-        boom.set_boot_path(BOOT_ROOT_TEST)
-
-    def test_set_boot_path_bad_path(self):
-        with self.assertRaises(ValueError) as cm:
-            boom.set_boot_path("/the/wrong/path")
-
-    def test_set_boom_path(self):
-        boom.set_boom_path(BOOT_ROOT_TEST + "/boom")
-
-    def test_set_boom_path_bad_path(self):
-        with self.assertRaises(ValueError) as cm:
-            boom.set_boom_path("/the/wrong/path")
-
-    def test_set_boom_path_non_abs(self):
-        boom.set_boot_path(BOOT_ROOT_TEST)
-        boom.set_boom_path("boom/")
-
-    def test_set_boom_path_non_abs_bad(self):
-        boom.set_boot_path(BOOT_ROOT_TEST + "/boom")
-        with self.assertRaises(ValueError) as cm:
-            boom.set_boom_path("absolutely/the/wrong/path")
-
-    def test_set_boot_path_non_abs(self):
-        with self.assertRaises(ValueError) as cm:
-            boom.set_boot_path("absolutely/the/wrong/path")
-
-    def test_set_boom_path_no_profiles(self):
-        boom.set_boot_path(BOOT_ROOT_TEST)
-        with self.assertRaises(ValueError) as cm:
-            boom.set_boom_path("loader")
-
     def test_parse_btrfs_subvol(self):
         self.assertEqual("23", boom.parse_btrfs_subvol("23"))
         self.assertEqual("/svol", boom.parse_btrfs_subvol("/svol"))
@@ -271,5 +239,46 @@ class BoomTests(unittest.TestCase):
         # reading /etc/machine-id.
         machine_id = boom._get_machine_id()
         self.assertTrue(machine_id)
+
+class BoomPathTests(unittest.TestCase):
+    def setUp(self):
+        # Set up required test paths
+        pass
+
+    def tearDown(self):
+        # Clean up test sandbox
+        pass
+
+    def test_set_boot_path(self):
+        boom.set_boot_path(BOOT_ROOT_TEST)
+
+    def test_set_boot_path_bad_path(self):
+        with self.assertRaises(ValueError) as cm:
+            boom.set_boot_path("/the/wrong/path")
+
+    def test_set_boom_path(self):
+        boom.set_boom_path(BOOT_ROOT_TEST + "/boom")
+
+    def test_set_boom_path_bad_path(self):
+        with self.assertRaises(ValueError) as cm:
+            boom.set_boom_path("/the/wrong/path")
+
+    def test_set_boom_path_non_abs(self):
+        boom.set_boot_path(BOOT_ROOT_TEST)
+        boom.set_boom_path("boom/")
+
+    def test_set_boom_path_non_abs_bad(self):
+        boom.set_boot_path(BOOT_ROOT_TEST + "/boom")
+        with self.assertRaises(ValueError) as cm:
+            boom.set_boom_path("absolutely/the/wrong/path")
+
+    def test_set_boot_path_non_abs(self):
+        with self.assertRaises(ValueError) as cm:
+            boom.set_boot_path("absolutely/the/wrong/path")
+
+    def test_set_boom_path_no_profiles(self):
+        boom.set_boot_path(BOOT_ROOT_TEST)
+        with self.assertRaises(ValueError) as cm:
+            boom.set_boom_path("loader")
 
 # vim: set et ts=4 sw=4 :
