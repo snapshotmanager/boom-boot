@@ -277,6 +277,7 @@ class CommandTests(unittest.TestCase):
                               lvm_root_lv="vg_hex/root", profile=osp)
 
     def test_create_entry_norootdevice(self):
+        # FIXME: should this default from the lvm_root_lv?
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
         with self.assertRaises(ValueError) as cm:
