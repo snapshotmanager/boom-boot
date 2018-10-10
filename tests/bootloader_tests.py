@@ -150,8 +150,11 @@ class MockBootEntry(object):
     _osp = None
 
 
-class BootEntryTests(unittest.TestCase):
-
+class BootEntryBasicTests(unittest.TestCase):
+    """Tests for the BootEntry class that do not depend on external
+        test data.
+    """
+    # DELETEME
     test_version = "1.1.1-1.qux.x86_64"
     test_lvm2_root_device = "/dev/vg00/lvol0"
     test_lvm_root_lv = "vg00/lvol0"
@@ -159,40 +162,7 @@ class BootEntryTests(unittest.TestCase):
     test_btrfs_subvol_path = "/snapshots/snap1"
     test_btrfs_subvol_id = "232"
 
-    # Helper routines
-
-    def _get_test_OsProfile(self):
-        _reset_test_osprofile()
-        return _test_osp
-
-    def _get_test_BootEntry(self, osp):
-        bp = BootParams("1.1.1.fc24", root_device="/dev/vg/lv",
-                        lvm_root_lv="vg/lv")
-
-        return BootEntry(title="title", machine_id="ffffffff",
-                         boot_params=bp, osprofile=osp, allow_no_dev=True)
-
-    # BootParams recovery tests
-    def test_BootParams_from_entry_no_opts(self):
-        osp = self._get_test_OsProfile()
-        osp.options = ""
-
-        be = MockBootEntry()
-        be.options = ""
-        be._osp = osp
-
-        self.assertFalse(BootParams.from_entry(be))
-
-    def test_BootParams_from_entry_no_root_device(self):
-        osp = self._get_test_OsProfile()
-
-        be = MockBootEntry()
-        be.options = "ro rd.lvm.lv=vg00/lvol0 rhgb quiet"
-        be._osp = osp
-
-        self.assertTrue(BootParams.from_entry(be))
-
-     # BootEntry tests
+    # BootEntry tests
 
     def test_BootEntry__str__(self):
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=None,
@@ -312,6 +282,51 @@ class BootEntryTests(unittest.TestCase):
 
         xoptions = "root=/dev/vg00/lvol0 ro rd.lvm.lv=vg00/lvol0"
         self.assertEqual(be.options, xoptions)
+
+
+class BootEntryTests(unittest.TestCase):
+    """Tests for the BootEntry class using on-disk entry and profile
+        data.
+    """
+    test_version = "1.1.1-1.qux.x86_64"
+    test_lvm2_root_device = "/dev/vg00/lvol0"
+    test_lvm_root_lv = "vg00/lvol0"
+    test_btrfs_root_device = "/dev/sda5"
+    test_btrfs_subvol_path = "/snapshots/snap1"
+    test_btrfs_subvol_id = "232"
+
+    # Helper routines
+
+    def _get_test_OsProfile(self):
+        _reset_test_osprofile()
+        return _test_osp
+
+    def _get_test_BootEntry(self, osp):
+        bp = BootParams("1.1.1.fc24", root_device="/dev/vg/lv",
+                        lvm_root_lv="vg/lv")
+
+        return BootEntry(title="title", machine_id="ffffffff",
+                         boot_params=bp, osprofile=osp, allow_no_dev=True)
+
+    # BootParams recovery tests
+    def test_BootParams_from_entry_no_opts(self):
+        osp = self._get_test_OsProfile()
+        osp.options = ""
+
+        be = MockBootEntry()
+        be.options = ""
+        be._osp = osp
+
+        self.assertFalse(BootParams.from_entry(be))
+
+    def test_BootParams_from_entry_no_root_device(self):
+        osp = self._get_test_OsProfile()
+
+        be = MockBootEntry()
+        be.options = "ro rd.lvm.lv=vg00/lvol0 rhgb quiet"
+        be._osp = osp
+
+        self.assertTrue(BootParams.from_entry(be))
 
     def test_BootEntry_empty_format_key(self):
         # Assert that key properties of a BootEntry with empty format keys
