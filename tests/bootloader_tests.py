@@ -14,21 +14,24 @@
 import unittest
 import logging
 from sys import stdout
-from os import listdir
+from os import listdir, mkdir
 from os.path import exists, join, abspath
+import shutil
+
+# Test suite paths
+from tests import BOOT_ROOT_TEST, SANDBOX_PATH
+
+import boom
+from boom.bootloader import *
+from boom.osprofile import OsProfile, find_profiles
+from boom import Selection
+
+# Override default BOOM_ROOT and BOOT_ROOT
+boom.set_boot_path(BOOT_ROOT_TEST)
 
 log = logging.getLogger()
 log.level = logging.DEBUG
 log.addHandler(logging.FileHandler("test.log"))
-
-# Override default BOOM_ROOT and BOOT_ROOT
-import boom
-BOOT_ROOT_TEST = abspath("./tests")
-boom.set_boot_path(BOOT_ROOT_TEST)
-
-from boom.bootloader import *
-from boom.osprofile import OsProfile, find_profiles
-from boom import Selection
 
 _test_osp = None
 
@@ -778,10 +781,13 @@ class BootEntryTests(unittest.TestCase):
         self.assertFalse(exists(be._entry_path))
 
 
-class BootLoaderTests(unittest.TestCase):
-    # Module tests
+class BootLoaderBasicTests(unittest.TestCase):
     def test_import(self):
         import boom.bootloader
+
+
+class BootLoaderTests(unittest.TestCase):
+    # Module tests
 
     def _nr_machine_id(self, machine_id):
         entries = boom.bootloader._entries
@@ -843,22 +849,66 @@ class BootLoaderTests(unittest.TestCase):
         with self.assertRaises(BoomRootDeviceError) as cm:
             boom.bootloader.check_root_device("tests/dev/null")
 
+
+class BootLoaderTestsWithData(unittest.TestCase):
+    """Base class for BootLoaderTests that require specific on-disk
+        test fixture data.
+
+        Each subclass sets ``bootloader_data`` to the subdirectory of
+        the ``bootloader_tests`` directory that contains the correct
+        set of configuration files.
+    """
+    # Set by subclass
+    bootloader_config = None
+
+    # Common to all subclasses
+    configs = join(BOOT_ROOT_TEST, "bootloader_configs")
+
+    def setUp(self):
+        if not self.bootloader_config:
+            raise ValueError("bootloader_config is undefined")
+        config_path = join(self.configs, self.bootloader_config)
+        shutil.copytree(config_path, SANDBOX_PATH)
+        boom.set_boot_path(join(BOOT_ROOT_TEST, "sandbox/boot"))
+
+    def tearDown(self):
+        shutil.rmtree(SANDBOX_PATH)
+        boom.set_boot_path(BOOT_ROOT_TEST)
+
+    def bootloader_config_check(self, value):
+        self.assertEqual(check_bootloader(), value)
+
+
+class BootLoaderTestsBoomOn(BootLoaderTestsWithData):
+    # Boot config with boom disabled
+    bootloader_config = "boom_on"
+
     def test_check_bootloader(self):
-        # Test with the mock boot environment in tests/
-        boom.set_boot_path(BOOT_ROOT_TEST)
-        self.assertTrue(check_bootloader())
+        self.bootloader_config_check(True)
 
-        # Check with required paths missing
-        boom.set_boot_path(BOOT_ROOT_TEST + "/boom")
-        self.assertFalse(check_bootloader())
-        boom.set_boot_path(BOOT_ROOT_TEST + "/bootloader_tests/no_grub_d")
-        self.assertFalse(check_bootloader())
-        boom.set_boot_path(BOOT_ROOT_TEST + "/bootloader_tests/no_boom/boot")
-        self.assertFalse(check_bootloader())
 
-        # Succeed with warning
-        boom.set_boot_path(BOOT_ROOT_TEST + "/bootloader_tests/boom_off/boot")
-        self.assertTrue(check_bootloader())
-        boom.set_boot_path(BOOT_ROOT_TEST)
+class BootLoaderTestsBoomOff(BootLoaderTestsWithData):
+    # Boot config with boom disabled
+    bootloader_config = "boom_off"
+
+    def test_check_bootloader(self):
+        self.bootloader_config_check(True)
+
+
+class BootLoaderTestsNoBoom(BootLoaderTestsWithData):
+    # Boot config with no boom configuration
+    bootloader_config = "no_boom"
+
+    def test_check_bootloader(self):
+        self.bootloader_config_check(False)
+
+
+class BootLoaderTestsNoGrubD(BootLoaderTestsWithData):
+    # Boot config with no boom configuration
+    bootloader_config = "no_grub_d"
+
+    def test_check_bootloader(self):
+        self.bootloader_config_check(False)
+
 
 # vim: set et ts=4 sw=4 :

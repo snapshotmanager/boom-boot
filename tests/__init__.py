@@ -12,6 +12,14 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from os.path import join, abspath
+
+# Root of the testing directory
+BOOT_ROOT_TEST = abspath("./tests")
+
+# Location of the temporary sandbox for test data
+SANDBOX_PATH = join(BOOT_ROOT_TEST, "sandbox")
+
 class MockArgs(object):
     """Mock arguments class for testing boom command line infrastructure.
     """
