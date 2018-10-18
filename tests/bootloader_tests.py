@@ -14,12 +14,13 @@
 import unittest
 import logging
 from sys import stdout
-from os import listdir, mkdir
+from os import listdir, makedirs, mknod, unlink
 from os.path import exists, join, abspath
+from stat import S_IFBLK, S_IFCHR
 import shutil
 
 # Test suite paths
-from tests import BOOT_ROOT_TEST, SANDBOX_PATH
+from tests import BOOT_ROOT_TEST, SANDBOX_PATH, have_root
 
 import boom
 from boom.bootloader import *
@@ -835,15 +836,76 @@ class BootLoaderTests(unittest.TestCase):
         s = Selection(os_id="12345")
         self.assertFalse(find_entries(s))
 
+@unittest.skipIf(not have_root(), "requires root privileges")
+class BootLoaderTestsCheckRoot(unittest.TestCase):
+    """Base class for BootLoaderTests that validate a chosen root
+        device.
+
+        Subclasses define the lists of devices that must be present
+        or absent, and the superclass initialises these in the setUp()
+        and tearDown() methods.
+
+        The format of the ``add_dev`` and ``del_dev`` lists is a
+        tuple ``(devname, type)``, where ``type`` is a string type
+        containing the character 'c' (char), or 'b' (block).
+
+        Device types in the del_devs list are currently ignored.
+
+        Tests using this base class require root privileges in order
+        to manipulate device nodes in the test sanbox. These tests
+        are automatically skipped if the suite is run as a normal
+        user.
+    """
+
+    add_devs = []
+    del_devs = []
+
+    def setUp(self):
+        dev_path = join(SANDBOX_PATH, "dev")
+        if exists(dev_path):
+            shutil.rmtree(dev_path)
+        makedirs(dev_path)
+        for dev in self.add_devs:
+            mode = 0o600
+            if dev[1] == 'b':
+                mode |= S_IFBLK
+            if dev[1] == 'c':
+                mode |= S_IFCHR
+            mknod(join(dev_path, dev[0]), mode)
+        for dev in self.del_devs:
+            try:
+                unlink(join(dev_path, dev[0]))
+            except OSError as e:
+                if e.errno != 2:
+                    raise
+
+    def tearDown(self):
+        shutil.rmtree(SANDBOX_PATH)
+
+
+class BootLoaderTestsCheckRootReal(BootLoaderTestsCheckRoot):
+    """Check root device with valid block device node.
+    """
+    add_devs = [("sda", "b")]
     def test_check_root_device_real(self):
         # Real block device node
-        boom.bootloader.check_root_device("tests/dev/sda")
+        boom.bootloader.check_root_device("tests/sandbox/dev/sda")
 
+
+class BootLoaderTestsCheckRootNonex(BootLoaderTestsCheckRoot):
+    """Check root device with invalid block device node.
+    """
+    del_devs = [("sdb", "b")]
     def test_check_root_device_nonex(self):
         # Non-existent device node
         with self.assertRaises(BoomRootDeviceError) as cm:
             boom.bootloader.check_root_device("tests/dev/sdb")
 
+
+class BootLoaderTestsCheckRootNonblock(BootLoaderTestsCheckRoot):
+    """Check root device with non-block device node.
+    """
+    add_devs = [("null", "c")]
     def test_check_root_device_nonblock(self):
         # Non-existent device node
         with self.assertRaises(BoomRootDeviceError) as cm:
