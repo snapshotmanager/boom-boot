@@ -13,6 +13,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from os.path import join, abspath
+from os import geteuid, getegid
 
 # Root of the testing directory
 BOOT_ROOT_TEST = abspath("./tests")
@@ -43,5 +44,12 @@ class MockArgs(object):
     uname_pattern = ""
     host_profile = ""
     label = ""
+
+
+def have_root():
+    """Return ``True`` if the test suite is running as the root user,
+        and ``False`` otherwise.
+    """
+    return geteuid() == 0 and getegid() == 0
 
 # vim: set et ts=4 sw=4 :
