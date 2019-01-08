@@ -659,7 +659,7 @@ def load_entries(machine_id=None):
         try:
             _add_entry(BootEntry(entry_file=entry_path))
         except Exception as e:
-            _log_warn("Could not load BootEntry '%s': %s" %
+            _log_info("Could not load BootEntry '%s': %s" %
                       (entry_path, e))
 
     _log_info("Loaded %d entries" % len(_entries))
