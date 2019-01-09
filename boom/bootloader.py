@@ -1225,6 +1225,10 @@ class BootEntry(object):
                     comment += line if line else ""
                 else:
                     bls_key, value = parse_name_value(line, separator=None)
+                    # Convert BLS key name to Boom notation
+                    key = _transform_key(bls_key)
+                    if key not in MAP_KEY:
+                        raise LookupError("Unknown BLS key '%s'" % bls_key)
                     key = MAP_KEY[_transform_key(bls_key)]
                     entry_data[key] = value
                     if comment:
