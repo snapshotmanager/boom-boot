@@ -299,22 +299,70 @@ class BootEntryTests(unittest.TestCase):
     test_btrfs_subvol_path = "/snapshots/snap1"
     test_btrfs_subvol_id = "232"
 
-    # Helper routines
+    # Standard test OsProfile. Tests must not modify this.
+    test_osp = None
 
-    def _get_test_OsProfile(self):
-        _reset_test_osprofile()
-        return _test_osp
+    # Standard test BootParams. Tests must not modify this.
+    test_bp = None
 
-    def _get_test_BootEntry(self, osp):
+    # Standard test BootEntry. Tests must not modify this.
+    test_be = None
+
+    # Test fixture init/cleanup
+    def setUp(self):
+        """setUp()
+            Set up a test fixture for the BootEntryTests class.
+
+            Defines standard OsProfile, BootParams, and BootEntry
+            objects for use in these tests.
+        """
+        # Define a new, test OsProfile that is never included in the
+        # standard set distributed with boom. To be used only for
+        # formatting BootEntry objects for testing.
+        osp = OsProfile(name="Distribution", short_name="distro",
+                        version="1 (Workstation Edition)", version_id="1")
+        osp.uname_pattern = "di1"
+        osp.kernel_pattern = "/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
+        osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
+        osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
+        osp.options = "root=%{root_device} %{root_opts} rhgb quiet"
+        self.test_osp = osp
+
+        # Define a standard set of test BootParams
         bp = BootParams("1.1.1.fc24", root_device="/dev/vg/lv",
                         lvm_root_lv="vg/lv")
+        self.test_bp = bp
 
-        return BootEntry(title="title", machine_id="ffffffff",
-                         boot_params=bp, osprofile=osp, allow_no_dev=True)
+        # Define a synthetic BootEntry for testing
+        be = BootEntry(title="title", machine_id="ffffffff",
+                       boot_params=bp, osprofile=osp, allow_no_dev=True)
+        self.test_be = be
+
+    def tearDown(self):
+        """tearDown()
+            Tear down the standard test profiles and entries used by the
+            BootEntryTests class.
+        """
+        try:
+            self.test_osp.delete_profile()
+        except ValueError:
+            # Never written
+            pass
+
+        self.test_osp = None
+        self.test_bp = None
+
+        try:
+            self.test_be.delete_entry()
+        except ValueError:
+            # Never written
+            pass
+        self.test_be = None
 
     # BootParams recovery tests
     def test_BootParams_from_entry_no_opts(self):
-        osp = self._get_test_OsProfile()
+        osp = self.test_osp
         osp.options = ""
 
         be = MockBootEntry()
@@ -324,7 +372,7 @@ class BootEntryTests(unittest.TestCase):
         self.assertFalse(BootParams.from_entry(be))
 
     def test_BootParams_from_entry_no_root_device(self):
-        osp = self._get_test_OsProfile()
+        osp = self.test_osp
 
         be = MockBootEntry()
         be.options = "ro rd.lvm.lv=vg00/lvol0 rhgb quiet"
@@ -341,7 +389,7 @@ class BootEntryTests(unittest.TestCase):
             BOOM_ENTRY_OPTIONS
         )
 
-        osp = self._get_test_OsProfile()
+        osp = self.test_osp
         # Clear the OsProfile.options format key
         osp.options = ""
 
@@ -378,14 +426,14 @@ class BootEntryTests(unittest.TestCase):
         be2.delete_entry()
 
     def test_BootEntry_profile_kernel_version(self):
-        osp = self._get_test_OsProfile()
+        osp = self.test_osp
         be = BootEntry(title="title", machine_id="ffffffff", osprofile=osp)
         be.version = "1.1.1-17.qux.x86_64"
         self.assertEqual(be.linux, "/vmlinuz-1.1.1-17.qux.x86_64")
         self.assertEqual(be.initrd, "/initramfs-1.1.1-17.qux.x86_64.img")
 
     def test_BootEntry_profile_root_lvm2(self):
-        osp = self._get_test_OsProfile()
+        osp = self.test_osp
         bp = BootParams("1.1", lvm_root_lv="vg00/lvol0")
         be = BootEntry(title="title", machine_id="ffffffff",
                        osprofile=osp, boot_params=bp, allow_no_dev=True)
@@ -394,7 +442,7 @@ class BootEntryTests(unittest.TestCase):
                          "rd.lvm.lv=vg00/lvol0 rhgb quiet")
 
     def test_BootEntry_profile_root_btrfs_id(self):
-        osp = self._get_test_OsProfile()
+        osp = self.test_osp
         bp = BootParams("1.1", root_device="/dev/sda5", btrfs_subvol_id="232")
         be = BootEntry(title="title", machine_id="ffffffff",
                        osprofile=osp, boot_params=bp, allow_no_dev=True)
@@ -403,7 +451,7 @@ class BootEntryTests(unittest.TestCase):
                          "rootflags=subvolid=232 rhgb quiet")
 
     def test_BootEntry_profile_root_btrfs_path(self):
-        osp = self._get_test_OsProfile()
+        osp = self.test_osp
         bp = BootParams("1.1", root_device="/dev/sda5",
                         btrfs_subvol_path="/snapshots/20170523-1")
         be = BootEntry(title="title", machine_id="ffffffff",
@@ -426,7 +474,7 @@ class BootEntryTests(unittest.TestCase):
             BOOM_ENTRY_LINUX, BOOM_ENTRY_EFI, BOOM_ENTRY_INITRD,
             BOOM_ENTRY_OPTIONS
         )
-        osp = self._get_test_OsProfile()
+        osp = self.test_osp
         xroot_opts = ""
 
         be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
@@ -649,14 +697,14 @@ class BootEntryTests(unittest.TestCase):
     def test_BootEntry_eq_no_boot_id(self):
         class NotABootEntry(object):
             i_have_no_boot_id = True
-        osp = self._get_test_OsProfile()
-        be = self._get_test_BootEntry(osp)
+        osp = self.test_osp
+        be = self.test_be
         self.assertFalse(be == NotABootEntry())
 
     def test__add_entry_loads_entries(self):
         boom.bootloader._entries = None
-        osp = self._get_test_OsProfile()
-        be = self._get_test_BootEntry(osp)
+        osp = self.test_osp
+        be = self.test_be
         boom.bootloader._add_entry(be)
         self.assertTrue(boom.bootloader._entries)
         self.assertTrue(boom.osprofile._profiles)
