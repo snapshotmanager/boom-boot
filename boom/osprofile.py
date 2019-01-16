@@ -203,6 +203,28 @@ def profiles_loaded():
     return _profiles_loaded
 
 
+def drop_profiles():
+    """Drop all in-memory profiles.
+
+        Clear the list of in-memory profiles and reset the OsProfile
+        list to the default state.
+
+        :returns: None
+    """
+    global _profiles, _profiles_by_id, _profiles_loaded
+    nr_profiles = len(_profiles) - 1
+
+    _profiles = []
+    _profiles_by_id = {}
+
+    _null_profile = OsProfile(name="", short_name="",
+                              version="", version_id="")
+    _profiles.append(_null_profile)
+    _profiles_by_id[_null_profile.os_id] = _null_profile
+    _log_info("Dropped %d profiles" % nr_profiles)
+    _profiles_loaded = False
+
+
 def load_profiles():
     """Load OsProfile data from disk.
 
@@ -217,20 +239,11 @@ def load_profiles():
 
         :returns: None
     """
-    global _profiles, _profiles_by_id, _profiles_loaded
-    _profiles = []
-    _profiles_by_id = {}
-
-    _null_profile = OsProfile(name="", short_name="",
-                              version="", version_id="")
-    _profiles.append(_null_profile)
-    _profiles_by_id[_null_profile.os_id] = _null_profile
-
+    global _profiles_loaded
+    drop_profiles()
     load_profiles_for_class(OsProfile, "Os", boom_profiles_path(), "profile")
-
-    _profiles_loaded = True
     _log_info("Loaded %d profiles" % (len(_profiles) - 1))
-
+    _profiles_loaded = True
 
 
 def write_profiles(force=False):
@@ -1367,9 +1380,9 @@ class OsProfile(object):
 
 __all__ = [
     'OsProfile',
-    'profiles_loaded', 'load_profiles', 'write_profiles', 'find_profiles',
-    'get_os_profile_by_id', 'match_os_profile', 'select_profile',
-    'match_os_profile_by_version', 'key_from_key_name',
+    'profiles_loaded', 'drop_profiles', 'load_profiles', 'write_profiles',
+    'find_profiles', 'get_os_profile_by_id', 'select_profile',
+    'match_os_profile', 'match_os_profile_by_version', 'key_from_key_name',
 
     # Module constants
     'BOOM_PROFILES', 'BOOM_OS_PROFILE_FORMAT',
