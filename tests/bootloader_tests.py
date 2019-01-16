@@ -859,6 +859,55 @@ class BootLoaderBasicTests(unittest.TestCase):
 
 
 class BootLoaderTests(unittest.TestCase):
+    """Class for bootloader module-level tests.
+    """
+
+    # Master BLS loader directory for sandbox
+    loader_path = join(BOOT_ROOT_TEST, "loader")
+
+    # Master boom configuration path for sandbox
+    boom_path = join(BOOT_ROOT_TEST, "boom")
+
+    # Test fixture init/cleanup
+    def setUp(self):
+        """setUp()
+            Set up a test fixture for the BootEntryTests class.
+
+            Defines standard OsProfile, BootParams, and BootEntry
+            objects for use in these tests.
+        """
+        reset_sandbox()
+
+        # Sandbox paths
+        boot_sandbox = join(SANDBOX_PATH, "boot")
+        boom_sandbox = join(SANDBOX_PATH, "boot/boom")
+        loader_sandbox = join(SANDBOX_PATH, "boot/loader")
+
+        # Initialise sandbox from master
+        makedirs(boot_sandbox)
+        shutil.copytree(self.boom_path, boom_sandbox)
+        shutil.copytree(self.loader_path, loader_sandbox)
+
+        # Set boom paths
+        boom.set_boot_path(boot_sandbox)
+
+        # Load test OsProfile and BootEntry data
+        load_profiles()
+        load_entries()
+
+    def tearDown(self):
+        """tearDown()
+            Tear down the standard test profiles and entries used by the
+            BootEntryTests class.
+        """
+        # Drop any in-memory entries and profiles modified by tests
+        drop_entries()
+        drop_profiles()
+
+        # Clear sandbox data
+        rm_sandbox()
+        reset_boom_paths()
+
     # Module tests
 
     def _nr_machine_id(self, machine_id):
