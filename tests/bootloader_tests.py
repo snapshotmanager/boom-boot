@@ -974,15 +974,16 @@ class BootLoaderTestsWithData(unittest.TestCase):
     configs = join(BOOT_ROOT_TEST, "bootloader_configs")
 
     def setUp(self):
+        rm_sandbox()
         if not self.bootloader_config:
             raise ValueError("bootloader_config is undefined")
         config_path = join(self.configs, self.bootloader_config)
-        shutil.copytree(config_path, SANDBOX_PATH)
+        shutil.copytree(config_path, join(SANDBOX_PATH))
         boom.set_boot_path(join(BOOT_ROOT_TEST, "sandbox/boot"))
 
     def tearDown(self):
-        shutil.rmtree(SANDBOX_PATH)
-        boom.set_boot_path(BOOT_ROOT_TEST)
+        rm_sandbox()
+        reset_boom_paths()
 
     def bootloader_config_check(self, value):
         self.assertEqual(check_bootloader(), value)
