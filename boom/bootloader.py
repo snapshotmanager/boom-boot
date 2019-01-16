@@ -634,6 +634,18 @@ def _del_entry(entry):
     _entries.remove(entry)
 
 
+def drop_entries():
+    """Drop all in-memory entries.
+
+        Clear the list of in-memory entries and reset the BootEntry
+        list to the default state.
+
+        :returns: None
+    """
+    global _entries
+    _entries = []
+
+
 def load_entries(machine_id=None):
     """ Load boot entries into memory.
 
@@ -650,8 +662,9 @@ def load_entries(machine_id=None):
 
     entries_path = boom_entries_path()
 
+    drop_entries()
+
     _log_info("Loading boot entries from '%s'" % entries_path)
-    _entries = []
     for entry in listdir(entries_path):
         if not entry.endswith(".conf"):
             continue
@@ -2018,7 +2031,7 @@ __all__ = [
     'boom_entries_path',
 
     # Entry lookup, load, and write functions
-    'load_entries', 'write_entries', 'find_entries',
+    'drop_entries', 'load_entries', 'write_entries', 'find_entries',
 
     # Formatting
     'min_boot_id_width',
