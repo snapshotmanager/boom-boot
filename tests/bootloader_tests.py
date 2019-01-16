@@ -909,9 +909,8 @@ class BootLoaderTestsCheckRoot(unittest.TestCase):
     del_devs = []
 
     def setUp(self):
+        reset_sandbox()
         dev_path = join(SANDBOX_PATH, "dev")
-        if exists(dev_path):
-            shutil.rmtree(dev_path)
         makedirs(dev_path)
         for dev in self.add_devs:
             mode = 0o600
@@ -928,7 +927,7 @@ class BootLoaderTestsCheckRoot(unittest.TestCase):
                     raise
 
     def tearDown(self):
-        shutil.rmtree(SANDBOX_PATH)
+        rm_sandbox()
 
 
 class BootLoaderTestsCheckRootReal(BootLoaderTestsCheckRoot):
