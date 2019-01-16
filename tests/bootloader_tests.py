@@ -20,7 +20,7 @@ from stat import S_IFBLK, S_IFCHR
 import shutil
 
 # Test suite paths
-from tests import BOOT_ROOT_TEST, SANDBOX_PATH, have_root
+from tests import *
 
 import boom
 from boom.bootloader import *

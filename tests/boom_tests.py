@@ -18,7 +18,7 @@ import boom
 from sys import stdout
 from os.path import abspath
 
-from tests import MockArgs
+from tests import *
 
 log = logging.getLogger()
 log.level = logging.DEBUG

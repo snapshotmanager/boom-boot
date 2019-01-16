@@ -90,4 +90,11 @@ def have_root():
     """
     return geteuid() == 0 and getegid() == 0
 
+__all__ = [
+    'BOOT_ROOT_TEST', 'SANDBOX_PATH',
+    'rm_sandbox', 'mk_sandbox', 'reset_sandbox', 'reset_boom_paths',
+    'MockArgs',
+    'have_root'
+]
+
 # vim: set et ts=4 sw=4 :

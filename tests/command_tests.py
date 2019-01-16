@@ -35,7 +35,7 @@ from boom.command import *
 from boom.config import *
 from boom.report import *
 
-from tests import MockArgs
+from tests import *
 
 BOOT_ROOT_TEST = abspath("./tests")
 config = BoomConfig()
