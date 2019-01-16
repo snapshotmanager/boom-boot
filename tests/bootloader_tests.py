@@ -24,10 +24,13 @@ from tests import *
 
 import boom
 from boom.bootloader import *
-from boom.osprofile import OsProfile, find_profiles
+from boom.osprofile import *
 from boom import Selection
 
 # Override default BOOM_ROOT and BOOT_ROOT
+# NOTE: with test fixtures that use the sandbox, this path is further
+# overridden by the class setUp() method to point to the appropriate
+# sandbox location.
 boom.set_boot_path(BOOT_ROOT_TEST)
 
 log = logging.getLogger()
@@ -308,6 +311,12 @@ class BootEntryTests(unittest.TestCase):
     # Standard test BootEntry. Tests must not modify this.
     test_be = None
 
+    # Master BLS loader directory for sandbox
+    loader_path = join(BOOT_ROOT_TEST, "loader")
+
+    # Master boom configuration path for sandbox
+    boom_path = join(BOOT_ROOT_TEST, "boom")
+
     # Test fixture init/cleanup
     def setUp(self):
         """setUp()
@@ -316,6 +325,25 @@ class BootEntryTests(unittest.TestCase):
             Defines standard OsProfile, BootParams, and BootEntry
             objects for use in these tests.
         """
+        reset_sandbox()
+
+        # Sandbox paths
+        boot_sandbox = join(SANDBOX_PATH, "boot")
+        boom_sandbox = join(SANDBOX_PATH, "boot/boom")
+        loader_sandbox = join(SANDBOX_PATH, "boot/loader")
+
+        # Initialise sandbox from master
+        makedirs(boot_sandbox)
+        shutil.copytree(self.boom_path, boom_sandbox)
+        shutil.copytree(self.loader_path, loader_sandbox)
+
+        # Set boom paths
+        boom.set_boot_path(boot_sandbox)
+
+        # Load test OsProfile and BootEntry data
+        load_profiles()
+        load_entries()
+
         # Define a new, test OsProfile that is never included in the
         # standard set distributed with boom. To be used only for
         # formatting BootEntry objects for testing.
@@ -344,21 +372,16 @@ class BootEntryTests(unittest.TestCase):
             Tear down the standard test profiles and entries used by the
             BootEntryTests class.
         """
-        try:
-            self.test_osp.delete_profile()
-        except ValueError:
-            # Never written
-            pass
+        # Drop any in-memory entries and profiles modified by tests
+        drop_entries()
+        drop_profiles()
+
+        # Clear sandbox data
+        rm_sandbox()
+        reset_boom_paths()
 
         self.test_osp = None
         self.test_bp = None
-
-        try:
-            self.test_be.delete_entry()
-        except ValueError:
-            # Never written
-            pass
-        self.test_be = None
 
     # BootParams recovery tests
     def test_BootParams_from_entry_no_opts(self):
