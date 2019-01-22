@@ -15,7 +15,7 @@ import unittest
 import logging
 from sys import stdout
 from os import listdir, makedirs, mknod, unlink
-from os.path import exists, join, abspath
+from os.path import abspath, exists, join
 from stat import S_IFBLK, S_IFCHR
 import shutil
 
@@ -319,8 +319,7 @@ class BootEntryTests(unittest.TestCase):
 
     # Test fixture init/cleanup
     def setUp(self):
-        """setUp()
-            Set up a test fixture for the BootEntryTests class.
+        """Set up a test fixture for the BootEntryTests class.
 
             Defines standard OsProfile, BootParams, and BootEntry
             objects for use in these tests.
@@ -368,8 +367,7 @@ class BootEntryTests(unittest.TestCase):
         self.test_be = be
 
     def tearDown(self):
-        """tearDown()
-            Tear down the standard test profiles and entries used by the
+        """Tear down the standard test profiles and entries used by the
             BootEntryTests class.
         """
         # Drop any in-memory entries and profiles modified by tests
