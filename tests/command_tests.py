@@ -14,8 +14,9 @@
 import unittest
 import logging
 from sys import stdout
-from os import listdir
-from os.path import exists, abspath
+from os import listdir, makedirs
+from os.path import abspath, exists, join
+import shutil
 import re
 
 # Python3 moves StringIO to io
@@ -45,12 +46,11 @@ set_boom_config(config)
 set_boot_path(BOOT_ROOT_TEST)
 
 
-class CommandTests(unittest.TestCase):
-    #
-    # Test internal boom.command helpers: methods in this part of the
-    # test suite import boom.command directly in order to access the
-    # non-public helper routines not included in __all__.
-    #
+class CommandHelperTests(unittest.TestCase):
+    """Test internal boom.command helpers: methods in this part of the
+        test suite import boom.command directly in order to access the
+        non-public helper routines not included in __all__.
+    """
     def test_int_if_val_with_val(self):
         import boom.command
         val = "1"
@@ -137,6 +137,55 @@ class CommandTests(unittest.TestCase):
         options = "+f4,f5,f6"
         xfield = default + ',' + options[1:]
         self.assertEqual(xfield, boom.command._expand_fields(default, options))
+
+class CommandTests(unittest.TestCase):
+    """Test boom.command APIs
+    """
+
+    # Master BLS loader directory for sandbox
+    loader_path = join(BOOT_ROOT_TEST, "loader")
+
+    # Master boom configuration path for sandbox
+    boom_path = join(BOOT_ROOT_TEST, "boom")
+
+    # Master grub configuration path for sandbox
+    grub_path = join(BOOT_ROOT_TEST, "grub")
+
+    # Test fixture init/cleanup
+    def setUp(self):
+        """Set up a test fixture for the CommandTests class.
+
+            Defines standard objects for use in these tests.
+        """
+        reset_sandbox()
+
+        # Sandbox paths
+        boot_sandbox = join(SANDBOX_PATH, "boot")
+        boom_sandbox = join(SANDBOX_PATH, "boot/boom")
+        grub_sandbox = join(SANDBOX_PATH, "boot/grub")
+        loader_sandbox = join(SANDBOX_PATH, "boot/loader")
+
+        # Initialise sandbox from master
+        makedirs(boot_sandbox)
+        shutil.copytree(self.boom_path, boom_sandbox)
+        shutil.copytree(self.loader_path, loader_sandbox)
+        shutil.copytree(self.grub_path, grub_sandbox)
+
+        # Set boom paths
+        set_boot_path(boot_sandbox)
+
+        # Load test OsProfile and BootEntry data
+        load_profiles()
+        load_entries()
+
+    def tearDown(self):
+        # Drop any in-memory entries and profiles modified by tests
+        drop_entries()
+        drop_profiles()
+
+        # Clear sandbox data
+        rm_sandbox()
+        reset_boom_paths()
 
     def test_command_find_profile_with_profile_arg(self):
         import boom.command
