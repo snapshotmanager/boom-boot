@@ -20,22 +20,43 @@ log = logging.getLogger()
 log.level = logging.DEBUG
 log.addHandler(logging.FileHandler("test.log"))
 
-from os import listdir
-
-import boom
-BOOT_ROOT_TEST = abspath("./tests")
-boom.set_boot_path(BOOT_ROOT_TEST)
+from os import listdir, makedirs
+from os.path import join
+import shutil
 
 from boom.osprofile import *
-from boom import Selection
+from boom import *
 
+BOOT_ROOT_TEST = abspath("./tests")
+set_boot_path(BOOT_ROOT_TEST)
+
+from tests import *
 
 class OsProfileTests(unittest.TestCase):
-    def _clear_profiles(self):
-        import boom.osprofile
-        boom.osprofile._profiles = []
-        boom.osprofile._profiles_by_id = {}
-        boom.osprofile._profiles_loaded = False
+    """Test OsProfile basic methods
+    """
+
+    # Master boom configuration path for sandbox
+    boom_path = join(BOOT_ROOT_TEST, "boom")
+
+    def setUp(self):
+        reset_sandbox()
+
+        # Sandbox paths
+        boot_sandbox = join(SANDBOX_PATH, "boot")
+        boom_sandbox = join(SANDBOX_PATH, "boot/boom")
+
+        makedirs(boot_sandbox)
+        shutil.copytree(self.boom_path, boom_sandbox)
+
+        set_boot_path(boot_sandbox)
+
+        drop_profiles()
+
+    def tearDown(self):
+        drop_profiles()
+        rm_sandbox()
+        reset_boom_paths()
 
     # Module tests
     def test_import(self):
@@ -45,14 +66,13 @@ class OsProfileTests(unittest.TestCase):
 
     def test_load_profiles(self):
         # Test that loading the test profiles succeeds.
-        boom.osprofile.load_profiles()
+        load_profiles()
 
         # Add profile content tests
 
     # OsProfile tests
 
     def test_OsProfile__str__(self):
-        self._clear_profiles()
         osp = OsProfile(name="Distribution", short_name="distro",
                         version="1 (Workstation)", version_id="1")
 
@@ -88,7 +108,6 @@ class OsProfileTests(unittest.TestCase):
         osp.delete_profile()
 
     def test_OsProfile(self):
-        self._clear_profiles()
         # Test OsProfile init from kwargs
         with self.assertRaises(ValueError) as cm:
             osp = OsProfile(name="Fedora", short_name="fedora",
@@ -109,7 +128,7 @@ class OsProfileTests(unittest.TestCase):
         self.assertEqual(osp.os_id, "9cb53ddda889d6285fd9ab985a4c47025884999f")
 
     def test_OsProfile__profile_exists(self):
-        self._clear_profiles()
+        import boom
         osp = OsProfile(name="Fedora", short_name="fedora",
                         version="24 (Workstation Edition)", version_id="24")
 
@@ -225,7 +244,6 @@ class OsProfileTests(unittest.TestCase):
         self.assertTrue(osp)
 
     def test_OsProfile_from_host(self):
-        self._clear_profiles()
         osp = OsProfile.from_host_os_release()
         self.assertTrue(osp)
 
@@ -245,6 +263,7 @@ class OsProfileTests(unittest.TestCase):
         self.assertTrue(exists(profile_path))
 
     def test_osprofile_write_profiles(self):
+        import boom
         boom.osprofile.load_profiles()
         boom.osprofile.write_profiles()
 
@@ -265,6 +284,7 @@ class OsProfileTests(unittest.TestCase):
         self.assertTrue(len(osp_list), nr_profiles)
 
     def test_no_select_null_profile(self):
+        import boom
         osps = find_profiles(Selection(os_id=boom.osprofile._profiles[0].os_id))
         self.assertFalse(osps)
 
