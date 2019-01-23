@@ -176,6 +176,18 @@ def host_profiles_loaded():
     return _profiles_loaded
 
 
+def drop_host_profiles():
+    """Drop all in-memory host profiles.
+    """
+    global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
+    global _profiles_loaded
+
+    _host_profiles = []
+    _host_profiles_by_id = {}
+    _host_profiles_by_host_id = {}
+    _profiles_loaded = False
+
+
 def load_host_profiles():
     """Load HostProfile data from disk.
 
@@ -190,13 +202,7 @@ def load_host_profiles():
 
         :returns: None
     """
-    global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
-    global _profiles_loaded
-
-    _host_profiles = []
-    _host_profiles_by_id = {}
-    _host_profiles_by_host_id = {}
-
+    drop_host_profiles()
     profiles_path = boom_host_profiles_path()
     load_profiles_for_class(HostProfile, "Host", profiles_path, "host")
 
@@ -1098,8 +1104,8 @@ class HostProfile(OsProfile):
 __all__ = [
     # Host profiles
     'HostProfile',
-    'host_profiles_loaded', 'load_host_profiles', 'write_host_profiles',
-    'find_host_profiles', 'select_host_profile',
+    'drop_host_profiles', 'load_host_profiles', 'write_host_profiles',
+    'host_profiles_loaded', 'find_host_profiles', 'select_host_profile',
     'get_host_profile_by_id', 'match_host_profile', 'select_host_profile',
 
     # Host profile keys
