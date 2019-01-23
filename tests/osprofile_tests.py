@@ -14,15 +14,13 @@
 import unittest
 import logging
 from sys import stdout
-from os.path import abspath
+from os import listdir, makedirs
+from os.path import abspath, join
+import shutil
 
 log = logging.getLogger()
 log.level = logging.DEBUG
 log.addHandler(logging.FileHandler("test.log"))
-
-from os import listdir, makedirs
-from os.path import join
-import shutil
 
 from boom.osprofile import *
 from boom import *
