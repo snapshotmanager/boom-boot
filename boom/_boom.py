@@ -467,10 +467,7 @@ class Selection(object):
                       Selection object
             :returntype: string
         """
-        all_attrs = (
-            self.entry_attrs + self.params_attrs +
-            self.profile_attrs + self.host_attrs
-        )
+        all_attrs = self.all_attrs
         attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
         strval = ""
         tail = ", "
