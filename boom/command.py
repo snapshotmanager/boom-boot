@@ -1494,7 +1494,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
     if not profile:
         return 1
 
-    if not cmd_args.title and not osp.title:
+    if not cmd_args.title and not profile.title:
         print("create requires --title")
         return 1
     else:
