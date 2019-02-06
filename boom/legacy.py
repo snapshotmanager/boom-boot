@@ -112,7 +112,7 @@ def find_legacy_loader(loader, cfg_path):
                                        contains invalid boom entries or
                                        the specified legacy format is
                                        unknown or invalid.
-        :returns: (decorator, path) tuple
+        :returns: (name, decorator, path) tuple
     """
     if not loader:
         raise BoomLegacyFormatError("Invalid legacy bootloader format: %s" %
