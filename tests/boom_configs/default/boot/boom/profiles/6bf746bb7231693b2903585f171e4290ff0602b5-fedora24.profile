@@ -1,0 +1,12 @@
+# A profile with comments and blank lines
+BOOM_OS_ID="6bf746bb7231693b2903585f171e4290ff0602b5"
+BOOM_OS_NAME="Fedora"
+BOOM_OS_SHORT_NAME="fedora"
+BOOM_OS_VERSION="24 (Server Edition)"
+BOOM_OS_VERSION_ID="24"
+BOOM_OS_UNAME_PATTERN="fc24"
+BOOM_OS_KERNEL_PATTERN="/vmlinuz-%{version}"
+BOOM_OS_INITRAMFS_PATTERN="/initramfs-%{version}.img"
+BOOM_OS_ROOT_OPTS_LVM2="rd.lvm.lv=%{lvm_root_lv}"
+BOOM_OS_ROOT_OPTS_BTRFS="rootflags=%{btrfs_subvolume}"
+BOOM_OS_OPTIONS="root=%{root_device} ro %{root_opts} rhgb quiet"

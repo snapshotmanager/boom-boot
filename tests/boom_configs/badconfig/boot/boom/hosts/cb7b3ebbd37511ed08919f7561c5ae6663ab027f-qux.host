@@ -1,0 +1,7 @@
+BOOM_HOST_ID="cb7b3ebbd37511ed08919f7561c5ae6663ab027f"
+BOOM_HOST_NAME="qux.errorists.org"
+BOOM_ENTRY_MACHINE_ID="ffffffffffffc"
+BOOM_OS_ID="d4439b7"
+BOOM_OS_OPTIONS="root=%{root_device} ro %{root_opts} rhgb quiet qux"
+BOOM_HOST_ADD_OPTS="debug"
+BOOM_HOST_DEL_OPTS="rhgb quiet"

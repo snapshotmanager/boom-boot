@@ -1,0 +1,8 @@
+Profile directory for the boom unit test suite.
+
+This directory contains real and mock OsProfile data for use
+with the boom test suite.
+
+For examples of actual Boom operating system profiles that can
+be used with the tool please refer to the examples/profiles
+directory in the source tree.
