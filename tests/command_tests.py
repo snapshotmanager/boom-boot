@@ -181,6 +181,26 @@ class CommandHelperTests(unittest.TestCase):
         boom.command.show_legacy()
 
 
+# Default test OsProfile identifiers
+test_os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"
+test_os_disp_id = test_os_id[0:6]
+
+
+def get_create_cmd_args():
+    """Return a correct MockArgs object for a call to the _create_cmd()
+        helper. Tests that should fail modify the fields returned to
+        generate the required error.
+    """
+    args = MockArgs()
+    args.profile = test_os_disp_id
+    args.title = "ATITLE"
+    args.version = "2.6.0"
+    args.machine_id = "ffffffff"
+    args.root_device = "/dev/vg_hex/root"
+    args.root_lv = "vg_hex/root"
+    return args
+
+
 class CommandTests(unittest.TestCase):
     """Test boom.command APIs
     """
@@ -348,7 +368,7 @@ class CommandTests(unittest.TestCase):
 
     def test_create_entry_notitle(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         osp.title = None
         with self.assertRaises(ValueError) as cm:
             be = create_entry(None, "2.6.0", "ffffffff", "/dev/vg_hex/root",
@@ -356,14 +376,14 @@ class CommandTests(unittest.TestCase):
 
     def test_create_entry_noversion(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         with self.assertRaises(ValueError) as cm:
             be = create_entry("ATITLE", None, "ffffffff", "/dev/vg_hex/root",
                               lvm_root_lv="vg_hex/root", profile=osp)
 
     def test_create_entry_nomachineid(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         with self.assertRaises(ValueError) as cm:
             be = create_entry("ATITLE", "2.6.0", "", "/dev/vg_hex/root",
                               lvm_root_lv="vg_hex/root", profile=osp)
@@ -371,21 +391,21 @@ class CommandTests(unittest.TestCase):
     def test_create_entry_norootdevice(self):
         # FIXME: should this default from the lvm_root_lv?
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         with self.assertRaises(ValueError) as cm:
             be = create_entry("ATITLE", "2.6.0", "ffffffff", None,
                               lvm_root_lv="vg_hex/root", profile=osp)
 
     def test_create_entry_noosprofile(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         with self.assertRaises(ValueError) as cm:
             be = create_entry("ATITLE", "2.6.0", "ffffffff",
                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root")
 
     def test_create_dupe(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
 
         title = "Fedora (4.1.1-100.fc24.x86_64) 24 (Workstation Edition)"
         machine_id = "611f38fd887d41dea7eb3403b2730a76"
@@ -400,7 +420,7 @@ class CommandTests(unittest.TestCase):
 
     def test_create_delete_entry(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
                           lvm_root_lv="vg_hex/root", profile=osp)
         self.assertTrue(exists(be._entry_path))
@@ -416,7 +436,7 @@ class CommandTests(unittest.TestCase):
         set_boot_path(BOOT_ROOT_TEST)
 
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
                           lvm_root_lv="vg_hex/root", profile=osp)
         self.assertTrue(exists(be._entry_path))
@@ -458,7 +478,7 @@ class CommandTests(unittest.TestCase):
 
     def test_clone_delete_entry(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
                           lvm_root_lv="vg_hex/root", profile=osp)
         self.assertTrue(exists(be._entry_path))
@@ -476,7 +496,7 @@ class CommandTests(unittest.TestCase):
 
     def test_clone_entry_no_args(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
                           lvm_root_lv="vg_hex/root", profile=osp)
         self.assertTrue(exists(be._entry_path))
@@ -499,7 +519,7 @@ class CommandTests(unittest.TestCase):
 
     def test_clone_dupe(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         be = create_entry("CLONE_TEST", "2.6.0", "ffffffff", "/dev/vg_hex/root",
                           lvm_root_lv="vg_hex/root", profile=osp)
         self.assertTrue(exists(be._entry_path))
@@ -529,7 +549,7 @@ class CommandTests(unittest.TestCase):
 
     def test_edit_entry_add_opts(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
                                "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
                                profile=osp)
@@ -571,7 +591,7 @@ class CommandTests(unittest.TestCase):
         orig_add_opts = "bar"
 
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
                                "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
                                add_opts="bar", profile=osp)
@@ -609,7 +629,7 @@ class CommandTests(unittest.TestCase):
 
     def test_edit_entry_del_opts(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
                                "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
                                profile=osp)
@@ -651,7 +671,7 @@ class CommandTests(unittest.TestCase):
         orig_del_opts = "quiet"
 
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
                                "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
                                del_opts="quiet", profile=osp)
@@ -693,7 +713,7 @@ class CommandTests(unittest.TestCase):
 
     def test_edit_entry_del_opts(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
                                "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
                                profile=osp)
@@ -707,7 +727,7 @@ class CommandTests(unittest.TestCase):
 
     def test_edit_delete_entry(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("ATITLE", "2.6.0", "ffffffff",
                                "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
                                profile=osp)
@@ -726,7 +746,7 @@ class CommandTests(unittest.TestCase):
 
     def test_edit_entry_no_args(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
                           lvm_root_lv="vg_hex/root", profile=osp)
         self.assertTrue(exists(be._entry_path))
@@ -738,7 +758,7 @@ class CommandTests(unittest.TestCase):
 
     def test_edit_entry_with_add_del_opts(self):
         # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id("9cb53ddda889d6285fd9ab985a4c47025884999f")
+        osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
                                "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
                                profile=osp)
