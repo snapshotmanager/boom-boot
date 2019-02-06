@@ -133,7 +133,7 @@ def load_boom_config(path=None):
     set_boom_config(bc)
 
 
-def __sync_config(bc, cfg):
+def _sync_config(bc, cfg):
     """Sync the configuration values of ``BoomConfig`` object ``bc`` to
         the ``ConfigParser`` ``cfg``.
     """
@@ -160,7 +160,7 @@ def __make_config(bc):
     cfg = ConfigParser()
     cfg.add_section("global")
     cfg.add_section("legacy")
-    __sync_config(bc, cfg)
+    _sync_config(bc, cfg)
     return bc
 
 
@@ -183,7 +183,7 @@ def write_boom_config(config=None, path=None):
     if not config._cfg:
         config._cfg = __make_config(config)
     else:
-        __sync_config(config, config._cfg)
+        _sync_config(config, config._cfg)
 
     with fdopen(tmp_fd, "w") as f_tmp:
         config._cfg.write(f_tmp)
