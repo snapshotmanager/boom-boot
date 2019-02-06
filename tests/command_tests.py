@@ -1165,6 +1165,11 @@ class CommandTests(unittest.TestCase):
         hps = list_hosts()
         self.assertTrue(len(hps) >= 1)
 
+    def test_print_hosts_default(self):
+        """Test the list_hosts() API call with no selection.
+        """
+        print_hosts()
+
 
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
