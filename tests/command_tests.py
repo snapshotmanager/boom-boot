@@ -36,6 +36,9 @@ from boom.command import *
 from boom.config import *
 from boom.report import *
 
+# For access to non-exported members
+import boom.command
+
 from tests import *
 
 BOOT_ROOT_TEST = abspath("./tests")
@@ -1196,6 +1199,70 @@ class CommandTests(unittest.TestCase):
         """Test the list_hosts() API call with no selection.
         """
         print_hosts()
+
+    #
+    # Command handler tests
+    #
+
+    def test__create_cmd(self):
+        """Test the _create_cmd() handler with correct arguments.
+        """
+        args = get_create_cmd_args()
+        opts = boom.command._report_opts_from_args(args)
+        boom.command._create_cmd(args, None, opts, None)
+
+    def test__create_cmd_bad_identity(self):
+        """Test the _create_cmd() handler with an invalid identity
+            function argument.
+        """
+        args = get_create_cmd_args()
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, "badident")
+        self.assertEqual(r, 1)
+
+    @unittest.skip("Requires boom.command.get_uts_release() override")
+    def test__create_cmd_no_version(self):
+        """Test the _create_cmd() handler with missing version.
+        """
+        args = get_create_cmd_args()
+        args.version = None
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertEqual(r, 1)
+
+    def test__create_cmd_no_root_device(self):
+        """Test the _create_cmd() handler with missing root device.
+        """
+        args = get_create_cmd_args()
+        args.root_device = None
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertEqual(r, 1)
+
+    def test__create_cmd_no_profile(self):
+        """Test the _create_cmd() handler with missing profile.
+        """
+        args = get_create_cmd_args()
+        args.profile = None
+        # Avoid HostProfile match
+        args.machine_id = "quxquxquxqux"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertEqual(r, 1)
+
+    def test__create_cmd_no_title(self):
+        """Test the _create_cmd() handler with missing title.
+        """
+        args = get_create_cmd_args()
+        args.title = None
+
+        # Avoid OsProfile auto-title
+        osp = get_os_profile_by_id(test_os_id)
+        osp.title = None
+
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertEqual(r, 1)
 
 
 # Calling the main() entry point from the test suite causes a SysExit
