@@ -1425,9 +1425,8 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
     """
     (name, decorator, path)  = find_legacy_loader(loader, None)
     bes = find_entries(selection=selection)
-    for be in bes:
-        gbe = Grub1BootEntry(entry_data=be._entry_data)
-        print(gbe)
+    [print(decorator(be)) for be in bes]
+
 
 #
 # boom command line tool
