@@ -45,6 +45,8 @@ config.legacy_sync = False
 set_boom_config(config)
 set_boot_path(BOOT_ROOT_TEST)
 
+debug_masks = ['profile', 'entry', 'report', 'command', 'all']
+
 
 class CommandHelperTests(unittest.TestCase):
     """Test internal boom.command helpers: methods in this part of the
@@ -137,6 +139,33 @@ class CommandHelperTests(unittest.TestCase):
         options = "+f4,f5,f6"
         xfield = default + ',' + options[1:]
         self.assertEqual(xfield, boom.command._expand_fields(default, options))
+
+    def test_set_debug_no_debug_arg(self):
+        """Test set_debug() with an empty debug mask argument.
+        """
+        import boom.command
+        boom.command.set_debug(None)
+
+    def test_set_debug_args_one(self):
+        """Test set_debug() with a single debug mask argument.
+        """
+        import boom.command
+        for mask in debug_masks:
+            boom.command.set_debug(mask)
+
+    def test_set_debug_args_all(self):
+        """Test set_debug() with a list of debug mask arguments.
+        """
+        import boom.command
+        all_masks = ",".join(debug_masks[:-1])
+        boom.command.set_debug(all_masks)
+
+    def test_set_debug_no_debug_arg(self):
+        """Test set_debug() with a bad debug mask argument.
+        """
+        import boom.command
+        with self.assertRaises(ValueError) as cm:
+            boom.command.set_debug("nosuchmask")
 
 class CommandTests(unittest.TestCase):
     """Test boom.command APIs
