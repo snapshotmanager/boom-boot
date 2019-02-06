@@ -67,7 +67,7 @@ _CFG_LEGACY_FMT = "format"
 _CFG_LEGACY_SYNC = "sync"
 
 
-def read_boom_config(path=None):
+def _read_boom_config(path=None):
     """Read boom persistent configuration values from the defined path
         and return them as a ``BoomConfig`` object.
 
@@ -126,7 +126,7 @@ def load_boom_config(path=None):
 
         :returntype: None
     """
-    bc = read_boom_config(path=path)
+    bc = _read_boom_config(path=path)
     set_boom_config(bc)
 
 
