@@ -174,6 +174,13 @@ class CommandHelperTests(unittest.TestCase):
         args = MockArgs()
         boom.command.setup_logging(args)
 
+    def test_show_legacy_default(self):
+        """Test the show_legacy() command helper.
+        """
+        import boom.command
+        boom.command.show_legacy()
+
+
 class CommandTests(unittest.TestCase):
     """Test boom.command APIs
     """
