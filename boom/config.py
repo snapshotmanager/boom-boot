@@ -137,6 +137,10 @@ def _sync_config(bc, cfg):
     """Sync the configuration values of ``BoomConfig`` object ``bc`` to
         the ``ConfigParser`` ``cfg``.
     """
+    def yes_no(value):
+        if value:
+            return "yes"
+        return "no"
 
     def attr_has_value(obj, attr):
         return hasattr(obj, attr) and getattr(obj, attr) is not None
@@ -146,11 +150,11 @@ def _sync_config(bc, cfg):
     if attr_has_value(bc, "boom_path"):
         cfg.set(_CFG_SECT_GLOBAL, _CFG_BOOM_ROOT, bc.boom_path)
     if attr_has_value(bc, "legacy_enable"):
-        cfg.set(_CFG_SECT_LEGACY, _CFG_LEGACY_ENABLE, str(bc.legacy_enable))
+        cfg.set(_CFG_SECT_LEGACY, _CFG_LEGACY_ENABLE, yes_no(bc.legacy_enable))
     if attr_has_value(bc, "legacy_format"):
         cfg.set(_CFG_SECT_LEGACY, _CFG_LEGACY_FMT, bc.legacy_format)
     if attr_has_value(bc, "legacy_sync"):
-        cfg.set(_CFG_SECT_LEGACY, _CFG_LEGACY_SYNC, bc.legacy_sync)
+        cfg.set(_CFG_SECT_LEGACY, _CFG_LEGACY_SYNC, yes_no(bc.legacy_sync))
 
 
 def __make_config(bc):
