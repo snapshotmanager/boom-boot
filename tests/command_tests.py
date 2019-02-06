@@ -1159,6 +1159,13 @@ class CommandTests(unittest.TestCase):
         # Clean up osp
         osp.delete_profile()
 
+    def test_list_hosts_default(self):
+        """Test the list_hosts() API call with no selection.
+        """
+        hps = list_hosts()
+        self.assertTrue(len(hps) >= 1)
+
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
