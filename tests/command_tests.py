@@ -1230,6 +1230,16 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
 
+    def test__create_cmd_version_from_uts(self):
+        """Test the _create_cmd() handler with missing version, and the
+            default version obtained from the system UTS data.
+        """
+        args = get_create_cmd_args()
+        args.version = None
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertNotEqual(r, 1)
+
     def test__create_cmd_no_root_device(self):
         """Test the _create_cmd() handler with missing root device.
         """
