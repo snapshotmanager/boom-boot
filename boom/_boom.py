@@ -345,10 +345,11 @@ def set_boom_path(boom_path):
         :raises: ValueError if ``boom_path`` does not exist.
     """
     global __config
+    err_str = "Boom path %s does not exist" % boom_path
     if isabs(boom_path) and not path_exists(boom_path):
-        raise ValueError("Boom path %s does not exist" % boom_path)
+        raise ValueError(err_str)
     elif not path_exists(path_join(__config.boot_path, boom_path)):
-        raise ValueError("Boom path %s does not exist" % boom_path)
+        raise ValueError(err_str)
 
     if not isabs(boom_path):
         boom_path = path_join(__config.boot_path, boom_path)
