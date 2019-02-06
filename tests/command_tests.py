@@ -167,6 +167,13 @@ class CommandHelperTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             boom.command.set_debug("nosuchmask")
 
+    def test_setup_logging(self):
+        """Test the setup_logging() command helper.
+        """
+        import boom.command
+        args = MockArgs()
+        boom.command.setup_logging(args)
+
 class CommandTests(unittest.TestCase):
     """Test boom.command APIs
     """
