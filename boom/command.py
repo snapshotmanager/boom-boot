@@ -2656,7 +2656,7 @@ __all__ = [
 
     # HostProfile manipulation
     'create_host', 'delete_hosts', 'clone_host', 'edit_host',
-    'list_hosts'#, 'print_hosts'
+    'list_hosts', 'print_hosts'
 ]
 
 # vim: set et ts=4 sw=4 :
