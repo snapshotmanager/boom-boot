@@ -35,8 +35,8 @@ from boom.legacy import *
 from boom.config import *
 
 import sys
-from os import environ, uname
-from os.path import basename
+from os import environ, uname, getcwd
+from os.path import basename, isabs, join
 from argparse import ArgumentParser
 import logging
 
@@ -2587,6 +2587,8 @@ def main(args):
 
     if cmd_args.boot_dir or BOOM_BOOT_PATH_ENV in environ:
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
+        if not isabs(boot_path):
+            boot_path = join(getcwd(), boot_path)
         set_boot_path(boot_path)
         set_boom_config_path("boom.conf")
 
