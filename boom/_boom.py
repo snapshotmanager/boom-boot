@@ -30,7 +30,8 @@ See the sub-module documentation for specific information on the
 classes and interfaces provided, and the ``boom`` tool help output and
 manual page for information on using the command line interface.
 """
-from os.path import exists as path_exists, isabs, join as path_join
+from os.path import exists as path_exists, isabs, isdir, join as path_join
+from errno import ENOENT
 from os import listdir
 import logging
 import string
@@ -43,6 +44,14 @@ DEFAULT_BOOM_DIR = "boom"
 
 #: The root directory for Boom configuration files.
 DEFAULT_BOOM_PATH = path_join(DEFAULT_BOOT_PATH, DEFAULT_BOOM_DIR)
+
+#: Configuration file mode
+BOOT_CONFIG_MODE = 0o644
+
+#: The default configuration file location
+BOOM_CONFIG_FILE = "boom.conf"
+DEFAULT_BOOM_CONFIG_PATH = path_join(DEFAULT_BOOM_PATH, BOOM_CONFIG_FILE)
+__boom_config_path = DEFAULT_BOOM_CONFIG_PATH
 
 #: Kernel version string, in ``uname -r`` format.
 FMT_VERSION = "version"
@@ -329,6 +338,13 @@ def set_boot_path(boot_path):
     __config.boom_path = path_join(boot_path, DEFAULT_BOOM_DIR)
     _log_debug("Set boom path to: %s" % __config.boom_path)
 
+    # If a boom/ directory exists at the boot path, automatically set
+    # the boom path to it. Otherwise, we assume that the caller will
+    # set the path explicitly to some non-default location.
+    boom_path = path_join(boot_path, "boom")
+    if path_exists(boom_path) and isdir(boom_path):
+        set_boom_path(path_join(__config.boot_path, "boom"))
+
 
 def set_boom_path(boom_path):
     """Set the location of the boom configuration directory.
@@ -360,6 +376,30 @@ def set_boom_path(boom_path):
 
     _log_debug("Set boom path to: %s" % DEFAULT_BOOM_DIR)
     __config.boom_path = boom_path
+    set_boom_config_path(__config.boom_path)
+
+def get_boom_config_path():
+    """Return the currently configured boom configuration file path.
+
+        :returntype: str
+        :returns: the current boom configuration file path
+    """
+    return __boom_config_path
+
+
+def set_boom_config_path(path):
+    """Set the boom configuration file path.
+    """
+    global __boom_config_path
+    path = path or get_boom_config_path()
+    if not isabs(path):
+        path = path_join(get_boom_path())
+    if isdir(path):
+        path = path_join(path, BOOM_CONFIG_FILE)
+#    if not path_exists(path):
+#        raise IOError(ENOENT, "File not found: '%s'" % path)
+    __boom_config_path = path
+    _log_debug("set boom_config_path to '%s'" % path)
 
 
 def parse_btrfs_subvol(subvol):
@@ -838,6 +878,7 @@ def load_profiles_for_class(profile_class, profile_type,
 __all__ = [
     # boom module constants
     'DEFAULT_BOOT_PATH', 'DEFAULT_BOOM_PATH',
+    'BOOM_CONFIG_FILE',
 
     # Profile format keys
     'FMT_VERSION',
@@ -865,6 +906,8 @@ __all__ = [
     'get_boom_path',
     'set_boot_path',
     'set_boom_path',
+    'set_boom_config_path',
+    'get_boom_config_path',
 
     # Persistent configuration
     'set_boom_config',

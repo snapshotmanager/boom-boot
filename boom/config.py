@@ -49,38 +49,6 @@ _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
 
-#: Configuration file mode
-BOOT_CONFIG_MODE = 0o644
-
-#: The default configuration file location
-BOOM_CONFIG_FILE = "boom.conf"
-DEFAULT_BOOM_CONFIG_PATH = path_join(get_boom_path(), BOOM_CONFIG_FILE)
-__boom_config_path = DEFAULT_BOOM_CONFIG_PATH
-
-def get_boom_config_path():
-    """Return the currently configured boom configuration file path.
-
-        :returntype: str
-        :returns: the current boom configuration file path
-    """
-    return __boom_config_path
-
-
-def set_boom_config_path(path):
-    """Set the boom configuration file path.
-    """
-    global __boom_config_path
-    path = path or get_boom_config_path()
-    if not isabs(path):
-        path = path_join(get_boom_path())
-    if isdir(path):
-        path = path_join(path, BOOM_CONFIG_FILE)
-    if not path_exists(path):
-        raise IOError(ENOENT, "File not found: '%s'" % path)
-    __boom_config_path = path
-    _log_debug("set boom_config_path to '%s'" % path)
-
-
 #
 # Constants for configuration sections and options: to add a new option,
 # create a new _CFG_* constant giving the name of the option and add a
@@ -233,11 +201,8 @@ def write_boom_config(config=None, path=None):
 
 __all__ = [
     'BoomConfigError', 'BoomConfig',
-    'BOOM_CONFIG_FILE',
 
     # Configuration file handling
-    'set_boom_config_path',
-    'get_boom_config_path',
     'load_boom_config',
     'write_boom_config'
 ]
