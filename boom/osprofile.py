@@ -32,6 +32,8 @@ all the profile keys are stored in the ``OS_KEY_NAMES`` dictionary: these
 are suitable for display use and are used by default by the
 ``OsProfile`` string formatting routines.
 """
+from __future__ import print_function
+
 from boom import *
 from hashlib import sha1
 from os import listdir

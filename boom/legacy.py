@@ -18,6 +18,8 @@ Legacy formats are read-only and can only be updated by synchronising
 the entire current set of boot entries to the legacy format, or removing
 all entries from the legacy configuration file.
 """
+from __future__ import print_function
+
 from boom import *
 from boom.bootloader import *
 

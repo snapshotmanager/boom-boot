@@ -24,6 +24,8 @@ In addition the module contains definitions for ``BoomReport``
 object types and fields that may be of use in implementing custom
 reports using the ``boom.report`` module.
 """
+from __future__ import print_function
+
 from boom import *
 from boom.osprofile import *
 from boom.report import *

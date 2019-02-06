@@ -37,6 +37,8 @@ to BLS keys is available in the ``KEY_MAP`` dictionary (a reverse map
 is also provided in the ``MAP_KEY`` member).
 
 """
+from __future__ import print_function
+
 from boom import *
 from boom.osprofile import *
 from boom.hostprofile import find_host_profiles

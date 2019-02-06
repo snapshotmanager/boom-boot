@@ -29,6 +29,8 @@ straightforward access to all members in scripts and the Python shell.
 The keys used to access ``HostProfile`` members (and their corresponding
 property names) are identical to those used by the ``OsProfile`` class.
 """
+from __future__ import print_function
+
 from boom import *
 from boom.osprofile import *
 

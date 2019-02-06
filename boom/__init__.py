@@ -30,6 +30,8 @@ See the sub-module documentation for specific information on the
 classes and interfaces provided, and the ``boom`` tool help output and
 manual page for information on using the command line interface.
 """
+from __future__ import print_function
+
 from _boom import *
 from _boom import __all__
 

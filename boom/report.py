@@ -27,6 +27,8 @@ The ``BoomReport`` module is closely based on the ``device-mapper``
 reporting engine and shares many features and behaviours with device
 mapper reports.
 """
+from __future__ import print_function
+
 from boom import find_minimum_sha_prefix, BOOM_DEBUG_REPORT
 import logging
 import sys

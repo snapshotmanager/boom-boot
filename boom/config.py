@@ -18,6 +18,8 @@ library and tools.
 Users of the module can load and write configuration data, and obtain
 the values of configuration keys defined in the boom configuration file.
 """
+from __future__ import print_function
+
 from boom import *
 
 from os.path import (
