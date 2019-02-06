@@ -1283,6 +1283,22 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
 
+    def test__delete_cmd(self):
+        """Test the _delete_cmd() handler with a valid entry.
+        """
+        args = MockArgs()
+        args.boot_id = "61bcc49"
+        opts = boom.command._report_opts_from_args(args)
+        boom.command._delete_cmd(args, None, opts, None)
+
+    def test__delete_cmd_identity(self):
+        """Test the _delete_cmd() handler with a valid entry that
+            is passed via the 'identiry' handler argument.
+        """
+        args = MockArgs()
+        opts = boom.command._report_opts_from_args(args)
+        boom.command._delete_cmd(args, None, opts, "61bcc49")
+
 
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
