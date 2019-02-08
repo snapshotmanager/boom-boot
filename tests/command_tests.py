@@ -902,6 +902,14 @@ class CommandTests(unittest.TestCase):
             bad_osp = create_profile(None, None, None, None,
                                      profile_data=profile_data)
 
+    def test__create_profile_cmd_invalid_identifier(self):
+        """Test that _create_profile_cmd() rejects an identifier arg.
+        """
+        args = MockArgs()
+        identifier = "d4439b7"
+        r = boom.command._create_profile_cmd(args, None, None, identifier)
+        self.assertEqual(r, 1)
+
     def test_clone_profile_no_os_id(self):
         with self.assertRaises(ValueError) as cm:
             bad_osp = clone_profile(Selection())
