@@ -1460,6 +1460,39 @@ class CommandTests(unittest.TestCase):
         r = boom.command._list_cmd(args, None, opts, None)
         self.assertEqual(r, 0)
 
+    def test__edit_cmd(self):
+        """Test the _edit_cmd() handler with a valid entry and new
+            title.
+        """
+        args = MockArgs()
+        args.boot_id = "61bcc49"
+        args.title = "Something New"
+        # Disable device presence checks
+        args.no_dev = True
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._edit_cmd(args, None, opts, None)
+        self.assertNotEqual(r, 1)
+
+    def test__edit_cmd_no_criteria(self):
+        """Test the _edit_cmd() handler with no valid selection.
+        """
+        args = MockArgs()
+        args.boot_id = None
+        args.title = "Something New"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._edit_cmd(args, None, opts, None)
+        self.assertEqual(r, 1)
+
+    def test__edit_cmd_no_matching(self):
+        """Test the _edit_cmd() handler with no matching entries.
+        """
+        args = MockArgs()
+        args.boot_id = "qux"
+        args.title = "Something New"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._edit_cmd(args, None, opts, None)
+        self.assertEqual(r, 1)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
