@@ -1689,6 +1689,7 @@ def _list_cmd(cmd_args, select, opts, identifier):
         :param select: Selection criteria fore the entries to list
         :returns: integer status code returned from ``main()``
     """
+    identifier = identifier or cmd_args.boot_id
     if identifier is not None:
         select = Selection(boot_id=identifier)
 
