@@ -1667,7 +1667,7 @@ def _show_cmd(cmd_args, select, opts, identifier):
         select = Selection(boot_id=identifier)
 
     try:
-        bes = find_entries(select)
+        bes = find_entries(selection=select)
     except ValueError as e:
         print(e)
         return 1
