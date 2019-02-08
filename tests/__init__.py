@@ -96,6 +96,7 @@ class MockArgs(object):
     rows = False
     separator = ""
     short_name = ""
+    sort = ""
     title = ""
     type = ""
     uname_pattern = ""
