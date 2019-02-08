@@ -1547,6 +1547,7 @@ def _delete_cmd(cmd_args, select, opts, identifier):
     """
     # If a boot_id is given as a command line argument treat it as
     # a single boot entry to delete and ignore any other criteria.
+    identifier = identifier or cmd_args.boot_id
     if identifier is not None:
         select = Selection(boot_id=identifier)
 
