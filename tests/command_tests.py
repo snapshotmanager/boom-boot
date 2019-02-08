@@ -910,6 +910,15 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_profile_cmd(args, None, None, identifier)
         self.assertEqual(r, 1)
 
+    def test__delete_profile_cmd_valid_identifier(self):
+        """Test that _delete_profile_cmd() deletes a profile via a
+            valid identifier arg.
+        """
+        args = MockArgs()
+        identifier = "d4439b7"
+        r = boom.command._delete_profile_cmd(args, None, None, identifier)
+        self.assertEqual(r, 0)
+
     def test_clone_profile_no_os_id(self):
         with self.assertRaises(ValueError) as cm:
             bad_osp = clone_profile(Selection())
