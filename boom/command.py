@@ -1586,6 +1586,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
         :param select: The ``boot_id`` to clone
         :returns: integer status code returned from ``main()``
     """
+    identifier = identifier or cmd_args.boot_id
     if identifier is not None:
         select = Selection(boot_id=identifier)
 
