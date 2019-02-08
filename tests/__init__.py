@@ -88,6 +88,7 @@ class MockArgs(object):
     options = ""
     os_id = ""
     os_options = ""
+    os_release = ""
     os_version = ""
     os_version_id = ""
     profile = ""
