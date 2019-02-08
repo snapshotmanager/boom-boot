@@ -1289,7 +1289,8 @@ class CommandTests(unittest.TestCase):
         args = MockArgs()
         args.boot_id = "61bcc49"
         opts = boom.command._report_opts_from_args(args)
-        boom.command._delete_cmd(args, None, opts, None)
+        r = boom.command._delete_cmd(args, None, opts, None)
+        self.assertNotEqual(r, 1)
 
     def test__delete_cmd_identity(self):
         """Test the _delete_cmd() handler with a valid entry that
@@ -1297,7 +1298,8 @@ class CommandTests(unittest.TestCase):
         """
         args = MockArgs()
         opts = boom.command._report_opts_from_args(args)
-        boom.command._delete_cmd(args, None, opts, "61bcc49")
+        r = boom.command._delete_cmd(args, None, opts, "61bcc49")
+        self.assertNotEqual(r, 1)
 
 
 # Calling the main() entry point from the test suite causes a SysExit
