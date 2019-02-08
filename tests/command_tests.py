@@ -1413,6 +1413,17 @@ class CommandTests(unittest.TestCase):
         r = boom.command._show_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
+    def test__show_cmd_invalid_selection(self):
+        """Test the _show_cmd() handler with an invalid selection.
+        """
+        args = MockArgs()
+        # Clear boot_id
+        args.boot_id = None
+        # Invalid selection criteria for BootEntry type
+        select = Selection(host_add_opts="qux")
+        r = boom.command._show_cmd(args, select, None, None)
+        self.assertEqual(r, 1)
+
     def test__list_cmd(self):
         args = MockArgs()
         r = boom.command._list_cmd(args, None, None, None)
