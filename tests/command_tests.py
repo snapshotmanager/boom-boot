@@ -1450,6 +1450,17 @@ class CommandTests(unittest.TestCase):
         r = boom.command._list_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
+    def test__list_cmd_invalid_selection(self):
+        """Test the _list_cmd() handler with an invalid selection.
+        """
+        args = MockArgs()
+        # Clear boot_id
+        args.boot_id = None
+        # Invalid selection criteria for BootEntry type
+        select = Selection(host_add_opts="qux")
+        r = boom.command._list_cmd(args, select, None, None)
+        self.assertEqual(r, 1)
+
     def test__list_cmd_with_options(self):
         """Test the _list_cmd() handler with report field options
             string.
