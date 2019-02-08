@@ -1333,6 +1333,14 @@ class CommandTests(unittest.TestCase):
         r = boom.command._delete_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
 
+    def test__delete_cmd_multi(self):
+        """Test the _delete_cmd() handler with multiple valid entries.
+        """
+        args = MockArgs()
+        args.boot_id = "6" # Matches four entries
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._delete_cmd(args, None, opts, None)
+        self.assertNotEqual(r, 1)
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
