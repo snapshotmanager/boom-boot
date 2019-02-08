@@ -1725,6 +1725,10 @@ def _edit_cmd(cmd_args, select, opts, identifier):
     if identifier is not None:
         select = Selection(boot_id=identifier)
 
+    if not select or select.is_null():
+        print("edit requires selection criteria")
+        return 1
+
     title = cmd_args.title
     version = cmd_args.version
     root_device = cmd_args.root_device
