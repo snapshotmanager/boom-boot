@@ -1533,6 +1533,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
 
     print("Created entry with boot_id %s:" % be.disp_boot_id)
     print(_str_indent(str(be), 2))
+    return 0
 
 
 def _delete_cmd(cmd_args, select, opts, identifier):
@@ -1571,6 +1572,7 @@ def _delete_cmd(cmd_args, select, opts, identifier):
         return 1
 
     print("Deleted %d entr%s" % (nr, "ies" if nr > 1 else "y"))
+    return 0
 
 
 def _clone_cmd(cmd_args, select, opts, identifier):
@@ -1703,6 +1705,7 @@ def _list_cmd(cmd_args, select, opts, identifier):
     except ValueError as e:
         print(e)
         return 1
+    return 0
 
 
 def _edit_cmd(cmd_args, select, opts, identifier):
