@@ -1593,7 +1593,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
         select = Selection(boot_id=identifier)
 
     if not select or select.is_null():
-        print("delete requires selection criteria")
+        print("clone requires selection criteria")
         return 1
 
     title = cmd_args.title
