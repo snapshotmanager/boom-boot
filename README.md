@@ -604,7 +604,7 @@ and [Read the Docs][6].
 
 Installation and user documentation will be added in a future update.
 
- [0]: https://www.freedesktop.org/wiki/Specifications/BootLoaderSpec/
+ [0]: https://systemd.io/BOOT_LOADER_SPECIFICATION
  [1]: https://github.com/bmr-cymru/snapshot-boot-docs
  [2]: https://github.com/bmr-cymru/boom/issues
  [3]: https://www.redhat.com/mailman/listinfo/dm-devel
