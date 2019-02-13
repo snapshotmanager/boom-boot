@@ -1,0 +1,7 @@
+NAME=Test OS
+VERSION="1 (Testing Edition)"
+ID=testos
+VERSION_ID=1
+PRETTY_NAME="Test OS 1 (Testing Edition)"
+VARIANT="Testing Edition"
+VARIANT_ID=testing
