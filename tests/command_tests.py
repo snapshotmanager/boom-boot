@@ -1707,6 +1707,44 @@ class CommandTests(unittest.TestCase):
         r = boom.command._delete_profile_cmd(args, None, None, identifier)
         self.assertEqual(r, 0)
 
+    def test__delete_profile_cmd_no_selection(self):
+        """Test that _delete_profile_cmd() returns an error with no
+            profile selection.
+        """
+        args = MockArgs()
+        args.profile = None
+        r = boom.command._delete_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
+    def test__delete_profiles_cmd_verbose(self):
+        """Test the _delete_profile_cmd() handler with reporting.
+        """
+        args = MockArgs()
+        args.profile = "d4439b7"
+        args.verbose = 1 # enable reporting
+        r = boom.command._delete_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
+    def test__delete_profiles_cmd_with_fields(self):
+        """Test the _delete_profile_cmd() handler with reporting.
+        """
+        args = MockArgs()
+        args.profile = "d4439b7"
+        args.options = "osid,osname"
+        args.verbose = 1 # enable reporting
+        r = boom.command._delete_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
+    def test__delete_profiles_cmd_with_bad_fields(self):
+        """Test the _delete_profile_cmd() handler with reporting.
+        """
+        args = MockArgs()
+        args.profile = "d4439b7"
+        args.options = "There,is,water,at,the,bottom,of,the,ocean"
+        args.verbose = 1 # enable reporting
+        r = boom.command._delete_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
