@@ -1342,7 +1342,7 @@ class CommandTests(unittest.TestCase):
 
     def test__delete_cmd_with_options(self):
         """Test the _delete_cmd() handler with a valid entry and report
-            field options string.
+            options object setting columns-as-rows mode.
         """
         args = MockArgs()
         args.boot_id = "61bcc49"
