@@ -1563,6 +1563,66 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_profile_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
+    def test__create_profile_cmd_no_name(self):
+        """Test the _create_profile_cmd() handler with valid args.
+        """
+        args = MockArgs()
+        args.name = None
+        args.short_name = "testos"
+        args.os_version = "1 (Workstation)"
+        args.os_version_id = "1"
+        args.uname_pattern = "to1"
+        r = boom.command._create_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
+    def test__create_profile_cmd_no_short_name(self):
+        """Test the _create_profile_cmd() handler with valid args.
+        """
+        args = MockArgs()
+        args.name = "Test OS"
+        args.short_name = None
+        args.os_version = "1 (Workstation)"
+        args.os_version_id = "1"
+        args.uname_pattern = "to1"
+        r = boom.command._create_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
+    def test__create_profile_cmd_no_version(self):
+        """Test the _create_profile_cmd() handler with valid args.
+        """
+        args = MockArgs()
+        args.name = "Test OS"
+        args.short_name = "testos"
+        args.os_version = None
+        args.os_version_id = "1"
+        args.uname_pattern = "to1"
+        r = boom.command._create_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
+    def test__create_profile_cmd_no_version_id(self):
+        """Test the _create_profile_cmd() handler with valid args.
+        """
+        args = MockArgs()
+        args.name = "Test OS"
+        args.short_name = "testos"
+        args.os_version = "1 (Workstation)"
+        args.os_version_id = None
+        args.uname_pattern = "to1"
+        r = boom.command._create_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
+    def test__create_profile_cmd_no_uname_pattern(self):
+        """Test the _create_profile_cmd() handler with valid args.
+        """
+        args = MockArgs()
+        args.name = "Test OS"
+        args.short_name = "testos"
+        args.os_version = "1 (Workstation)"
+        args.os_version_id = "1"
+        args.uname_pattern = None
+        r = boom.command._create_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
     def test__create_profile_cmd_from_host(self):
         """Test that creation of an OsProfile from /etc/os-release on
             the running host succeeds.
