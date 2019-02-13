@@ -1584,6 +1584,16 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_profile_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
+    def test__create_profile_cmd_from_os_release(self):
+        """Test creation of an OsProfile from an os-release file.
+        """
+        test_os_release = "tests/os-release/test-os-release"
+        args = MockArgs()
+        args.uname_pattern = "test1"
+        args.os_release = test_os_release
+        r = boom.command._create_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
