@@ -1311,6 +1311,16 @@ class CommandTests(unittest.TestCase):
         r = boom.command._delete_profile_cmd(args, None, None, identifier)
         self.assertEqual(r, 0)
 
+    def test__delete_cmd_no_selection(self):
+        """Test that _delete_cmd() rejects a call with no valid
+            selection.
+        """
+        args = MockArgs()
+        args.boot_id = None
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._delete_cmd(args, None, opts, None)
+        self.assertEqual(r, 1)
+
     def test__delete_cmd(self):
         """Test the _delete_cmd() handler with a valid entry.
         """
