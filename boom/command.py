@@ -1913,13 +1913,13 @@ def _clone_profile_cmd(cmd_args, select, opts, identifier):
     select = Selection(os_id=select.os_id)
 
     try:
-        be = clone_profile(selection=select, name=name, short_name=short_name,
-                           version=version, version_id=version_id,
-                           uname_pattern=uname_pattern,
-                           kernel_pattern=kernel_pattern,
-                           initramfs_pattern=initramfs_pattern,
-                           root_opts_lvm2=root_opts_lvm2,
-                           root_opts_btrfs=root_opts_btrfs, options=options)
+        osp = clone_profile(selection=select, name=name, short_name=short_name,
+                            version=version, version_id=version_id,
+                            uname_pattern=uname_pattern,
+                            kernel_pattern=kernel_pattern,
+                            initramfs_pattern=initramfs_pattern,
+                            root_opts_lvm2=root_opts_lvm2,
+                            root_opts_btrfs=root_opts_btrfs, options=options)
 
     except ValueError as e:
         print(e)
