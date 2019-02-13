@@ -1330,6 +1330,16 @@ class CommandTests(unittest.TestCase):
         r = boom.command._delete_cmd(args, None, opts, None)
         self.assertNotEqual(r, 1)
 
+    def test__delete_cmd_verbose(self):
+        """Test the _delete_cmd() handler with a valid entry.
+        """
+        args = MockArgs()
+        args.boot_id = "61bcc49"
+        args.verbose = 1 # enable reporting
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._delete_cmd(args, None, opts, None)
+        self.assertNotEqual(r, 1)
+
     def test__delete_cmd_with_options(self):
         """Test the _delete_cmd() handler with a valid entry and report
             field options string.
