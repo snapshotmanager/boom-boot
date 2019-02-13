@@ -1851,6 +1851,7 @@ def _delete_profile_cmd(cmd_args, select, opts, identifier):
     """
     # If an os_id is given as a command line argument treat it as
     # a single OsProfile to delete and ignore any other criteria.
+    identifier = identifier or cmd_args.profile
     if identifier is not None:
         select = Selection(os_id=identifier)
 
