@@ -1751,9 +1751,9 @@ class CommandTests(unittest.TestCase):
         """
         args = MockArgs()
         args.profile = "d4439b7"
-        args.name = "Something Something Something, Profile Side"
+        args.short_name = "somethingsomethingsomething profile side"
         r = boom.command._clone_profile_cmd(args, None, None, None)
-        self.assertNotEqual(r, 0)
+        self.assertEqual(r, 0)
 
     def test__clone_profile_cmd_no_criteria(self):
         """Test the _clone_profile_cmd() handler with no valid selection.
