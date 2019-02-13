@@ -1745,6 +1745,34 @@ class CommandTests(unittest.TestCase):
         r = boom.command._delete_profile_cmd(args, None, None, None)
         self.assertEqual(r, 1)
 
+    def test__clone_profile_cmd(self):
+        """Test the _clone_profile_cmd() handler with a valid os_id and
+            new name.
+        """
+        args = MockArgs()
+        args.profile = "d4439b7"
+        args.name = "Something Something Something, Profile Side"
+        r = boom.command._clone_profile_cmd(args, None, None, None)
+        self.assertNotEqual(r, 0)
+
+    def test__clone_profile_cmd_no_criteria(self):
+        """Test the _clone_profile_cmd() handler with no valid selection.
+        """
+        args = MockArgs()
+        args.profile = None
+        args.name = "Something Something Something, Profile Side"
+        r = boom.command._clone_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
+    def test__clone_profile_cmd_no_matching(self):
+        """Test the _clone_profile_cmd() handler with no matching entries.
+        """
+        args = MockArgs()
+        args.profile = "thisisnottheprofileyouarelookingfor"
+        args.name = "Something Something Something, Profile Side"
+        r = boom.command._clone_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
