@@ -1905,6 +1905,10 @@ def _clone_profile_cmd(cmd_args, select, opts, identifier):
     if identifier is not None:
         select = Selection(os_id=identifier)
 
+    if not select or select.is_null():
+        print("profile delete requires selection criteria")
+        return 1
+
     # Discard all selection criteria but os_id.
     select = Selection(os_id=select.os_id)
 
