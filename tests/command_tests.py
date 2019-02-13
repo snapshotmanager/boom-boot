@@ -1283,34 +1283,6 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
 
-    def test__create_profile_cmd_invalid_identifier(self):
-        """Test that _create_profile_cmd() rejects an identifier arg.
-        """
-        args = MockArgs()
-        identifier = "d4439b7"
-        r = boom.command._create_profile_cmd(args, None, None, identifier)
-        self.assertEqual(r, 1)
-
-    def test__create_profile_cmd_from_host(self):
-        args = MockArgs()
-        args.from_host = True
-        args.uname_pattern = "test1"
-
-        # Workaround the possibility that the host profile already exists.
-        boom.command._delete_profile_cmd(args, None, None, "d4439b7")
-
-        r = boom.command._create_profile_cmd(args, None, None, None)
-        self.assertEqual(r, 0)
-
-    def test__delete_profile_cmd_valid_identifier(self):
-        """Test that _delete_profile_cmd() deletes a profile via a
-            valid identifier arg.
-        """
-        args = MockArgs()
-        identifier = "d4439b7"
-        r = boom.command._delete_profile_cmd(args, None, None, identifier)
-        self.assertEqual(r, 0)
-
     def test__delete_cmd_no_selection(self):
         """Test that _delete_cmd() rejects a call with no valid
             selection.
@@ -1705,6 +1677,34 @@ class CommandTests(unittest.TestCase):
         args.uname_pattern = "test1"
         args.os_release = test_os_release
         r = boom.command._create_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
+    def test__create_profile_cmd_invalid_identifier(self):
+        """Test that _create_profile_cmd() rejects an identifier arg.
+        """
+        args = MockArgs()
+        identifier = "d4439b7"
+        r = boom.command._create_profile_cmd(args, None, None, identifier)
+        self.assertEqual(r, 1)
+
+    def test__create_profile_cmd_from_host(self):
+        args = MockArgs()
+        args.from_host = True
+        args.uname_pattern = "test1"
+
+        # Workaround the possibility that the host profile already exists.
+        boom.command._delete_profile_cmd(args, None, None, "d4439b7")
+
+        r = boom.command._create_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
+    def test__delete_profile_cmd_valid_identifier(self):
+        """Test that _delete_profile_cmd() deletes a profile via a
+            valid identifier arg.
+        """
+        args = MockArgs()
+        identifier = "d4439b7"
+        r = boom.command._delete_profile_cmd(args, None, None, identifier)
         self.assertEqual(r, 0)
 
 # Calling the main() entry point from the test suite causes a SysExit
