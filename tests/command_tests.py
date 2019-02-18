@@ -1796,6 +1796,46 @@ class CommandTests(unittest.TestCase):
         r = boom.command._show_profile_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
+    def test__list_profile_cmd(self):
+        args = MockArgs()
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_profile_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
+    def test__list_profile_cmd_with_identifier(self):
+        args = MockArgs()
+        os_id = "d4439b7"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_profile_cmd(args, None, opts, os_id)
+        self.assertEqual(r, 0)
+
+    def test__list_profile_cmd_with_profile_arg(self):
+        args = MockArgs()
+        args.profile = "d4439b7"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_profile_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
+    def test__list_profile_cmd_with_options(self):
+        """Test the _list_cmd() handler with report field options
+            string.
+        """
+        args = MockArgs()
+        args.options = "osname,osversion"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_profile_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
+    def test__list_profile_cmd_with_verbose(self):
+        """Test the _list_cmd() handler with report field options
+            string.
+        """
+        args = MockArgs()
+        args.verbose = 1
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_profile_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
