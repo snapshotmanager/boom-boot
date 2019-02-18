@@ -1986,6 +1986,7 @@ def _list_profile_cmd(cmd_args, select, opts, identifier):
     except ValueError as e:
         print(e)
         return 1
+    return 0
 
 
 def _edit_profile_cmd(cmd_args, select, opts, identifier):
