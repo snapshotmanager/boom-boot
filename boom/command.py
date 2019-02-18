@@ -1942,6 +1942,7 @@ def _show_profile_cmd(cmd_args, select, opts, identifier):
         :param select: Selection criteria for the profiles to show.
         :returns: integer status code returned from ``main()``
     """
+    identifier = identifier or cmd_args.profile
     if identifier is not None:
         select = Selection(os_id=identifier)
 
