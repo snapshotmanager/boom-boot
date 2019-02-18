@@ -1875,6 +1875,14 @@ class CommandTests(unittest.TestCase):
         r = boom.command._edit_profile_cmd(args, None, None, None)
         self.assertEqual(r, 1)
 
+    def test__clone_profile_cmd(self):
+        args = MockArgs()
+        args.profile = "d4439b7"
+        args.name = "NotFedora"
+        args.short_name = "notfedora"
+        r = boom.command._clone_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
