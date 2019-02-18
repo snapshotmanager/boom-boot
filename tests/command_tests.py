@@ -1898,6 +1898,18 @@ class CommandTests(unittest.TestCase):
         r = boom.command._clone_profile_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
+    def test__create_host_cmd_with_identifier(self):
+        args = MockArgs()
+        identifier = "badidentity"
+        r = boom.command._create_host_cmd(args, None, None, identifier)
+        self.assertEqual(r, 1)
+
+    def test__create_host_cmd_no_name(self):
+        args = MockArgs()
+        args.host_name = None
+        r = boom.command._create_host_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
