@@ -426,6 +426,11 @@ class HostProfile(OsProfile):
             return self.osp._profile_data[key]
         return None
 
+    def _have_key(self, key):
+        """Test for presence of a Host or Os profile key.
+        """
+        return key in self._profile_data or key in self.osp._profile_data
+
     def __str__(self):
         """Format this HostProfile as a human readable string.
 
@@ -439,12 +444,12 @@ class HostProfile(OsProfile):
         # FIXME HostProfile breaks
         breaks = [
             BOOM_HOST_ID, BOOM_HOST_NAME, BOOM_OS_ID, BOOM_ENTRY_MACHINE_ID,
-            BOOM_HOST_LABEL, BOOM_OS_VERSION_ID, BOOM_OS_UNAME_PATTERN,
+            BOOM_HOST_LABEL, BOOM_OS_VERSION, BOOM_OS_UNAME_PATTERN,
             BOOM_HOST_DEL_OPTS, BOOM_OS_INITRAMFS_PATTERN,
             BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS, BOOM_OS_OPTIONS
         ]
 
-        fields = [f for f in HOST_PROFILE_KEYS if f in self._profile_data]
+        fields = [f for f in HOST_PROFILE_KEYS if self._have_key(f)]
         hp_str = ""
         tail = ""
         for f in fields:
@@ -466,9 +471,9 @@ class HostProfile(OsProfile):
             :returntype: string
         """
         hp_str = "HostProfile(profile_data={"
-        fields = [f for f in HOST_PROFILE_KEYS if f in self._profile_data]
+        fields = [f for f in HOST_PROFILE_KEYS if self._have_key(f)]
         for f in fields:
-            hp_str += '%s:"%s", ' % (f, self._profile_data[f])
+            hp_str += '%s:"%s", ' % (f, self._key_data(f))
         hp_str = hp_str.rstrip(", ")
         return hp_str + "})"
 
