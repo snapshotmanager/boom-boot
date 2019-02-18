@@ -38,6 +38,7 @@ import sys
 from os import environ, uname, getcwd
 from os.path import basename, isabs, join
 from argparse import ArgumentParser
+import platform
 import logging
 
 #: The environment variable from which to take the location of the
@@ -2055,11 +2056,12 @@ def _create_host_cmd(cmd_args, select, opts, identifier):
         print("host profile create does not accept <identifier>")
         return 1
 
-    if not cmd_args.name:
-        print("host profile create requires --name")
+    host_name = cmd_args.host_name or platform.node()
+
+    if not host_name:
+        print("host profile create requires a valid host_name to be set"
+              "or --host-name")
         return 1
-    else:
-        name = cmd_args.name
 
     if not cmd_args.machine_id:
         # Use host machine-id by default
@@ -2077,8 +2079,9 @@ def _create_host_cmd(cmd_args, select, opts, identifier):
         os_id = cmd_args.profile
 
     try:
-        hp = create_host(machine_id=machine_id, os_id=os_id, name=name,
-                         label=label, kernel_pattern=cmd_args.kernel_pattern,
+        hp = create_host(machine_id=machine_id, os_id=os_id,
+                         host_name=host_name, label=cmd_args.label,
+                         kernel_pattern=cmd_args.kernel_pattern,
                          initramfs_pattern=cmd_args.initramfs_pattern,
                          root_opts_lvm2=cmd_args.lvm_opts,
                          root_opts_btrfs=cmd_args.btrfs_opts,
@@ -2538,6 +2541,8 @@ def main(args):
                         action="store_true")
     parser.add_argument("-P", "--host-profile", metavar="PROFILE", type=str,
                         help="A boom host profile identifier")
+    parser.add_argument("--host-name", metavar="HOSTNAME", type=str,
+                        help="The host name associated with a host profile")
     parser.add_argument("-i", "--initrd", metavar="IMG", type=str,
                         help="A linux initrd image path")
     parser.add_argument("-k", "--kernel-pattern", "--kernelpattern",
