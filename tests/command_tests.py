@@ -1836,6 +1836,45 @@ class CommandTests(unittest.TestCase):
         r = boom.command._list_profile_cmd(args, None, opts, None)
         self.assertEqual(r, 0)
 
+    def test__edit_profile_cmd(self):
+        args = MockArgs()
+        args.profile = "d4439b7"
+        args.uname_pattern = "nf26"
+        args.os_options = "boot and stuff"
+        r = boom.command._edit_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
+    def test__edit_profile_cmd_with_identifier(self):
+        args = MockArgs()
+        os_id = "d4439b7"
+        args.uname_pattern = "nf26"
+        args.os_options = "boot and stuff"
+        r = boom.command._edit_profile_cmd(args, None, None, os_id)
+        self.assertEqual(r, 0)
+
+    def test__edit_profile_cmd_ambiguous_identifier(self):
+        args = MockArgs()
+        os_id = "d"
+        args.uname_pattern = "nf26"
+        args.os_options = "boot and stuff"
+        r = boom.command._edit_profile_cmd(args, None, None, os_id)
+        self.assertEqual(r, 1)
+
+    def test__edit_profile_cmd_with_options(self):
+        args = MockArgs()
+        args.profile = "d4439b7"
+        args.options = "badoptions"
+        r = boom.command._edit_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
+    def test__edit_profile_cmd_edits_identity_keys(self):
+        args = MockArgs()
+        args.profile = "d4439b7"
+        # Can only change via clone
+        args.name = "Bad Fedora"
+        r = boom.command._edit_profile_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
