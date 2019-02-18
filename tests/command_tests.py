@@ -1837,6 +1837,8 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(r, 0)
 
     def test__edit_profile_cmd(self):
+        """Test the _edit_profile_cmd() hander with default args.
+        """
         args = MockArgs()
         args.profile = "d4439b7"
         args.uname_pattern = "nf26"
@@ -1845,6 +1847,8 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(r, 0)
 
     def test__edit_profile_cmd_with_identifier(self):
+        """Test the _edit_profile_cmd() handler with an identifier.
+        """
         args = MockArgs()
         os_id = "d4439b7"
         args.uname_pattern = "nf26"
@@ -1853,6 +1857,9 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(r, 0)
 
     def test__edit_profile_cmd_ambiguous_identifier(self):
+        """Test the _edit_profile_cmd() handler with an ambiguous
+            identifier argument.
+        """
         args = MockArgs()
         os_id = "d"
         args.uname_pattern = "nf26"
@@ -1861,6 +1868,9 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(r, 1)
 
     def test__edit_profile_cmd_with_options(self):
+        """Test the _edit_profile_cmd() handler with report control
+            options.
+        """
         args = MockArgs()
         args.profile = "d4439b7"
         args.options = "badoptions"
@@ -1868,6 +1878,9 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(r, 1)
 
     def test__edit_profile_cmd_edits_identity_keys(self):
+        """Test the _edit_profile_cmd() handler with invalid profile
+            key modifications.
+        """
         args = MockArgs()
         args.profile = "d4439b7"
         # Can only change via clone
@@ -1876,6 +1889,8 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(r, 1)
 
     def test__clone_profile_cmd(self):
+        """Test the _clone_profile_cmd() handler with valid args.
+        """
         args = MockArgs()
         args.profile = "d4439b7"
         args.name = "NotFedora"
