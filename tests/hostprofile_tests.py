@@ -125,11 +125,18 @@ class HostProfileTests(unittest.TestCase):
         hp = HostProfile(machine_id="ffffffffffffffff", host_name="localhost",
                          label='', os_id="3fc389b")
 
-        xstr = ('Host ID: "83fb23b393d6460e18e3694a8766b06ade021c3f",\n'
-                'Host name: "localhost",\n'
-                'Machine ID: "ffffffffffffffff",\n'
+        xstr = (
+                'Host ID: "83fb23b393d6460e18e3694a8766b06ade021c3f",\n'
+                'Host name: "localhost",\nMachine ID: "ffffffffffffffff",\n'
                 'OS ID: "3fc389bba581e5b20c6a46c7fc31b04be465e973",\n'
-                'Host label: ""'
+                'Host label: "",\nName: "Red Hat Enterprise Linux Server", '
+                'Short name: "rhel", Version: "7.2 (Maipo)",\n'
+                'Version ID: "7.2", UTS release pattern: "el7",\n'
+                'Kernel pattern: "/vmlinuz-%{version}", '
+                'Initramfs pattern: "/initramfs-%{version}.img",\n'
+                'Root options (LVM2): "rd.lvm.lv=%{lvm_root_lv}",\n'
+                'Root options (BTRFS): "rootflags=%{btrfs_subvolume}",\n'
+                'Options: "root=%{root_device} ro %{root_opts} rhgb quiet"'
         )
 
         self.assertEqual(str(hp), xstr)
@@ -146,7 +153,16 @@ class HostProfileTests(unittest.TestCase):
                  'BOOM_HOST_NAME:"localhost", '
                  'BOOM_ENTRY_MACHINE_ID:"ffffffffffffffff", '
                  'BOOM_OS_ID:"3fc389bba581e5b20c6a46c7fc31b04be465e973", '
-                 'BOOM_HOST_LABEL:""})'
+                 'BOOM_HOST_LABEL:"", '
+                 'BOOM_OS_NAME:"Red Hat Enterprise Linux Server", '
+                 'BOOM_OS_SHORT_NAME:"rhel", BOOM_OS_VERSION:"7.2 (Maipo)", '
+                 'BOOM_OS_VERSION_ID:"7.2", BOOM_OS_UNAME_PATTERN:"el7", '
+                 'BOOM_OS_KERNEL_PATTERN:"/vmlinuz-%{version}", '
+                 'BOOM_OS_INITRAMFS_PATTERN:"/initramfs-%{version}.img", '
+                 'BOOM_OS_ROOT_OPTS_LVM2:"rd.lvm.lv=%{lvm_root_lv}", '
+                 'BOOM_OS_ROOT_OPTS_BTRFS:"rootflags=%{btrfs_subvolume}", '
+                 'BOOM_OS_OPTIONS:"root=%{root_device} ro %{root_opts} rhgb '
+                 'quiet"})'
         )
 
         self.assertEqual(repr(hp), xrepr)
