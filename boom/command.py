@@ -2108,6 +2108,7 @@ def _delete_host_cmd(cmd_args, select, opts, identifier):
     """
     # If a host_id is given as a command line argument treat it as
     # a single HostProfile to delete and ignore any other criteria.
+    identifier = identifier or cmd_args.host_id
     if identifier is not None:
         select = Selection(host_id=identifier)
 
@@ -2541,6 +2542,8 @@ def main(args):
                         action="store_true")
     parser.add_argument("-P", "--host-profile", metavar="PROFILE", type=str,
                         help="A boom host profile identifier")
+    parser.add_argument("--host-id", metavar="HOSTID", type=str,
+                        help="A host profile identifier")
     parser.add_argument("--host-name", metavar="HOSTNAME", type=str,
                         help="The host name associated with a host profile")
     parser.add_argument("-i", "--initrd", metavar="IMG", type=str,
