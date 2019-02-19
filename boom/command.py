@@ -2250,6 +2250,7 @@ def _list_host_cmd(cmd_args, select, opts, identifier):
     except ValueError as e:
         print(e)
         return 1
+    return 0
 
 
 def _edit_host_cmd(cmd_args, select, opts, identifier):
