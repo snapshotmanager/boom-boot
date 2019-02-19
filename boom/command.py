@@ -2148,7 +2148,7 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
         :param select: The ``host_id`` to clone
         :returns: integer status code returned from ``main()``
     """
-    name = cmd_args.name
+    host_name = cmd_args.host_name
     os_id = cmd_args.profile
     version = cmd_args.os_version
     version_id = cmd_args.os_version_id
@@ -2175,7 +2175,7 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
 
     try:
         hp = clone_host(selection=select, machine_id=machine_id,
-                        label=label, os_id=os_id, host_name=name,
+                        label=label, os_id=os_id, host_name=host_name,
                         kernel_pattern=cmd_args.kernel_pattern,
                         initramfs_pattern=cmd_args.initramfs_pattern,
                         root_opts_lvm2=cmd_args.lvm_opts,
