@@ -2159,6 +2159,7 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
     root_opts_btrfs = cmd_args.btrfs_opts
     options = cmd_args.os_options
 
+    identifier = identifier or cmd_args.host_id
     if identifier is not None:
         select = Selection(host_id=identifier)
 
