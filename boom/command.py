@@ -2059,7 +2059,7 @@ def _create_host_cmd(cmd_args, select, opts, identifier):
     host_name = cmd_args.host_name or platform.node()
 
     if not host_name:
-        print("host profile create requires a valid host_name to be set"
+        print("host profile create requires a valid host name to be set"
               "or --host-name")
         return 1
 
