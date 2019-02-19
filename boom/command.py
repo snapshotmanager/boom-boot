@@ -2265,6 +2265,7 @@ def _edit_host_cmd(cmd_args, select, opts, identifier):
         :param select: The ``host_id`` of the profile to edit
         :returns: integer status code returned from ``main()``
     """
+    identifier = identifier or cmd_args.host_id
     if identifier is not None:
         select = Selection(host_id=identifier)
 
