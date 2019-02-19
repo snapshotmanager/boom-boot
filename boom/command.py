@@ -2276,7 +2276,7 @@ def _edit_host_cmd(cmd_args, select, opts, identifier):
 
     machine_id = cmd_args.machine_id
     os_id = cmd_args.profile
-    name = cmd_args.name
+    host_name = cmd_args.host_name
     kernel_pattern = cmd_args.kernel_pattern
     initramfs_pattern = cmd_args.initramfs_pattern
     root_opts_lvm2 = cmd_args.lvm_opts
@@ -2287,8 +2287,8 @@ def _edit_host_cmd(cmd_args, select, opts, identifier):
 
     try:
         hp = edit_host(selection=select,
-                       machine_id=machine_id, os_id=os_id, name=name,
-                       kernel_pattern=kernel_pattern,
+                       machine_id=machine_id, os_id=os_id,
+                       host_name=host_name, kernel_pattern=kernel_pattern,
                        initramfs_pattern=initramfs_pattern,
                        root_opts_lvm2=root_opts_lvm2,
                        root_opts_btrfs=root_opts_btrfs, options=options)
