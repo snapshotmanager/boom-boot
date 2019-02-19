@@ -2132,6 +2132,7 @@ def _delete_host_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
     print("Deleted %d profile%s" % (nr, "s" if nr > 1 else ""))
+    return 0
 
 
 def _clone_host_cmd(cmd_args, select, opts, identifier):
