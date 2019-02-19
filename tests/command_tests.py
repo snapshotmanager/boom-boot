@@ -2075,6 +2075,32 @@ class CommandTests(unittest.TestCase):
         r = boom.command._list_host_cmd(args, None, opts, None)
         self.assertEqual(r, 0)
 
+    def test__edit_host_cmd(self):
+        """Test the _edit_host_cmd() handler with valid arguments.
+        """
+        args = MockArgs()
+        args.host_id = "1a979bb"
+        args.host_name = "notlocalhost"
+        r = boom.command._edit_host_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
+    def test__edit_host_cmd_with_invalid_options(self):
+        """Test the _edit_host_cmd() handler with valid arguments.
+        """
+        args = MockArgs()
+        args.options = "bad,touch,ricky,bad,touch"
+        r = boom.command._edit_host_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
+    def test__edit_host_cmd_with_identifier(self):
+        """Test the _edit_host_cmd() handler with valid arguments.
+        """
+        args = MockArgs()
+        args.host_name = "notlocalhost"
+        host_id = "1a979bb"
+        r = boom.command._edit_host_cmd(args, None, None, host_id)
+        self.assertEqual(r, 0)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
