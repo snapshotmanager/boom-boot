@@ -1943,6 +1943,38 @@ class CommandTests(unittest.TestCase):
         r = boom.command._delete_host_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
+    def test__delete_host_cmd_with_options(self):
+        """Test the _delete_host_cmd() handler with valid --host-id
+            argument and report control options.
+        """
+        args = MockArgs()
+        args.host_id = "5ebcb1f"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._delete_host_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
+    def test__delete_host_cmd_with_verbose(self):
+        """Test the _delete_host_cmd() handler with valid --host-id
+            argument and verbosity.
+        """
+        args = MockArgs()
+        args.host_id = "5ebcb1f"
+        args.verbose = 1
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._delete_host_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
+    def test__delete_host_cmd_with_fields(self):
+        """Test the _delete_host_cmd() handler with valid --host-id
+            argument and custom report field options.
+        """
+        args = MockArgs()
+        args.host_id = "5ebcb1f"
+        args.options = "hostid,hostname"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._delete_host_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
     def test__delete_host_cmd_with_identifier(self):
         """Test the _delete_host_cmd() handler with valid identifier
             argument.
