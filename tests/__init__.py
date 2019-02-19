@@ -71,6 +71,8 @@ class MockArgs(object):
     efi = ""
     efi = ""
     from_host = ""
+    host_id = None
+    host_name = ""
     host_profile = ""
     host_profile = ""
     identifier = ""
