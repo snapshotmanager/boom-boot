@@ -1899,12 +1899,16 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(r, 0)
 
     def test__create_host_cmd_with_identifier(self):
+        """Test _create_host_cmd() with an invalid identifier arg.
+        """
         args = MockArgs()
         identifier = "badidentity"
         r = boom.command._create_host_cmd(args, None, None, identifier)
         self.assertEqual(r, 1)
 
     def test__create_host_cmd_no_name(self):
+        """Test the _create_host_cmd() handler with no name argument.
+        """
         args = MockArgs()
         args.host_name = None
         r = boom.command._create_host_cmd(args, None, None, None)
