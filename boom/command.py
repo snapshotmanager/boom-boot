@@ -2113,7 +2113,7 @@ def _delete_host_cmd(cmd_args, select, opts, identifier):
         select = Selection(host_id=identifier)
 
     if not select or select.is_null():
-        print("profile delete requires selection criteria")
+        print("host profile delete requires selection criteria")
         return 1
 
     if cmd_args.options:
