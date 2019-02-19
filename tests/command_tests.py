@@ -2103,8 +2103,14 @@ class CommandTests(unittest.TestCase):
 
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
-#    def test_boom_main_noargs(self):
-#        args = [abspath('bin/boom'), '--help']
-#        main(args)
+    @unittest.skip("Triggers ArgParse exception?")
+    def test_boom_main_noargs(self):
+        args = [abspath('bin/boom'), '--help']
+        main(args)
+
+    @unittest.skip("Triggers ArgParse exception?")
+    def test_boom_main_list(self):
+        args = [abspath('bin/boom'), 'entry', 'list']
+        boom.command.main(args)
 
 # vim: set et ts=4 sw=4 :
