@@ -2109,7 +2109,7 @@ def _delete_host_cmd(cmd_args, select, opts, identifier):
     # If a host_id is given as a command line argument treat it as
     # a single HostProfile to delete and ignore any other criteria.
     identifier = identifier or cmd_args.host_id
-    if identifier is not None:
+    if identifier:
         select = Selection(host_id=identifier)
 
     if not select or select.is_null():
