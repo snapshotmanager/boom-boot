@@ -1934,6 +1934,31 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_host_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
+    def test__delete_host_cmd(self):
+        """Test the _delete_host_cmd() handler with valid --host-id
+            argument.
+        """
+        args = MockArgs()
+        args.host_id = "5ebcb1f"
+        r = boom.command._delete_host_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
+    def test__delete_host_cmd_with_identifier(self):
+        """Test the _delete_host_cmd() handler with valid identifier
+            argument.
+        """
+        args = MockArgs()
+        host_id = "5ebcb1f"
+        r = boom.command._delete_host_cmd(args, None, None, host_id)
+        self.assertEqual(r, 0)
+
+    def test__delete_host_cmd_no_selection(self):
+        """Test the _delete_host_cmd() handler with no valid selection.
+        """
+        args = MockArgs()
+        r = boom.command._delete_host_cmd(args, None, None, None)
+        self.assertEqual(r, 1)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
