@@ -1991,6 +1991,15 @@ class CommandTests(unittest.TestCase):
         r = boom.command._delete_host_cmd(args, None, None, None)
         self.assertEqual(r, 1)
 
+    def test__clone_host_cmd(self):
+        """Test the _clone_host_cmd() handler with valid arguments.
+        """
+        args = MockArgs()
+        args.host_id = "5ebcb1f"
+        args.host_name = "new_host"
+        r = boom.command._clone_host_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
