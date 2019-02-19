@@ -2023,6 +2023,58 @@ class CommandTests(unittest.TestCase):
         r = boom.command._show_host_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
+    def test__list_host_cmd(self):
+        """Test the _list_host_cmd() handler with valid arguments.
+        """
+        args = MockArgs()
+        r = boom.command._list_host_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
+    def test__list_host_cmd_with_identifier(self):
+        """Test the _list_host_cmd() handler with valid arguments.
+        """
+        args = MockArgs()
+        host_id = "1a979bb"
+        r = boom.command._list_host_cmd(args, None, None, host_id)
+        self.assertEqual(r, 0)
+
+    def test__list_host_cmd_with_host_id(self):
+        """Test the _list_host_cmd() handler with valid arguments.
+        """
+        args = MockArgs()
+        args.host_id = "1a979bb"
+        r = boom.command._list_host_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
+
+    def test__list_host_cmd_with_options(self):
+        """Test the _list_host_cmd() handler with valid --host-id
+            argument and report control options.
+        """
+        args = MockArgs()
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_host_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
+    def test__list_host_cmd_with_verbose(self):
+        """Test the _list_host_cmd() handler with valid --host-id
+            argument and verbosity.
+        """
+        args = MockArgs()
+        args.verbose = 1
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_host_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
+    def test__list_host_cmd_with_fields(self):
+        """Test the _list_host_cmd() handler with valid --host-id
+            argument and custom report field options.
+        """
+        args = MockArgs()
+        args.options = "hostid,hostname"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_host_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
 # Calling the main() entry point from the test suite causes a SysExit
 # exception in ArgParse() (too few arguments).
 #    def test_boom_main_noargs(self):
