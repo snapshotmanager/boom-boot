@@ -26,7 +26,6 @@ from os.path import isdir, dirname, exists as path_exists, join as path_join
 
 from os import fdopen, rename, chmod, fdatasync, dup
 from tempfile import mkstemp
-from errno import ENOENT
 import logging
 
 try:
