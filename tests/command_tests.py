@@ -32,6 +32,7 @@ log.addHandler(logging.FileHandler("test.log"))
 from boom import *
 from boom.osprofile import *
 from boom.bootloader import *
+from boom.hostprofile import *
 from boom.command import *
 from boom.config import *
 from boom.report import *
@@ -240,14 +241,16 @@ class CommandTests(unittest.TestCase):
         # Set boom paths
         set_boot_path(boot_sandbox)
 
-        # Load test OsProfile and BootEntry data
+        # Reset profiles, entries, and host profiles to known state.
         load_profiles()
         load_entries()
+        load_host_profiles()
 
     def tearDown(self):
         # Drop any in-memory entries and profiles modified by tests
         drop_entries()
         drop_profiles()
+        drop_host_profiles()
 
         # Clear sandbox data
         rm_sandbox()
