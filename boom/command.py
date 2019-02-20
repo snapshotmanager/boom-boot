@@ -2152,14 +2152,6 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
     """
     host_name = cmd_args.host_name
     os_id = cmd_args.profile
-    version = cmd_args.os_version
-    version_id = cmd_args.os_version_id
-    uname_pattern = cmd_args.uname_pattern
-    kernel_pattern = cmd_args.kernel_pattern
-    initramfs_pattern = cmd_args.initramfs_pattern
-    root_opts_lvm2 = cmd_args.lvm_opts
-    root_opts_btrfs = cmd_args.btrfs_opts
-    options = cmd_args.os_options
 
     identifier = identifier or cmd_args.host_id
     if identifier is not None:
