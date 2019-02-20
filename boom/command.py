@@ -1432,11 +1432,9 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
 def _apply_profile_overrides(boot_entry, cmd_args):
     if cmd_args.linux:
         boot_entry.linux = cmd_args.linux
-        modified = True
 
     if cmd_args.initrd:
         boot_entry.initrd = cmd_args.initrd
-        modified = True
 
 def _create_cmd(cmd_args, select, opts, identifier):
     """Create entry command handler.
