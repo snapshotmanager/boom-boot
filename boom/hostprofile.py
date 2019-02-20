@@ -38,7 +38,6 @@ from hashlib import sha1
 from os.path import join as path_join
 import logging
 import string
-import re
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
