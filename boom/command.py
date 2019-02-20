@@ -621,7 +621,6 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
                          "machine_id, root_device, lvm_root_lv, "
                          "btrfs_subvol_path, btrfs_subvol_id, profile")
 
-    bes = find_entries(selection=selection)
     # Discard all selection criteria but boot_id.
     selection = Selection(boot_id=selection.boot_id)
 
