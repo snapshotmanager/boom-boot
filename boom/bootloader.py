@@ -554,7 +554,6 @@ class BootParams(object):
                          len(opts_regexes))
         _log_debug_entry("Options regex list: %s" % str(opts_regexes))
 
-        opts_matched = []
         for rgx_word in opts_regexes:
             (name, exp) = rgx_word
             value = ""
