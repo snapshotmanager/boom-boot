@@ -35,7 +35,6 @@ from boom import *
 from boom.osprofile import *
 
 from hashlib import sha1
-from tempfile import mkstemp
 from os.path import basename, join as path_join, exists as path_exists
 from os import fdopen, rename, chmod, unlink, fdatasync
 import logging
