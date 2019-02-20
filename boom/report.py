@@ -71,7 +71,7 @@ MIN_SHA_WIDTH = 7
 try:
     # Py2
     string_types = (str, unicode)
-except:
+except NameError:
     # Py3
     string_types = (str)
 
