@@ -24,7 +24,7 @@ from boom import *
 
 from os.path import dirname
 
-from os import fdopen, rename, chmod, fdatasync, dup
+from os import fdopen, rename, chmod, fdatasync
 from tempfile import mkstemp
 import logging
 
