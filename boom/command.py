@@ -1679,6 +1679,39 @@ def _show_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
+def _generic_list_cmd(cmd_args, select, opts, verbose_fields, print_fn):
+    """Generic list command implementation.
+
+        Implements a simple list command that applies selection criteria
+        and calls a print_*() API function to display results.
+
+        Callers should initialise identifier and select appropriately
+        for the specific command arguments.
+
+        :param cmd_args: the command arguments
+        :param select: selection criteria
+        :param opts: reporting options object
+        :param print_fn: the API call to display results. The function
+                         must accept the selection, output_fields,
+                         opts, and sort_keys keyword arguments
+        :returns: None
+    """
+    if cmd_args.options:
+        fields = cmd_args.options
+    elif cmd_args.verbose:
+        fields = verbose_fields
+    else:
+        fields = None
+
+    try:
+        print_fn(selection=select, output_fields=fields,
+                 opts=opts, sort_keys=cmd_args.sort)
+    except ValueError as e:
+        print(e)
+        return 1
+    return 0
+
+
 def _list_cmd(cmd_args, select, opts, identifier):
     """List entry command handler.
         List the boot entries that match the given selection criteria as
@@ -1692,20 +1725,8 @@ def _list_cmd(cmd_args, select, opts, identifier):
     if identifier is not None:
         select = Selection(boot_id=identifier)
 
-    if cmd_args.options:
-        fields = cmd_args.options
-    elif cmd_args.verbose:
-        fields = _verbose_entry_fields
-    else:
-        fields = None
-
-    try:
-        print_entries(selection=select, output_fields=fields,
-                      opts=opts, sort_keys=cmd_args.sort)
-    except ValueError as e:
-        print(e)
-        return 1
-    return 0
+    return _generic_list_cmd(cmd_args, select, opts, _verbose_entry_fields,
+                             print_entries)
 
 
 def _edit_cmd(cmd_args, select, opts, identifier):
@@ -1973,21 +1994,8 @@ def _list_profile_cmd(cmd_args, select, opts, identifier):
     if identifier is not None:
         select = Selection(os_id=identifier)
 
-    if cmd_args.options:
-        fields = cmd_args.options
-    elif cmd_args.verbose:
-        fields = _verbose_profile_fields
-    else:
-        fields = None
-
-    try:
-        print_profiles(selection=select, output_fields=fields,
-                       opts=opts, sort_keys=cmd_args.sort)
-    except ValueError as e:
-        print(e)
-        return 1
-    return 0
-
+    return _generic_list_cmd(cmd_args, select, opts, _verbose_profile_fields,
+                             print_profiles)
 
 def _edit_profile_cmd(cmd_args, select, opts, identifier):
     """Edit profile command handler.
@@ -2234,19 +2242,8 @@ def _list_host_cmd(cmd_args, select, opts, identifier):
     if identifier is not None:
         select = Selection(host_id=identifier)
 
-    fields = _host_fields
-    if cmd_args.options:
-        fields = cmd_args.options
-    elif cmd_args.verbose:
-        fields = _verbose_host_fields
-
-    try:
-        print_hosts(selection=select, output_fields=fields,
-                    opts=opts, sort_keys=cmd_args.sort)
-    except ValueError as e:
-        print(e)
-        return 1
-    return 0
+    return _generic_list_cmd(cmd_args, select, opts, _verbose_host_fields,
+                             print_hosts)
 
 
 def _edit_host_cmd(cmd_args, select, opts, identifier):
