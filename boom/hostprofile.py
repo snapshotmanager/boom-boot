@@ -204,6 +204,7 @@ def load_host_profiles():
 
         :returns: None
     """
+    global _profiles_loaded
     drop_host_profiles()
     profiles_path = boom_host_profiles_path()
     load_profiles_for_class(HostProfile, "Host", profiles_path, "host")
