@@ -434,8 +434,6 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
     if not profile:
         raise ValueError("Cannot create entry without OsProfile.")
 
-    btrfs = any([btrfs_subvol_path, btrfs_subvol_id])
-
     add_opts = add_opts.split() if add_opts else []
     del_opts = del_opts.split() if del_opts else []
 
