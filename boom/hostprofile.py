@@ -624,9 +624,11 @@ class HostProfile(OsProfile):
                              "may be specified.")
 
         if profile_data:
-            return self._from_data(profile_data)
+            self._from_data(profile_data)
+            return
         if profile_file:
-            return self._from_file(profile_file, "Host")
+            self._from_file(profile_file, "Host")
+            return
 
         self._dirty()
 
