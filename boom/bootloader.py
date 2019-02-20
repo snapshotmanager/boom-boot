@@ -1446,7 +1446,6 @@ class BootEntry(object):
             :returns: The formatted string
             :returntype: str
         """
-        orig = fmt
         key_format = "%%{%s}"
         bp = self.bp
 
