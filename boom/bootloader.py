@@ -1373,9 +1373,11 @@ class BootEntry(object):
         self._osp = osprofile
 
         if entry_data:
-            return self.__from_data(entry_data, boot_params)
+            self.__from_data(entry_data, boot_params)
+            return
         if entry_file:
-            return self.__from_file(entry_file, boot_params)
+            self.__from_file(entry_file, boot_params)
+            return
 
         self._unwritten = True
 
