@@ -869,7 +869,7 @@ def load_profiles_for_class(profile_class, profile_type,
             continue
         pf_path = path_join(profiles_path, pf)
         try:
-            profile = profile_class(profile_file=pf_path)
+            profile_class(profile_file=pf_path)
         except Exception as e:
             _log_warn("Failed to load %s from '%s': %s" %
                       (profile_class.__name__, pf_path, e))
