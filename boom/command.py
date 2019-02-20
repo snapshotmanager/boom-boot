@@ -1317,7 +1317,6 @@ def clone_host(selection=None, machine_id=None, host_name=None, label=None,
     clone_hp.write_profile()
 
     return clone_hp
-    pass
 
 
 def edit_host(selection=None, machine_id=None, os_id=None, host_name=None,
