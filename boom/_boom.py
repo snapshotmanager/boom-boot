@@ -33,7 +33,6 @@ manual page for information on using the command line interface.
 from __future__ import print_function
 
 from os.path import exists as path_exists, isabs, isdir, join as path_join
-from errno import ENOENT
 from os import listdir
 import logging
 import string
