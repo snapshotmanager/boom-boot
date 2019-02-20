@@ -2615,7 +2615,10 @@ def main(args):
     parser.add_argument("-v", "--version", metavar="VERSION", type=str,
                         help="The kernel version of a boom "
                         "boot entry")
-    cmd_args = parser.parse_args()
+    try:
+        cmd_args = parser.parse_args(args=args[1:])
+    except SystemExit as e:
+        return e.code
 
     try:
         set_debug(cmd_args.debug)
