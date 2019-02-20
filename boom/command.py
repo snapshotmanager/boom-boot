@@ -2240,8 +2240,6 @@ def _list_host_cmd(cmd_args, select, opts, identifier):
         fields = cmd_args.options
     elif cmd_args.verbose:
         fields = _verbose_host_fields
-    else:
-        fields = None
 
     try:
         print_hosts(selection=select, output_fields=fields,
