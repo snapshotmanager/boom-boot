@@ -160,8 +160,8 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
 
         try:
             unlink(tmp_path)
-        except:
-            pass
+        except OSError as e:
+            _log_error("Could not unlink '%s': %s" % (
         raise BoomLegacyFormatError(err % fmt_data)
 
     with fdopen(tmp_fd, "w") as tmp_f:
