@@ -22,7 +22,7 @@ from __future__ import print_function
 
 from boom import *
 
-from os.path import isdir, dirname, exists as path_exists, join as path_join
+from os.path import dirname
 
 from os import fdopen, rename, chmod, fdatasync, dup
 from tempfile import mkstemp
