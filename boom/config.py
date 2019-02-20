@@ -206,7 +206,7 @@ def write_boom_config(config=None, path=None):
 
 
 __all__ = [
-    'BoomConfigError', 'BoomConfig',
+    'BoomConfigError',
 
     # Configuration file handling
     'load_boom_config',
