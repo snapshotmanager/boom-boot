@@ -2686,7 +2686,7 @@ def main(args):
             _log_error("Command failed: %s" % e)
 
     shutdown_logging()
-    sys.exit(status)
+    return status
 
 __all__ = [
     # BootEntry manipulation
