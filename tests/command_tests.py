@@ -2101,16 +2101,12 @@ class CommandTests(unittest.TestCase):
         r = boom.command._edit_host_cmd(args, None, None, host_id)
         self.assertEqual(r, 0)
 
-# Calling the main() entry point from the test suite causes a SysExit
-# exception in ArgParse() (too few arguments).
-    @unittest.skip("Triggers ArgParse exception?")
     def test_boom_main_noargs(self):
-        args = [abspath('bin/boom'), '--help']
-        main(args)
+        args = ['bin/boom', '--help']
+        boom.command.main(args)
 
-    @unittest.skip("Triggers ArgParse exception?")
     def test_boom_main_list(self):
-        args = [abspath('bin/boom'), 'entry', 'list']
+        args = ['bin/boom', 'entry', 'list']
         boom.command.main(args)
 
 # vim: set et ts=4 sw=4 :
