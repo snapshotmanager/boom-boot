@@ -59,7 +59,7 @@ _host_profiles_by_id = {}
 _host_profiles_by_host_id = {}
 
 #: Whether profiles have been read from disk
-_profiles_loaded = False
+_host_profiles_loaded = False
 
 #: Boom profiles directory name.
 BOOM_HOST_PROFILES = "hosts"
@@ -175,19 +175,19 @@ def host_profiles_loaded():
         :returns: ``True`` if profiles are loaded in memory or ``False``
                   otherwise
     """
-    return _profiles_loaded
+    return _host_profiles_loaded
 
 
 def drop_host_profiles():
     """Drop all in-memory host profiles.
     """
     global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
-    global _profiles_loaded
+    global _host_profiles_loaded
 
     _host_profiles = []
     _host_profiles_by_id = {}
     _host_profiles_by_host_id = {}
-    _profiles_loaded = False
+    _host_profiles_loaded = False
 
 
 def load_host_profiles():
@@ -204,12 +204,12 @@ def load_host_profiles():
 
         :returns: None
     """
-    global _profiles_loaded
+    global _host_profiles_loaded
     drop_host_profiles()
     profiles_path = boom_host_profiles_path()
     load_profiles_for_class(HostProfile, "Host", profiles_path, "host")
 
-    _profiles_loaded = True
+    _host_profiles_loaded = True
     _log_info("Loaded %d host profiles" % len(_host_profiles))
 
 
@@ -326,8 +326,6 @@ def find_host_profiles(selection=None, match_fn=select_host_profile):
         :returns: a list of ``HostProfile`` objects.
         :returntype: list
     """
-    global _host_profiles
-
     # Use null search criteria if unspecified
     selection = selection if selection else Selection()
 
@@ -380,7 +378,7 @@ def match_host_profile(entry):
                   ``BootEntry`` or ``None`` if no match is found.
         :returntype: ``BootEntry`` or ``NoneType``.
     """
-    global _host_profiles, _profiles_loaded
+    global _host_profiles, _host_profiles_loaded
 
     if not host_profiles_loaded():
         load_host_profiles()
