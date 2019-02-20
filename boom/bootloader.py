@@ -200,7 +200,6 @@ def check_bootloader():
     blscfg = "blscfg"
     with open(grub_cfg) as gfile:
         for line in gfile:
-            words = line.split()
             if blscfg in line:
                 _log_info("Found BLS import statement in '%s'" % grub_cfg)
                 found_bls = True
