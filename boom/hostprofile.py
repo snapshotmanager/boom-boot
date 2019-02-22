@@ -395,7 +395,7 @@ def match_host_profile(entry):
     return None
 
 
-class HostProfile(OsProfile):
+class HostProfile(BoomProfile):
     """ Class HostProfile implements Boom host system profiles.
 
         Objects of type HostProfile define a host identiry, and optional
@@ -612,6 +612,10 @@ class HostProfile(OsProfile):
         """
         global _host_profiles
         self._profile_data = {}
+
+        # Initialise BoomProfile base class
+        super(HostProfile, self).__init__(HOST_PROFILE_KEYS,
+                                          HOST_REQUIRED_KEYS, BOOM_HOST_ID)
 
         if profile_data and profile_file:
             raise ValueError("Only one of 'profile_data' or 'profile_file' "

@@ -457,7 +457,723 @@ def key_from_key_name(key_name):
     return key_format % key_name
 
 
-class OsProfile(object):
+class BoomProfile(object):
+    """Class ``BoomProfile`` is the abstract base class for Boom template
+        profiles. The ``BoomProfile`` class cannot be instantiated by
+        itself but serves as the base class for both ``OsProfile`` and
+        ``HostProfile`` instances.
+    """
+    #: Profile data dictionary
+    _profile_data = None
+    #: Dirty flag
+    _unwritten = False
+    #: Comment descriptors read from on-disk store
+    _comments = None
+
+    #: Key set for this profile class
+    _profile_keys = None
+    #: Mandatory keys for this profile class
+    _required_keys = None
+    #: The identity key for this profile class
+    _identity_key = None
+
+    def __str__(self):
+        """Format this profile as a human readable string.
+
+            This method must be implemented by concrete profile classes.
+
+            :returns: A human readable string representation of this
+                      ``BoomProfile``.
+
+            :returntype: string
+        """
+        raise NotImplementedError
+
+    def __repr__(self):
+        """Format this ``BoomProfile`` as a machine readable string.
+
+            This method must be implemented by concrete profile classes.
+
+            :returns: a string representation of this ``BoomProfile``.
+            :returntype: ``string``
+        """
+        raise NotImplementedError
+
+    def __len__(self):
+        """Return the length (key count) of this profile.
+
+            :returns: the profile length as an integer.
+            :returntype: ``int``
+        """
+        return len(self._profile_data)
+
+    def __getitem__(self, key):
+        """Return an item from this profile.
+
+            :returns: the item corresponding to the key requested.
+            :returntype: the corresponding type of the requested key.
+            :raises: TypeError if ``key`` is of an invalid type.
+                     KeyError if ``key`` is valid but not present.
+        """
+        if not isinstance(key, str):
+            raise TypeError("Profile key must be a string.")
+
+        if key in self._profile_data:
+            return self._profile_data[key]
+
+        raise KeyError("Key %s not in profile." % key)
+
+    def __setitem__(self, key, value):
+        """Set the specified ``Profile`` key to the given value.
+
+            :param key: the ``Profile`` key to be set.
+            :param value: the value to set for the specified key.
+        """
+        # Name of the current profile class instance
+        ptype = self.__class__.__name__
+
+        # Map key names to a list of format keys which must not
+        # appear in that key's value: e.g. %{kernel} in the kernel
+        # pattern profile key.
+        bad_key_map = {
+            BOOM_OS_KERNEL_PATTERN: [FMT_KERNEL],
+            BOOM_OS_INITRAMFS_PATTERN: [FMT_INITRAMFS],
+            BOOM_OS_ROOT_OPTS_LVM2: [FMT_ROOT_OPTS],
+            BOOM_OS_ROOT_OPTS_BTRFS: [FMT_ROOT_OPTS],
+        }
+        def _check_format_key_value(key, value, bad_keys):
+            for bad_key in bad_keys:
+                if bad_key in value:
+                    bad_fmt = key_from_key_name(bad_key)
+                    raise ValueError("%s.%s cannot contain %s"
+                                     % (ptype, key, bad_fmt))
+
+        if not isinstance(key, str):
+            raise TypeError("%s key must be a string." % ptype)
+
+        if key not in self._profile_keys:
+            raise ValueError("Invalid %s key: %s" % (ptype, key))
+
+        if key in bad_key_map:
+            _check_format_key_value(key, value, bad_key_map[key])
+
+        self._profile_data[key] = value
+
+    def keys(self):
+        """Return the list of keys for this ``BoomProfile``.
+
+            :returntype: list
+            :returns: A list of ``BoomProfile`` key names
+        """
+        return self._profile_data.keys()
+
+    def values(self):
+        """Return the list of key values for this ``BoomProfile``.
+
+            :returntype: list
+            :returns: A list of ``BoomProfile`` key values
+        """
+        return self._profile_data.values()
+
+    def items(self):
+        """Return the items list for this ``BoomProfile``.
+
+            Return a list of ``(key, value)`` tuples representing the
+            key items in this ``BoomProfile``.
+
+            :returntype: list
+            :returns: A list of ``BoomProfile`` key item tuples
+        """
+        return self._profile_data.items()
+
+    def _dirty(self):
+        """Mark this ``BoomProfile`` as needing to be written to disk.
+
+            A newly created ``BoomProfile`` object is always dirty and
+            a call to its ``write_profile()`` method will always write
+            a new profile file. Writes may be avoided for profiles
+            that are not marked as dirty.
+
+            A clean ``BoomProfile`` is marked as dirty if a new value
+            is written to any of its writable properties.
+
+            :returns None:
+        """
+        if self._identity_key in self._profile_data:
+            # The profile may not have been modified in a way that
+            # causes the identifier to change: clear it anyway, and
+            # it will be re-set to the previous value on next access.
+            self._profile_data.pop(self._identity_key)
+        self._unwritten = True
+
+    def _generate_id(self):
+        """Generate a new profile identifier.
+
+            Generate a new sha1 profile identifier for this profile.
+
+            Subclasses of ``BoomProfile`` must override this method to
+            generate an appropriate hash value, using the corresponding
+            identity keys for the profile type.
+
+            :returns: None
+            :raises: NotImplementedError
+        """
+        raise NotImplementedError
+
+    def _append_profile(self):
+        """Append a ``BoomProfile`` to the appropriate global profile list
+
+            This method must be overridden by classes that extend
+            ``BoomProfile``.
+
+            :returns None:
+            :raises NotImplementedError
+        """
+        raise NotImplementedError
+
+    def _from_file(self, profile_file):
+        """Initialise a new profile from data stored in a file.
+
+            Initialise a new profile object using the profile data
+            in profile_file.
+
+            This method should not be called directly: to build a new
+            ``Boomprofile`` object from in-memory data, use the class
+            initialiser with the ``profile_file`` argument.
+
+            :returns: None
+        """
+        profile_data = {}
+        comments = {}
+        comment = ""
+        ptype = self.__class__.__name__
+
+        _log_debug("Loading %sProfile from '%s'" %
+                   (ptype, basename(profile_file)))
+        with open(profile_file, "r") as pf:
+            for line in pf:
+                if blank_or_comment(line):
+                    comment += line if line else ""
+                else:
+                    name, value = parse_name_value(line)
+                    profile_data[name] = value
+                    if comment:
+                        comments[name] = comment
+                        comment = ""
+        self._comments = comments
+
+        try:
+            # Call subclass _from_data() hook for initialisation
+            self._from_data(profile_data, dirty=False)
+        except ValueError as e:
+            raise ValueError(str(e) + "in %s" % profile_file)
+
+    def __init__(self, profile_keys, required_keys, identity_key):
+        """Initialise a new ``BoomProfile`` object.
+
+            This method should be called by all subclasses of
+            ``BoomProfile`` in order to initialise the base class state.
+
+            Subclasses must provide the set of allowed keys for this
+            profile type, a list of keys that are mandatory for profile
+            creation, and the name of the identity key that will return
+            this profile's unique identifier.
+
+            :param profile_keys: The set of keys used by this profile.
+            :param required_keys: Mandatory keys for this profile.
+            :param identity_key: The key containing the profile id.
+            :returns: A new ``BoomProfile`` object.
+            :returntype: class ``BoomProfile``
+        """
+        self._profile_keys = profile_keys
+        self._required_keys = required_keys
+        self._identity_key = identity_key
+
+    def match_uname_version(self, version):
+        """Test ``BoomProfile`` for version string match.
+
+            Test the supplied version string to determine whether it
+            matches the uname_pattern of this ``BoomProfile``.
+
+            :param version: A uname release version string to match.
+            :returns: ``True`` if this version matches this profile, or
+                      ``False`` otherwise.
+            :returntype: bool
+        """
+        _log_debug_profile("Matching uname pattern '%s' to '%s'" %
+                           (self.uname_pattern, version))
+        if self.uname_pattern and version:
+            if re.search(self.uname_pattern, version):
+                return True
+        return False
+
+    def match_options(self, entry):
+        """Test ``BoomProfile`` for options template match.
+
+            Test the supplied ``BootEntry`` to determine whether it
+            matches the options template defined by this
+            ``BoomProfile``.
+
+            Used as a match of last resort when no uname pattern match
+            exists.
+
+            :param entry: A ``BootEntry`` to match against this profile.
+            :returns: ``True`` if this entry matches this profile, or
+                      ``False`` otherwise.
+            :returntype: bool
+        """
+        # Attempt to match a distribution-formatted options line
+
+        if not self.options or not entry.options:
+            return False
+
+        opts_regex_words = self.make_format_regexes(self.options)
+        _log_debug_profile("Matching options regex list with %d entries" %
+                           len(opts_regex_words))
+
+        format_opts = []
+        fixed_opts = []
+
+        for rgx_word in opts_regex_words:
+            for word in entry.options.split():
+                (name, exp) = rgx_word
+                match = re.match(exp, word)
+                if not match:
+                    continue
+                value = match.group(0)
+                if name:
+                    fixed_opts.append(value)
+                else:
+                    format_opts.append(value)
+
+        fixed = [o[1] for o in opts_regex_words if not o[0]]
+        have_fixed = [True if f in fixed_opts else False for f in fixed]
+
+        form = [o[1] for o in opts_regex_words if o[0]]
+        have_form = [True if f in format_opts else False for f in form]
+
+        return all(have_fixed) and any(have_form)
+
+    def make_format_regexes(self, fmt):
+        """Generate regexes matching format string
+
+            Generate a list of ``(key, expr)`` tuples containing key and
+            regular expression pairs capturing the format key values
+            contained in the format string. Any non-format key words
+            contained in the string are returned as a ``('', expr)``
+            tuple containing no capture groups.
+
+            The resulting list may be matched against the words of a
+            ``BootEntry`` object's value strings in order to extract
+            the parameters used to create them.
+
+            :param fmt: The format string to build a regex list from.
+            :returns: A list of key and word regex tuples.
+            :returntype: list of (str, str)
+        """
+        key_format = "%%{%s}"
+        cap_regex_all = "(\S+)"
+        cap_regex_num = "(\d+)"
+        regex_words = []
+
+        if not fmt:
+            return regex_words
+
+        # Keys captured by single regex
+        key_regex = {
+            FMT_VERSION: cap_regex_all,
+            FMT_LVM_ROOT_LV: cap_regex_all,
+            FMT_BTRFS_SUBVOL_ID: cap_regex_num,
+            FMT_BTRFS_SUBVOL_PATH: cap_regex_all,
+            FMT_ROOT_DEVICE: cap_regex_all,
+        }
+
+        # Keys requiring expansion
+        key_exp = {
+            FMT_LVM_ROOT_OPTS: [self.root_opts_lvm2],
+            FMT_BTRFS_ROOT_OPTS: [self.root_opts_btrfs],
+            # "fix" this by adding root_opts_btrfs_{id,path}?
+            FMT_BTRFS_SUBVOLUME: ["subvol=%{btrfs_subvol_path}",
+                                  "subvolid=%{btrfs_subvol_id}"],
+            FMT_ROOT_OPTS: [self.root_opts_lvm2, self.root_opts_btrfs],
+            FMT_KERNEL: [self.kernel_pattern],
+            FMT_INITRAMFS: [self.initramfs_pattern]
+        }
+
+        # Parent key names to preserve during recursion
+        #
+        # If a key name is listed in preserve_keys, the key name is
+        # taken as the regex name returned to the caller when
+        # recursing to evaluate an expanded format key.
+        #
+        # This allows the correct key name to be reported when a key
+        # evaluates to a string containing further format keys.
+        #
+        # This logic is not applied to the ROOT_OPTS key since the
+        # key names of the keys composing ROOT_OPTS (BTRFS/LVM2)
+        # directly map to BootParams attribute names.
+        preserve_keys = [FMT_KERNEL, FMT_INITRAMFS]
+
+        def _substitute_keys(fmt, keyname=None):
+            """Return a list of regular expressions matching the format keys
+                found in ``fmt``, expanding and substituting format keys
+                as necessary until all keys have been replaced with a
+                capturing regular expression. Or something. Go with it.
+            """
+            subst = []
+            did_subst = 0
+            for key in FORMAT_KEYS:
+                k = key_format % key
+                if k in fmt and key in key_regex:
+                    # Simple regex substitution
+                    fmt = fmt.replace(k, key_regex[key])
+                    subst.append((keyname if keyname else key, fmt))
+                    did_subst += 1
+                elif k in fmt and key in key_exp:
+                    # Recursive expansion and substitution
+                    pk = key if (not keyname and
+                                 key in preserve_keys) else keyname
+                    for e in key_exp[key]:
+                        subst += _substitute_keys(e, keyname=pk)
+                    did_subst += 1
+
+            if not did_subst:
+                # Non-formatted word
+                subst.append(("", fmt))
+
+            return subst
+
+        for word in fmt.split():
+            regex_words += _substitute_keys(word)
+
+        return regex_words
+
+    # We use properties for the BoomProfile attributes: this is to
+    # allow the values to be stored in a dictionary. Although
+    # properties are quite verbose this reduces the code volume
+    # and complexity needed to marshal and unmarshal the various
+    # file formats used, as well as conversion to and from string
+    # representations of different types of BoomProfile objects.
+
+    # The set of keys defined as properties for the BoomProfile
+    # class is the set of keys exposed by every profile type.
+
+    @property
+    def os_name(self):
+        """The ``os_name`` of this profile.
+
+            :getter: returns the ``os_name`` as a string.
+            :type: string
+        """
+        return self._profile_data[BOOM_OS_NAME]
+
+    @property
+    def os_short_name(self):
+        """The ``os_short_name`` of this profile.
+
+            :getter: returns the ``os_short_name`` as a string.
+            :type: string
+        """
+        return self._profile_data[BOOM_OS_SHORT_NAME]
+
+    @property
+    def os_version(self):
+        """The ``os_version`` of this profile.
+
+            :getter: returns the ``os_version`` as a string.
+            :type: string
+        """
+        return self._profile_data[BOOM_OS_VERSION]
+
+    @property
+    def os_version_id(self):
+        """The ``version_id`` of this profile.
+
+            :getter: returns the ``os_version_id`` as a string.
+            :type: string
+        """
+        return self._profile_data[BOOM_OS_VERSION_ID]
+
+    # Configuration keys specify values that may be modified and
+    # have a corresponding <key>.setter.
+
+    @property
+    def uname_pattern(self):
+        """The current ``uname_pattern`` setting of this profile.
+
+            :getter: returns the ``uname_pattern`` as a string.
+            :setter: stores a new ``uname_pattern`` setting.
+            :type: string
+        """
+        return self._profile_data[BOOM_OS_UNAME_PATTERN]
+
+    @uname_pattern.setter
+    def uname_pattern(self, value):
+        self._profile_data[BOOM_OS_UNAME_PATTERN] = value
+        self._dirty()
+
+    @property
+    def kernel_pattern(self):
+        """The current ``kernel_pattern`` setting of this profile.
+
+            :getter: returns the ``kernel_pattern`` as a string.
+            :setter: stores a new ``kernel_pattern`` setting.
+            :type: string
+        """
+        return self._profile_data[BOOM_OS_KERNEL_PATTERN]
+
+    @kernel_pattern.setter
+    def kernel_pattern(self, value):
+        kernel_key = key_from_key_name(FMT_KERNEL)
+
+        if kernel_key in value:
+            ptype = self.__class__.__name__
+            raise ValueError("%s.kernel cannot contain %s" %
+                             (ptype, kernel_key))
+
+        self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
+        self._dirty()
+
+    @property
+    def initramfs_pattern(self):
+        """The current ``initramfs_pattern`` setting of this profile.
+
+            :getter: returns the ``initramfs_pattern`` as a string.
+            :setter: store a new ``initramfs_pattern`` setting.
+            :type: string
+        """
+        return self._profile_data[BOOM_OS_INITRAMFS_PATTERN]
+
+    @initramfs_pattern.setter
+    def initramfs_pattern(self, value):
+        initramfs_key = key_from_key_name(FMT_INITRAMFS)
+        if initramfs_key in value:
+            ptype = self.__class__.__name__
+            raise ValueError("%s.initramfs cannot contain %s" %
+                             (ptype, initramfs_key))
+        self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
+        self._dirty()
+
+    @property
+    def root_opts_lvm2(self):
+        """The current LVM2 root options setting of this profile.
+
+            :getter: returns the ``root_opts_lvm2`` value as a string.
+            :setter: store a new ``root_opts_lvm2`` value.
+            :type: string
+        """
+        if BOOM_OS_ROOT_OPTS_LVM2 not in self._profile_data:
+            return None
+        return self._profile_data[BOOM_OS_ROOT_OPTS_LVM2]
+
+    @root_opts_lvm2.setter
+    def root_opts_lvm2(self, value):
+        root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
+        if root_opts_key in value:
+            ptype = self.__class__.__name__
+            raise ValueError("%s.root_opts_lvm2 cannot contain %s" %
+                             (ptype, root_opts_key))
+        self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = value
+        self._dirty()
+
+    @property
+    def root_opts_btrfs(self):
+        """The current BTRFS root options setting of this profile.
+
+            :getter: returns the ``root_opts_btrfs`` value as a string.
+            :setter: store a new ``root_opts_btrfs`` value.
+            :type: string
+        """
+        if BOOM_OS_ROOT_OPTS_BTRFS not in self._profile_data:
+            return None
+        return self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS]
+
+    @root_opts_btrfs.setter
+    def root_opts_btrfs(self, value):
+        root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
+        if root_opts_key in value:
+            ptype = self.__class__.__name__
+            raise ValueError("%s.root_opts_btrfs cannot contain %s" %
+                             (ptype, root_opts_key))
+        self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
+        self._dirty()
+
+    @property
+    def options(self):
+        """The current kernel command line options setting for this
+            profile.
+
+            :getter: returns the ``options`` value as a string.
+            :setter: store a new ``options`` value.
+            :type: string
+        """
+        if BOOM_OS_OPTIONS not in self._profile_data:
+            return None
+        return self._profile_data[BOOM_OS_OPTIONS]
+
+    @options.setter
+    def options(self, value):
+        self._profile_data[BOOM_OS_OPTIONS] = value
+        self._dirty()
+
+    @property
+    def title(self):
+        """The current title template for this profile.
+
+            :getter: returns the ``title`` value as a string.
+            :setter: store a new ``title`` value.
+            :type: string
+        """
+        if BOOM_OS_TITLE not in self._profile_data:
+            return None
+        return self._profile_data[BOOM_OS_TITLE]
+
+    @title.setter
+    def title(self, value):
+        self._profile_data[BOOM_OS_TITLE] = value
+        self._dirty()
+
+    def _profile_path(self):
+        """Return the path to this profile's on-disk data.
+
+            Return the full path to this Profile in the appropriate
+            Boom profile directory. Subclasses of `BoomProfile` must
+            override this method to return the correct path for the
+    `       specific profile type.
+
+            :returntype: str
+            :returns: The absolute path for this ``BoomProfile``'s file
+            :raises: NotImplementedError
+        """
+        raise NotImplementedError
+
+    def _write_profile(self, profile_id, profile_dir, mode, force=False):
+        """Write helper for profile classes.
+
+            Write out this profile's data to a file in Boom format to
+            the paths specified by the current configuration.
+
+            The pathname to write is obtained from self._profile_path().
+
+            If the value of ``force`` is ``False`` and the profile
+            is not currently marked as dirty (either new, or modified
+            since the last load operation) the write will be skipped.
+
+            :param profile_id: The os_id or host_id of this profile.
+            :param profile_dir: The directory containing this type.
+            :param mode: The mode with which files are created.
+            :param force: Force this profile to be written to disk even
+                          if the entry is unmodified.
+
+            :raises: ``OsError`` if the temporary entry file cannot be
+                     renamed, or if setting file permissions on the
+                     new entry file fails.
+        """
+        ptype = self.__class__.__name__
+        if not force and not self._unwritten:
+            return
+
+        profile_path = self._profile_path()
+
+        _log_debug("Writing %s(id='%s') to '%s'" %
+                   (ptype, profile_id, basename(profile_path)))
+
+        # List of key names for this profile type
+        profile_keys = self._profile_keys
+
+        (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=profile_dir)
+        with fdopen(tmp_fd, "w") as f:
+            for key in [k for k in profile_keys if k in self._profile_data]:
+                if self._comments and key in self._comments:
+                    f.write(self._comments[key].rstrip() + '\n')
+                f.write('%s="%s"\n' % (key, self._profile_data[key]))
+                f.flush()
+                fdatasync(f.fileno())
+        try:
+            rename(tmp_path, profile_path)
+            chmod(profile_path, mode)
+        except Exception as e:
+            _log_error("Error writing profile file '%s': %s" %
+                       (profile_path, e))
+            try:
+                unlink(tmp_path)
+            except:
+                pass
+            raise e
+
+        _log_debug("Wrote %s (id=%s)'" % (ptype, profile_id))
+
+    def write_profile(self, force=False):
+        """Write out profile data to disk.
+
+            Write out this ``BoomProfile``'s data to a file in Boom
+            format to the paths specified by the current configuration.
+
+            This method must be overridden by `BoomProfile` subclasses.
+
+            :raises: ``OsError`` if the temporary entry file cannot be
+                     renamed, or if setting file permissions on the
+                     new entry file fails. ``NotImplementedError`` if
+                     the method is called on the ``BoomProfile`` base
+                     class.
+        """
+        raise NotImplementedError
+
+    def _delete_profile(self, profile_id):
+        """Deletion helper for profile classes.
+
+            Remove the on-disk profile corresponding to this
+            ``BoomProfile`` object. This will permanently erase the
+            current file (although the current data may be re-written at
+            any time by calling ``write_profile()`` before the object is
+            disposed of).
+
+            The method will call the profile class's ``_profile_path()``
+            method in order to determine the location of the on-disk
+            profile store.
+
+            :returntype: ``NoneType``
+            :raises: ``OsError`` if an error occurs removing the file or
+                     ``ValueError`` if the profile does not exist.
+        """
+        ptype = self.__class__.__name__
+        profile_path = self._profile_path()
+
+        _log_debug("Deleting %s(id='%s') from '%s'" %
+                   (ptype, profile_id, basename(profile_path)))
+
+        if not path_exists(profile_path):
+            return
+        try:
+            unlink(profile_path)
+            _log_debug("Deleted %sProfile(id='%s')" % (ptype, profile_id))
+        except Exception as e:
+            _log_error("Error removing %s file '%s': %s" %
+                       (ptype, profile_path, e))
+
+    def delete_profile(self):
+        """Delete on-disk data for this profile.
+
+            Remove the on-disk profile corresponding to this
+            ``BoomProfile`` object. This will permanently erase the
+            current file (although the current data may be re-written at
+            any time by calling ``write_profile()`` before the object is
+            disposed of).
+
+            Subclasses of ``BoomProfile`` that implement an on-disk store
+            must override this method to perform any unlinking of the
+            profile from in-memory data structures, and to call the
+            generic ``_delete_profile()`` method to remove the profile
+            file.
+
+            :returntype: ``NoneType``
+            :raises: ``OsError`` if an error occurs removing the file or
+                     ``ValueError`` if the profile does not exist.
+        """
+        raise NotImplementedError
+
+
+class OsProfile(BoomProfile):
     """ Class OsProfile implements Boom operating system profiles.
         Objects of type OsProfile define the paths, kernel command line
         options, root device flags and file name patterns needed to boot
@@ -513,107 +1229,6 @@ class OsProfile(object):
             osp_str += '%s:"%s", ' % (f, self._profile_data[f])
         osp_str = osp_str.rstrip(", ")
         return osp_str + "})"
-
-    def __len__(self):
-        """Return the length (key count) of this profile.
-
-            :returns: the profile length as an integer.
-            :returntype: ``int``
-        """
-        return len(self._profile_data)
-
-    def __getitem__(self, key):
-        """Return an item from this profile.
-
-            :returns: the item corresponding to the key requested.
-            :returntype: the corresponding type of the requested key.
-            :raises: TypeError if ``key`` is of an invalid type.
-                     KeyError if ``key`` is valid but not present.
-        """
-        if not isinstance(key, str):
-            raise TypeError("Profile key must be a string.")
-
-        if key in self._profile_data:
-            return self._profile_data[key]
-
-        raise KeyError("Key %s not in profile." % key)
-
-    def __setitem__(self, key, value):
-        """Set the specified ``OsProfile`` key to the given value.
-
-            :param key: the ``OsProfile`` key to be set.
-            :param value: the value to set for the specified key.
-        """
-
-        # Map osp key names to a list of format keys which must not
-        # appear in that key's value: e.g. %{kernel} in the kernel
-        # pattern profile key.
-        bad_key_map = {
-            BOOM_OS_KERNEL_PATTERN: [FMT_KERNEL],
-            BOOM_OS_INITRAMFS_PATTERN: [FMT_INITRAMFS],
-            BOOM_OS_ROOT_OPTS_LVM2: [FMT_ROOT_OPTS],
-            BOOM_OS_ROOT_OPTS_BTRFS: [FMT_ROOT_OPTS],
-        }
-        def _check_format_key_value(key, value, bad_keys):
-            for bad_key in bad_keys:
-                if bad_key in value:
-                    raise ValueError("OsProfile.%s cannot contain %s"
-                                     % (key, key_from_key_name(bad_key)))
-
-        if not isinstance(key, str):
-            raise TypeError("OsProfile key must be a string.")
-
-        if key not in OS_PROFILE_KEYS:
-            raise ValueError("Invalid OsProfile key: %s" % key)
-
-        if key in bad_key_map:
-            _check_format_key_value(key, value, bad_key_map[key])
-
-        self._profile_data[key] = value
-
-    def keys(self):
-        """Return the list of keys for this OsProfile.
-
-            :returntype: list
-            :returns: A list of OsProfile key names
-        """
-        return self._profile_data.keys()
-
-    def values(self):
-        """Return the list of key values for this OsProfile.
-
-            :returntype: list
-            :returns: A list of OsProfile key values
-        """
-        return self._profile_data.values()
-
-    def items(self):
-        """Return the items list for this OsProfile.
-
-            Return a list of ``(key, value)`` tuples representing the
-            key items in this ``OsProfile``.
-
-            :returntype: list
-            :returns: A list of OsProfile key item tuples
-        """
-        return self._profile_data.items()
-
-    def _dirty(self):
-        """Mark this ``OsProfile`` as needing to be written to disk.
-
-            A newly created ``OsProfile`` object is always dirty and
-            a call to its ``write_profile()`` method will always write
-            a new profile file. Writes may be avoided for profiles
-            that are not marked as dirty.
-
-            A clean ``OsProfile`` is marked as dirty if a new value
-            is written to any of its writable properties.
-
-            :returns None:
-        """
-        if self._identity_key in self._profile_data:
-            self._profile_data.pop(self._identity_key)
-        self._unwritten = True
 
     def _generate_id(self):
         """Generate a new OS identifier.
@@ -760,6 +1375,10 @@ class OsProfile(object):
         global _profiles
         self._profile_data = {}
 
+        # Initialise BoomProfile base class
+        super(OsProfile, self).__init__(OS_PROFILE_KEYS, OS_REQUIRED_KEYS,
+                                        BOOM_OS_ID)
+
         if profile_data and profile_file:
             raise ValueError("Only one of 'profile_data' or 'profile_file' "
                              "may be specified.")
@@ -809,164 +1428,6 @@ class OsProfile(object):
         self._generate_id()
         self._append_profile()
 
-    def match_uname_version(self, version):
-        """Test OsProfile for version string match.
-
-            Test the supplied version string to determine whether it
-            matches the uname_pattern of this ``OsProfile``.
-
-            :param version: A uname release version string to match.
-            :returns: ``True`` if thi version matches this profile, or
-                      ``False`` otherwise.
-            :returntype: bool
-        """
-        _log_debug_profile("Matching uname pattern '%s' to '%s'" %
-                           (self.uname_pattern, version))
-        if self.uname_pattern and version:
-            if re.search(self.uname_pattern, version):
-                return True
-        return False
-
-    def match_options(self, entry):
-        """Test OsProfile for options template match.
-
-            Test the supplied ``BootEntry`` to determine whether it
-            matches the options template defined by this ``OsProfile``.
-
-            Used as a match of last resort when no uname pattern match
-            exists.
-
-            :param entry: A ``BootEntry`` to match against this profile.
-            :returns: ``True`` if this entry matches this profile, or
-                      ``False`` otherwise.
-            :returntype: bool
-        """
-        # Attempt to match a distribution-formatted options line
-
-        if not self.options or not entry.options:
-            return False
-
-        opts_regex_words = self.make_format_regexes(self.options)
-        _log_debug_profile("Matching options regex list with %d entries" %
-                           len(opts_regex_words))
-
-        format_opts = []
-        fixed_opts = []
-
-        for rgx_word in opts_regex_words:
-            for word in entry.options.split():
-                (name, exp) = rgx_word
-                match = re.match(exp, word)
-                if not match:
-                    continue
-                value = match.group(0)
-                if name:
-                    fixed_opts.append(value)
-                else:
-                    format_opts.append(value)
-
-        fixed = [o[1] for o in opts_regex_words if not o[0]]
-        have_fixed = [True if f in fixed_opts else False for f in fixed]
-
-        form = [o[1] for o in opts_regex_words if o[0]]
-        have_form = [True if f in format_opts else False for f in form]
-
-        return all(have_fixed) and any(have_form)
-
-    def make_format_regexes(self, fmt):
-        """Generate regexes matching format string
-
-            Generate a list of ``(key, expr)`` tuples containing key and
-            regular expression pairs capturing the format key values
-            contained in the format string. Any non-format key words
-            contained in the string are returned as a ``('', expr)``
-            tuple containing no capture groups.
-
-            The resulting list may be matched against the words of a
-            ``BootEntry`` object's value strings in order to extract
-            the parameters used to create them.
-
-            :param fmt: The format string to build a regex list from.
-            :returns: A list of key and word regex tuples.
-            :returntype: list of (str, str)
-        """
-        key_format = "%%{%s}"
-        cap_regex_all = "(\S+)"
-        cap_regex_num = "(\d+)"
-        regex_words = []
-
-        if not fmt:
-            return regex_words
-
-        # Keys captured by single regex
-        key_regex = {
-            FMT_VERSION: cap_regex_all,
-            FMT_LVM_ROOT_LV: cap_regex_all,
-            FMT_BTRFS_SUBVOL_ID: cap_regex_num,
-            FMT_BTRFS_SUBVOL_PATH: cap_regex_all,
-            FMT_ROOT_DEVICE: cap_regex_all,
-        }
-
-        # Keys requiring expansion
-        key_exp = {
-            FMT_LVM_ROOT_OPTS: [self.root_opts_lvm2],
-            FMT_BTRFS_ROOT_OPTS: [self.root_opts_btrfs],
-            # "fix" this by adding root_opts_btrfs_{id,path}?
-            FMT_BTRFS_SUBVOLUME: ["subvol=%{btrfs_subvol_path}",
-                                  "subvolid=%{btrfs_subvol_id}"],
-            FMT_ROOT_OPTS: [self.root_opts_lvm2, self.root_opts_btrfs],
-            FMT_KERNEL: [self.kernel_pattern],
-            FMT_INITRAMFS: [self.initramfs_pattern]
-        }
-
-        # Parent key names to preserve during recursion
-        #
-        # If a key name is listed in preserve_keys, the key name is
-        # taken as the regex name returned to the caller when
-        # recursing to evaluate an expanded format key.
-        #
-        # This allows the correct key name to be reported when a key
-        # evaluates to a string containing further format keys.
-        #
-        # This logic is not applied to the ROOT_OPTS key since the
-        # key names of the keys composing ROOT_OPTS (BTRFS/LVM2)
-        # directly map to BootParams attribute names.
-        preserve_keys = [FMT_KERNEL, FMT_INITRAMFS]
-
-        def _substitute_keys(fmt, keyname=None):
-            """Return a list of regular expressions matching the format keys
-                found in ``fmt``, expanding and substituting format keys
-                as necessary until all keys have been replaced with a
-                capturing regular expression. Or something. Go with it.
-            """
-            subst = []
-            did_subst = 0
-            for key in FORMAT_KEYS:
-                k = key_format % key
-                if k in fmt and key in key_regex:
-                    # Simple regex substitution
-                    fmt = fmt.replace(k, key_regex[key])
-                    subst.append((keyname if keyname else key, fmt))
-                    did_subst += 1
-                elif k in fmt and key in key_exp:
-                    # Recursive expansion and substitution
-                    pk = key if (not keyname and
-                                 key in preserve_keys) else keyname
-                    for e in key_exp[key]:
-                        subst += _substitute_keys(e, keyname=pk)
-                    did_subst += 1
-
-            if not did_subst:
-                # Non-formatted word
-                subst.append(("", fmt))
-
-            return subst
-
-        for word in fmt.split():
-            regex_words += _substitute_keys(word)
-
-        return regex_words
-
     # We use properties for the OsProfile attributes: this is to
     # allow the values to be stored in a dictionary. Although
     # properties are quite verbose this reduces the code volume
@@ -981,6 +1442,8 @@ class OsProfile(object):
     #
     #   disp_os_id
     #   os_id
+
+    # OSProfile properties inherited from BoomProfile
     #   os_name
     #   os_short_name
     #   os_version
@@ -1015,173 +1478,9 @@ class OsProfile(object):
             self._generate_id()
         return self._profile_data[BOOM_OS_ID]
 
-    @property
-    def os_name(self):
-        """The ``os_name`` of this profile.
-
-            :getter: returns the ``os_name`` as a string.
-            :type: string
-        """
-        return self._profile_data[BOOM_OS_NAME]
-
-    @property
-    def os_short_name(self):
-        """The ``os_short_name`` of this profile.
-
-            :getter: returns the ``os_short_name`` as a string.
-            :type: string
-        """
-        return self._profile_data[BOOM_OS_SHORT_NAME]
-
-    @property
-    def os_version(self):
-        """The ``os_version`` of this profile.
-
-            :getter: returns the ``os_version`` as a string.
-            :type: string
-        """
-        return self._profile_data[BOOM_OS_VERSION]
-
-    @property
-    def os_version_id(self):
-        """The ``version_id`` of this profile.
-
-            :getter: returns the ``os_version_id`` as a string.
-            :type: string
-        """
-        return self._profile_data[BOOM_OS_VERSION_ID]
-
-    # Configuration keys specify values that may be modified and
-    # have a corresponding <key>.setter.
-
-    @property
-    def uname_pattern(self):
-        """The current ``uname_pattern`` setting of this profile.
-
-            :getter: returns the ``uname_pattern`` as a string.
-            :setter: stores a new ``uname_pattern`` setting.
-            :type: string
-        """
-        return self._profile_data[BOOM_OS_UNAME_PATTERN]
-
-    @uname_pattern.setter
-    def uname_pattern(self, value):
-        self._profile_data[BOOM_OS_UNAME_PATTERN] = value
-        self._dirty()
-
-    @property
-    def kernel_pattern(self):
-        """The current ``kernel_pattern`` setting of this profile.
-
-            :getter: returns the ``kernel_pattern`` as a string.
-            :setter: stores a new ``kernel_pattern`` setting.
-            :type: string
-        """
-        return self._profile_data[BOOM_OS_KERNEL_PATTERN]
-
-    @kernel_pattern.setter
-    def kernel_pattern(self, value):
-        kernel_key = key_from_key_name(FMT_KERNEL)
-        if kernel_key in value:
-            raise ValueError("OsProfile.kernel cannot contain %s" % kernel_key)
-        self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
-        self._dirty()
-
-    @property
-    def initramfs_pattern(self):
-        """The current ``initramfs_pattern`` setting of this profile.
-
-            :getter: returns the ``initramfs_pattern`` as a string.
-            :setter: store a new ``initramfs_pattern`` setting.
-            :type: string
-        """
-        return self._profile_data[BOOM_OS_INITRAMFS_PATTERN]
-
-    @initramfs_pattern.setter
-    def initramfs_pattern(self, value):
-        initramfs_key = key_from_key_name(FMT_INITRAMFS)
-        if initramfs_key in value:
-            raise ValueError("OsProfile.initramfs cannot contain %s" %
-                             initramfs_key)
-        self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
-        self._dirty()
-
-    @property
-    def root_opts_lvm2(self):
-        """The current LVM2 root options setting of this profile.
-
-            :getter: returns the ``root_opts_lvm2`` value as a string.
-            :setter: store a new ``root_opts_lvm2`` value.
-            :type: string
-        """
-        if BOOM_OS_ROOT_OPTS_LVM2 not in self._profile_data:
-            return None
-        return self._profile_data[BOOM_OS_ROOT_OPTS_LVM2]
-
-    @root_opts_lvm2.setter
-    def root_opts_lvm2(self, value):
-        root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
-        if root_opts_key in value:
-                raise ValueError("OsProfile.root_opts_lvm2 cannot contain %s" %
-                                 root_opts_key)
-        self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = value
-        self._dirty()
-
-    @property
-    def root_opts_btrfs(self):
-        """The current BTRFS root options setting of this profile.
-
-            :getter: returns the ``root_opts_btrfs`` value as a string.
-            :setter: store a new ``root_opts_btrfs`` value.
-            :type: string
-        """
-        if BOOM_OS_ROOT_OPTS_BTRFS not in self._profile_data:
-            return None
-        return self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS]
-
-    @root_opts_btrfs.setter
-    def root_opts_btrfs(self, value):
-        root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
-        if root_opts_key in value:
-                raise ValueError("OsProfile.root_opts_btrfs cannot contain"
-                                 " %s" % root_opts_key)
-        self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
-        self._dirty()
-
-    @property
-    def options(self):
-        """The current kernel command line options setting for this
-            profile.
-
-            :getter: returns the ``options`` value as a string.
-            :setter: store a new ``options`` value.
-            :type: string
-        """
-        if BOOM_OS_OPTIONS not in self._profile_data:
-            return None
-        return self._profile_data[BOOM_OS_OPTIONS]
-
-    @options.setter
-    def options(self, value):
-        self._profile_data[BOOM_OS_OPTIONS] = value
-        self._dirty()
-
-    @property
-    def title(self):
-        """The current title template for this profile.
-
-            :getter: returns the ``title`` value as a string.
-            :setter: store a new ``title`` value.
-            :type: string
-        """
-        if BOOM_OS_TITLE not in self._profile_data:
-            return None
-        return self._profile_data[BOOM_OS_TITLE]
-
-    @title.setter
-    def title(self, value):
-        self._profile_data[BOOM_OS_TITLE] = value
-        self._dirty()
+    #
+    # Class methods for building OsProfile instances from os-release
+    #
 
     @classmethod
     def from_os_release(cls, os_release):
@@ -1250,62 +1549,6 @@ class OsProfile(object):
         profile_path_name = BOOM_OS_PROFILE_FORMAT % (profile_id)
         return path_join(boom_profiles_path(), profile_path_name)
 
-    def _write_profile(self, profile_id, profile_dir, mode, force=False):
-        """Write helper for profile classes.
-
-            Write out this profile's data to a file in Boom format to
-            the paths specified by the current configuration.
-
-            The pathname to write is obtained from self._profile_path().
-
-            If the value of ``force`` is ``False`` and the profile
-            is not currently marked as dirty (either new, or modified
-            since the last load operation) the write will be skipped.
-
-            :param profile_id: The os_id or host_id of this profile.
-            :param profile_dir: The directory containing this type.
-            :param mode: The mode with which files are created.
-            :param force: Force this profile to be written to disk even
-                          if the entry is unmodified.
-
-            :raises: ``OsError`` if the temporary entry file cannot be
-                     renamed, or if setting file permissions on the
-                     new entry file fails.
-        """
-        ptype = self.__class__.__name__
-        if not force and not self._unwritten:
-            return
-
-        profile_path = self._profile_path()
-
-        _log_debug("Writing %s(id='%s') to '%s'" %
-                   (ptype, profile_id, basename(profile_path)))
-
-        # List of key names for this profile type
-        profile_keys = self._profile_keys
-
-        (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=profile_dir)
-        with fdopen(tmp_fd, "w") as f:
-            for key in [k for k in profile_keys if k in self._profile_data]:
-                if self._comments and key in self._comments:
-                    f.write(self._comments[key].rstrip() + '\n')
-                f.write('%s="%s"\n' % (key, self._profile_data[key]))
-                f.flush()
-                fdatasync(f.fileno())
-        try:
-            rename(tmp_path, profile_path)
-            chmod(profile_path, mode)
-        except Exception as e:
-            _log_error("Error writing profile file '%s': %s" %
-                       (profile_path, e))
-            try:
-                unlink(tmp_path)
-            except:
-                pass
-            raise e
-
-        _log_debug("Wrote %s (id=%s)'" % (ptype, profile_id))
-
     def write_profile(self, force=False):
         """Write out profile data to disk.
 
@@ -1329,35 +1572,6 @@ class OsProfile(object):
         mode = BOOM_PROFILE_MODE
         self._write_profile(self.os_id, path, mode, force=force)
 
-    def _delete_profile(self, profile_id):
-        """Deletion helper for profile classes.
-
-            Remove the on-disk profile corresponding to this
-            ``OsProfile`` object. This will permanently erase the
-            current file (although the current data may be re-written at
-            any time by calling ``write_profile()`` before the object is
-            disposed of).
-
-            :returntype: ``NoneType``
-            :raises: ``OsError`` if an error occurs removing the file or
-                     ``ValueError`` if the profile does not exist.
-        """
-        profile_path = self._profile_path()
-
-        _log_debug("Deleting %sProfile(%s_id='%s') from '%s'" %
-                   (profile_type, profile_type.lower(), profile_id,
-                    basename(profile_path)))
-
-        if not path_exists(profile_path):
-            return
-        try:
-            unlink(profile_path)
-            _log_debug("Deleted %sProfile(%s_id='%s')" %
-                       (profile_type, profile_type.lower(), profile_id))
-        except Exception as e:
-            _log_error("Error removing %sProfile file '%s': %s" %
-                       (profile_type, profile_path, e))
-
     def delete_profile(self):
         """Delete on-disk data for this profile.
 
@@ -1380,7 +1594,7 @@ class OsProfile(object):
 
 
 __all__ = [
-    'OsProfile',
+    'BoomProfile', 'OsProfile',
     'profiles_loaded', 'drop_profiles', 'load_profiles', 'write_profiles',
     'find_profiles', 'get_os_profile_by_id', 'select_profile',
     'match_os_profile', 'match_os_profile_by_version', 'key_from_key_name',
