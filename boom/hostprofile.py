@@ -510,7 +510,7 @@ class HostProfile(OsProfile):
 
         self._profile_data[key] = value
 
-    def _generate_host_id(self):
+    def _generate_id(self):
         """Generate a new host identifier.
 
             Generate a new sha1 profile identifier for this profile,
@@ -575,7 +575,7 @@ class HostProfile(OsProfile):
         self._profile_data = dict(host_data)
 
         if BOOM_HOST_ID not in self._profile_data:
-            self._generate_host_id()
+            self._generate_id()
 
         self.__set_os_profile()
 
@@ -661,7 +661,7 @@ class HostProfile(OsProfile):
 
         self.__set_os_profile()
 
-        self._generate_host_id()
+        self._generate_id()
         _host_profiles.append(self)
 
     # We use properties for the HostProfile attributes: this is to
@@ -707,7 +707,7 @@ class HostProfile(OsProfile):
     @property
     def host_id(self):
         if BOOM_HOST_ID not in self._profile_data:
-            self._generate_host_id()
+            self._generate_id()
         return self._profile_data[BOOM_HOST_ID]
 
     @property
@@ -752,7 +752,7 @@ class HostProfile(OsProfile):
             return
         self._profile_data[BOOM_ENTRY_MACHINE_ID] = value
         self._dirty()
-        self._generate_host_id()
+        self._generate_id()
 
     @property
     def os_id(self):
@@ -770,7 +770,7 @@ class HostProfile(OsProfile):
         self._profile_data[BOOM_OS_ID] = value
         self.__set_os_profile()
         self._dirty()
-        self._generate_host_id()
+        self._generate_id()
 
     @property
     def host_name(self):
@@ -790,7 +790,7 @@ class HostProfile(OsProfile):
             return
         self._profile_data[BOOM_HOST_NAME] = value
         self._dirty()
-        self._generate_host_id()
+        self._generate_id()
 
     @property
     def short_name(self):
@@ -1030,7 +1030,7 @@ class HostProfile(OsProfile):
 
         self._profile_data[BOOM_HOST_LABEL] = value
         self._dirty()
-        self._generate_host_id()
+        self._generate_id()
 
     def _profile_path(self):
         """Return the path to this profile's on-disk data.
