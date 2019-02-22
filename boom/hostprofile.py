@@ -1093,7 +1093,7 @@ class HostProfile(OsProfile):
                      ``ValueError`` if the profile does not exist.
         """
         global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
-        self._delete_profile("Host", self.host_id)
+        self._delete_profile(self.host_id)
 
         machine_id = self.machine_id
         host_id = self.host_id

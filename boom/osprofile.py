@@ -1329,7 +1329,7 @@ class OsProfile(object):
         mode = BOOM_PROFILE_MODE
         self._write_profile(self.os_id, path, mode, force=force)
 
-    def _delete_profile(self, profile_type, profile_id):
+    def _delete_profile(self, profile_id):
         """Deletion helper for profile classes.
 
             Remove the on-disk profile corresponding to this
@@ -1372,7 +1372,7 @@ class OsProfile(object):
                      ``ValueError`` if the profile does not exist.
         """
         global _profiles
-        self._delete_profile("Os", self.os_id)
+        self._delete_profile(self.os_id)
         if _profiles and self in _profiles:
             _profiles.remove(self)
         if _profiles_by_id and self.os_id in _profiles_by_id:
