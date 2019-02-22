@@ -1945,6 +1945,32 @@ def _clone_profile_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
+def _generic_show_cmd(select, find_fn, fmt, get_data):
+    """Generic show command handler.
+
+        Show the objects returned by calling `find_fn` with selection
+        criteria `select`, using the format string `fmt`, and the data
+        tuple returned by calling `get_data` for each object.
+
+        :param select: Selection() object with search criteria.
+        :param find_fn: A find_*() function accepting Selection.
+        :param fmt: A Python format string.
+        :param get_data: A function returning a tuple of data values
+                         satisfying the format string `fmt`.
+    """
+    try:
+        objs = find_fn(select)
+    except ValueError as e:
+        print(e)
+        return 1
+
+    first = True
+    for obj in objs:
+        ws = "" if first else "\n"
+        print(ws + fmt % get_data(obj))
+        first = False
+    return 0
+
 def _show_profile_cmd(cmd_args, select, opts, identifier):
     """Show profile command handler.
 
@@ -1961,19 +1987,11 @@ def _show_profile_cmd(cmd_args, select, opts, identifier):
     if identifier is not None:
         select = Selection(os_id=identifier)
 
-    try:
-        osps = find_profiles(select)
-    except ValueError as e:
-        print(e)
-        return 1
-    first = True
-    for osp in osps:
-        ws = "" if first else "\n"
-        osp_str = _str_indent(str(osp), 2)
-        print("%sOS Profile (os_id=%s)\n%s" % (ws, osp.disp_os_id, osp_str))
-        first = False
-    return 0
+    def _profile_get_data(osp):
+        return (osp.disp_os_id, _str_indent(str(osp), 2))
 
+    fmt = "OS Profile (os_id=%s)\n%s"
+    return _generic_show_cmd(select, find_profiles, fmt, _profile_get_data)
 
 def _list_profile_cmd(cmd_args, select, opts, identifier):
     """List profile command handler.
@@ -2201,18 +2219,12 @@ def _show_host_cmd(cmd_args, select, opts, identifier):
     if identifier is not None:
         select = Selection(host_id=identifier)
 
-    try:
-        hps = find_host_profiles(select)
-    except ValueError as e:
-        print(e)
-        return 1
-    first = True
-    for hp in hps:
-        ws = "" if first else "\n"
-        hp_str = _str_indent(str(hp), 2)
-        print("%sHost Profile (host_id=%s)\n%s" % (ws, hp.disp_host_id, hp_str))
-        first = False
-    return 0
+    def _host_get_data(hp):
+        return (hp.disp_host_id, _str_indent(str(hp), 2))
+
+    fmt = "Host Profile (host_id=%s)\n%s"
+
+    return _generic_show_cmd(select, find_host_profiles, fmt, _host_get_data)
 
 
 def _list_host_cmd(cmd_args, select, opts, identifier):
