@@ -2272,7 +2272,8 @@ def _edit_host_cmd(cmd_args, select, opts, identifier):
                        host_name=host_name, kernel_pattern=kernel_pattern,
                        initramfs_pattern=initramfs_pattern,
                        root_opts_lvm2=root_opts_lvm2,
-                       root_opts_btrfs=root_opts_btrfs, options=options)
+                       root_opts_btrfs=root_opts_btrfs,
+                       add_opts=add_opts, del_opts=del_opts, options=options)
     except ValueError as e:
         print(e)
         return 1
