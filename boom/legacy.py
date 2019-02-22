@@ -301,8 +301,8 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         # No boom entries: nothing to do.
         try:
             unlink(tmp_path)
-        except:
-            pass
+        except OSError as e:
+            _log_error("Could not unlink '%s': %s" % (tmp_path, e))
         return
 
     try:
