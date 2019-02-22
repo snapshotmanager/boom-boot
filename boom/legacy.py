@@ -151,19 +151,6 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
 
     (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=cfg_dir)
 
-    def _legacy_format_error(err, fmt_data):
-        """Helper function to clean up the temporary file and raise the
-            corresponding BoomLegacyFormatError exception.
-        """
-        if type(fmt_data[0]) == int:
-            fmt_data = ("line %d" % fmt_data[0], fmt_data[1])
-
-        try:
-            unlink(tmp_path)
-        except OSError as e:
-            _log_error("Could not unlink '%s': %s" % (tmp_path, e))
-        raise BoomLegacyFormatError(err % fmt_data)
-
     with fdopen(tmp_fd, "w") as tmp_f:
         # Our original file descriptor will be closed on exit from the
         # fdopen with statement: save a copy so that we can call fdatasync
@@ -227,6 +214,19 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
                                        unknown or invalid.
         :returns: None
     """
+    def _legacy_format_error(err, fmt_data):
+        """Helper function to clean up the temporary file and raise the
+            corresponding BoomLegacyFormatError exception.
+        """
+        if type(fmt_data[0]) == int:
+            fmt_data = ("line %d" % fmt_data[0], fmt_data[1])
+
+        try:
+            unlink(tmp_path)
+        except OSError as e:
+            _log_error("Could not unlink '%s': %s" % (tmp_path, e))
+        raise BoomLegacyFormatError(err % fmt_data)
+
     (name, decorator, path) = find_legacy_loader(loader, cfg_path)
 
     if not isabs(path):
@@ -253,19 +253,6 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
     in_boom_cfg = False
 
     (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=cfg_dir)
-
-    def _legacy_format_error(err, fmt_data):
-        """Helper function to clean up the temporary file and raise the
-            corresponding BoomLegacyFormatError exception.
-        """
-        if type(fmt_data[0]) == int:
-            fmt_data = ("line %d" % fmt_data[0], fmt_data[1])
-
-        try:
-            unlink(tmp_path)
-        except:
-            pass
-        raise BoomLegacyFormatError(err % fmt_data)
 
     with fdopen(tmp_fd, "w") as tmp_f:
         # Our original file descriptor will be closed on exit from the
