@@ -705,6 +705,27 @@ class HostProfile(OsProfile):
     #   del_opts
 
     @property
+    def disp_os_id(self):
+        """The display os_id of this profile.
+
+            Return the shortest prefix of this OsProfile's os_id that
+            is unique within the current set of loaded profiles.
+
+            :getter: return this OsProfile's os_id.
+            :type: str
+        """
+        return self.osp.disp_os_id
+
+    @property
+    def os_id(self):
+        """The ``os_id`` of this profile.
+
+            :getter: returns the ``os_id`` as a string.
+            :type: string
+        """
+        return self.osp.os_id
+
+    @property
     def host_id(self):
         if BOOM_HOST_ID not in self._profile_data:
             self._generate_id()
