@@ -615,7 +615,7 @@ class OsProfile(object):
             self._profile_data.pop(self._identity_key)
         self._unwritten = True
 
-    def _generate_os_id(self):
+    def _generate_id(self):
         """Generate a new OS identifier.
 
             Generate a new sha1 profile identifier for this profile,
@@ -676,7 +676,7 @@ class OsProfile(object):
         self._profile_data = dict(profile_data)
 
         if BOOM_OS_ID not in self._profile_data:
-            self._generate_os_id()
+            self._generate_id()
 
         if dirty:
             self._dirty()
@@ -805,7 +805,7 @@ class OsProfile(object):
         for key in _DEFAULT_KEYS:
             self._profile_data[key] = default_if_unset(key)
 
-        self._generate_os_id()
+        self._generate_id()
         self._append_profile()
 
     def match_uname_version(self, version):
@@ -1011,7 +1011,7 @@ class OsProfile(object):
             :type: string
         """
         if BOOM_OS_ID not in self._profile_data:
-            self._generate_os_id()
+            self._generate_id()
         return self._profile_data[BOOM_OS_ID]
 
     @property
