@@ -1077,7 +1077,7 @@ class HostProfile(OsProfile):
         """
         path = boom_host_profiles_path()
         mode = BOOM_HOST_PROFILE_MODE
-        self._write_profile("Host", self.host_id, path, mode, force=force)
+        self._write_profile(self.host_id, path, mode, force=force)
 
     def delete_profile(self):
         """Delete on-disk data for this profile.

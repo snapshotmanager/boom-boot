@@ -1250,8 +1250,7 @@ class OsProfile(object):
         profile_path_name = BOOM_OS_PROFILE_FORMAT % (profile_id)
         return path_join(boom_profiles_path(), profile_path_name)
 
-    def _write_profile(self, profile_type, profile_id,
-                       profile_dir, mode, force=False):
+    def _write_profile(self, profile_id, profile_dir, mode, force=False):
         """Write helper for profile classes.
 
             Write out this profile's data to a file in Boom format to
@@ -1263,7 +1262,6 @@ class OsProfile(object):
             is not currently marked as dirty (either new, or modified
             since the last load operation) the write will be skipped.
 
-            :param profile_type: The type of profile, Host or Os.
             :param profile_id: The os_id or host_id of this profile.
             :param profile_dir: The directory containing this type.
             :param mode: The mode with which files are created.
@@ -1274,14 +1272,14 @@ class OsProfile(object):
                      renamed, or if setting file permissions on the
                      new entry file fails.
         """
+        ptype = self.__class__.__name__
         if not force and not self._unwritten:
             return
 
         profile_path = self._profile_path()
 
-        _log_debug("Writing %sProfile(%s_id='%s') to '%s'" %
-                   (profile_type, profile_type.lower(), profile_id,
-                    basename(profile_path)))
+        _log_debug("Writing %s(id='%s') to '%s'" %
+                   (ptype, profile_id, basename(profile_path)))
 
         # List of key names for this profile type
         profile_keys = self._profile_keys
@@ -1306,8 +1304,7 @@ class OsProfile(object):
                 pass
             raise e
 
-        _log_debug("Wrote %sProfile (%s_id=%s)'" %
-                   (profile_type, profile_type.lower(), profile_id))
+        _log_debug("Wrote %s (id=%s)'" % (ptype, profile_id))
 
     def write_profile(self, force=False):
         """Write out profile data to disk.
@@ -1330,7 +1327,7 @@ class OsProfile(object):
         """
         path = boom_profiles_path()
         mode = BOOM_PROFILE_MODE
-        self._write_profile("Os", self.os_id, path, mode, force=force)
+        self._write_profile(self.os_id, path, mode, force=force)
 
     def _delete_profile(self, profile_type, profile_id):
         """Deletion helper for profile classes.
