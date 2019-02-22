@@ -34,7 +34,6 @@ from boom.hostprofile import *
 from boom.legacy import *
 from boom.config import *
 
-import sys
 from os import environ, uname, getcwd
 from os.path import basename, isabs, join
 from argparse import ArgumentParser
