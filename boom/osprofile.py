@@ -683,7 +683,7 @@ class OsProfile(object):
 
         self._append_profile()
 
-    def _from_file(self, profile_file, profile_type):
+    def _from_file(self, profile_file):
         """Initialise a new profile from data stored in a file.
 
             Initialise a new profil object using the profile data
@@ -698,9 +698,10 @@ class OsProfile(object):
         profile_data = {}
         comments = {}
         comment = ""
+        ptype = self.__class__.__name__
 
         _log_debug("Loading %sProfile from '%s'" %
-                   (profile_type, basename(profile_file)))
+                   (ptype, basename(profile_file)))
         with open(profile_file, "r") as pf:
             for line in pf:
                 if blank_or_comment(line):
@@ -767,7 +768,7 @@ class OsProfile(object):
             self._from_data(profile_data)
             return
         if profile_file:
-            self._from_file(profile_file, "Os")
+            self._from_file(profile_file)
             return
 
         self._dirty()

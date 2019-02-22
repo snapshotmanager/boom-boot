@@ -621,7 +621,7 @@ class HostProfile(OsProfile):
             self._from_data(profile_data)
             return
         if profile_file:
-            self._from_file(profile_file, "Host")
+            self._from_file(profile_file)
             return
 
         self._dirty()
