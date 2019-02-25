@@ -1509,12 +1509,8 @@ class BootEntry(object):
             """Test all defined predicate functions and return `True` if
                 all evaluate `True`, or `False` otherwise.
             """
-            needs = key_spec[NEEDS] if NEEDS in key_spec else []
-            for need in needs:
-                if need == "bp" and not bp:
-                    return False
-                if need == "osp" and not self._osp:
-                    return False
+            if PRED_FN not in key_spec:
+                return True
             predicates = key_spec[PRED_FN]
             # Ignore invalid predicates
             return all([fn() for fn in predicates if fn])
@@ -1534,7 +1530,7 @@ class BootEntry(object):
         BE_ATTR = "be_attr"
         BP_ATTR = "bp_attr"
         OSP_ATTR = "osp_attr"
-        PRED_FN = "fn_pred"
+        PRED_FN = "pred_fn"
         VAL_FMT = "val_fmt"
         NEEDS = "needs"
 
@@ -1571,6 +1567,8 @@ class BootEntry(object):
                             continue
                         if key_spec[k] == "osp" and not self._osp:
                             continue
+                if not test_predicates(key_spec):
+                    continue
                 # A key value of None means the key should not be substituted:
                 # this occurs when accessing a templated attribute of an entry
                 # that has no attached OsProfile (in which case the format key
