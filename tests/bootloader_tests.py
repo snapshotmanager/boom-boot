@@ -659,7 +659,7 @@ class BootEntryTests(unittest.TestCase):
 
         xkeys = [
             'BOOM_ENTRY_TITLE', 'BOOM_ENTRY_MACHINE_ID',
-            'BOOM_ENTRY_LINUX', 'BOOM_ENTRY_INITRD',
+            'BOOM_ENTRY_ARCHITECTURE', 'BOOM_ENTRY_LINUX', 'BOOM_ENTRY_INITRD',
             'BOOM_ENTRY_OPTIONS', 'BOOM_ENTRY_VERSION'
         ]
 
@@ -676,6 +676,7 @@ class BootEntryTests(unittest.TestCase):
         xvalues = [
             'title',
             'ffffffff',
+            None,
             '/vmlinuz-4.11.5-100.fc24.x86_64',
             '/initramfs-4.11.5-100.fc24.x86_64.img',
             'root=/dev/sda5 ro rhgb quiet',
@@ -696,13 +697,15 @@ class BootEntryTests(unittest.TestCase):
         osp = boom.osprofile.get_os_profile_by_id(os_id)
 
         xkeys = [
-            'BOOM_ENTRY_TITLE', 'BOOM_ENTRY_MACHINE_ID', 'BOOM_ENTRY_LINUX',
+            'BOOM_ENTRY_TITLE', 'BOOM_ENTRY_MACHINE_ID',
+            'BOOM_ENTRY_ARCHITECTURE', 'BOOM_ENTRY_LINUX',
             'BOOM_ENTRY_INITRD', 'BOOM_ENTRY_OPTIONS', 'BOOM_ENTRY_VERSION'
         ]
 
         xvalues = [
             'title',
             'ffffffff',
+            None,
             '/vmlinuz-4.11.5-100.fc24.x86_64',
             '/initramfs-4.11.5-100.fc24.x86_64.img',
             'root=/dev/sda5 ro rhgb quiet',

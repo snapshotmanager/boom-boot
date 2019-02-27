@@ -79,6 +79,8 @@ BOOM_ENTRY_EFI = "BOOM_ENTRY_EFI"
 BOOM_ENTRY_OPTIONS = "BOOM_ENTRY_OPTIONS"
 #: The ``BootEntry`` device tree key.
 BOOM_ENTRY_DEVICETREE = "BOOM_ENTRY_DEVICETREE"
+#: The ``BootEntry`` architecture key.
+BOOM_ENTRY_ARCHITECTURE = "BOOM_ENTRY_ARCHITECTURE"
 #: The ``BootEntry`` boot identifier key.
 BOOM_ENTRY_BOOT_ID = "BOOM_ENTRY_BOOT_ID"
 
@@ -94,7 +96,7 @@ ENTRY_KEYS = [
     # One of either BOOM_ENTRY_LINUX or BOOM_ENTRY_EFI must be present.
     BOOM_ENTRY_LINUX, BOOM_ENTRY_EFI,
     BOOM_ENTRY_INITRD, BOOM_ENTRY_OPTIONS,
-    BOOM_ENTRY_DEVICETREE
+    BOOM_ENTRY_DEVICETREE, BOOM_ENTRY_ARCHITECTURE
 ]
 
 #: Map Boom entry names to BLS keys
@@ -106,7 +108,8 @@ KEY_MAP = {
     BOOM_ENTRY_INITRD: "initrd",
     BOOM_ENTRY_EFI: "efi",
     BOOM_ENTRY_OPTIONS: "options",
-    BOOM_ENTRY_DEVICETREE: "devicetree"
+    BOOM_ENTRY_DEVICETREE: "devicetree",
+    BOOM_ENTRY_ARCHITECTURE: "architecture"
 }
 
 
@@ -1314,7 +1317,7 @@ class BootEntry(object):
 
     def __init__(self, title=None, machine_id=None, osprofile=None,
                  boot_params=None, entry_file=None, entry_data=None,
-                 allow_no_dev=False):
+                 architecture=None, allow_no_dev=False):
         """Initialise new BootEntry.
 
             Initialise a new ``BootEntry`` object from the specified
@@ -1362,6 +1365,8 @@ class BootEntry(object):
                                key to value mappings to initialise
                                this ``BootEntry`` from.
 
+            :param architecture: An optional BLS architecture string.
+
             :returns: A new ``BootEntry`` object.
 
             :returntype: BootEntry
@@ -1402,6 +1407,7 @@ class BootEntry(object):
             raise ValueError("BootEntry title cannot be empty")
 
         self.machine_id = machine_id
+        self.architecture = architecture
 
         if not self._osp:
             self.__match_os_profile()
@@ -1869,6 +1875,24 @@ class BootEntry(object):
     @devicetree.setter
     def devicetree(self, devicetree):
         self._entry_data[BOOM_ENTRY_DEVICETREE] = devicetree
+        self._dirty()
+
+    @property
+    def architecture(self):
+        """The EFI machine type string for this ``BootEntry``.
+
+            :getter: returns the configured architecture.
+            :setter: sets the architecture for this entry.
+            :type: string
+        """
+        return self._entry_data_property(BOOM_ENTRY_ARCHITECTURE)
+
+    @architecture.setter
+    def architecture(self, architecture):
+        machine_types = ["ia32", "x64", "ia64", "arm", "aa64"]
+        if architecture and not architecture.lower() in machine_types:
+            raise ValueError("Unknown architecture: '%s'" % architecture)
+        self._entry_data[BOOM_ENTRY_ARCHITECTURE] = architecture
         self._dirty()
 
     @property
