@@ -32,8 +32,8 @@ manual page for information on using the command line interface.
 """
 from __future__ import print_function
 
-from _boom import *
-from _boom import __all__
+from ._boom import *
+from ._boom import __all__
 
 __version__ = "0.9"
 
