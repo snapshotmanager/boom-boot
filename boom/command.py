@@ -394,7 +394,8 @@ def _merge_add_del_opts(orig_opts, opts):
 
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None, profile=None,
-                 add_opts=None, del_opts=None, write=True, allow_no_dev=False):
+                 add_opts=None, del_opts=None, write=True, architecture=None,
+                 allow_no_dev=False):
     """Create new boot loader entry.
 
         Create the specified boot entry in the configured loader directory.
@@ -411,6 +412,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         :param del_opts: A list of template-supplied options to drop.
         :param write: ``True`` if the entry should be written to disk,
                       or ``False`` otherwise.
+        :param architecture: An optional BLS architecture string.
         :param allow_no_dev: Accept a non-existent or invalid root dev.
         :returns: a ``BootEntry`` object corresponding to the new entry.
         :returntype: ``BootEntry``
@@ -446,7 +448,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
 
     be = BootEntry(title=title, machine_id=machine_id,
                    osprofile=profile, boot_params=bp,
-                   allow_no_dev=allow_no_dev)
+                   architecture=architecture, allow_no_dev=allow_no_dev)
 
     if find_entries(Selection(boot_id=be.boot_id)):
         raise ValueError("Entry already exists (boot_id=%s)." %
@@ -495,7 +497,7 @@ def delete_entries(selection=None):
 
 def clone_entry(selection=None, title=None, version=None, machine_id=None,
                 root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
-                btrfs_subvol_id=None, profile=None,
+                btrfs_subvol_id=None, profile=None, architecture=None,
                 add_opts=None, del_opts=None,
                 write=True, allow_no_dev=False):
     """Clone an existing boot loader entry.
@@ -514,6 +516,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
         :param btrfs_subvol_id: an optional BTRFS subvolume id.
         :param profile: A profile to use for this entry.
+        :param architecture: An optional BLS architecture string.
         :param add_opts: A list of additional kernel options to append.
         :param del_opts: A list of template-supplied options to drop.
         :param write: ``True`` if the entry should be written to disk,
@@ -570,6 +573,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 
     clone_be = BootEntry(title=title, machine_id=machine_id,
                          osprofile=profile, boot_params=bp,
+                         architecture=architecture,
                          allow_no_dev=allow_no_dev)
     if find_entries(Selection(boot_id=clone_be.boot_id)):
         raise ValueError("Entry already exists (boot_id=%s)." %
@@ -583,7 +587,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
-               btrfs_subvol_id=None, profile=None,
+               btrfs_subvol_id=None, profile=None, architecture=None,
                add_opts=None, del_opts=None):
     """Edit an existing boot loader entry.
 
@@ -606,6 +610,9 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
         :param btrfs_subvol_path: The new BTRFS subvolume path
         :param btrfs_subvol_id: The new BTRFS subvolme ID
         :param profile: The host or OS profile for the edited entry
+        :param architecture: An optional BLS architecture string.
+        :param add_opts: A list of additional kernel options to append.
+        :param del_opts: A list of template-supplied options to drop.
 
         :returns: The modified ``BootEntry``
         :returntype: ``BootEntry``
@@ -647,6 +654,7 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     be._osp = profile or be._osp
     be.title = title or be.title
     be.machine_id = machine_id or be.machine_id
+    be.architecture = architecture or be.architecture
     be.bp.version = version
     be.bp.root_device = root_device or be.bp.root_device
     be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
@@ -1498,13 +1506,16 @@ def _create_cmd(cmd_args, select, opts, identifier):
     add_opts = cmd_args.add_opts
     del_opts = cmd_args.del_opts
 
+    arch = cmd_args.architecture
+
     try:
         be = create_entry(title, version, machine_id,
                           root_device, lvm_root_lv=lvm_root_lv,
                           btrfs_subvol_path=btrfs_subvol_path,
                           btrfs_subvol_id=btrfs_subvol_id, profile=profile,
                           add_opts=add_opts, del_opts=del_opts,
-                          write=False, allow_no_dev=no_dev)
+                          architecture=arch, write=False,
+                          allow_no_dev=no_dev)
 
     except BoomRootDeviceError as brde:
         print(brde)
@@ -1614,6 +1625,8 @@ def _clone_cmd(cmd_args, select, opts, identifier):
     add_opts = cmd_args.add_opts
     del_opts = cmd_args.del_opts
 
+    arch = cmd_args.architecture
+
     try:
         be = clone_entry(select, title=title, version=version,
                          machine_id=machine_id, root_device=root_device,
@@ -1621,7 +1634,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
                          btrfs_subvol_path=btrfs_subvol_path,
                          btrfs_subvol_id=btrfs_subvol_id, profile=profile,
                          add_opts=add_opts, del_opts=del_opts,
-                         allow_no_dev=cmd_args.no_dev)
+                         architecture=arch, allow_no_dev=cmd_args.no_dev)
 
     except ValueError as e:
         print(e)
@@ -1762,12 +1775,15 @@ def _edit_cmd(cmd_args, select, opts, identifier):
 
     profile = _find_profile(cmd_args, version, machine_id, "edit")
 
+    arch = cmd_args.architecture
+
     try:
         be = edit_entry(selection=select, title=title, version=version,
                         machine_id=machine_id, root_device=root_device,
                         lvm_root_lv=lvm_root_lv,
                         btrfs_subvol_path=btrfs_subvol_path,
-                        btrfs_subvol_id=btrfs_subvol_id, profile=profile)
+                        btrfs_subvol_id=btrfs_subvol_id, profile=profile,
+                        architecture=arch)
     except ValueError as e:
         print(e)
         return 1
@@ -2519,6 +2535,8 @@ def main(args):
                         "operate on", nargs="?", default=None)
     parser.add_argument("-a", "--add-opts", "--addopts", metavar="OPTIONS",
                         help="Additional kernel options to append", type=str)
+    parser.add_argument("--architecture", metavar="ARCH", default=None,
+                        help="An optional BLS architecture string", type=str)
     parser.add_argument("-b", "--boot-id", "--bootid", metavar="BOOT_ID",
                         type=str, help="The BOOT_ID of a boom boot entry")
     parser.add_argument("--boot-dir", "--bootdir", metavar="PATH", type=str,
