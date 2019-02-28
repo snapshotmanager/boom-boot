@@ -244,6 +244,11 @@ class CommandTests(unittest.TestCase):
         # Set boom paths
         set_boot_path(boot_sandbox)
 
+        # Tests that deal with legacy configs will enable this.
+        config = BoomConfig()
+        config.legacy_enable = False
+        config.legacy_sync = False
+
         # Reset profiles, entries, and host profiles to known state.
         load_profiles()
         load_entries()
