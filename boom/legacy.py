@@ -58,7 +58,7 @@ def _get_grub1_device(force=False):
         second time), unless the ``force`` argument is ``True``.
 
         If no usable Grub1 environment is detected the function
-        raises the ``BoomLegacyLoaderError`` exception.
+        raises the ``BoomLegacyFormatError`` exception.
 
         :param force: force the cache to be updated.
     """
@@ -80,7 +80,7 @@ def _get_grub1_device(force=False):
         p = Popen(grub_cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         out = p.communicate(input=find_cmd)
     except OSError:
-        raise BoomLegacyLoaderError("Could not execute grub1 shell.")
+        raise BoomLegacyFormatError("Could not execute grub1 shell.")
 
     for line in out[0].splitlines():
         if re.match(find_rgx, line):
