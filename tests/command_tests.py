@@ -635,7 +635,12 @@ class CommandTests(unittest.TestCase):
 
         # Verify edited title and options
         self.assertEqual(edit_title, edit_be.title)
-        self.assertEqual(edit_be.bp.add_opts, [edit_add_opts, orig_add_opts])
+
+        # Sort the opts lists as Python3 does not guarantee ordering
+        sorted_bp_add_opts = sorted(edit_be.bp.add_opts)
+        sorted_edit_and_orig_opts = sorted([edit_add_opts, orig_add_opts])
+        self.assertEqual(sorted_bp_add_opts, sorted_edit_and_orig_opts)
+
         # Verify original added opts
         self.assertTrue(orig_add_opts in edit_be.options)
         # Verify edit added opts
