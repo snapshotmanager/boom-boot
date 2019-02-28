@@ -716,7 +716,7 @@ class BootEntryTests(unittest.TestCase):
         xvalues = [
             'title',
             'ffffffff',
-            None,
+            'x64',
             '/vmlinuz-4.11.5-100.fc24.x86_64',
             '/initramfs-4.11.5-100.fc24.x86_64.img',
             'root=/dev/sda5 ro rhgb quiet',
@@ -725,9 +725,12 @@ class BootEntryTests(unittest.TestCase):
 
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
-                       allow_no_dev=True)
+                       architecture='x64', allow_no_dev=True)
 
-        self.assertEqual(be.values(), xvalues)
+        # Ignore ordering
+        be_set = set(be.values())
+        xvalues_set = set(xvalues)
+        self.assertEqual(be_set, xvalues_set)
 
     def test_BootEntry_items(self):
         from boom.osprofile import OsProfile, load_profiles
@@ -745,7 +748,7 @@ class BootEntryTests(unittest.TestCase):
         xvalues = [
             'title',
             'ffffffff',
-            None,
+            '',
             '/vmlinuz-4.11.5-100.fc24.x86_64',
             '/initramfs-4.11.5-100.fc24.x86_64.img',
             'root=/dev/sda5 ro rhgb quiet',
@@ -756,7 +759,10 @@ class BootEntryTests(unittest.TestCase):
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
         be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
                        osprofile=osp, allow_no_dev=True)
-        self.assertEqual(be.items(), xitems)
+
+        be_set = set(be.items())
+        xitems_set = set(xitems)
+        self.assertEqual(be_set, xitems_set)
 
     def test_BootEntry_eq_no_boot_id(self):
         class NotABootEntry(object):
