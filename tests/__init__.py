@@ -129,6 +129,8 @@ def get_logical_volume():
     out = p.communicate()[0]
     lvs = []
     for line in out.splitlines():
+        if isinstance(line, bytes):
+            line = line.decode('utf8', 'ignore')
         (vg, lv) = line.strip().split()
         if "swap" in lv:
             continue
