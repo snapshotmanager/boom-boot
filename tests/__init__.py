@@ -108,6 +108,44 @@ class MockArgs(object):
     verbose = 0
     version = ""
 
+# Cached logical volume to use for tests
+_lv_cache = None
+
+def get_logical_volume():
+    """Return an extant logical volume path suitable for use for
+        device presence checks.
+
+        The actual volume returned is unimportant.
+
+        The device is not modified or written to in any way by the
+        the test suite.
+    """
+    global _lv_cache
+    if _lv_cache:
+        return _lv_cache
+
+    p = Popen(["lvs", "--noheadings", "-ovgname,name"], stdout=PIPE,
+              close_fds=True)
+    out = p.communicate()[0]
+    lvs = []
+    for line in out.splitlines():
+        (vg, lv) = line.strip().split()
+        if "swap" in lv:
+            continue
+        if "root" in lv:
+            _lv_cache = "/dev/%s/%s" % (vg, lv)
+            return _lv_cache
+        lvs.append("/dev/%s/%s" % (vg, lv))
+    _lv_cache = lvs[0]
+    return _lv_cache
+
+
+def get_root_lv():
+    """Return the logical volume found by ``get_logical_volume()``
+        in LVM VG/LV notation.
+    """
+    return get_logical_volume()[5:]
+
 
 # Test predicates
 
@@ -116,6 +154,18 @@ def have_root():
         and ``False`` otherwise.
     """
     return geteuid() == 0 and getegid() == 0
+
+
+def have_lvm():
+    """Return ``True`` if the test suite is running on a system with
+        at least one logical volume, or ``False`` otherwise.
+    """
+    p = Popen(["lvs", "--noheadings", "-oname"], stdout=PIPE, stderr=None)
+    out = p.communicate()[0]
+    if len(out.splitlines()):
+        return True
+    return False
+
 
 def have_grub1():
     """Return ``True`` if the grub1 bootloader commands are present,
@@ -132,8 +182,9 @@ def have_grub1():
 __all__ = [
     'BOOT_ROOT_TEST', 'SANDBOX_PATH',
     'rm_sandbox', 'mk_sandbox', 'reset_sandbox', 'reset_boom_paths',
+    'get_logical_volume', 'get_root_lv',
     'MockArgs',
-    'have_root', 'have_grub1'
+    'have_root', 'have_lvm', 'have_grub1'
 ]
 
 # vim: set et ts=4 sw=4 :
