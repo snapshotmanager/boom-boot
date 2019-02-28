@@ -185,7 +185,8 @@ def have_lvm():
     """Return ``True`` if the test suite is running on a system with
         at least one logical volume, or ``False`` otherwise.
     """
-    p = Popen(["lvs", "--noheadings", "-oname"], stdout=PIPE, stderr=None)
+    p = Popen(["lvs", "--noheadings", "-oname"], stdin=None, stdout=PIPE,
+              stderr=None)
     out = p.communicate()[0]
     if len(out.splitlines()):
         return True
@@ -197,8 +198,8 @@ def have_grub1():
         or ``False`` otherwise.
     """
     try:
-        p = Popen(["grub", "--help"], stdout=PIPE, stderr=PIPE)
-        out = p.communicate()[0]
+        p = Popen(["grub", "--help"], stdin=None, stdout=PIPE, stderr=PIPE)
+        out = p.communicate(input="\n")[0]
         return True
     except OSError:
         return False
