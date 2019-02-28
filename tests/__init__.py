@@ -14,6 +14,7 @@
 
 from os.path import join, abspath
 from os import geteuid, getegid, makedirs
+from subprocess import Popen, PIPE
 import shutil
 import errno
 
@@ -116,11 +117,23 @@ def have_root():
     """
     return geteuid() == 0 and getegid() == 0
 
+def have_grub1():
+    """Return ``True`` if the grub1 bootloader commands are present,
+        or ``False`` otherwise.
+    """
+    try:
+        p = Popen(["grub", "--help"], stdout=PIPE, stderr=PIPE)
+        out = p.communicate()[0]
+        return True
+    except OSError:
+        return False
+
+
 __all__ = [
     'BOOT_ROOT_TEST', 'SANDBOX_PATH',
     'rm_sandbox', 'mk_sandbox', 'reset_sandbox', 'reset_boom_paths',
     'MockArgs',
-    'have_root'
+    'have_root', 'have_grub1'
 ]
 
 # vim: set et ts=4 sw=4 :

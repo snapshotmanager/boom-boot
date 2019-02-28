@@ -178,6 +178,7 @@ class CommandHelperTests(unittest.TestCase):
         args = MockArgs()
         boom.command.setup_logging(args)
 
+    @unittest.skipIf(not have_grub1(), "requires grub1")
     def test_show_legacy_default(self):
         """Test the show_legacy() command helper.
         """
@@ -434,6 +435,7 @@ class CommandTests(unittest.TestCase):
         delete_entries(Selection(boot_id=be.boot_id))
         self.assertFalse(exists(be._entry_path))
 
+    @unittest.skipIf(not have_grub1(), "requires grub1")
     def test_create_delete_entry_with_legacy(self):
         config = BoomConfig()
         config.legacy_enable = True
