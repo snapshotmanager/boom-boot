@@ -26,7 +26,7 @@ from boom.bootloader import *
 from subprocess import Popen, PIPE
 from os.path import dirname, join as path_join
 from os.path import isabs
-from os import fdopen, rename, chmod, fdatasync, dup
+from os import chmod, dup, fdatasync, fdopen, rename, unlink
 from tempfile import mkstemp
 import logging
 import re
