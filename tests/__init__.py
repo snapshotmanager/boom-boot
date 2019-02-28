@@ -111,6 +111,22 @@ class MockArgs(object):
 # Cached logical volume to use for tests
 _lv_cache = None
 
+def _root_lv_from_cmdline():
+    """Return the root logical volume according to the kernel command
+        line, or the empty string if no rd.lvm.lv argument is found.
+    """
+    with open("/proc/cmdline", "r") as f:
+        for line in f.read().splitlines():
+            if isinstance(line, bytes):
+                line = line.decode('utf8', 'ignore')
+            args = line.split()
+            for arg in args:
+                if "rd.lvm.lv" in arg:
+                    (rd, vglv) = arg.split("=")
+                    return "/dev/%s" % vglv
+        return ""
+
+
 def get_logical_volume():
     """Return an extant logical volume path suitable for use for
         device presence checks.
@@ -124,8 +140,15 @@ def get_logical_volume():
     if _lv_cache:
         return _lv_cache
 
-    p = Popen(["lvs", "--noheadings", "-ovgname,name"], stdout=PIPE,
-              close_fds=True)
+    if not have_root() or not have_lvm():
+        """The LVM2 binary is not present or not usable. Attempt to
+            guess a usable device name based on the content of the
+            system kernel command line.
+        """
+        return _root_lv_from_cmdline()
+
+    p = Popen(["lvs", "--noheadings", "-ovgname,name"], stdin=None,
+              stdout=PIPE, stderr=None, close_fds=True)
     out = p.communicate()[0]
     lvs = []
     for line in out.splitlines():
