@@ -1407,7 +1407,7 @@ class BootEntry(object):
             raise ValueError("BootEntry title cannot be empty")
 
         self.machine_id = machine_id
-        self.architecture = architecture
+        self.architecture = architecture or ""
 
         if not self._osp:
             self.__match_os_profile()
@@ -1889,7 +1889,8 @@ class BootEntry(object):
 
     @architecture.setter
     def architecture(self, architecture):
-        machine_types = ["ia32", "x64", "ia64", "arm", "aa64"]
+        # The empty string means no architecture key
+        machine_types = ["ia32", "x64", "ia64", "arm", "aa64", ""]
         if architecture and not architecture.lower() in machine_types:
             raise ValueError("Unknown architecture: '%s'" % architecture)
         self._entry_data[BOOM_ENTRY_ARCHITECTURE] = architecture
