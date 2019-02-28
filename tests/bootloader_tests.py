@@ -25,6 +25,7 @@ from tests import *
 import boom
 from boom.bootloader import *
 from boom.osprofile import *
+from boom.hostprofile import *
 from boom import Selection
 
 # Override default BOOM_ROOT and BOOT_ROOT
@@ -168,6 +169,45 @@ class BootEntryBasicTests(unittest.TestCase):
     test_btrfs_root_device = "/dev/sda5"
     test_btrfs_subvol_path = "/snapshots/snap1"
     test_btrfs_subvol_id = "232"
+
+    # Sandbox paths
+
+    # Master BLS loader directory for sandbox
+    loader_path = join(BOOT_ROOT_TEST, "loader")
+
+    # Master boom configuration path for sandbox
+    boom_path = join(BOOT_ROOT_TEST, "boom")
+
+    def setUp(self):
+        reset_sandbox()
+
+        # Sandbox paths
+        boot_sandbox = join(SANDBOX_PATH, "boot")
+        boom_sandbox = join(SANDBOX_PATH, "boot/boom")
+        loader_sandbox = join(SANDBOX_PATH, "boot/loader")
+
+        # Initialise sandbox from master
+        makedirs(boot_sandbox)
+        shutil.copytree(self.boom_path, boom_sandbox)
+        shutil.copytree(self.loader_path, loader_sandbox)
+
+        # Set boom paths
+        boom.set_boot_path(boot_sandbox)
+
+        # Reset profiles, entries, and host profiles to known state.
+        load_profiles()
+        load_entries()
+        load_host_profiles()
+
+    def tearDown(self):
+        # Drop any in-memory entries and profiles modified by tests
+        drop_entries()
+        drop_profiles()
+        drop_host_profiles()
+
+        # Clear sandbox data
+        rm_sandbox()
+        reset_boom_paths()
 
     # BootEntry tests
 
