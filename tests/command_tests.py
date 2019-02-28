@@ -190,6 +190,8 @@ class CommandHelperTests(unittest.TestCase):
 test_os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"
 test_os_disp_id = test_os_id[0:6]
 
+test_lv = get_logical_volume()
+test_root_lv = get_root_lv()
 
 def get_create_cmd_args():
     """Return a correct MockArgs object for a call to the _create_cmd()
@@ -201,8 +203,8 @@ def get_create_cmd_args():
     args.title = "ATITLE"
     args.version = "2.6.0"
     args.machine_id = "ffffffff"
-    args.root_device = "/dev/vg_hex/root"
-    args.root_lv = "vg_hex/root"
+    args.root_device = get_logical_volume()
+    args.root_lv = get_root_lv()
     return args
 
 
@@ -378,22 +380,22 @@ class CommandTests(unittest.TestCase):
         osp = get_os_profile_by_id(test_os_id)
         osp.title = None
         with self.assertRaises(ValueError) as cm:
-            be = create_entry(None, "2.6.0", "ffffffff", "/dev/vg_hex/root",
-                              lvm_root_lv="vg_hex/root", profile=osp)
+            be = create_entry(None, "2.6.0", "ffffffff", test_lv,
+                              lvm_root_lv=test_root_lv, profile=osp)
 
     def test_create_entry_noversion(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
         with self.assertRaises(ValueError) as cm:
-            be = create_entry("ATITLE", None, "ffffffff", "/dev/vg_hex/root",
-                              lvm_root_lv="vg_hex/root", profile=osp)
+            be = create_entry("ATITLE", None, "ffffffff", test_lv,
+                              lvm_root_lv=test_root_lv, profile=osp)
 
     def test_create_entry_nomachineid(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
         with self.assertRaises(ValueError) as cm:
-            be = create_entry("ATITLE", "2.6.0", "", "/dev/vg_hex/root",
-                              lvm_root_lv="vg_hex/root", profile=osp)
+            be = create_entry("ATITLE", "2.6.0", "", test_lv,
+                              lvm_root_lv=test_root_lv, profile=osp)
 
     def test_create_entry_norootdevice(self):
         # FIXME: should this default from the lvm_root_lv?
@@ -401,14 +403,14 @@ class CommandTests(unittest.TestCase):
         osp = get_os_profile_by_id(test_os_id)
         with self.assertRaises(ValueError) as cm:
             be = create_entry("ATITLE", "2.6.0", "ffffffff", None,
-                              lvm_root_lv="vg_hex/root", profile=osp)
+                              lvm_root_lv=test_root_lv, profile=osp)
 
     def test_create_entry_noosprofile(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
         with self.assertRaises(ValueError) as cm:
             be = create_entry("ATITLE", "2.6.0", "ffffffff",
-                              "/dev/vg_hex/root", lvm_root_lv="vg_hex/root")
+                              test_lv, lvm_root_lv=test_root_lv)
 
     def test_create_dupe(self):
         # Fedora 24 (Workstation Edition)
@@ -428,8 +430,8 @@ class CommandTests(unittest.TestCase):
     def test_create_delete_entry(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
-        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
-                          lvm_root_lv="vg_hex/root", profile=osp)
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", test_lv,
+                          lvm_root_lv=test_root_lv, profile=osp)
         self.assertTrue(exists(be._entry_path))
 
         delete_entries(Selection(boot_id=be.boot_id))
@@ -445,8 +447,8 @@ class CommandTests(unittest.TestCase):
 
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
-        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
-                          lvm_root_lv="vg_hex/root", profile=osp)
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", test_lv,
+                          lvm_root_lv=test_root_lv, profile=osp)
         self.assertTrue(exists(be._entry_path))
 
         delete_entries(Selection(boot_id=be.boot_id))
@@ -487,8 +489,8 @@ class CommandTests(unittest.TestCase):
     def test_clone_delete_entry(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
-        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
-                          lvm_root_lv="vg_hex/root", profile=osp)
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", test_lv,
+                          lvm_root_lv=test_root_lv, profile=osp)
         self.assertTrue(exists(be._entry_path))
 
         be2 = clone_entry(Selection(boot_id=be.boot_id), title="ANEWTITLE",
@@ -505,8 +507,8 @@ class CommandTests(unittest.TestCase):
     def test_clone_entry_no_args(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
-        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
-                          lvm_root_lv="vg_hex/root", profile=osp)
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", test_lv,
+                          lvm_root_lv=test_root_lv, profile=osp)
         self.assertTrue(exists(be._entry_path))
 
         with self.assertRaises(ValueError) as cm:
@@ -517,8 +519,10 @@ class CommandTests(unittest.TestCase):
     def test_clone_entry_with_add_del_opts(self):
         # Entry with options +"debug" -"rhgb quiet"
         orig_boot_id = "78861b7"
+        # Use allow_no_dev=True here since we are cloning an existing
+        # entry on a system with unknown devices.
         be = clone_entry(Selection(boot_id=orig_boot_id),
-                         title="clone with addopts")
+                         title="clone with addopts", allow_no_dev=True)
         orig_be = find_entries(Selection(boot_id=orig_boot_id))[0]
         self.assertTrue(orig_be)
         self.assertTrue(be)
@@ -528,8 +532,8 @@ class CommandTests(unittest.TestCase):
     def test_clone_dupe(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
-        be = create_entry("CLONE_TEST", "2.6.0", "ffffffff", "/dev/vg_hex/root",
-                          lvm_root_lv="vg_hex/root", profile=osp)
+        be = create_entry("CLONE_TEST", "2.6.0", "ffffffff", test_lv,
+                          lvm_root_lv=test_root_lv, profile=osp)
         self.assertTrue(exists(be._entry_path))
 
         be2 = clone_entry(Selection(boot_id=be.boot_id), title="ANEWTITLE",
@@ -559,7 +563,7 @@ class CommandTests(unittest.TestCase):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
-                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               test_lv, lvm_root_lv=test_root_lv,
                                profile=osp)
 
         # Confirm original entry has been written
@@ -601,7 +605,7 @@ class CommandTests(unittest.TestCase):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
-                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               test_lv, lvm_root_lv=test_root_lv,
                                add_opts="bar", profile=osp)
 
         # Confirm original entry has been written
@@ -639,7 +643,7 @@ class CommandTests(unittest.TestCase):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
-                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               test_lv, lvm_root_lv=test_root_lv,
                                profile=osp)
 
         # Confirm original entry has been written
@@ -681,7 +685,7 @@ class CommandTests(unittest.TestCase):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
-                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               test_lv, lvm_root_lv=test_root_lv,
                                del_opts="quiet", profile=osp)
 
         # Confirm original entry has been written
@@ -723,7 +727,7 @@ class CommandTests(unittest.TestCase):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
-                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               test_lv, lvm_root_lv=test_root_lv,
                                profile=osp)
 
         be = edit_entry(Selection(boot_id=orig_be.boot_id),
@@ -737,7 +741,7 @@ class CommandTests(unittest.TestCase):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("ATITLE", "2.6.0", "ffffffff",
-                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               test_lv, lvm_root_lv=test_root_lv,
                                profile=osp)
         orig_path = orig_be._entry_path
         self.assertTrue(exists(orig_path))
@@ -755,8 +759,8 @@ class CommandTests(unittest.TestCase):
     def test_edit_entry_no_args(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
-        be = create_entry("ATITLE", "2.6.0", "ffffffff", "/dev/vg_hex/root",
-                          lvm_root_lv="vg_hex/root", profile=osp)
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", test_lv,
+                          lvm_root_lv=test_root_lv, profile=osp)
         self.assertTrue(exists(be._entry_path))
 
         with self.assertRaises(ValueError) as cm:
@@ -768,7 +772,7 @@ class CommandTests(unittest.TestCase):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
         orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
-                               "/dev/vg_hex/root", lvm_root_lv="vg_hex/root",
+                               test_lv, lvm_root_lv=test_root_lv,
                                profile=osp)
         orig_path = orig_be._entry_path
 
