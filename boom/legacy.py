@@ -24,8 +24,7 @@ from boom import *
 from boom.bootloader import *
 
 from subprocess import Popen, PIPE
-from os.path import dirname, join as path_join
-from os.path import isabs
+from os.path import dirname, exists, isabs, join as path_join
 from os import chmod, dup, fdatasync, fdopen, rename, unlink
 from tempfile import mkstemp
 import logging
@@ -146,6 +145,11 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
 
     cfg_dir = dirname(path)
 
+    if not exists(cfg_dir):
+        _log_error("Cannot write %s configuration: '%s' does not exist'" %
+                   (name, cfg_dir))
+        return
+
     begin_tag = BOOM_LEGACY_BEGIN_FMT % name
     end_tag = BOOM_LEGACY_END_FMT % name
 
@@ -233,6 +237,11 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         path = path_join(get_boot_path(), path)
 
     cfg_dir = dirname(path)
+
+    if not exists(cfg_dir):
+        _log_error("Cannot clear %s configuration: '%s' does not exist'" %
+                   (name, cfg_dir))
+        return
 
     begin_tag = BOOM_LEGACY_BEGIN_FMT % name
     end_tag = BOOM_LEGACY_END_FMT % name
