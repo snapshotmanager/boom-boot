@@ -85,7 +85,7 @@ def _get_grub1_device(force=False):
         if re.match(find_rgx, line):
             __grub1_device = line.lstrip().rstrip()
             _log_debug("Set grub1 device to '%s'" % __grub1_device)
-            return _get_grub1_device()
+            return __grub1_device
 
 
 class BoomLegacyFormatError(BoomError):
