@@ -155,21 +155,30 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
 
     (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=cfg_dir)
 
-    with fdopen(tmp_fd, "w") as tmp_f:
-        # Our original file descriptor will be closed on exit from the
-        # fdopen with statement: save a copy so that we can call fdatasync
-        # once at the end of writing rather than on each loop iteration.
-        tmp_fd = dup(tmp_fd)
-        with open(path, "r") as cfg_f:
-            for line in cfg_f:
-                tmp_f.write(line)
-
-        tmp_f.write(begin_tag + "\n")
-        bes = find_entries(selection=selection)
-        for be in bes:
-            dbe = decorator(be)
-            tmp_f.write(str(dbe) + "\n")
-        tmp_f.write(end_tag + "\n")
+    try:
+        with fdopen(tmp_fd, "w") as tmp_f:
+            # Our original file descriptor will be closed on exit from
+            # the fdopen with statement: save a copy so that we can call
+            # fdatasync once at the end of writing rather than on each
+            # loop iteration.
+            tmp_fd = dup(tmp_fd)
+            with open(path, "r") as cfg_f:
+                for line in cfg_f:
+                    tmp_f.write(line)
+    
+            tmp_f.write(begin_tag + "\n")
+            bes = find_entries(selection=selection)
+            for be in bes:
+                dbe = decorator(be)
+                tmp_f.write(str(dbe) + "\n")
+            tmp_f.write(end_tag + "\n")
+    except BoomLegacyFormatError as e:
+        _log_error("Error formatting %s configuration: %s" % (name, e))
+        try:
+            unlink(tmp_path)
+        except OSError:
+            _log_error("Error unlinking temporary file '%s'" % tmp_path)
+        return
 
     try:
         fdatasync(tmp_fd)
@@ -200,9 +209,9 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
 
         If one of the two markers is missing this function will not
         modify the file and a BoomLegacyFormatError exception is
-        raised. Legacy configuration cannot be written in this case
-        as the file is in an inconsistent state that boom cannot
-        automatically correct.
+        raised internally and recorded in the log. Legacy configuration
+        cannot be written in this case as the file is in an inconsistent
+        state that boom cannot automatically correct.
 
         If the configuration path is not absolute it is assumed to be
         relative to the configured system '/boot' directory as returned
@@ -212,10 +221,6 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         :param cfg_path: the path to the legacy bootloader configuration
                          file. If ``cfg_path`` is None the default path
                          for the specified loader will be used.
-        :raises BoomLegacyFormatError: if the legacy configuration file
-                                       contains invalid boom entries or
-                                       the specified legacy format is
-                                       unknown or invalid.
         :returns: None
     """
     def _legacy_format_error(err, fmt_data):
@@ -263,32 +268,38 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
 
     (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=cfg_dir)
 
-    with fdopen(tmp_fd, "w") as tmp_f:
-        # Our original file descriptor will be closed on exit from the
-        # fdopen with statement: save a copy so that we can call fdatasync
-        # once at the end of writing rather than on each loop iteration.
-        tmp_fd = dup(tmp_fd)
-        with open(path, "r") as cfg_f:
-            for line in cfg_f:
-                if begin_tag in line:
-                    if in_boom_cfg or found_boom:
-                        _legacy_format_error(err_dupe_begin, (line_nr, path))
-                    in_boom_cfg = True
-                    continue
-
-                if end_tag in line:
-                    if found_boom:
-                        _legacy_format_error(err_dupe_end, (line_nr, path))
+    try:
+        with fdopen(tmp_fd, "w") as tmp_f:
+            # Our original file descriptor will be closed on exit from
+            # the fdopen with statement: save a copy so that we can call
+            # fdatasync once at the end of writing rather than on each
+            # loop iteration.
+            tmp_fd = dup(tmp_fd)
+            with open(path, "r") as cfg_f:
+                for line in cfg_f:
+                    if begin_tag in line:
+                        if in_boom_cfg or found_boom:
+                            _legacy_format_error(err_dupe_begin,
+                                                 (line_nr, path))
+                        in_boom_cfg = True
+                        continue
+    
+                    if end_tag in line:
+                        if found_boom:
+                            _legacy_format_error(err_dupe_end, (line_nr, path))
+                        if not in_boom_cfg:
+                            _legacy_format_error(err_no_begin, (line_nr, path))
+                        in_boom_cfg = False
+                        found_boom = True
+                        continue
+    
                     if not in_boom_cfg:
-                        _legacy_format_error(err_no_begin, (line_nr, path))
-                    in_boom_cfg = False
-                    found_boom = True
-                    continue
-
-                if not in_boom_cfg:
-                    tmp_f.write(line)
-
-                line_nr += 1
+                        tmp_f.write(line)
+    
+                    line_nr += 1
+    except BoomLegacyFormatError as e:
+        _log_error("Error parsing %s configuration: %s" % (name, e))
+        found_boom = False
 
     if in_boom_cfg and not found_boom:
         _legacy_format_error(err_no_end, ("EOF", path))
