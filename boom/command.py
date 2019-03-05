@@ -1443,6 +1443,54 @@ def _apply_profile_overrides(boot_entry, cmd_args):
     if cmd_args.initrd:
         boot_entry.initrd = cmd_args.initrd
 
+
+def _optional_key_to_arg(optional_key):
+    """Map a Boom optional key name constant to the boom command line
+        argument it corresponds to.
+
+        Returns the argument name in long option style, or None if no
+        matching optional key exists.
+    """
+    _key_map = {
+        BOOM_ENTRY_GRUB_USERS: "--grub-users",
+        BOOM_ENTRY_GRUB_ARG: "--grub-arg",
+        BOOM_ENTRY_GRUB_CLASS: "--grub-class"
+    }
+    return _key_map[optional_key] if optional_key in _key_map else None
+
+
+def _optional_key_args(cmd_args):
+    """Test for the presence of arguments that invoke optional
+        keys that must be permitted by the selected ``OsProfile``.
+
+        Returns a list of optional key names if any optional key
+        arguments are present, or the empty list otherwise.
+    """
+    optional_keys = []
+    if cmd_args.grub_arg:
+        optional_keys.append(BOOM_ENTRY_GRUB_ARG)
+    if cmd_args.grub_class:
+        optional_keys.append(BOOM_ENTRY_GRUB_CLASS)
+    if cmd_args.grub_users:
+        optional_keys.append(BOOM_ENTRY_GRUB_USERS)
+    return optional_keys
+
+
+def _apply_optional_keys(be, cmd_args):
+    """Set the optional key values defined by ``cmd_args`` in the
+        ``BootEntry`` ``be``. This function assumes that the caller
+        has already checked that the active ``OsProfile`` accepts these
+        optional keys, or will handle exceptions raised by setting an
+        invalid optional key.
+    """
+    if cmd_args.grub_arg:
+        be.grub_arg = cmd_args.grub_arg
+    if cmd_args.grub_class:
+        be.grub_class = cmd_args.grub_class
+    if cmd_args.grub_users:
+        be.grub_users = cmd_args.grub_users
+
+
 def _create_cmd(cmd_args, select, opts, identifier):
     """Create entry command handler.
 
@@ -1493,8 +1541,16 @@ def _create_cmd(cmd_args, select, opts, identifier):
 
     profile = _find_profile(cmd_args, version, machine_id,
                             "create", optional=False)
+
     if not profile:
         return 1
+
+    optional_keys = _optional_key_args(cmd_args)
+    for opt_key in optional_keys:
+        if opt_key not in profile.optional_keys:
+            print("Profile with os_id='%s' does not support %s" %
+                  (profile.disp_os_id, _optional_key_to_arg(opt_key)))
+            return 1
 
     if not cmd_args.title and not profile.title:
         print("create requires --title")
@@ -1526,6 +1582,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
         return 1
 
     _apply_profile_overrides(be, cmd_args)
+    _apply_optional_keys(be, cmd_args)
 
     try:
         be.write_entry()
@@ -2554,6 +2611,12 @@ def main(args):
                         help="A list of debug options to enable")
     parser.add_argument("-e", "--efi", metavar="IMG", type=str,
                         help="An executable EFI application image")
+    parser.add_argument("--grub-arg", metavar="ARGS", type=str,
+                        help="Pass additional arguments to the Grub2 loader")
+    parser.add_argument("--grub-class", metavar="CLASS", type=str,
+                        help="Specify a Grub2 class for this entry")
+    parser.add_argument("--grub-users", metavar="USERS", type=str,
+                        help="Grub user list for password protection")
     parser.add_argument("-H", "--from-host", "--fromhost",
                         help="Take os-release values from the running host",
                         action="store_true")

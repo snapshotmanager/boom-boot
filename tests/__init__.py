@@ -73,6 +73,9 @@ class MockArgs(object):
     efi = ""
     efi = ""
     from_host = ""
+    grub_arg = ""
+    grub_class = ""
+    grub_users = ""
     host_id = None
     host_name = ""
     host_profile = ""
