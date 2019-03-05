@@ -77,6 +77,8 @@ BOOM_OS_ROOT_OPTS_BTRFS = "BOOM_OS_ROOT_OPTS_BTRFS"
 BOOM_OS_OPTIONS = "BOOM_OS_OPTIONS"
 #: Constant for the Boom OS title template key.
 BOOM_OS_TITLE = "BOOM_OS_TITLE"
+#: Constant for the Boom OS optional keys key.
+BOOM_OS_OPTIONAL_KEYS = "BOOM_OS_OPTIONAL_KEYS"
 
 #: Ordered list of possible profile keys, partitioned into mandatory
 #: keys, root option keys, and optional keys (currently the Linux
@@ -89,7 +91,7 @@ OS_PROFILE_KEYS = [
     # At least one of keys 8-9 (ROOT_OPTS) is required.
     BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
     # The OPTIONS and TITLE keys are optional.
-    BOOM_OS_OPTIONS, BOOM_OS_TITLE
+    BOOM_OS_OPTIONS, BOOM_OS_TITLE, BOOM_OS_OPTIONAL_KEYS
 ]
 
 #: A map of Boom profile keys to human readable key names suitable
@@ -107,7 +109,8 @@ OS_KEY_NAMES = {
     BOOM_OS_ROOT_OPTS_LVM2: "Root options (LVM2)",
     BOOM_OS_ROOT_OPTS_BTRFS: "Root options (BTRFS)",
     BOOM_OS_OPTIONS: "Options",
-    BOOM_OS_TITLE: "Title"
+    BOOM_OS_TITLE: "Title",
+    BOOM_OS_OPTIONAL_KEYS: "Optional keys"
 }
 
 #: Boom profile keys that must exist in a valid profile.
@@ -1031,6 +1034,23 @@ class BoomProfile(object):
     @title.setter
     def title(self, value):
         self._profile_data[BOOM_OS_TITLE] = value
+        self._dirty()
+
+    @property
+    def optional_keys(self):
+        """The set of optional BLS keys allowed by this profile.
+
+            :getter: returns a string containing optional BLS key names.
+            :setter: store a new set of optional BLS keys.
+            :type: string
+        """
+        if BOOM_OS_OPTIONAL_KEYS not in self._profile_data:
+            return ""
+        return self._profile_data[BOOM_OS_OPTIONAL_KEYS]
+
+    @optional_keys.setter
+    def optional_keys(self, optional_keys):
+        self._profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
         self._dirty()
 
     def _profile_path(self):

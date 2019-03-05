@@ -819,6 +819,16 @@ def _transform_key(key_name):
 
         :returntype: string
     """
+    #FIXME: placeholder for real excluded key list.
+    _exclude_keys = []
+
+    # Red Hat's non-upstream BLS keys use '_', rather than '-' (unlike
+    # the standard BLS keys).
+    if key_name in MAP_KEY and MAP_KEY[key_name] in _exclude_keys:
+        return key_name
+
+    if key_name in ["grub_users", "grub_class", "grub_arg"]:
+        return key_name
     if "_" in key_name:
         return key_name.replace("_", "-")
     if "-" in key_name:
@@ -1622,6 +1632,16 @@ class BootEntry(object):
         if self._entry_data and name in self._entry_data:
             return self._entry_data[name]
         return None
+
+    def _have_optional_key(self, key):
+        """Return ``True`` if optional BLS key ``key`` is permitted by
+            the attached ``OsProfile``, or ``False`` otherwise.
+        """
+        if not self._osp or not self._osp.optional_keys:
+            return False
+        if not key in self._osp.optional_keys:
+            return False
+        return True
 
     @property
     def bp(self):
