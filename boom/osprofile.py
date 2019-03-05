@@ -1050,6 +1050,15 @@ class BoomProfile(object):
 
     @optional_keys.setter
     def optional_keys(self, optional_keys):
+        _valid_optional_keys = [
+            "BOOM_ENTRY_GRUB_USERS",
+            "BOOM_ENTRY_GRUB_ARG",
+            "BOOM_ENTRY_GRUB_CLASS"
+        ]
+        for opt_key in optional_keys.split():
+            if opt_key not in _valid_optional_keys:
+                raise ValueError("Unknown optional key: '%s'" % opt_key)
+
         self._profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
         self._dirty()
 

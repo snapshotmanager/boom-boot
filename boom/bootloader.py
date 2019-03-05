@@ -84,6 +84,28 @@ BOOM_ENTRY_ARCHITECTURE = "BOOM_ENTRY_ARCHITECTURE"
 #: The ``BootEntry`` boot identifier key.
 BOOM_ENTRY_BOOT_ID = "BOOM_ENTRY_BOOT_ID"
 
+#
+# Optional and non-standard BLS keys
+#
+# The keys defined here are optional and implementation defined:
+# They may only be used in a ``BootEntry`` if the corresponding
+# ``OsProfile`` or ``HostProfile`` permits them.
+#
+
+#: The Red Hat ``BootEntry`` grub_users key.
+BOOM_ENTRY_GRUB_USERS = "BOOM_ENTRY_GRUB_USERS"
+#: The Red Hat ``BootEntry`` grub_arg key.
+BOOM_ENTRY_GRUB_ARG = "BOOM_ENTRY_GRUB_ARG"
+#: The Red Hat ``BootEntry`` grub_class key.
+BOOM_ENTRY_GRUB_CLASS = "BOOM_ENTRY_GRUB_CLASS"
+
+#: Optional keys not defined by the upstream BLS specification.
+OPTIONAL_KEYS = [
+    BOOM_ENTRY_GRUB_USERS,
+    BOOM_ENTRY_GRUB_ARG,
+    BOOM_ENTRY_GRUB_CLASS
+]
+
 #: An ordered list of all possible ``BootEntry`` keys.
 ENTRY_KEYS = [
     # We require a title for each entry (BLS does not)
@@ -96,7 +118,9 @@ ENTRY_KEYS = [
     # One of either BOOM_ENTRY_LINUX or BOOM_ENTRY_EFI must be present.
     BOOM_ENTRY_LINUX, BOOM_ENTRY_EFI,
     BOOM_ENTRY_INITRD, BOOM_ENTRY_OPTIONS,
-    BOOM_ENTRY_DEVICETREE, BOOM_ENTRY_ARCHITECTURE
+    BOOM_ENTRY_DEVICETREE, BOOM_ENTRY_ARCHITECTURE,
+    # Optional implementation defined BLS keys
+    BOOM_ENTRY_GRUB_USERS, BOOM_ENTRY_GRUB_ARG, BOOM_ENTRY_GRUB_CLASS
 ]
 
 #: Map Boom entry names to BLS keys
@@ -109,7 +133,10 @@ KEY_MAP = {
     BOOM_ENTRY_EFI: "efi",
     BOOM_ENTRY_OPTIONS: "options",
     BOOM_ENTRY_DEVICETREE: "devicetree",
-    BOOM_ENTRY_ARCHITECTURE: "architecture"
+    BOOM_ENTRY_ARCHITECTURE: "architecture",
+    BOOM_ENTRY_GRUB_USERS: "grub_users",
+    BOOM_ENTRY_GRUB_ARG: "grub_arg",
+    BOOM_ENTRY_GRUB_CLASS: "grub_class"
 }
 
 
@@ -819,8 +846,7 @@ def _transform_key(key_name):
 
         :returntype: string
     """
-    #FIXME: placeholder for real excluded key list.
-    _exclude_keys = []
+    _exclude_keys = OPTIONAL_KEYS
 
     # Red Hat's non-upstream BLS keys use '_', rather than '-' (unlike
     # the standard BLS keys).
@@ -1917,6 +1943,66 @@ class BootEntry(object):
         self._dirty()
 
     @property
+    def grub_users(self):
+        """The current ``grub_users`` key for this profile.
+
+            :getter: Return the current ``grub_users`` value.
+            :setter: Store a new ``grub_users`` value.
+            :type: string
+        """
+        if not self._have_optional_key(BOOM_ENTRY_GRUB_USERS):
+            return ""
+        return self._entry_data_property(BOOM_ENTRY_GRUB_USERS)
+
+    @grub_users.setter
+    def grub_users(self, grub_users):
+        if not self._have_optional_key(BOOM_ENTRY_GRUB_USERS):
+            bls_key = KEY_MAP[BOOM_ENTRY_GRUB_USERS]
+            raise ValueError("OsProfile os_id=%s does not allow '%s'" %
+                             (self._osp.disp_os_id, bls_key))
+        self._entry_data[BOOM_ENTRY_GRUB_USERS] = grub_users
+
+    @property
+    def grub_arg(self):
+        """The current ``grub_arg`` key for this profile.
+
+            :getter: Return the current ``grub_arg`` value.
+            :setter: Store a new ``grub_arg`` value.
+            :type: string
+        """
+        if not self._have_optional_key(BOOM_ENTRY_GRUB_ARG):
+            return ""
+        return self._entry_data_property(BOOM_ENTRY_GRUB_ARG)
+
+    @grub_arg.setter
+    def grub_arg(self, grub_arg):
+        if not self._have_optional_key(BOOM_ENTRY_GRUB_ARG):
+            bls_key = KEY_MAP[BOOM_ENTRY_GRUB_ARG]
+            raise ValueError("OsProfile os_id=%s does not allow '%s'" %
+                             (self._osp.disp_os_id, bls_key))
+        self._entry_data[BOOM_ENTRY_GRUB_ARG] = grub_arg
+
+    @property
+    def grub_class(self):
+        """The current ``grub_class`` key for this profile.
+
+            :getter: Return the current ``grub_class`` value.
+            :setter: Store a new ``grub_class`` value.
+            :type: string
+        """
+        if not self._have_optional_key(BOOM_ENTRY_GRUB_CLASS):
+            return ""
+        return self._entry_data_property(BOOM_ENTRY_GRUB_CLASS)
+
+    @grub_class.setter
+    def grub_class(self, grub_class):
+        if not self._have_optional_key(BOOM_ENTRY_GRUB_CLASS):
+            bls_key = KEY_MAP[BOOM_ENTRY_GRUB_CLASS]
+            raise ValueError("OsProfile os_id=%s does not allow '%s'" %
+                             (self._osp.disp_os_id, bls_key))
+        self._entry_data[BOOM_ENTRY_GRUB_CLASS] = grub_class
+
+    @property
     def _entry_path(self):
         id_tuple = (self.machine_id, self.boot_id[0:7], self.version)
         file_name = BOOT_ENTRIES_FORMAT % id_tuple
@@ -2061,6 +2147,9 @@ __all__ = [
     'BOOM_ENTRY_EFI',
     'BOOM_ENTRY_OPTIONS',
     'BOOM_ENTRY_DEVICETREE',
+    'BOOM_ENTRY_GRUB_USERS',
+    'BOOM_ENTRY_GRUB_ARG',
+    'BOOM_ENTRY_GRUB_CLASS',
 
     # Root device pattern
     'DEV_PATTERN',
