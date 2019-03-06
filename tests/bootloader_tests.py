@@ -236,9 +236,10 @@ class BootEntryBasicTests(unittest.TestCase):
             be = BootEntry(title=None, machine_id="ffffffff", osprofile=None,
                            allow_no_dev=True)
 
-        with self.assertRaises(ValueError) as cm:
-            be = BootEntry(title="title", machine_id=None, osprofile=None,
-                           allow_no_dev=True)
+        # Empty machine-id is now allowed for Red Hat BLS entries...
+        #with self.assertRaises(ValueError) as cm:
+        #    be = BootEntry(title="title", machine_id=None, osprofile=None,
+        #                   allow_no_dev=True)
 
         with self.assertRaises(ValueError) as cm:
             be = BootEntry(title=None, machine_id=None, osprofile=None,

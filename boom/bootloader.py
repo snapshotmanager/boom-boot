@@ -1262,6 +1262,9 @@ class BootEntry(object):
         if not self._osp:
             self.__match_os_profile()
 
+        self.machine_id = self.machine_id or ""
+        self.architecture = self.architecture or ""
+
         if boot_params:
             self.bp = boot_params
             # boot_params is always authoritative
@@ -1270,8 +1273,9 @@ class BootEntry(object):
             # Attempt to recover BootParams from entry data
             self.bp = BootParams.from_entry(self)
 
-        # Wrap OsProfile in HostProfile if available
-        self.__match_host_profile()
+        if self.machine_id:
+            # Wrap OsProfile in HostProfile if available
+            self.__match_host_profile()
 
         if self.bp:
             def _pop_if_set(key):
@@ -1425,9 +1429,6 @@ class BootEntry(object):
 
         self._unwritten = True
 
-        if not machine_id:
-            raise ValueError("BootEntry machine_id cannot be None")
-
         self.bp = boot_params
 
         # The BootEntry._entry_data dictionary contains data for an existing
@@ -1447,14 +1448,15 @@ class BootEntry(object):
         elif title_empty(self._osp, title):
             raise ValueError("BootEntry title cannot be empty")
 
-        self.machine_id = machine_id
+        self.machine_id = machine_id or ""
         self.architecture = architecture or ""
 
         if not self._osp:
             self.__match_os_profile()
 
-        # Wrap OsProfile in HostProfile if available
-        self.__match_host_profile()
+        if self.machine_id:
+            # Wrap OsProfile in HostProfile if available
+            self.__match_host_profile()
 
         if self.bp:
             if not allow_no_dev:
