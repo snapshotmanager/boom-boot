@@ -1950,14 +1950,15 @@ class BootEntry(object):
             :setter: Store a new ``grub_users`` value.
             :type: string
         """
-        if not self._have_optional_key(BOOM_ENTRY_GRUB_USERS):
+        bls_key = KEY_MAP[BOOM_ENTRY_GRUB_USERS]
+        if not self._have_optional_key(bls_key):
             return ""
         return self._entry_data_property(BOOM_ENTRY_GRUB_USERS)
 
     @grub_users.setter
     def grub_users(self, grub_users):
-        if not self._have_optional_key(BOOM_ENTRY_GRUB_USERS):
-            bls_key = KEY_MAP[BOOM_ENTRY_GRUB_USERS]
+        bls_key = KEY_MAP[BOOM_ENTRY_GRUB_USERS]
+        if not self._have_optional_key(bls_key):
             raise ValueError("OsProfile os_id=%s does not allow '%s'" %
                              (self._osp.disp_os_id, bls_key))
         self._entry_data[BOOM_ENTRY_GRUB_USERS] = grub_users
@@ -1970,14 +1971,15 @@ class BootEntry(object):
             :setter: Store a new ``grub_arg`` value.
             :type: string
         """
-        if not self._have_optional_key(BOOM_ENTRY_GRUB_ARG):
+        bls_key = KEY_MAP[BOOM_ENTRY_GRUB_ARG]
+        if not self._have_optional_key(bls_key):
             return ""
         return self._entry_data_property(BOOM_ENTRY_GRUB_ARG)
 
     @grub_arg.setter
     def grub_arg(self, grub_arg):
-        if not self._have_optional_key(BOOM_ENTRY_GRUB_ARG):
-            bls_key = KEY_MAP[BOOM_ENTRY_GRUB_ARG]
+        bls_key = KEY_MAP[BOOM_ENTRY_GRUB_ARG]
+        if not self._have_optional_key(bls_key):
             raise ValueError("OsProfile os_id=%s does not allow '%s'" %
                              (self._osp.disp_os_id, bls_key))
         self._entry_data[BOOM_ENTRY_GRUB_ARG] = grub_arg
@@ -1990,14 +1992,15 @@ class BootEntry(object):
             :setter: Store a new ``grub_class`` value.
             :type: string
         """
-        if not self._have_optional_key(BOOM_ENTRY_GRUB_CLASS):
+        bls_key = KEY_MAP[BOOM_ENTRY_GRUB_CLASS]
+        if not self._have_optional_key(bls_key):
             return ""
         return self._entry_data_property(BOOM_ENTRY_GRUB_CLASS)
 
     @grub_class.setter
     def grub_class(self, grub_class):
-        if not self._have_optional_key(BOOM_ENTRY_GRUB_CLASS):
-            bls_key = KEY_MAP[BOOM_ENTRY_GRUB_CLASS]
+        bls_key = KEY_MAP[BOOM_ENTRY_GRUB_CLASS]
+        if not self._have_optional_key(bls_key):
             raise ValueError("OsProfile os_id=%s does not allow '%s'" %
                              (self._osp.disp_os_id, bls_key))
         self._entry_data[BOOM_ENTRY_GRUB_CLASS] = grub_class
