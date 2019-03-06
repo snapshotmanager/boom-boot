@@ -98,12 +98,15 @@ BOOM_ENTRY_GRUB_USERS = "BOOM_ENTRY_GRUB_USERS"
 BOOM_ENTRY_GRUB_ARG = "BOOM_ENTRY_GRUB_ARG"
 #: The Red Hat ``BootEntry`` grub_class key.
 BOOM_ENTRY_GRUB_CLASS = "BOOM_ENTRY_GRUB_CLASS"
+#: The Red Hat ``BootEntry`` id key.
+BOOM_ENTRY_ID = "BOOM_ENTRY_ID"
 
 #: Optional keys not defined by the upstream BLS specification.
 OPTIONAL_KEYS = [
     BOOM_ENTRY_GRUB_USERS,
     BOOM_ENTRY_GRUB_ARG,
-    BOOM_ENTRY_GRUB_CLASS
+    BOOM_ENTRY_GRUB_CLASS,
+    BOOM_ENTRY_ID
 ]
 
 #: An ordered list of all possible ``BootEntry`` keys.
@@ -120,7 +123,8 @@ ENTRY_KEYS = [
     BOOM_ENTRY_INITRD, BOOM_ENTRY_OPTIONS,
     BOOM_ENTRY_DEVICETREE, BOOM_ENTRY_ARCHITECTURE,
     # Optional implementation defined BLS keys
-    BOOM_ENTRY_GRUB_USERS, BOOM_ENTRY_GRUB_ARG, BOOM_ENTRY_GRUB_CLASS
+    BOOM_ENTRY_GRUB_USERS, BOOM_ENTRY_GRUB_ARG, BOOM_ENTRY_GRUB_CLASS,
+    BOOM_ENTRY_ID
 ]
 
 #: Map Boom entry names to BLS keys
@@ -136,7 +140,8 @@ KEY_MAP = {
     BOOM_ENTRY_ARCHITECTURE: "architecture",
     BOOM_ENTRY_GRUB_USERS: "grub_users",
     BOOM_ENTRY_GRUB_ARG: "grub_arg",
-    BOOM_ENTRY_GRUB_CLASS: "grub_class"
+    BOOM_ENTRY_GRUB_CLASS: "grub_class",
+    BOOM_ENTRY_ID: "id"
 }
 
 
@@ -1944,7 +1949,7 @@ class BootEntry(object):
 
     @property
     def grub_users(self):
-        """The current ``grub_users`` key for this profile.
+        """The current ``grub_users`` key for this entry.
 
             :getter: Return the current ``grub_users`` value.
             :setter: Store a new ``grub_users`` value.
@@ -1965,7 +1970,7 @@ class BootEntry(object):
 
     @property
     def grub_arg(self):
-        """The current ``grub_arg`` key for this profile.
+        """The current ``grub_arg`` key for this entry.
 
             :getter: Return the current ``grub_arg`` value.
             :setter: Store a new ``grub_arg`` value.
@@ -1986,7 +1991,7 @@ class BootEntry(object):
 
     @property
     def grub_class(self):
-        """The current ``grub_class`` key for this profile.
+        """The current ``grub_class`` key for this entry.
 
             :getter: Return the current ``grub_class`` value.
             :setter: Store a new ``grub_class`` value.
@@ -2004,6 +2009,27 @@ class BootEntry(object):
             raise ValueError("OsProfile os_id=%s does not allow '%s'" %
                              (self._osp.disp_os_id, bls_key))
         self._entry_data[BOOM_ENTRY_GRUB_CLASS] = grub_class
+
+    @property
+    def id(self):
+        """The value of the ``id`` key for this entry.
+
+            :getter: Return the current ``id`` value.
+            :setter: Store a new ``id`` value.
+            :type: string
+        """
+        bls_key = KEY_MAP[BOOM_ENTRY_ID]
+        if not self._have_optional_key(bls_key):
+            return ""
+        return self._entry_data_property(BOOM_ENTRY_ID)
+
+    @id.setter
+    def id(self, ident):
+        bls_key = KEY_MAP[BOOM_ENTRY_ID]
+        if not self._have_optional_key(bls_key):
+            raise ValueError("OsProfile os_id=%s does not allow '%s'" %
+                             (self._osp.disp_os_id, bls_key))
+        self._entry_data[BOOM_ENTRY_ID] = ident
 
     @property
     def _entry_path(self):
