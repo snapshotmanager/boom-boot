@@ -260,6 +260,80 @@ class OsProfileTests(unittest.TestCase):
                             "%s-fedora1.profile" % osp.os_id)
         self.assertTrue(exists(profile_path))
 
+    def test_OsProfile_set_optional_keys(self):
+        osp = OsProfile(name="Fedora Core", short_name="fedora",
+                        version="1 (Workstation Edition)", version_id="1")
+        osp.uname_pattern = "fc1"
+        osp.kernel_pattern = "/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
+        osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
+        osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
+        osp.options = "root=%{root_device} ro %{root_opts} rhgb quiet"
+        osp.optional_keys = "grub_users grub_arg"
+
+    def test_OsProfile_bad_optional_key_raises(self):
+        osp = OsProfile(name="Fedora Core", short_name="fedora",
+                        version="1 (Workstation Edition)", version_id="1")
+        osp.uname_pattern = "fc1"
+        osp.kernel_pattern = "/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
+        osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
+        osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
+        osp.options = "root=%{root_device} ro %{root_opts} rhgb quiet"
+        with self.assertRaises(ValueError) as cm:
+            osp.optional_keys = "no_such_option"
+
+    def test_OsProfile_add_optional_keys(self):
+        osp = OsProfile(name="Fedora Core", short_name="fedora",
+                        version="1 (Workstation Edition)", version_id="1")
+        osp.uname_pattern = "fc1"
+        osp.kernel_pattern = "/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
+        osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
+        osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
+        osp.options = "root=%{root_device} ro %{root_opts} rhgb quiet"
+        osp.add_optional_key("grub_class")
+        osp.optional_keys = "grub_users grub_arg"
+        osp.add_optional_key("grub_class")
+
+    def test_OsProfile_add_bad_optional_keys(self):
+        osp = OsProfile(name="Fedora Core", short_name="fedora",
+                        version="1 (Workstation Edition)", version_id="1")
+        osp.uname_pattern = "fc1"
+        osp.kernel_pattern = "/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
+        osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
+        osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
+        osp.options = "root=%{root_device} ro %{root_opts} rhgb quiet"
+        osp.optional_keys = "grub_users grub_arg"
+        with self.assertRaises(ValueError) as cm:
+            osp.add_optional_key("no_such_key")
+
+    def test_OsProfile_del_optional_keys(self):
+        osp = OsProfile(name="Fedora Core", short_name="fedora",
+                        version="1 (Workstation Edition)", version_id="1")
+        osp.uname_pattern = "fc1"
+        osp.kernel_pattern = "/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
+        osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
+        osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
+        osp.options = "root=%{root_device} ro %{root_opts} rhgb quiet"
+        osp.optional_keys = "grub_users grub_arg"
+        osp.del_optional_key("grub_arg")
+
+    def test_OsProfile_del_bad_optional_keys(self):
+        osp = OsProfile(name="Fedora Core", short_name="fedora",
+                        version="1 (Workstation Edition)", version_id="1")
+        osp.uname_pattern = "fc1"
+        osp.kernel_pattern = "/vmlinuz-%{version}"
+        osp.initramfs_pattern = "/initramfs-%{version}.img"
+        osp.root_opts_lvm2 = "rd.lvm.lv=%{lvm_root_lv}"
+        osp.root_opts_btrfs = "rootflags=%{btrfs_subvolume}"
+        osp.options = "root=%{root_device} ro %{root_opts} rhgb quiet"
+        osp.optional_keys = "grub_users grub_arg"
+        with self.assertRaises(ValueError) as cm:
+            osp.del_optional_key("no_such_key")
+
     def test_osprofile_write_profiles(self):
         import boom
         boom.osprofile.load_profiles()
