@@ -1036,6 +1036,18 @@ class BoomProfile(object):
         self._profile_data[BOOM_OS_TITLE] = value
         self._dirty()
 
+    def _check_optional_key(self, optional_key):
+        """Check that they optional key ``key`` is a valid, known BLS
+            optional key and raise ``ValueError`` if it is not.
+        """
+        _valid_optional_keys = [
+            "grub_users",
+            "grub_arg",
+            "grub_class"
+        ]
+        if optional_key not in _valid_optional_keys:
+            raise ValueError("Unknown optional key: '%s'" % optional_key)
+
     @property
     def optional_keys(self):
         """The set of optional BLS keys allowed by this profile.
@@ -1050,15 +1062,8 @@ class BoomProfile(object):
 
     @optional_keys.setter
     def optional_keys(self, optional_keys):
-        _valid_optional_keys = [
-            "BOOM_ENTRY_GRUB_USERS",
-            "BOOM_ENTRY_GRUB_ARG",
-            "BOOM_ENTRY_GRUB_CLASS"
-        ]
         for opt_key in optional_keys.split():
-            if opt_key not in _valid_optional_keys:
-                raise ValueError("Unknown optional key: '%s'" % opt_key)
-
+            self._check_optional_key(opt_key)
         self._profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
         self._dirty()
 
