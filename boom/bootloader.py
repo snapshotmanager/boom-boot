@@ -44,6 +44,7 @@ from boom.osprofile import *
 from boom.hostprofile import find_host_profiles
 
 from os.path import basename, exists as path_exists, join as path_join
+from subprocess import Popen, PIPE
 from tempfile import mkstemp
 from os import listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
 from stat import S_ISBLK
@@ -158,6 +159,9 @@ def __make_map_key(key_map):
 
 #: Map BLS entry keys to Boom names
 MAP_KEY = __make_map_key(KEY_MAP)
+
+#: Grub2 environment variable expansion character
+GRUB2_EXPAND_ENV = "$"
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
@@ -296,6 +300,22 @@ def _match_root_lv(root_device, rd_lvm_lv):
         if rd_lvm_lv == "%s/%s" % (vg, lv):
             return True
     return False
+
+
+def _expand_opts(opts):
+    """Expand a ``BootEntry`` option string that may contain
+        references to Grub2 environment variables using shell
+        style ``$value`` notation.
+    """
+    var_char = GRUB2_EXPAND_ENV
+    if var_char not in opts:
+        return opts
+
+    for opt in opts.split():
+        if opt.startswith(var_char):
+            env_name = opt[1:]
+            opts = opts.replace(opt, _grub2_get_env(env_name))
+    return opts
 
 
 class BootParams(object):
@@ -642,9 +662,28 @@ class BootParams(object):
 
         def is_add(opt):
             """Return ``True`` if ``opt`` was appended to this options line,
-                and was not generated from an ``OsProfile`` template.
+                and was not generated from the active ``OsProfile`` template,
+                or from expansion of a bootloader environment variable.
             """
-            return opt not in matches.keys()
+            def opt_in_expansion(opt):
+                """Return ``True`` if ``opt`` is contained in the expansion of
+                    a bootloader environment variable embedded in this entry's
+                    options string.
+
+                    :param opt: A kernel command line option.
+                    :returns: ``True`` if ``opt`` is defined in a bootloader
+                              environment variable, or ``False`` otherwise.
+                    :returntype: bool
+                """
+                if GRUB2_EXPAND_ENV not in be._entry_data[BOOM_ENTRY_OPTIONS]:
+                    return False
+                return opt not in _expand_opts(be._entry_data[BOOM_ENTRY_OPTIONS])
+
+            if opt not in matches.keys():
+                if opt not in be._osp.options:
+                    if not opt_in_expansion(opt):
+                        return True
+            return False
 
         def is_del(opt):
             """Return ``True`` if the option regex `opt` has been deleted
@@ -895,6 +934,29 @@ def _transform_key(key_name):
     if "-" in key_name:
         return key_name.replace("-", "_")
     return key_name
+
+
+def _grub2_get_env(name):
+    """Return the value of the Grub2 environment variable with name
+        ``name`` as a string.
+
+        :param name: The name of the environment variable to return.
+        :returns: The value of the named environment variable.
+        :returntype: string
+    """
+    grub_cmd = ["grub2-editenv", "list"]
+    try:
+        p = Popen(grub_cmd, stdin=None, stdout=PIPE, stderr=PIPE)
+        out = p.communicate()[0]
+    except OSError as e:
+        _log_error("Could not obtain grub2 environment: %s" % e)
+        return ""
+
+    for line in out.splitlines():
+        (env_name, value) = line.split('=', 1)
+        if name == env_name:
+            return value
+    return ""
 
 
 class BootEntry(object):
@@ -1842,13 +1904,24 @@ class BootEntry(object):
     def options(self):
         """The command line options for this ``BootEntry``.
 
+            Return the command line options for this ``BootEntry``,
+            expanding any Boom or Grub2 substitution notation found.
+
             :getter: returns the command line for this ``BootEntry``.
             :setter: sets the command line for this ``BootEntry``.
             :type: string
         """
         def add_opts(opts, append):
-            """Append additional kernel options to this ``BootEntry``'s
-                options property.
+            """Append additional kernel options to this options string.
+
+                Format the elements of list ``append`` as a space separated
+                string, and return them appended to the existing options
+                string ``opts``.
+
+                :param opts: A kernel command line options string.
+                :param append: A list of additional options to append.
+                :returns: A string with additional options appended.
+                :returntype: string
             """
             extra = " ".join(append)
             return "%s %s" % (opts, extra) if append else opts
@@ -1856,6 +1929,17 @@ class BootEntry(object):
         def del_opt(opt, drop):
             """Return ``True`` if option ``opt`` should be dropped or
                 ``False`` otherwise.
+
+                Test the option ``opt`` against the drop specification ``drop``
+                and return ``True`` if the option should be dropped according
+                to the spec, or ``False`` otherwise.
+
+                :param opt: A kernel command line option with or without value.
+                :param drop: A drop specification in Boom del_opts notation
+                             (see ``del_opts`` for further details of syntax).
+                :returns: ``True`` if the option should be dropped or ``False``
+                          otherwise.
+                :returntype: bool
             """
             # "name" or "name=value"
             if opt in drop:
@@ -1864,12 +1948,11 @@ class BootEntry(object):
             # "name=" wildcard
             if ("%s=" % opt.split('=')[0]) in drop:
                 return True
-
             return False
 
         def del_opts(opts, drop):
-            """Drop specified template supplied kernel options from this
-                ``BootEntry``.
+            """Remove template-supplied kernel options matching ``drop`` from
+                options string ``opts``.
 
                 A drop specification matches either a simple name, a name and
                 its full value (in which case both must match), or a name,
@@ -1879,6 +1962,12 @@ class BootEntry(object):
                 <name>         drop name
                 <name>=        drop name and any value
                 <name>=<value> drop name only if its value == value
+
+                :param opts: A kernel command line options string.
+                :param drop: A drop specification to apply to ``opts``.
+                :returns: A kernel command line options string with options
+                          matching ``drop`` removed.
+                :returntype: string
             """
             return " ".join([o for o in opts.split() if not del_opt(o, drop)])
 
@@ -1886,13 +1975,13 @@ class BootEntry(object):
             opts = self._entry_data_property(BOOM_ENTRY_OPTIONS)
             if self.bp:
                 opts = add_opts(opts, self.bp.add_opts)
-                return del_opts(opts, self.bp.del_opts)
-            return opts
+                return _expand_opts(del_opts(opts, self.bp.del_opts))
+            return _expand_opts(opts)
 
         if self._osp and self.bp:
             opts = self._apply_format(self._osp.options)
             opts = add_opts(opts, self.bp.add_opts)
-            return del_opts(opts, self.bp.del_opts)
+            return _expand_opts(del_opts(opts, self.bp.del_opts))
 
         return ""
 
