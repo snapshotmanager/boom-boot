@@ -1067,6 +1067,22 @@ class BoomProfile(object):
         self._profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
         self._dirty()
 
+    def add_optional_key(self, key):
+        """Add the BLS key ``key`` to the allowed set of optional keys
+            for this profile.
+        """
+        self._check_optional_key(key)
+        self.optional_keys = self.optional_keys + " " + key
+
+    def del_optional_key(self, key):
+        """Remove the BLS key ``key`` from the allowed set of optional
+            keys for this profile.
+        """
+        self._check_optional_key(key)
+        spacer = " "
+        key_list = [k for k in self.optional_keys.split() if k != key]
+        self.optional_keys = spacer.join(key_list)
+
     def _profile_path(self):
         """Return the path to this profile's on-disk data.
 
@@ -1231,10 +1247,12 @@ class OsProfile(BoomProfile):
 
             :returntype: string
         """
-        breaks = [BOOM_OS_ID, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION_ID,
-                  BOOM_OS_UNAME_PATTERN, BOOM_OS_INITRAMFS_PATTERN,
-                  BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
-                  BOOM_OS_OPTIONS]
+        breaks = [
+            BOOM_OS_ID, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION_ID,
+            BOOM_OS_UNAME_PATTERN, BOOM_OS_INITRAMFS_PATTERN,
+            BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
+            BOOM_OS_OPTIONS, BOOM_OS_TITLE
+        ]
 
         fields = [f for f in OS_PROFILE_KEYS if f in self._profile_data]
         osp_str = ""
