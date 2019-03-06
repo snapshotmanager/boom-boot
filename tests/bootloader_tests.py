@@ -598,6 +598,35 @@ class BootEntryTests(unittest.TestCase):
         be.devicetree = xdevicetree
         self.assertEqual(xdevicetree, be.devicetree)
 
+    def test_BootEntry_optional_keys(self):
+        osp = self.test_osp
+        osp.optional_keys = "grub_users grub_arg grub_class"
+
+        bp = BootParams("1.1", lvm_root_lv="vg00/lvol0")
+        be = BootEntry(title="title", machine_id="ffffffff",
+                       osprofile=osp, boot_params=bp, allow_no_dev=True)
+        self.assertEqual(be.root_opts, "rd.lvm.lv=vg00/lvol0")
+        self.assertEqual(be.options, "root=/dev/vg00/lvol0 "
+                         "rd.lvm.lv=vg00/lvol0 rhgb quiet")
+
+        be.grub_users = "test_user"
+        be.grub_arg = "--test-arg"
+        be.grub_class = "test_class"
+
+    def test_BootEntry_optional_keys_not_set(self):
+        osp = self.test_osp
+        osp.optional_keys = ""
+
+        bp = BootParams("1.1", lvm_root_lv="vg00/lvol0")
+        be = BootEntry(title="title", machine_id="ffffffff",
+                       osprofile=osp, boot_params=bp, allow_no_dev=True)
+        self.assertEqual(be.root_opts, "rd.lvm.lv=vg00/lvol0")
+        self.assertEqual(be.options, "root=/dev/vg00/lvol0 "
+                         "rd.lvm.lv=vg00/lvol0 rhgb quiet")
+
+        with self.assertRaises(ValueError) as cm:
+            be.grub_users = "test_user"
+
     def test_match_OsProfile_to_BootEntry(self):
         from boom.osprofile import OsProfile, load_profiles
         load_profiles()
