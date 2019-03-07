@@ -271,6 +271,33 @@ def check_root_device(dev):
         raise BoomRootDeviceError("Path '%s' is not a block device." % dev)
 
 
+def _match_root_lv(root_device, rd_lvm_lv):
+    """Return ``True`` if ``rd_lvm_lv`` is the logical volume
+        represented by ``root_device`` or ``False`` otherwise.
+
+        The root_device for an LVM2 LV may be in one of two possible
+        forms:
+
+            root_device=/dev/mapper/vg-lv
+            root_device=/dev/vg/lv
+
+    """
+    def dm_split_name(name):
+        for i in range(1, len(name)):
+            if name[i] == '-':
+              if name[i - 1] != '-' and name[i + 1] != '-':
+                return (name[0:i], name[i + 1:])
+
+    # root_device=/dev/vg/lv
+    if rd_lvm_lv == root_device[5:]:
+        return True
+    if "mapper" in root_device:
+        (vg, lv) = dm_split_name(root_device.split("/")[-1])
+        if rd_lvm_lv == "%s/%s" % (vg, lv):
+            return True
+    return False
+
+
 class BootParams(object):
     """The ``BootParams`` class encapsulates the information needed to
         boot an instance of the operating system: the kernel version,
@@ -600,6 +627,9 @@ class BootParams(object):
                         value = match.group(1)
                         _log_debug_entry("Matched: '%s' (%s)" %
                                          (value, name))
+                    if name == "lvm_root_lv":
+                        if not _match_root_lv(bp.root_device, value):
+                            continue
                     setattr(bp, name, value)
                     continue
 
