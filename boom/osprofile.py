@@ -430,6 +430,10 @@ def match_os_profile(entry):
     _log_debug_profile("No matching profile found for boot_id=%s" %
                        entry.boot_id)
 
+    # Assign the Null profile to this BootEntry: we cannot determine a
+    # valid OsProfile to associate with it, so it cannot be modified or
+    # displayed correctly by boom. Add it to the list of loaded entries,
+    # but do not return it as a valid entry in entry selections.
     return _profiles[0]
 
 
