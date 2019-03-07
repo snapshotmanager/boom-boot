@@ -894,6 +894,9 @@ class BootEntry(object):
     _bp = None
     _bp_generation = None
 
+    # Read only state for foreign BLS entries
+    read_only = False
+
     # boot_id cache
     __boot_id = None
 
@@ -1145,6 +1148,10 @@ class BootEntry(object):
 
             :returntype: None
         """
+        if self.read_only:
+            raise ValueError("Entry with boot_id='%s' is read-only." %
+                             self.disp_boot_id)
+
         # Clear cached boot_id: it will be regenerated on next access
         self.__boot_id = None
         self._unwritten = True
@@ -1351,7 +1358,9 @@ class BootEntry(object):
 
         match = re.match(BOOT_ENTRIES_PATTERN, entry_basename)
         if not match or len(match.groups()) <= 1:
-            _log_warn("Unknown boot entry file: %s" % entry_basename)
+            _log_info("Marking unknown boot entry as read-only: %s" %
+                      entry_basename)
+            self.read_only = True
         else:
             if self.disp_boot_id != match.group(2):
                 _log_info("Entry file name does not match boot_id: %s" %
