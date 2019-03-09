@@ -993,7 +993,7 @@ class BootEntry(object):
     __boot_id = None
 
     def __str(self, quote=False, prefix="", suffix="", tail="\n",
-              sep=" ", bls=True, no_boot_id=False):
+              sep=" ", bls=True, no_boot_id=False, expand=False):
         """Format BootEntry as a string.
 
             Return a human or machine readable representation of this
@@ -1031,7 +1031,12 @@ class BootEntry(object):
             attr = KEY_MAP[key]
             key_fmt = '%s%s"%s"' if quote else '%s%s%s'
             key_fmt += tail
-            attr_val = getattr(self, attr)
+
+            if attr == "options" and expand:
+                attr_val = getattr(self, "expand_options")
+            else:
+                attr_val = getattr(self, attr)
+
             if bls:
                 key_data = (_transform_key(attr), sep, attr_val)
             else:
@@ -1776,6 +1781,16 @@ class BootEntry(object):
         if not key in self._osp.optional_keys:
             return False
         return True
+
+    def expanded(self):
+        """Return a string represenatation of this ``BootEntry``, with
+            any bootloader environment variables expanded to their
+            current values.
+
+            :returns: A string representation of this ``BootEntry``.
+            :returntype: string
+        """
+        return self.__str(expand=True)
 
     @property
     def bp(self):
