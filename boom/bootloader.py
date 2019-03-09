@@ -662,7 +662,7 @@ class BootParams(object):
         for rgx_word in opts_regexes:
             (name, exp) = rgx_word
             value = ""
-            for word in be.options.split():
+            for word in be.expand_options.split():
                 match = re.search(exp, word) if name else re.match(exp, word)
                 if match:
                     matches[word] = True
