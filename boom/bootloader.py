@@ -302,6 +302,29 @@ def _match_root_lv(root_device, rd_lvm_lv):
     return False
 
 
+def _grub2_get_env(name):
+    """Return the value of the Grub2 environment variable with name
+        ``name`` as a string.
+
+        :param name: The name of the environment variable to return.
+        :returns: The value of the named environment variable.
+        :returntype: string
+    """
+    grub_cmd = ["grub2-editenv", "list"]
+    try:
+        p = Popen(grub_cmd, stdin=None, stdout=PIPE, stderr=PIPE)
+        out = p.communicate()[0]
+    except OSError as e:
+        _log_error("Could not obtain grub2 environment: %s" % e)
+        return ""
+
+    for line in out.splitlines():
+        (env_name, value) = line.split('=', 1)
+        if name == env_name:
+            return value.strip()
+    return ""
+
+
 def _expand_opts(opts):
     """Expand a ``BootEntry`` option string that may contain
         references to Grub2 environment variables using shell
@@ -934,29 +957,6 @@ def _transform_key(key_name):
     if "-" in key_name:
         return key_name.replace("-", "_")
     return key_name
-
-
-def _grub2_get_env(name):
-    """Return the value of the Grub2 environment variable with name
-        ``name`` as a string.
-
-        :param name: The name of the environment variable to return.
-        :returns: The value of the named environment variable.
-        :returntype: string
-    """
-    grub_cmd = ["grub2-editenv", "list"]
-    try:
-        p = Popen(grub_cmd, stdin=None, stdout=PIPE, stderr=PIPE)
-        out = p.communicate()[0]
-    except OSError as e:
-        _log_error("Could not obtain grub2 environment: %s" % e)
-        return ""
-
-    for line in out.splitlines():
-        (env_name, value) = line.split('=', 1)
-        if name == env_name:
-            return value
-    return ""
 
 
 class BootEntry(object):
