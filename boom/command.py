@@ -420,7 +420,7 @@ def _merge_add_del_opts(orig_opts, opts):
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None, profile=None,
                  add_opts=None, del_opts=None, write=True, architecture=None,
-                 allow_no_dev=False):
+                 expand=False, allow_no_dev=False):
     """Create new boot loader entry.
 
         Create the specified boot entry in the configured loader directory.
@@ -438,6 +438,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         :param write: ``True`` if the entry should be written to disk,
                       or ``False`` otherwise.
         :param architecture: An optional BLS architecture string.
+        :param expand: Expand bootloader environment variables.
         :param allow_no_dev: Accept a non-existent or invalid root dev.
         :returns: a ``BootEntry`` object corresponding to the new entry.
         :returntype: ``BootEntry``
@@ -480,7 +481,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                          be.disp_boot_id)
 
     if write:
-        be.write_entry()
+        be.write_entry(expand=expand)
         __write_legacy()
 
     return be
@@ -1601,6 +1602,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
                           btrfs_subvol_id=btrfs_subvol_id, profile=profile,
                           add_opts=add_opts, del_opts=del_opts,
                           architecture=arch, write=False,
+                          expand=cmd_args.expand_variables,
                           allow_no_dev=no_dev)
 
     except BoomRootDeviceError as brde:
@@ -1615,7 +1617,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
     _apply_optional_keys(be, cmd_args)
 
     try:
-        be.write_entry()
+        be.write_entry(expand=cmd_args.expand_variables)
         __write_legacy()
     except Exception as e:
         if cmd_args.debug:
