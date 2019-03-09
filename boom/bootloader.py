@@ -1900,17 +1900,17 @@ class BootEntry(object):
         self._entry_data[BOOM_ENTRY_VERSION] = version
         self._dirty()
 
-    @property
-    def options(self):
-        """The command line options for this ``BootEntry``.
 
-            Return the command line options for this ``BootEntry``,
-            expanding any Boom or Grub2 substitution notation found.
+    def _options(self, expand=False):
+        """The command line options for this ``BootEntry``, optionally
+            expanding any bootloader environment variables to their
+            current values.
 
-            :getter: returns the command line for this ``BootEntry``.
-            :setter: sets the command line for this ``BootEntry``.
-            :type: string
+            :param expand: Whether or not to expand bootloader
+                           environment variable references.
+            :returntype: string
         """
+
         def add_opts(opts, append):
             """Append additional kernel options to this options string.
 
@@ -1971,19 +1971,54 @@ class BootEntry(object):
             """
             return " ".join([o for o in opts.split() if not del_opt(o, drop)])
 
+        def do_null(opts):
+            """Dummy expansion function.
+            """
+            return opts
+
+        # Optionally expand environment variable references.
+        do_exp = _expand_opts if expand else do_null
+
         if BOOM_ENTRY_OPTIONS in self._entry_data:
             opts = self._entry_data_property(BOOM_ENTRY_OPTIONS)
             if self.bp:
                 opts = add_opts(opts, self.bp.add_opts)
-                return _expand_opts(del_opts(opts, self.bp.del_opts))
-            return _expand_opts(opts)
+                return do_exp(del_opts(opts, self.bp.del_opts))
+            return do_exp(opts)
 
         if self._osp and self.bp:
             opts = self._apply_format(self._osp.options)
             opts = add_opts(opts, self.bp.add_opts)
-            return _expand_opts(del_opts(opts, self.bp.del_opts))
+            return do_exp(del_opts(opts, self.bp.del_opts))
 
         return ""
+
+    @property
+    def expand_options(self):
+        """The command line options for this ``BootEntry``, with any
+            bootloader environment variables expanded to their current
+            values.
+
+            Return the command line options for this ``BootEntry``,
+            expanding any Boom or Grub2 substitution notation found.
+
+            :getter: returns the command line for this ``BootEntry``.
+            :setter: sets the command line for this ``BootEntry``.
+            :type: string
+        """
+        return self._options(expand=True)
+
+    @property
+    def options(self):
+        """The command line options for this ``BootEntry``, including
+            any bootloader environment variable references as they
+            appear.
+
+            :getter: returns the command line for this ``BootEntry``.
+            :setter: sets the command line for this ``BootEntry``.
+            :type: string
+        """
+        return self._options()
 
     @options.setter
     def options(self, options):
