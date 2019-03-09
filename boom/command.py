@@ -242,6 +242,31 @@ _entry_fields = [
         REP_STR, lambda f, d: f.report_str(d._entry_path))
 ]
 
+#: Fields derived from BootEntry data, with bootloader variables expanded.
+_expand_entry_fields = [
+    BoomFieldType(
+        BR_ENTRY, "bootid", "BootID", "Boot identifier", 7,
+        REP_SHA, lambda f, d: f.report_sha(d.boot_id)),
+    BoomFieldType(
+        BR_ENTRY, "title", "Title", "Entry title", 24,
+        REP_STR, lambda f, d: f.report_str(d.title)),
+    BoomFieldType(
+        BR_ENTRY, "options", "Options", "Kernel options", 24,
+        REP_STR, lambda f, d: f.report_str(d.expand_options)),
+    BoomFieldType(
+        BR_ENTRY, "kernel", "Kernel", "Kernel image", 32,
+        REP_STR, lambda f, d: f.report_str(d.linux)),
+    BoomFieldType(
+        BR_ENTRY, "initramfs", "Initramfs", "Initramfs image", 40,
+        REP_STR, lambda f, d: f.report_str(d.initrd)),
+    BoomFieldType(
+        BR_ENTRY, "machineid", "Machine ID", "Machine identifier", 10,
+        REP_SHA, lambda f, d: f.report_sha(d.machine_id)),
+    BoomFieldType(
+        BR_ENTRY, "entrypath", "Entry path", "On-disk entry path", 12,
+        REP_STR, lambda f, d: f.report_str(d._entry_path))
+]
+
 #: Fields derived from BootParams data
 _params_fields = [
     BoomFieldType(
@@ -699,7 +724,7 @@ def _expand_fields(default_fields, output_fields):
 
 
 def print_entries(selection=None, output_fields=None, opts=None,
-                  sort_keys=None):
+                  sort_keys=None, expand=None):
     """Print boot loader entries matching selection criteria.
 
         Format a set of ``boom.bootloader.BootEntry`` objects matching
@@ -715,6 +740,7 @@ def print_entries(selection=None, output_fields=None, opts=None,
         :param output_fields: a comma-separated list of output fields
         :param opts: output formatting and control options
         :param sort_keys: a comma-separated list of sort keys
+        :param expand: Expand bootloader environment variables
         :returns: the ``boot_id`` of the new entry
         :returntype: str
     """
@@ -723,7 +749,9 @@ def print_entries(selection=None, output_fields=None, opts=None,
     bes = find_entries(selection=selection)
     selected = [BoomReportObj(be, be._osp, None) for be in bes]
 
-    report_fields = _entry_fields + _profile_fields + _params_fields
+    entry_fields = _expand_entry_fields if expand else _entry_fields
+    report_fields = entry_fields + _profile_fields + _params_fields
+
     return _do_print_type(report_fields, selected, output_fields=output_fields,
                           opts=opts, sort_keys=sort_keys)
 
@@ -1093,7 +1121,7 @@ def list_profiles(selection=None):
     return osps
 
 def print_profiles(selection=None, opts=None, output_fields=None,
-                   sort_keys=None):
+                   sort_keys=None, expand=False):
     """Print operating system profiles matching selection criteria.
 
         Selection criteria may be expressed via a Selection object
@@ -1104,6 +1132,7 @@ def print_profiles(selection=None, opts=None, output_fields=None,
         :param output_fields: a comma-separated list of output fields
         :param opts: output formatting and control options
         :param sort_keys: a comma-separated list of sort keys
+        :param expand: unused
         :returns: the number of matching profiles output.
         :returntype: int
     """
@@ -1397,7 +1426,7 @@ def list_hosts(selection=None):
 
 
 def print_hosts(selection=None, opts=None, output_fields=None,
-                sort_keys=None):
+                sort_keys=None, expand=False):
     """Print host profiles matching selection criteria.
 
         Selection criteria may be expressed via a Selection object
@@ -1408,7 +1437,8 @@ def print_hosts(selection=None, opts=None, output_fields=None,
         :param output_fields: a comma-separated list of output fields
         :param opts: output formatting and control options
         :param sort_keys: a comma-separated list of sort keys
-        :returns: the number of matching profiles output.
+        :param expand: unused
+        :returns: the number of matching profiles output
         :returntype: int
     """
     output_fields = _expand_fields(_default_host_fields, output_fields)
@@ -1738,7 +1768,8 @@ def _show_cmd(cmd_args, select, opts, identifier):
     first = True
     for be in bes:
         ws = "" if first else "\n"
-        be_str = _str_indent(str(be), 2)
+        be_str = be.expanded() if cmd_args.expand_variables else str(be)
+        be_str = _str_indent(be_str, 2)
         print("%sBoot Entry (boot_id=%s)\n%s" % (ws, be.disp_boot_id, be_str))
         first = False
     return 0
@@ -1770,7 +1801,8 @@ def _generic_list_cmd(cmd_args, select, opts, verbose_fields, print_fn):
 
     try:
         print_fn(selection=select, output_fields=fields,
-                 opts=opts, sort_keys=cmd_args.sort)
+                 opts=opts, sort_keys=cmd_args.sort,
+                 expand=cmd_args.expand_variables)
     except ValueError as e:
         print(e)
         return 1
@@ -2611,6 +2643,8 @@ def main(args):
                         help="A list of debug options to enable")
     parser.add_argument("-e", "--efi", metavar="IMG", type=str,
                         help="An executable EFI application image")
+    parser.add_argument("-E", "--expand-variables", action="store_true",
+                        help="Expand bootloader environment variables")
     parser.add_argument("--grub-arg", metavar="ARGS", type=str,
                         help="Pass additional arguments to the Grub2 loader")
     parser.add_argument("--grub-class", metavar="CLASS", type=str,
