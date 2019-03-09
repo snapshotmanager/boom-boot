@@ -2217,7 +2217,7 @@ class BootEntry(object):
         file_name = BOOT_ENTRIES_FORMAT % id_tuple
         return path_join(boom_entries_path(), file_name)
 
-    def write_entry(self, force=False):
+    def write_entry(self, force=False, expand=False):
         """Write out entry to disk.
 
             Write out this ``BootEntry``'s data to a file in BLS
@@ -2234,6 +2234,8 @@ class BootEntry(object):
 
             :param force: Force this entry to be written to disk even
                           if the entry is unmodified.
+            :param expand: Expand bootloader environment variables in
+                           on-disk entry.
             :raises: ``OSError`` if the temporary entry file cannot be
                      renamed, or if setting file permissions on the
                      new entry file fails.
@@ -2257,7 +2259,13 @@ class BootEntry(object):
                 # Map Boom key names to BLS entry keys
                 key = KEY_MAP[key]
                 key_fmt = "%s %s\n"
-                key_data = (_transform_key(key), getattr(self, key))
+
+                # Special case for keys that support optional bootloader
+                # variable expansion.
+                if key == KEY_MAP[BOOM_ENTRY_OPTIONS] and expand:
+                    key_data = (_transform_key(key), self.expand_options)
+                else:
+                    key_data = (_transform_key(key), getattr(self, key))
                 f.write(key_fmt % key_data)
                 f.flush()
         try:
