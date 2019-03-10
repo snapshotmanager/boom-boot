@@ -2253,21 +2253,10 @@ class BootEntry(object):
             if self._osp:
                 # Insert OsIdentifier comment at top-of-file
                 f.write("#OsIdentifier: %s\n" % self._osp.os_id)
-            for key in [k for k in ENTRY_KEYS if getattr(self, KEY_MAP[k])]:
-                if self._comments and key in self._comments:
-                    f.write(self._comments[key].rstrip() + '\n')
-                # Map Boom key names to BLS entry keys
-                key = KEY_MAP[key]
-                key_fmt = "%s %s\n"
-
-                # Special case for keys that support optional bootloader
-                # variable expansion.
-                if key == KEY_MAP[BOOM_ENTRY_OPTIONS] and expand:
-                    key_data = (_transform_key(key), self.expand_options)
-                else:
-                    key_data = (_transform_key(key), getattr(self, key))
-                f.write(key_fmt % key_data)
-                f.flush()
+            if expand:
+                f.write(self.expanded() + "\n")
+            else:
+                f.write(str(self) + "\n")
         try:
             fdatasync(tmp_fd)
             rename(tmp_path, entry_path)
