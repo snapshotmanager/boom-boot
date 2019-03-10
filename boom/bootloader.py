@@ -2287,7 +2287,7 @@ class BootEntry(object):
         # Add this entry to the list of known on-disk entries
         _add_entry(self)
 
-    def update_entry(self, force=False):
+    def update_entry(self, force=False, expand=False):
         """Update on-disk entry.
 
             Update this ``BootEntry``'s on-disk data.
@@ -2317,7 +2317,7 @@ class BootEntry(object):
         """
         # Cache old entry path
         to_unlink = self._last_path
-        self.write_entry(force=force)
+        self.write_entry(force=force, expand=expand)
         if self._entry_path != to_unlink:
             try:
                 unlink(to_unlink)
