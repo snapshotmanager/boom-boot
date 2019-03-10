@@ -525,7 +525,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                 root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
                 btrfs_subvol_id=None, profile=None, architecture=None,
                 add_opts=None, del_opts=None,
-                write=True, allow_no_dev=False):
+                write=True, expand=False, allow_no_dev=False):
     """Clone an existing boot loader entry.
 
         Create the specified boot entry in the configured loader directory
@@ -547,6 +547,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         :param del_opts: A list of template-supplied options to drop.
         :param write: ``True`` if the entry should be written to disk,
                       or ``False`` otherwise.
+        :param expand: Expand bootloader environment variables.
         :returns: a ``BootEntry`` object corresponding to the new entry.
         :returntype: ``BootEntry``
         :raises: ``ValueError`` if either required values are missing or
@@ -605,8 +606,12 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         raise ValueError("Entry already exists (boot_id=%s)." %
                          clone_be.disp_boot_id)
 
+    orig_be = find_entries(selection)[0]
+    if orig_be.options != orig_be.expand_options:
+        clone_be.options = orig_be.options
+
     if write:
-        clone_be.write_entry()
+        clone_be.write_entry(expand=expand)
         __write_legacy()
 
     return clone_be
@@ -1724,7 +1729,8 @@ def _clone_cmd(cmd_args, select, opts, identifier):
                          btrfs_subvol_path=btrfs_subvol_path,
                          btrfs_subvol_id=btrfs_subvol_id, profile=profile,
                          add_opts=add_opts, del_opts=del_opts,
-                         architecture=arch, allow_no_dev=cmd_args.no_dev)
+                         architecture=arch, expand=cmd_args.expand_variables,
+                         allow_no_dev=cmd_args.no_dev)
 
     except ValueError as e:
         print(e)
@@ -1733,7 +1739,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
     _apply_profile_overrides(be, cmd_args)
 
     try:
-        be.write_entry()
+        be.write_entry(expand=cmd_args.expand_variables)
         __write_legacy()
     except Exception as e:
         if cmd_args.debug:
