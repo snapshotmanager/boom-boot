@@ -614,7 +614,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
                btrfs_subvol_id=None, profile=None, architecture=None,
-               add_opts=None, del_opts=None):
+               add_opts=None, del_opts=None, expand=False):
     """Edit an existing boot loader entry.
 
         Modify an existing BootEntry by changing one or more of the
@@ -688,7 +688,8 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
     be.bp.add_opts = add_opts
     be.bp.del_opts = del_opts
-    be.update_entry()
+
+    be.update_entry(expand=expand)
     __write_legacy()
 
     return be
@@ -1874,7 +1875,7 @@ def _edit_cmd(cmd_args, select, opts, identifier):
                         lvm_root_lv=lvm_root_lv,
                         btrfs_subvol_path=btrfs_subvol_path,
                         btrfs_subvol_id=btrfs_subvol_id, profile=profile,
-                        architecture=arch)
+                        architecture=arch, expand=cmd_args.expand_variables)
     except ValueError as e:
         print(e)
         return 1
@@ -1882,7 +1883,7 @@ def _edit_cmd(cmd_args, select, opts, identifier):
     _apply_profile_overrides(be, cmd_args)
 
     try:
-        be.write_entry()
+        be.write_entry(expand=cmd_args.expand_variables)
         __write_legacy()
     except Exception as e:
         if cmd_args.debug:
