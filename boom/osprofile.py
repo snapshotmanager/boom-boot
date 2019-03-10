@@ -1091,12 +1091,12 @@ class BoomProfile(object):
         """Return the path to this profile's on-disk data.
 
             Return the full path to this Profile in the appropriate
-            Boom profile directory. Subclasses of `BoomProfile` must
+            Boom profile directory. Subclasses of ``BoomProfile`` must
             override this method to return the correct path for the
-    `       specific profile type.
+            specific profile type.
 
             :returntype: str
-            :returns: The absolute path for this ``BoomProfile``'s file
+            :returns: The absolute path for this ``BoomProfile`` file
             :raises: NotImplementedError
         """
         raise NotImplementedError
