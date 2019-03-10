@@ -1302,6 +1302,12 @@ class OsProfile(BoomProfile):
 
     def _append_profile(self):
         """Append an OsProfile to the global profile list
+
+            Check whether this ``OsProfile`` already exists, and add it
+            to the global profile list if not. If the profile is already
+            present ``ValueError`` is raised.
+
+            :raises: ValueError
         """
         if _profile_exists(self.os_id):
             raise ValueError("Profile already exists (os_id=%s)" %
