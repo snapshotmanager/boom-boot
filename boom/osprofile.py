@@ -633,8 +633,8 @@ class BoomProfile(object):
             This method must be overridden by classes that extend
             ``BoomProfile``.
 
-            :returns None:
-            :raises NotImplementedError
+            :returns: None
+            :raises: NotImplementedError
         """
         raise NotImplementedError
 
