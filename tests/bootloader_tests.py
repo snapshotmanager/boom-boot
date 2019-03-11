@@ -155,7 +155,9 @@ def _reset_test_osprofile():
 class MockBootEntry(object):
     boot_id = "1234567890abcdef"
     version = "1.1.1"
+    expand_options = "root=/dev/mapper/rhel-root ro rhgb quiet"
     _osp = None
+    _entry_data = {}
 
 
 class BootEntryBasicTests(unittest.TestCase):
