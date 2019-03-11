@@ -72,6 +72,7 @@ class MockArgs(object):
     del_opts = ""
     efi = ""
     efi = ""
+    expand_variables = False
     from_host = ""
     grub_arg = ""
     grub_class = ""
