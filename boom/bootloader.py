@@ -325,20 +325,20 @@ def _grub2_get_env(name):
     return ""
 
 
-def _expand_opts(opts):
+def _expand_vars(args):
     """Expand a ``BootEntry`` option string that may contain
         references to Grub2 environment variables using shell
         style ``$value`` notation.
     """
     var_char = GRUB2_EXPAND_ENV
-    if var_char not in opts:
-        return opts
+    if var_char not in args:
+        return args
 
-    for opt in opts.split():
-        if opt.startswith(var_char):
+    for arg in args.split():
+        if arg.startswith(var_char):
             env_name = opt[1:]
-            opts = opts.replace(opt, _grub2_get_env(env_name))
-    return opts
+            args = args.replace(opt, _grub2_get_env(env_name))
+    return args
 
 
 class BootParams(object):
@@ -698,9 +698,9 @@ class BootParams(object):
                               environment variable, or ``False`` otherwise.
                     :returntype: bool
                 """
-                if GRUB2_EXPAND_ENV not in be._entry_data[BOOM_ENTRY_OPTIONS]:
+                if GRUB2_EXPAND_ENV not in be.options:
                     return False
-                return opt not in _expand_opts(be._entry_data[BOOM_ENTRY_OPTIONS])
+                return opt not in _expand_vars(be.options)
 
             if opt not in matches.keys():
                 if opt not in be._osp.options:
@@ -1992,7 +1992,7 @@ class BootEntry(object):
             return opts
 
         # Optionally expand environment variable references.
-        do_exp = _expand_opts if expand else do_null
+        do_exp = _expand_vars if expand else do_null
 
         if BOOM_ENTRY_OPTIONS in self._entry_data:
             opts = self._entry_data_property(BOOM_ENTRY_OPTIONS)
