@@ -2059,6 +2059,30 @@ class BootEntry(object):
         self._entry_data[BOOM_ENTRY_LINUX] = linux
         self._dirty()
 
+    def _initrd(self, expand=False):
+        """Return the initrd string with or without variable expansion.
+
+            Since some distributions use bootloader environment
+            variables to define auxiliary initramfs images, the initrd
+            property is optionally subject to the same variable
+            expansion as the options property.
+
+            :param expand: ``True`` if variables should be expanded or
+                           ``False`` otherwise.
+            :returns: An initrd string
+            :returntype: string
+        """
+        if not self._osp or BOOM_ENTRY_INITRD in self._entry_data:
+            initrd_string = self._entry_data_property(BOOM_ENTRY_INITRD)
+            if expand:
+                return _expand_args(initrd_string)
+            return initrd_string
+
+        initramfs_path = self._apply_format(self._osp.initramfs_pattern)
+        if expand:
+            return _expand_args(initrd_string)
+        return initramfs_path
+
     @property
     def initrd(self):
         """The loadable initramfs image for this ``BootEntry``.
@@ -2067,11 +2091,18 @@ class BootEntry(object):
             :getter: sets the configured ``initrd`` image.
             :type: string
         """
-        if not self._osp or BOOM_ENTRY_INITRD in self._entry_data:
-            return self._entry_data_property(BOOM_ENTRY_INITRD)
+        return self._initrd()
 
-        initramfs_path = self._apply_format(self._osp.initramfs_pattern)
-        return initramfs_path
+    @property
+    def expand_initrd(self):
+        """The loadable initramfs image for this ``BootEntry`` with any
+            embedded bootloader variable references expanded.
+
+            :getter: returns the configured ``initrd`` image.
+            :getter: sets the configured ``initrd`` image.
+            :type: string
+        """
+        return self._initrd(expand=True)
 
     @initrd.setter
     def initrd(self, initrd):
