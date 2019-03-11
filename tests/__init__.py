@@ -190,7 +190,7 @@ def have_lvm():
         at least one logical volume, or ``False`` otherwise.
     """
     p = Popen(["lvs", "--noheadings", "-oname"], stdin=None, stdout=PIPE,
-              stderr=None)
+              stderr=None, close_fds=True)
     out = p.communicate()[0]
     if len(out.splitlines()):
         return True
@@ -202,7 +202,8 @@ def have_grub1():
         or ``False`` otherwise.
     """
     try:
-        p = Popen(["grub", "--help"], stdin=None, stdout=PIPE, stderr=PIPE)
+        p = Popen(["grub", "--help"], stdin=None, stdout=PIPE, stderr=PIPE,
+                  close_fds=True)
         out = p.communicate(input="\n")[0]
         return True
     except OSError:
