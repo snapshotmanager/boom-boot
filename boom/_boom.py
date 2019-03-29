@@ -592,10 +592,11 @@ class Selection(object):
             Construct a new ``Selection`` object from the command line
             arguments in ``cmd_args``. Each set selection attribute from
             ``cmd_args`` is copied into the Selection. The resulting
-            object may be passed to either the ``BootEntry`` or
-            ``OsProfile`` search functions (``find_entries`` and
-            ``find_profiles``), as well as the ``boom.command`` calls
-            that accept a selection argument.
+            object may be passed to either the ``BootEntry``,
+            ``OsProfile``, or ``HostProfile`` search functions
+            (``find_entries``, ``find_profiles``, and
+            ``find_host_profiles``), as well as the ``boom.command``
+            calls that accept a selection argument.
 
             :param args: The command line selection arguments.
             :returns: A new Selection instance
