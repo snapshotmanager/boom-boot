@@ -2,7 +2,7 @@ Boom documentation
 ==================
 
 Boom is a boot manager for Linux systems using the
-`BootLoader Spec <https://www.freedesktop.org/wiki/Specifications/BootLoaderSpec>`_.
+`BootLoader Specification <https://systemd.io/BOOT_LOADER_SPECIFICATION>`_.
 Boom can create and remove boot entries for the system, or for
 snapshots of the system using LVM2, or BTRFS.
 
