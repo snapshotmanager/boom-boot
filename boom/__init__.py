@@ -18,8 +18,8 @@ Specification.
 The ``boom`` package contains global definitions, functions to configure
 the Boom environment, logging infrastructure for the package and a
 ``Selection`` class used to select one or more ``OsProfile``,
-``BootEntry``, or ``BootParams`` object according to specified selection
-criteria.
+``HostProfile``, ``BootEntry``, or ``BootParams`` object according to
+specified selection criteria.
 
 Individual sub-modules provide interfaces to the various components of
 Boom: operating system profiles, boot loader entries and boot
