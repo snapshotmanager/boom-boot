@@ -1,11 +1,20 @@
 .TH BOOM 8 "Oct 30 2017" "Linux" "MAINTENANCE COMMANDS"
 
 .de ARG_CMD_TYPES
-.  RI [ entry | profile ]
+.  RI [ entry | profile | host ]
 ..
 .
 .de ARG_COMMANDS
 .  RI [ create | delete | clone | show | list | edit ]
+..
+.
+.
+.de ARG_LEGACY_TYPES
+.  RI legacy
+..
+.
+.de ARG_LEGACY_COMMAND
+.  RI [ write | clear | show ]
 ..
 .
 .
@@ -25,6 +34,17 @@ Boom \(em linux boot manager
 .  ad b
 ..
 .CMD_COMMAND
+
+.
+.HP
+.B boom
+.de CMD_LEGACY_COMMAND
+.  ad l
+.  ARG_LEGACY_TYPES
+.  ARG_LEGACY_COMMAND
+.  ad b
+..
+.CMD_LEGACY_COMMAND
 
 .
 .HP
