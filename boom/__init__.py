@@ -22,7 +22,7 @@ the Boom environment, logging infrastructure for the package and a
 specified selection criteria.
 
 Individual sub-modules provide interfaces to the various components of
-Boom: operating system profiles, boot loader entries and boot
+Boom: operating system and host profiles, boot loader entries and boot
 parameters, the boom CLI and procedural API and a simple reporting
 module to produce tabular reports on Boom objects.
 
