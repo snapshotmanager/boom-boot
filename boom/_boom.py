@@ -418,7 +418,8 @@ def parse_btrfs_subvol(subvol):
 
 class Selection(object):
     """Selection()
-        Selection criteria for boom BootEntry, OsProfile and BootParams.
+        Selection criteria for boom BootEntry, OsProfile HostProfile,
+        and BootParams.
 
         Selection criteria specified as a simple boolean AND of all
         criteria with a non-None value.
