@@ -165,7 +165,9 @@ class BoomLogger(logging.Logger):
         if self.mask_bits & get_debug_mask():
             self.debug(msg, *args, **kwargs)
 
+
 logging.setLoggerClass(BoomLogger)
+
 
 def get_debug_mask():
     """Return the current debug mask for the ``boom`` package.
@@ -249,6 +251,7 @@ class BoomConfig(object):
 
 __config = BoomConfig()
 
+
 def set_boom_config(config):
     """Set the active configuration to the object ``config`` (which may
         be any class that includes the ``BoomConfig`` attributes).
@@ -263,7 +266,7 @@ def set_boom_config(config):
     def has_value(obj, attr):
         return hasattr(obj, attr) and getattr(obj, attr) is not None
 
-    if not has_value(config, "boot_path") or not has_value(config, "boom_path"):
+    if not (has_value(config, "boot_path") and has_value(config, "boom_path")):
         raise TypeError("config does not appear to be a BoomConfig object.")
 
     __config = config
@@ -286,6 +289,7 @@ def get_boot_path():
     """
     return __config.boot_path
 
+
 def get_boom_path():
     """Return the currently configured boom configuration path.
 
@@ -293,6 +297,7 @@ def get_boom_path():
         :returntype: str
     """
     return __config.boom_path
+
 
 def set_boot_path(boot_path):
     """Sets the location of the boot file system to ``boot_path``.
@@ -363,6 +368,7 @@ def set_boom_path(boom_path):
     _log_debug("Set boom path to: %s" % DEFAULT_BOOM_DIR)
     __config.boom_path = boom_path
     set_boom_config_path(__config.boom_path)
+
 
 def get_boom_config_path():
     """Return the currently configured boom configuration file path.
@@ -481,6 +487,7 @@ class Selection(object):
         "os_root_opts_lvm2", "os_root_opts_btrfs", "os_options"
     ]
 
+    #: Selection criteria applying to HostProfile objects
     host_attrs = [
         "host_id", "host_name", "host_label", "host_short_name",
         "host_add_opts", "host_del_opts", "machine_id"
@@ -694,6 +701,7 @@ class Selection(object):
         attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
         return not any(attrs)
 
+
 #
 # Generic routines for parsing name-value pairs.
 #
@@ -732,7 +740,7 @@ def parse_name_value(nvp, separator="="):
         # Only strip newlines: values may contain embedded
         # whitespace anywhere within the string.
         name, value = nvp.rstrip('\n').split(separator, 1)
-    except:
+    except ValueError:
         raise val_err
 
     # Value cannot start with '='
@@ -771,8 +779,10 @@ def find_minimum_sha_prefix(shas, min_prefix):
     for sha in shas:
         if shas.index(sha) == len(shas) - 1:
             continue
+
         def _next_sha(shas, sha):
             return shas[shas.index(sha) + 1]
+
         while sha[:min_prefix] == _next_sha(shas, sha)[:min_prefix]:
             min_prefix += 1
     return min_prefix
@@ -824,6 +834,7 @@ def _get_machine_id():
                        (_MACHINE_ID, e))
             machine_id = None
     return machine_id
+
 
 def load_profiles_for_class(profile_class, profile_type,
                             profiles_path, profile_ext):
@@ -925,4 +936,4 @@ __all__ = [
     'load_profiles_for_class'
 ]
 
-# vim: set et ts=4 sw=4 
+# vim: set et ts=4 sw=4
