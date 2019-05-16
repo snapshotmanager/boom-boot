@@ -1016,7 +1016,7 @@ class HostProfile(BoomProfile):
 
     @title.setter
     def title(self, value):
-        if not title:
+        if not value:
             # It is valid to set an empty title in a HostProfile as long
             # as the OsProfile defines one.
             if not self.osp or not self.osp.title:
