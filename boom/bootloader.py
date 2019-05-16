@@ -2077,12 +2077,12 @@ class BootEntry(object):
         if not self._osp or BOOM_ENTRY_INITRD in self._entry_data:
             initrd_string = self._entry_data_property(BOOM_ENTRY_INITRD)
             if expand:
-                return _expand_args(initrd_string)
+                return _expand_vars(initrd_string)
             return initrd_string
 
         initramfs_path = self._apply_format(self._osp.initramfs_pattern)
         if expand:
-            return _expand_args(initrd_string)
+            return _expand_vars(initrd_string)
         return initramfs_path
 
     @property
