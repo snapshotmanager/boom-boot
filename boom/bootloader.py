@@ -1705,9 +1705,9 @@ class BootEntry(object):
             FMT_KERNEL: [{BE_ATTR: "linux", NEEDS: "bp"}],
             FMT_INITRAMFS: [{BE_ATTR: "initrd", NEEDS: "bp"}],
             FMT_OS_NAME: [{OSP_ATTR: "os_name"}],
-            FMT_OS_NAME: [{OSP_ATTR: "os_short_name"}],
-            FMT_OS_NAME: [{OSP_ATTR: "os_version"}],
-            FMT_OS_NAME: [{OSP_ATTR: "os_version_id"}]
+            FMT_OS_SHORT_NAME: [{OSP_ATTR: "os_short_name"}],
+            FMT_OS_VERSION: [{OSP_ATTR: "os_version"}],
+            FMT_OS_VERSION_ID: [{OSP_ATTR: "os_version_id"}]
         }
 
         for key_name in format_key_specs.keys():
