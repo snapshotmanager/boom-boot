@@ -2367,7 +2367,7 @@ class BootEntry(object):
             unlink(self._entry_path)
         except Exception as e:
             _log_error("Error removing entry file %s: %s" %
-                       (entry_path, e))
+                       (self._entry_path, e))
             raise
 
         if not self._unwritten:
