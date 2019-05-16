@@ -1543,9 +1543,9 @@ class BootEntry(object):
         self._entry_data = {}
 
         def title_empty(osp, title):
-            if self._osp and not self._osp.title:
+            if osp and not osp.title:
                 return True
-            elif not self._osp and not title:
+            elif not osp and not title:
                 return True
             return False
 
