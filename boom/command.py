@@ -85,7 +85,7 @@ class BoomReportObj(object):
             specified BootEntry and or OsProfile objects.
 
             :returns: a new BoomReportObj.
-            :returntype: ``BoomReportObj``
+            :rtype: ``BoomReportObj``
         """
         self.be = boot_entry
         self.osp = os_profile
@@ -300,7 +300,7 @@ def _subvol_from_arg(subvol):
 
         :param subvol: A subvolume path or ID string
         :returns: (path, id) tuple or (None, None) if neither is found
-        :returntype: (str, str)
+        :rtype: (str, str)
     """
     if not subvol:
         return (None, None)
@@ -375,7 +375,7 @@ def _do_print_type(report_fields, selected, output_fields=None,
         :param output_fields: a comma-separated list of output fields
         :param opts: output formatting and control options
         :param sort_keys: a comma-separated list of sort keys
-        :returntype: str
+        :rtype: str
     """
     opts = opts if opts is not None else BoomReportOpts()
 
@@ -442,7 +442,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         :param expand: Expand bootloader environment variables.
         :param allow_no_dev: Accept a non-existent or invalid root dev.
         :returns: a ``BootEntry`` object corresponding to the new entry.
-        :returntype: ``BootEntry``
+        :rtype: ``BootEntry``
         :raises: ``ValueError`` if either required values are missing or
                  a duplicate entry exists, or``OsError`` if an error
                  occurs while writing the entry file.
@@ -505,7 +505,7 @@ def delete_entries(selection=None):
         :param selection: A Selection object giving selection
                           criteria for the operation.
         :returns: the number of entries removed.
-        :returntype: ``int``
+        :rtype: ``int``
     """
     bes = find_entries(selection=selection)
 
@@ -552,7 +552,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         :param expand: Expand bootloader environment variables.
         :param allow_no_dev: Allow the block device to not exist.
         :returns: a ``BootEntry`` object corresponding to the new entry.
-        :returntype: ``BootEntry``
+        :rtype: ``BootEntry``
         :raises: ``ValueError`` if either required values are missing or
                  a duplicate entry exists, or``OsError`` if an error
                  occurs while writing the entry file.
@@ -650,7 +650,7 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
         :param expand: Expand bootloader environment variables in on-disk entry.
 
         :returns: The modified ``BootEntry``
-        :returntype: ``BootEntry``
+        :rtype: ``BootEntry``
     """
     all_args = (title, version, machine_id, root_device, lvm_root_lv,
                 btrfs_subvol_path, btrfs_subvol_id, profile)
@@ -716,7 +716,7 @@ def list_entries(selection=None):
         :param selection: A Selection object giving selection
                           criteria for the operation.
         :returns: A list of matching BootEntry objects.
-        :returntype: list
+        :rtype: list
     """
     bes = find_entries(selection=selection)
 
@@ -753,7 +753,7 @@ def print_entries(selection=None, output_fields=None, opts=None,
         :param sort_keys: a comma-separated list of sort keys
         :param expand: Expand bootloader environment variables
         :returns: the ``boot_id`` of the new entry
-        :returntype: str
+        :rtype: str
     """
     output_fields = _expand_fields(_default_entry_fields, output_fields)
 
@@ -851,7 +851,7 @@ def _os_profile_from_file(os_release, uname_pattern,
         :param root_opts_btrfs: Replacement BTRFS root options
         :param options: Replacement options string template
         :returns: A new OsProfile
-        :returntype: OsProfile
+        :rtype: OsProfile
     """
     osp = OsProfile.from_os_release_file(os_release)
     if uname_pattern:
@@ -904,7 +904,7 @@ def create_profile(name, short_name, version, version_id,
         :param profile_file: File to be used for profile
 
         :returns: an ``OsProfile`` object for the new profile
-        :returntype: ``OsProfile``
+        :rtype: ``OsProfile``
         :raises: ``ValueError`` if either required values are missing or
                  a duplicate profile exists, or``OsError`` if an error
                  occurs while writing the profile file.
@@ -977,7 +977,7 @@ def delete_profiles(selection=None):
         :param selection: A Selection object giving selection
                           criteria for the operation.
         :returns: the number of entries removed.
-        :returntype: ``int``
+        :rtype: ``int``
     """
     osps = find_profiles(selection=selection)
 
@@ -1018,7 +1018,7 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
         :param options: Kernel options template.
 
         :returns: a new ``OsProfile`` object.
-        :returntype: ``OsProfile``
+        :rtype: ``OsProfile``
         :raises: ``ValueError`` if either required values are missing or
                  a duplicate profile exists, or``OsError`` if an error
                  occurs while writing the profile file.
@@ -1092,7 +1092,7 @@ def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
         :param root_opts_btrfs: The new BTRFS root options
         :param options: The new kernel options template
         :returns: The modified ``OsProfile``
-        :returntype: ``OsProfile``
+        :rtype: ``OsProfile``
     """
     # Discard all selection criteria but os_id.
     selection = Selection(os_id=selection.os_id)
@@ -1128,7 +1128,7 @@ def list_profiles(selection=None):
         :param selection: A Selection object giving selection
                           criteria for the operation.
         :returns: a list of ``OsProfile`` objects.
-        :returntype: list
+        :rtype: list
     """
     osps = find_profiles(selection=selection)
 
@@ -1148,7 +1148,7 @@ def print_profiles(selection=None, opts=None, output_fields=None,
         :param sort_keys: a comma-separated list of sort keys
         :param expand: unused
         :returns: the number of matching profiles output.
-        :returntype: int
+        :rtype: int
     """
     output_fields = _expand_fields(_default_profile_fields, output_fields)
 
@@ -1193,7 +1193,7 @@ def create_host(machine_id=None, host_name=None, os_id=None, label=None,
         :param host_data: Dictionary of profile key:value pairs
 
         :returns: a ``HostProfile`` object for the new profile
-        :returntype: ``HostProfile``
+        :rtype: ``HostProfile``
         :raises: ``ValueError`` if either required values are missing or
                  a duplicate profile exists, or``OsError`` if an error
                  occurs while writing the profile file.
@@ -1264,7 +1264,7 @@ def delete_hosts(selection=None):
         :param selection: A Selection object giving selection
                           criteria for the operation.
         :returns: the number of entries removed.
-        :returntype: ``int``
+        :rtype: ``int``
     """
     hps = find_host_profiles(selection=selection)
 
@@ -1306,7 +1306,7 @@ def clone_host(selection=None, machine_id=None, host_name=None, label=None,
         :param options: Kernel options template.
 
         :returns: a new ``HostProfile`` object.
-        :returntype: ``HostProfile``
+        :rtype: ``HostProfile``
         :raises: ``ValueError`` if either required values are missing or
                  a duplicate profile exists, or``OsError`` if an error
                  occurs while writing the profile file.
@@ -1393,7 +1393,7 @@ def edit_host(selection=None, machine_id=None, os_id=None, host_name=None,
         :param options: The new kernel options template
 
         :returns: The modified ``HostProfile``
-        :returntype: ``HostProfile``
+        :rtype: ``HostProfile``
     """
     # Discard all selection criteria but host_id.
     selection = Selection(host_id=selection.host_id)
@@ -1433,7 +1433,7 @@ def list_hosts(selection=None):
         :param selection: A Selection object giving selection
                           criteria for the operation.
         :returns: a list of ``HostProfile`` objects.
-        :returntype: list
+        :rtype: list
     """
     hps = find_host_profiles(selection=selection)
 
@@ -1454,7 +1454,7 @@ def print_hosts(selection=None, opts=None, output_fields=None,
         :param sort_keys: a comma-separated list of sort keys
         :param expand: unused
         :returns: the number of matching profiles output
-        :returntype: int
+        :rtype: int
     """
     output_fields = _expand_fields(_default_host_fields, output_fields)
 

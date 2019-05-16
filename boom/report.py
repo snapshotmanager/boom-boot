@@ -106,7 +106,7 @@ class BoomReportOpts(object):
                              output from this report.
             :param report_file: a file to which output will be sent.
             :returns: a new ``BoomReportOpts`` object.
-            :returntype: ``<class BoomReportOpts>``
+            :rtype: ``<class BoomReportOpts>``
         """
         self.columns = columns
         self.headings = headings
@@ -187,7 +187,7 @@ class BoomFieldType(object):
             :param report_fn: The field reporting function
             :param align: The field alignment value
             :returns: A new BoomReportFieldType object
-            :returntype: BoomReportFieldType
+            :rtype: BoomReportFieldType
         """
         if not objtype:
             raise ValueError("'objtype' must be non-zero")
@@ -272,7 +272,7 @@ class BoomField(object):
             Set the value for this field to the supplied ``value``.
 
             :param value: The string value to set
-            :returntype: None
+            :rtype: None
         """
         if not isinstance(value, string_types):
             raise TypeError("Value for report_str() must be a string type.")
@@ -284,7 +284,7 @@ class BoomField(object):
             Set the value for this field to the supplied ``value``.
 
             :param value: The SHA value to set
-            :returntype: None
+            :rtype: None
         """
         if not isinstance(value, string_types):
             raise TypeError("Value for report_sha() must be a string type.")
@@ -296,7 +296,7 @@ class BoomField(object):
             Set the value for this field to the supplied ``value``.
 
             :param value: The numeric value to set
-            :returntype: None
+            :rtype: None
         """
         if value is not None and not isinstance(value, num_types):
             raise TypeError("Value for report_num() must be a numeric type.")
@@ -313,7 +313,7 @@ class BoomField(object):
 
             :param report_string: The string value to set
             :param sort_value: The sort value
-            :returntype: None
+            :rtype: None
         """
         if report_string is None:
             raise ValueError("No value assigned to field.")
@@ -339,7 +339,7 @@ class BoomRow(object):
         """Add a field to this BoomRow.
 
             :param field: The field to be added
-            :returntype: None
+            :rtype: None
         """
         self._fields.append(field)
 
@@ -697,7 +697,7 @@ class BoomReport(object):
                                   be rendered by this report.
             :param opts: An instance of ``BoomReportOpts`` or None.
             :returns: A new report object.
-            :returntype: ``BoomReport``.
+            :rtype: ``BoomReport``.
         """
 
         self._fields = fields
@@ -739,7 +739,7 @@ class BoomReport(object):
             field width required to ensure uniqueness of the displayed
             values.
 
-            :returntype: None
+            :rtype: None
         """
         shas = {}
         props_map = {}
@@ -764,7 +764,7 @@ class BoomReport(object):
             and updating the dynamic width stored in the corresponding
             ``BoomFieldProperties`` object.
 
-            :returntype: None
+            :rtype: None
         """
         for row in self._rows:
             for field in row._fields:
@@ -781,7 +781,7 @@ class BoomReport(object):
 
             Output the column headings for this BoomReport.
 
-            :returntype: None
+            :rtype: None
         """
         self._header_written = True
         if not self.opts.headings:
@@ -813,7 +813,7 @@ class BoomReport(object):
             object to conform to the Python sort key model.
 
             :returns: A __RowKey object wrapping _row_cmp()
-            :returntype: __RowKey
+            :rtype: __RowKey
         """
         def _row_cmp(row_a, row_b):
             """Compare two report rows for sorting.
@@ -965,7 +965,7 @@ class BoomReport(object):
 
             :field: The field to be output
             :returns: The output report string for this field
-            :returntype: str
+            :rtype: str
         """
         fields = self._fields
         prefix = self.opts.field_name_prefix
@@ -1058,7 +1058,7 @@ class BoomReport(object):
             error an exception is raised.
 
             :returns: the number of rows of output written.
-            :returntype: ``int``
+            :rtype: ``int``
         """
         if self._already_reported:
             return

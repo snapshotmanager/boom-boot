@@ -145,7 +145,7 @@ class BoomLogger(logging.Logger):
             of ``BoomLogger`` belongs to.
 
             :param mask_bits: The bits to set in this logger's mask.
-            :returntype: None
+            :rtype: None
         """
         if mask_bits < 0 or mask_bits > BOOM_DEBUG_ALL:
             raise ValueError("Invalid BoomLogger mask bits: 0x%x" %
@@ -160,7 +160,7 @@ class BoomLogger(logging.Logger):
             debug mask.
 
             :param msg: the message to be logged
-            :returntype: None
+            :rtype: None
         """
         if self.mask_bits & get_debug_mask():
             self.debug(msg, *args, **kwargs)
@@ -173,7 +173,7 @@ def get_debug_mask():
     """Return the current debug mask for the ``boom`` package.
 
         :returns: The current debug mask value
-        :returntype: int
+        :rtype: int
     """
     return __debug_mask
 
@@ -183,7 +183,7 @@ def set_debug_mask(mask):
 
         :param mask: the logical OR of the ``BOOM_DEBUG_*``
                      values to log.
-        :returntype: None
+        :rtype: None
     """
     global __debug_mask
     if mask < 0 or mask > BOOM_DEBUG_ALL:
@@ -275,7 +275,7 @@ def set_boom_config(config):
 def get_boom_config():
     """Return the active ``BoomConfig`` object.
 
-        :returntype: BoomConfig
+        :rtype: BoomConfig
         :returns: the active configuration object
     """
     return __config
@@ -285,7 +285,7 @@ def get_boot_path():
     """Return the currently configured boot file system path.
 
         :returns: the path to the /boot file system.
-        :returntype: str
+        :rtype: str
     """
     return __config.boot_path
 
@@ -294,7 +294,7 @@ def get_boom_path():
     """Return the currently configured boom configuration path.
 
         :returns: the path to the BOOT/boom directory.
-        :returntype: str
+        :rtype: str
     """
     return __config.boom_path
 
@@ -373,7 +373,7 @@ def set_boom_path(boom_path):
 def get_boom_config_path():
     """Return the currently configured boom configuration file path.
 
-        :returntype: str
+        :rtype: str
         :returns: the current boom configuration file path
     """
     return __boom_config_path
@@ -402,7 +402,7 @@ def parse_btrfs_subvol(subvol):
 
         :param subvol: The subvolume parameter to parse
         :returns: A string containing the subvolume path or ID
-        :returntype: ``str``
+        :rtype: ``str``
         :raises: ValueError if no valid subvolume was found
     """
     if not subvol:
@@ -500,7 +500,7 @@ class Selection(object):
 
             :returns: A human readable string representation of this
                       Selection object
-            :returntype: string
+            :rtype: string
         """
         all_attrs = self.all_attrs
         attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
@@ -518,7 +518,7 @@ class Selection(object):
 
             :returns: A machine readable string representation of this
                       Selection object
-            :returntype: string
+            :rtype: string
         """
         return "Selection(" + str(self) + ")"
 
@@ -564,7 +564,7 @@ class Selection(object):
             :param host_add_opts: Host add options to match
             :param host_del_opts: Host del options to match
             :returns: A new Selection instance
-            :returntype: Selection
+            :rtype: Selection
         """
         self.boot_id = boot_id
         self.title = title
@@ -608,7 +608,7 @@ class Selection(object):
 
             :param args: The command line selection arguments.
             :returns: A new Selection instance
-            :returntype: Selection
+            :rtype: Selection
         """
         subvol = parse_btrfs_subvol(args.btrfs_subvolume)
         if subvol and subvol.startswith('/'):
@@ -646,7 +646,7 @@ class Selection(object):
 
             :param attr: The name of the attribute to test
             :returns: ``True`` if ``attr`` is set or ``False`` otherwise
-            :returntype: bool
+            :rtype: bool
         """
         return hasattr(self, attr) and getattr(self, attr) is not None
 
@@ -665,7 +665,7 @@ class Selection(object):
             :param profile: ``Selection`` may include OsProfile data
             :param host: ``Selection`` may include Host data
             :returns: ``None`` on success
-            :returntype: ``NoneType``
+            :rtype: ``NoneType``
             :raises: ``ValueError`` if excluded criteria are present
         """
         valid_attrs = []
@@ -696,7 +696,7 @@ class Selection(object):
             objects, or ``False`` otherwise.
 
             :returns: ``True`` if this Selection is null
-            :returntype: bool
+            :rtype: bool
         """
         all_attrs = self.all_attrs
         attrs = [attr for attr in all_attrs if self.__attr_has_value(attr)]
@@ -716,7 +716,7 @@ def blank_or_comment(line):
         :param line: the line of text to be checked.
         :returns: ``True`` if the line is blank or a comment,
                   and ``False`` otherwise.
-        :returntype: bool
+        :rtype: bool
     """
     return not line.strip() or line.lstrip().startswith('#')
 
@@ -734,7 +734,7 @@ def parse_name_value(nvp, separator="="):
                           value pair, or ``None`` to splir on white
                           space.
         :returns: A ``(name, value)`` tuple.
-        :returntype: (string, string) tuple.
+        :rtype: (string, string) tuple.
     """
     val_err = ValueError("Malformed name/value pair: %s" % nvp)
     try:
@@ -774,7 +774,7 @@ def find_minimum_sha_prefix(shas, min_prefix):
         :param shas: A set of SHA IDs
         :param min_prefix: Initial minimum prefix value
         :returns: The minimum unique prefix length for the set
-        :returntype: int
+        :rtype: int
     """
     shas = list(shas)
     shas.sort()
@@ -801,7 +801,7 @@ def min_id_width(min_prefix, objs, attr):
         :param attr: The attribute to compare.
 
         :returns: the minimum id width.
-        :returntype: int
+        :rtype: int
     """
     if not objs:
         return min_prefix
@@ -819,7 +819,7 @@ def _get_machine_id():
         ``/etc/machine-id`` and return it as a string.
 
         :returns: The ``machine_id`` as a string
-        :returntype: str
+        :rtype: str
     """
     if path_exists(_MACHINE_ID):
         path = _MACHINE_ID

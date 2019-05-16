@@ -183,7 +183,7 @@ def boom_entries_path():
     """Return the path to the boom profiles directory.
 
         :returns: The boom profiles path.
-        :returntype: str
+        :rtype: str
     """
     return path_join(get_boot_path(), ENTRIES_PATH)
 
@@ -308,7 +308,7 @@ def _grub2_get_env(name):
 
         :param name: The name of the environment variable to return.
         :returns: The value of the named environment variable.
-        :returntype: string
+        :rtype: string
     """
     grub_cmd = ["grub2-editenv", "list"]
     try:
@@ -386,7 +386,7 @@ class BootParams(object):
             :param suffix: An optional suffix string to be concatenated
                            with the end of the formatted string.
             :returns: a formatted representation of this ``BootParams``.
-            :returntype: string
+            :rtype: string
         """
         bp_str = prefix
 
@@ -418,7 +418,7 @@ class BootParams(object):
             :returns: A human readable string representation of this
                       ``BootParams`` object.
 
-            :returntype: string
+            :rtype: string
         """
         return self.__str()
 
@@ -479,7 +479,7 @@ class BootParams(object):
             :param del_opts: A list containing kernel options to be
                              dropped from the command line.
             :returns: a newly initialised BootParams object.
-            :returntype: class BootParams
+            :rtype: class BootParams
             :raises: ValueError
         """
         if not version:
@@ -609,7 +609,7 @@ class BootParams(object):
             use BTRFS.
 
             :returns: True if BTRFS is in use, or False otherwise
-            :returntype: bool
+            :rtype: bool
         """
         return any((self.btrfs_subvol_id, self.btrfs_subvol_path))
 
@@ -618,7 +618,7 @@ class BootParams(object):
             use LVM2.
 
             :returns: True if LVM2 is in use, or False otherwise
-            :returntype: bool
+            :rtype: bool
         """
         return self.lvm_root_lv is not None and len(self.lvm_root_lv)
 
@@ -639,7 +639,7 @@ class BootParams(object):
 
         :param be: The BootEntry to recover BootParams from.
         :returns: A newly initialised BootParams object.
-        :returntype: ``BootParams``
+        :rtype: ``BootParams``
         :raises: ValueError if expected values cannot be matched.
         """
         osp = be._osp
@@ -696,7 +696,7 @@ class BootParams(object):
                     :param opt: A kernel command line option.
                     :returns: ``True`` if ``opt`` is defined in a bootloader
                               environment variable, or ``False`` otherwise.
-                    :returntype: bool
+                    :rtype: bool
                 """
                 if GRUB2_EXPAND_ENV not in be.options:
                     return False
@@ -831,7 +831,7 @@ def min_boot_id_width():
         boot_id values.
 
         :returns: the minimum boot_id width.
-        :returntype: int
+        :rtype: int
     """
     return min_id_width(7, _entries, "boot_id")
 
@@ -844,7 +844,7 @@ def select_params(s, bp):
 
         :param s: Selection criteria
         :param bp: The BootParams to test
-        :returntype: bool
+        :rtype: bool
         :returns: True if BootParams passes selection or ``False``
                   otherwise.
     """
@@ -868,7 +868,7 @@ def select_entry(s, be):
 
         :param s: The selection criteria
         :param be: The BootEntry to test
-        :returntype: bool
+        :rtype: bool
         :returns: True if BootEntry passes selection or ``False``
                   otherwise.
     """
@@ -906,7 +906,7 @@ def find_entries(selection=None):
         :param selection: A ``Selection`` object specifying the match
                           criteria for the operation.
         :returns: a list of ``BootEntry`` objects.
-        :returntype: list
+        :rtype: list
     """
     global _entries
 
@@ -943,7 +943,7 @@ def _transform_key(key_name):
 
         :returns: The transformed key name.
 
-        :returntype: string
+        :rtype: string
     """
     _exclude_keys = OPTIONAL_KEYS
 
@@ -1025,7 +1025,7 @@ class BootEntry(object):
 
             :returns: A string representation.
 
-            :returntype: string
+            :rtype: string
         """
         be_str = prefix
 
@@ -1064,7 +1064,7 @@ class BootEntry(object):
 
             :returns: a BLS configuration snippet corresponding to this entry.
 
-            :returntype: string
+            :rtype: string
         """
         return self.__str()
 
@@ -1076,7 +1076,7 @@ class BootEntry(object):
 
             :returns: A string in BootEntry constructor syntax.
 
-            :returntype: str
+            :rtype: str
         """
         return self.__str(quote=True, prefix="BootEntry(entry_data={",
                           suffix="})", tail=", ", sep=": ", bls=False)
@@ -1085,7 +1085,7 @@ class BootEntry(object):
         """Return the length (key count) of this ``BootEntry``.
 
             :returns: the ``BootEntry`` length as an integer.
-            :returntype: ``int``
+            :rtype: ``int``
         """
         return len(self._entry_data)
 
@@ -1100,7 +1100,7 @@ class BootEntry(object):
 
             :returns: ``True`` if the objects are equal and ``False``
                       otherwise.
-            :returntype: bool
+            :rtype: bool
         """
         if not hasattr(other, "boot_id"):
             return False
@@ -1112,7 +1112,7 @@ class BootEntry(object):
         """Return an item from this ``BootEntry``.
 
             :returns: the item corresponding to the key requested.
-            :returntype: the corresponding type of the requested key.
+            :rtype: the corresponding type of the requested key.
             :raises: TypeError if ``key`` is of an invalid type.
                      KeyError if ``key`` is valid but not present.
         """
@@ -1173,7 +1173,7 @@ class BootEntry(object):
             key name strings.
 
             :returns: the current list of ``BotoEntry`` keys.
-            :returntype: list of str
+            :rtype: list of str
         """
         keys = list(self._entry_data.keys())
         add_keys = [BOOM_ENTRY_LINUX, BOOM_ENTRY_INITRD, BOOM_ENTRY_OPTIONS]
@@ -1196,7 +1196,7 @@ class BootEntry(object):
             Return a copy of this ``BootEntry``'s values as a list.
 
             :returns: the current list of ``BotoEntry`` values.
-            :returntype: list
+            :rtype: list
         """
         values = list(self._entry_data.values())
         add_values = [self.linux, self.initrd, self.options]
@@ -1216,7 +1216,7 @@ class BootEntry(object):
             pairs as a list.
 
             :returns: the current list of ``BotoEntry`` items.
-            :returntype: list of ``(key, value)`` tuples.
+            :rtype: list of ``(key, value)`` tuples.
         """
         items = list(self._entry_data.items())
 
@@ -1245,7 +1245,7 @@ class BootEntry(object):
             A clean ``BootEntry`` is marked as dirty if a new value
             is written to any of its writable properties.
 
-            :returntype: None
+            :rtype: None
         """
         if self.read_only:
             raise ValueError("Entry with boot_id='%s' is read-only." %
@@ -1269,7 +1269,7 @@ class BootEntry(object):
 
             :param comment: The comment to attempt to parse
             :returns: Comment lines not containing an OsIdentifier
-            :returntype: str
+            :rtype: str
         """
         if "OsIdentifier:" not in comment:
             return
@@ -1350,7 +1350,7 @@ class BootEntry(object):
             :param boot_params: Optional BootParams to attach to the new
                                 BootEntry object
             :returns: None
-            :returntype: None
+            :rtype: None
             :raises: ValueError
         """
         if BOOM_ENTRY_TITLE not in entry_data:
@@ -1423,7 +1423,7 @@ class BootEntry(object):
             :param boot_params: Optional BootParams to attach to the new
                                 BootEntry object
             :returns: None
-            :returntype: None
+            :rtype: None
             :raises: ValueError
         """
         entry_data = {}
@@ -1522,7 +1522,7 @@ class BootEntry(object):
 
             :returns: A new ``BootEntry`` object.
 
-            :returntype: BootEntry
+            :rtype: BootEntry
         """
         # An osprofile kwarg always takes precedent over either an
         # 'OsIdentifier' comment or a matched osprofile value.
@@ -1601,7 +1601,7 @@ class BootEntry(object):
             :param fmt: The string to be formatted.
 
             :returns: The formatted string
-            :returntype: str
+            :rtype: str
         """
         key_format = "%%{%s}"
         bp = self.bp
@@ -1748,7 +1748,7 @@ class BootEntry(object):
             LVM2 or BTRFS snapshot parameters.
 
             :returns: A ``boot_id`` string
-            :returntype: str
+            :rtype: str
         """
         # The default ``str()`` and ``repr()`` behaviour for
         # ``BootEntry`` objects includes the ``boot_id`` value. This
@@ -1790,7 +1790,7 @@ class BootEntry(object):
             current values.
 
             :returns: A string representation of this ``BootEntry``.
-            :returntype: string
+            :rtype: string
         """
         return self.__str(expand=True)
 
@@ -1925,7 +1925,7 @@ class BootEntry(object):
 
             :param expand: Whether or not to expand bootloader
                            environment variable references.
-            :returntype: string
+            :rtype: string
         """
 
         def add_opts(opts, append):
@@ -1938,7 +1938,7 @@ class BootEntry(object):
                 :param opts: A kernel command line options string.
                 :param append: A list of additional options to append.
                 :returns: A string with additional options appended.
-                :returntype: string
+                :rtype: string
             """
             extra = " ".join(append)
             return "%s %s" % (opts, extra) if append else opts
@@ -1956,7 +1956,7 @@ class BootEntry(object):
                              (see ``del_opts`` for further details of syntax).
                 :returns: ``True`` if the option should be dropped or ``False``
                           otherwise.
-                :returntype: bool
+                :rtype: bool
             """
             # "name" or "name=value"
             if opt in drop:
@@ -1984,7 +1984,7 @@ class BootEntry(object):
                 :param drop: A drop specification to apply to ``opts``.
                 :returns: A kernel command line options string with options
                           matching ``drop`` removed.
-                :returntype: string
+                :rtype: string
             """
             return " ".join([o for o in opts.split() if not del_opt(o, drop)])
 
@@ -2072,7 +2072,7 @@ class BootEntry(object):
             :param expand: ``True`` if variables should be expanded or
                            ``False`` otherwise.
             :returns: An initrd string
-            :returntype: string
+            :rtype: string
         """
         if not self._osp or BOOM_ENTRY_INITRD in self._entry_data:
             initrd_string = self._entry_data_property(BOOM_ENTRY_INITRD)
@@ -2272,7 +2272,7 @@ class BootEntry(object):
             :raises: ``OSError`` if the temporary entry file cannot be
                      renamed, or if setting file permissions on the
                      new entry file fails.
-            :returntype: None
+            :rtype: None
         """
         if not self._unwritten and not force:
             return
@@ -2337,7 +2337,7 @@ class BootEntry(object):
             :raises: ``OSError`` if the temporary entry file cannot be
                      renamed, or if setting file permissions on the
                      new entry file fails.
-            :returntype: None
+            :rtype: None
         """
         # Cache old entry path
         to_unlink = self._last_path
@@ -2357,7 +2357,7 @@ class BootEntry(object):
             (although the current data may be re-written at any time by
             calling ``write_entry()``).
 
-            :returntype: ``NoneType``
+            :rtype: ``NoneType``
             :raises: ``OsError`` if an error occurs removing the file or
                      ``ValueError`` if the entry does not exist.
         """

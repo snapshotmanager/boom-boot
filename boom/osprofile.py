@@ -158,7 +158,7 @@ def _profile_exists(os_id):
 
         :returns: ``True`` if the identifier is known or ``False``
                   otherwise.
-        :returntype: bool
+        :rtype: bool
     """
     global _profiles_by_id
     if not _profiles_by_id:
@@ -171,7 +171,7 @@ def boom_profiles_path():
     """Return the path to the boom profiles directory.
 
         :returns: The boom profiles path.
-        :returntype: str
+        :rtype: str
     """
     return path_join(get_boom_path(), BOOM_PROFILES)
 
@@ -189,7 +189,7 @@ def _is_null_profile(osp):
         :param osp: The OsProfile to test
         :returns: ``True`` if ``osp`` is the Null Profile or ``False``
                   otherwise
-        :returntype: bool
+        :rtype: bool
     """
     global _profiles
     if osp.os_id == _profiles[0].os_id:
@@ -200,7 +200,7 @@ def _is_null_profile(osp):
 def profiles_loaded():
     """Test whether profiles have been loaded from disk.
 
-        :returntype: bool
+        :rtype: bool
         :returns: ``True`` if profiles are loaded in memory or ``False``
                   otherwise
     """
@@ -256,7 +256,7 @@ def write_profiles(force=False):
         Write the current list of profiles to the directory located at
         ``boom.osprofile.boom_profiles_path()``.
 
-        :returntype: None
+        :rtype: None
     """
     global _profiles
     _log_debug("Writing profiles to %s" % boom_profiles_path())
@@ -277,7 +277,7 @@ def min_os_id_width():
         os_id values.
 
         :returns: the minimum os_id width.
-        :returntype: int
+        :rtype: int
     """
     return min_id_width(7, _profiles, "os_id")
 
@@ -291,7 +291,7 @@ def select_profile(s, osp):
 
         :param s: The selection criteria
         :param osp: The ``OsProfile`` to test
-        :returntype: bool
+        :rtype: bool
         :returns: True if ``osp`` passes selection or ``False``
                   otherwise.
     """
@@ -341,7 +341,7 @@ def find_profiles(selection=None, match_fn=select_profile):
                           criteria for the operation.
         :param match_fn: An optional match function to test profiles.
         :returns: a list of ``OsProfile`` objects.
-        :returntype: list
+        :rtype: list
     """
     global _profiles
 
@@ -371,7 +371,7 @@ def get_os_profile_by_id(os_id):
         Return the OsProfile object corresponding to ``os_id``, or
         ``None`` if it is not found.
 
-        :returntype: OsProfile
+        :rtype: OsProfile
         :returns: An OsProfile matching os_id or None if no match was
                   found
     """
@@ -393,7 +393,7 @@ def match_os_profile(entry):
                       ``OsProfile``.
         :returns: The corresponding ``OsProfile`` for the supplied
                   ``BootEntry`` or ``None`` if no match is found.
-        :returntype: ``OsProfile``
+        :rtype: ``OsProfile``
     """
     global _profiles, _profiles_loaded
 
@@ -445,7 +445,7 @@ def match_os_profile_by_version(version):
         ``version``. The first OsProfile with a match is returned.
 
         :param version: A uname release version string to match.
-        :returntype: OsProfile
+        :rtype: OsProfile
         :returns: An OsProfile matching version or None if not match
                   was found
     """
@@ -493,7 +493,7 @@ class BoomProfile(object):
             :returns: A human readable string representation of this
                       ``BoomProfile``.
 
-            :returntype: string
+            :rtype: string
         """
         raise NotImplementedError
 
@@ -503,7 +503,7 @@ class BoomProfile(object):
             This method must be implemented by concrete profile classes.
 
             :returns: a string representation of this ``BoomProfile``.
-            :returntype: ``string``
+            :rtype: ``string``
         """
         raise NotImplementedError
 
@@ -511,7 +511,7 @@ class BoomProfile(object):
         """Return the length (key count) of this profile.
 
             :returns: the profile length as an integer.
-            :returntype: ``int``
+            :rtype: ``int``
         """
         return len(self._profile_data)
 
@@ -519,7 +519,7 @@ class BoomProfile(object):
         """Return an item from this profile.
 
             :returns: the item corresponding to the key requested.
-            :returntype: the corresponding type of the requested key.
+            :rtype: the corresponding type of the requested key.
             :raises: TypeError if ``key`` is of an invalid type.
                      KeyError if ``key`` is valid but not present.
         """
@@ -570,7 +570,7 @@ class BoomProfile(object):
     def keys(self):
         """Return the list of keys for this ``BoomProfile``.
 
-            :returntype: list
+            :rtype: list
             :returns: A list of ``BoomProfile`` key names
         """
         return self._profile_data.keys()
@@ -578,7 +578,7 @@ class BoomProfile(object):
     def values(self):
         """Return the list of key values for this ``BoomProfile``.
 
-            :returntype: list
+            :rtype: list
             :returns: A list of ``BoomProfile`` key values
         """
         return self._profile_data.values()
@@ -589,7 +589,7 @@ class BoomProfile(object):
             Return a list of ``(key, value)`` tuples representing the
             key items in this ``BoomProfile``.
 
-            :returntype: list
+            :rtype: list
             :returns: A list of ``BoomProfile`` key item tuples
         """
         return self._profile_data.items()
@@ -691,7 +691,7 @@ class BoomProfile(object):
             :param required_keys: Mandatory keys for this profile.
             :param identity_key: The key containing the profile id.
             :returns: A new ``BoomProfile`` object.
-            :returntype: class ``BoomProfile``
+            :rtype: class ``BoomProfile``
         """
         self._profile_keys = profile_keys
         self._required_keys = required_keys
@@ -706,7 +706,7 @@ class BoomProfile(object):
             :param version: A uname release version string to match.
             :returns: ``True`` if this version matches this profile, or
                       ``False`` otherwise.
-            :returntype: bool
+            :rtype: bool
         """
         _log_debug_profile("Matching uname pattern '%s' to '%s'" %
                            (self.uname_pattern, version))
@@ -728,7 +728,7 @@ class BoomProfile(object):
             :param entry: A ``BootEntry`` to match against this profile.
             :returns: ``True`` if this entry matches this profile, or
                       ``False`` otherwise.
-            :returntype: bool
+            :rtype: bool
         """
         # Attempt to match a distribution-formatted options line
 
@@ -777,7 +777,7 @@ class BoomProfile(object):
 
             :param fmt: The format string to build a regex list from.
             :returns: A list of key and word regex tuples.
-            :returntype: list of (str, str)
+            :rtype: list of (str, str)
         """
         key_format = "%%{%s}"
         cap_regex_all = "(\S+)"
@@ -1096,7 +1096,7 @@ class BoomProfile(object):
             override this method to return the correct path for the
             specific profile type.
 
-            :returntype: str
+            :rtype: str
             :returns: The absolute path for this ``BoomProfile`` file
             :raises: NotImplementedError
         """
@@ -1187,7 +1187,7 @@ class BoomProfile(object):
             method in order to determine the location of the on-disk
             profile store.
 
-            :returntype: ``NoneType``
+            :rtype: ``NoneType``
             :raises: ``OsError`` if an error occurs removing the file or
                      ``ValueError`` if the profile does not exist.
         """
@@ -1221,7 +1221,7 @@ class BoomProfile(object):
             generic ``_delete_profile()`` method to remove the profile
             file.
 
-            :returntype: ``NoneType``
+            :rtype: ``NoneType``
             :raises: ``OsError`` if an error occurs removing the file or
                      ``ValueError`` if the profile does not exist.
         """
@@ -1250,7 +1250,7 @@ class OsProfile(BoomProfile):
 
             :returns: A human readable string representation of this OsProfile.
 
-            :returntype: string
+            :rtype: string
         """
         breaks = [
             BOOM_OS_ID, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION_ID,
@@ -1278,7 +1278,7 @@ class OsProfile(BoomProfile):
             ``profile_data`` keyword argument.
 
             :returns: a string representation of this ``OsProfile``.
-            :returntype: string
+            :rtype: string
         """
         osp_str = "OsProfile(profile_data={"
         fields = [f for f in OS_PROFILE_KEYS if f in self._profile_data]
@@ -1433,7 +1433,7 @@ class OsProfile(BoomProfile):
             :param options: Optional options template.
 
             :returns: A new ``OsProfile`` object.
-            :returntype: class OsProfile
+            :rtype: class OsProfile
         """
         global _profiles
         self._profile_data = {}
@@ -1554,7 +1554,7 @@ class OsProfile(BoomProfile):
 
             :param os_release: String data in os-release(5) format
             :returns: A new OsProfile for the specified os-release data
-            :returntype: OsProfile
+            :rtype: OsProfile
         """
         release_data = {}
         for line in os_release:
@@ -1581,7 +1581,7 @@ class OsProfile(BoomProfile):
 
             :param path: Path to a file in os-release(5) format
             :returns: A new OsProfile for the specified os-release file
-            :returntype: OsProfile
+            :rtype: OsProfile
         """
         with open(path, "r") as f:
             return cls.from_os_release(f)
@@ -1594,7 +1594,7 @@ class OsProfile(BoomProfile):
             the running hosts's /etc/os-release file.
 
             :returns: A new OsProfile for the current host
-            :returntype: OsProfile
+            :rtype: OsProfile
         """
         return cls.from_os_release_file("/etc/os-release")
 
@@ -1605,7 +1605,7 @@ class OsProfile(BoomProfile):
             directory (or the location to which it will be written, if
             it has not yet been written).
 
-            :returntype: str
+            :rtype: str
             :returns: The absolute path for this OsProfile's file
         """
         profile_id = (self.os_id, self.os_short_name, self.os_version_id)
@@ -1644,7 +1644,7 @@ class OsProfile(BoomProfile):
             any time by calling ``write_profile()`` before the object is
             disposed of).
 
-            :returntype: ``NoneType``
+            :rtype: ``NoneType``
             :raises: ``OsError`` if an error occurs removing the file or
                      ``ValueError`` if the profile does not exist.
         """

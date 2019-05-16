@@ -146,7 +146,7 @@ def _host_exists(host_id):
 
         :returns: ``True`` if the identifier is known or ``False``
                   otherwise.
-        :returntype: bool
+        :rtype: bool
     """
     global _host_profiles_by_host_id
     if not _host_profiles_by_host_id:
@@ -159,7 +159,7 @@ def boom_host_profiles_path():
     """Return the path to the boom host profiles directory.
 
         :returns: The boom host profiles path.
-        :returntype: str
+        :rtype: str
     """
     return path_join(get_boom_path(), BOOM_HOST_PROFILES)
 
@@ -167,7 +167,7 @@ def boom_host_profiles_path():
 def host_profiles_loaded():
     """Test whether profiles have been loaded from disk.
 
-        :returntype: bool
+        :rtype: bool
         :returns: ``True`` if profiles are loaded in memory or ``False``
                   otherwise
     """
@@ -215,7 +215,7 @@ def write_host_profiles(force=False):
         Write the current list of host profiles to the directory located
         at ``boom.osprofile.boom_profiles_path()``.
 
-        :returntype: None
+        :rtype: None
     """
     global _host_profiles
     _log_debug("Writing host profiles to %s" % boom_host_profiles_path())
@@ -234,7 +234,7 @@ def min_host_id_width():
         host_id values.
 
         :returns: the minimum host_id width.
-        :returntype: int
+        :rtype: int
     """
     return min_id_width(7, _host_profiles, "host_id")
 
@@ -246,7 +246,7 @@ def min_machine_id_width():
         host_id values.
 
         :returns: the minimum host_id width.
-        :returntype: int
+        :rtype: int
     """
     return min_id_width(7, _host_profiles, "machine_id")
 
@@ -259,7 +259,7 @@ def select_host_profile(s, hp):
 
         :param s: The selection criteria
         :param hp: The ``HostProfile`` to test
-        :returntype: bool
+        :rtype: bool
         :returns: True if ``hp`` passes selection or ``False`` otherwise.
     """
     if s.host_id and not hp.host_id.startswith(s.host_id):
@@ -321,7 +321,7 @@ def find_host_profiles(selection=None, match_fn=select_host_profile):
                           criteria for the operation.
         :param match_fn: An optional match function to test profiles.
         :returns: a list of ``HostProfile`` objects.
-        :returntype: list
+        :rtype: list
     """
     # Use null search criteria if unspecified
     selection = selection if selection else Selection()
@@ -349,7 +349,7 @@ def get_host_profile_by_id(machine_id, label=""):
         Return the HostProfile object corresponding to ``machine_id``,
         or ``None`` if it is not found.
 
-        :returntype: HostProfile
+        :rtype: HostProfile
         :returns: An HostProfile matching machine_id or None if no match
                   was found.
     """
@@ -373,7 +373,7 @@ def match_host_profile(entry):
                       ``HostProfile``.
         :returns: The corresponding ``HostProfile`` for the supplied
                   ``BootEntry`` or ``None`` if no match is found.
-        :returntype: ``BootEntry`` or ``NoneType``.
+        :rtype: ``BootEntry`` or ``NoneType``.
     """
     global _host_profiles, _host_profiles_loaded
 
@@ -437,7 +437,7 @@ class HostProfile(BoomProfile):
 
             :returns: A human readable string representation of this HostProfile.
 
-            :returntype: string
+            :rtype: string
         """
         # FIXME HostProfile breaks
         breaks = [
@@ -466,7 +466,7 @@ class HostProfile(BoomProfile):
             ``profile_data`` keyword argument.
 
             :returns: a string representation of this ``HostProfile``.
-            :returntype: string
+            :rtype: string
         """
         hp_str = "HostProfile(profile_data={"
         fields = [f for f in HOST_PROFILE_KEYS if self._have_key(f)]
@@ -611,7 +611,7 @@ class HostProfile(BoomProfile):
                                  should be in Boom host profile format,
                                  with ``BOOM_*`` key=value pairs.
             :returns: A new ``HostProfile`` object.
-            :returntype: class HostProfile
+            :rtype: class HostProfile
         """
         global _host_profiles
         self._profile_data = {}
@@ -1079,7 +1079,7 @@ class HostProfile(BoomProfile):
             directory (or the location to which it will be written, if
             it has not yet been written).
 
-            :returntype: str
+            :rtype: str
             :returns: The absolute path for this HostProfile's file
         """
         if self.label:
@@ -1128,7 +1128,7 @@ class HostProfile(BoomProfile):
             any time by calling ``write_profile()`` before the object is
             disposed of).
 
-            :returntype: ``NoneType``
+            :rtype: ``NoneType``
             :raises: ``OsError`` if an error occurs removing the file or
                      ``ValueError`` if the profile does not exist.
         """

@@ -73,7 +73,7 @@ def _read_boom_config(path=None):
         :param path: the configuration file to read, or None to read the
                      currently configured config file path.
 
-        :returntype: BoomConfig
+        :rtype: BoomConfig
     """
     path = path or get_boom_config_path()
     _log_debug("reading boom configuration from '%s'" % path)
@@ -126,7 +126,7 @@ def load_boom_config(path=None):
         :param path: the configuration file to read, or None to read the
                      currently configured config file path
 
-        :returntype: None
+        :rtype: None
     """
     bc = _read_boom_config(path=path)
     set_boom_config(bc)
@@ -175,7 +175,7 @@ def write_boom_config(config=None, path=None):
         :param path: the configuration file to read, or None to read the
                      currently configured config file path
 
-        :returntype: None
+        :rtype: None
     """
     path = path or get_boom_config_path()
     cfg_dir = dirname(path)
