@@ -336,8 +336,8 @@ def _expand_vars(args):
 
     for arg in args.split():
         if arg.startswith(var_char):
-            env_name = opt[1:]
-            args = args.replace(opt, _grub2_get_env(env_name))
+            env_name = arg[1:]
+            args = args.replace(arg, _grub2_get_env(env_name))
     return args
 
 
