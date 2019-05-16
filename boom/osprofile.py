@@ -507,6 +507,12 @@ class BoomProfile(object):
         """
         raise NotImplementedError
 
+    def _from_data(self, profile_data, dirty=True):
+        """
+        This method must be implemented by concrete profile classes.
+        """
+        raise NotImplementedError
+
     def __len__(self):
         """Return the length (key count) of this profile.
 
