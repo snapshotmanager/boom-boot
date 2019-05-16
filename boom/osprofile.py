@@ -289,6 +289,7 @@ def select_profile(s, osp):
         in ``s`` and return ``True`` if it passes, or ``False``
         otherwise.
 
+        :param s: The selection criteria
         :param osp: The ``OsProfile`` to test
         :returntype: bool
         :returns: True if ``osp`` passes selection or ``False``
@@ -1578,7 +1579,7 @@ class OsProfile(BoomProfile):
             Construct a new OsProfile object using data obtained from
             the file specified by 'path'.
 
-            :param os_release: Path to a file in os-release(5) format
+            :param path: Path to a file in os-release(5) format
             :returns: A new OsProfile for the specified os-release file
             :returntype: OsProfile
         """

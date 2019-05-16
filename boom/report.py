@@ -311,7 +311,8 @@ class BoomField(object):
             and set the field's ``sort_value`` to the supplied
             ``sort_value``.
 
-            :param value: The string value to set
+            :param report_string: The string value to set
+            :param sort_value: The sort value
             :returntype: None
         """
         if report_string is None:
@@ -926,7 +927,7 @@ class BoomReport(object):
             report's fields. It will be passed in turn to each field to
             obtain data for the current row.
 
-            :param data: the object to report on for this row.
+            :param obj: the object to report on for this row.
         """
         if obj is None:
             raise ValueError("Cannot report NoneType object.")

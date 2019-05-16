@@ -257,6 +257,7 @@ def select_host_profile(s, hp):
         in ``s`` and return ``True`` if it passes, or ``False``
         otherwise.
 
+        :param s: The selection criteria
         :param hp: The ``HostProfile`` to test
         :returntype: bool
         :returns: True if ``hp`` passes selection or ``False`` otherwise.

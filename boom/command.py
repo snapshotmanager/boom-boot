@@ -428,6 +428,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
 
         :param title: the title of the new entry.
         :param version: the version string for the new entry.
+        :param machine_id: the machine id for the new entry.
         :param root_device: the root device path for the new entry.
         :param lvm_root_lv: an optional LVM2 root logical volume.
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
@@ -537,6 +538,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         :param selection: criteria matching the entry to clone.
         :param title: the title of the new entry.
         :param version: the version string for the new entry.
+        :param machine_id: the machine id for the new entry.
         :param root_device: the root device path for the new entry.
         :param lvm_root_lv: an optional LVM2 root logical volume.
         :param btrfs_subvol_path: an optional BTRFS subvolume path.
@@ -548,6 +550,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         :param write: ``True`` if the entry should be written to disk,
                       or ``False`` otherwise.
         :param expand: Expand bootloader environment variables.
+        :param allow_no_dev: Allow the block device to not exist.
         :returns: a ``BootEntry`` object corresponding to the new entry.
         :returntype: ``BootEntry``
         :raises: ``ValueError`` if either required values are missing or
@@ -644,6 +647,7 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
         :param architecture: An optional BLS architecture string.
         :param add_opts: A list of additional kernel options to append.
         :param del_opts: A list of template-supplied options to drop.
+        :param expand: Expand bootloader environment variables in on-disk entry.
 
         :returns: The modified ``BootEntry``
         :returntype: ``BootEntry``
@@ -897,7 +901,8 @@ def create_profile(name, short_name, version, version_id,
         :param root_opts_btrfs: Template options for BTRFS entries
         :param options: Template kernel command line options
         :param profile_data: Dictionary of profile key:value pairs
-    
+        :param profile_file: File to be used for profile
+
         :returns: an ``OsProfile`` object for the new profile
         :returntype: ``OsProfile``
         :raises: ``ValueError`` if either required values are missing or
@@ -1006,6 +1011,8 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
         :param version: the version string for the new profile.
         :param version_id: the version ID string for the new profile.
         :param uname_pattern: a uname pattern to match this profile.
+        :param kernel_pattern: a kernel pattern to match this profile.
+        :param initramfs_pattern: a initramfs pattern to match this profile.
         :param root_opts_lvm2: LVM2 root options template.
         :param root_opts_btrfs: BTRFS root options template.
         :param options: Kernel options template.
@@ -1374,6 +1381,7 @@ def edit_host(selection=None, machine_id=None, os_id=None, host_name=None,
 
         :param selection: A Selection specifying the boot_id to edit
         :param machine_id: The machine id for the edited host profile
+        :param os_id: The OS id for the edited host profile
         :param host_name: The host name for the edited host profile
         :param label: an optional host label
         :param kernel_pattern: The new kernel pattern
@@ -1462,7 +1470,7 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
 
         :param selection: A Selection object giving selection criteria
                           for the operation
-        :param fmt: The name of a legacy boot loader format
+        :param loader: Which boot loader to use
     """
     (name, decorator, path)  = find_legacy_loader(loader, None)
     bes = find_entries(selection=selection)

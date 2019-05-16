@@ -136,7 +136,12 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
         a line by themselves and prefixed with the comment character
         for that configuration format (e.g. '#').
 
+        :param selection: A ``Selection`` object specifying the match
+                          criteria for the operation.
         :param loader: the legacy boot loader type to write
+        :param cfg_path: the path to the legacy bootloader configuration
+                         file. If ``cfg_path`` is None the default path
+                         for the specified loader will be used.
     """
     (name, decorator, path) = find_legacy_loader(loader, cfg_path)
 

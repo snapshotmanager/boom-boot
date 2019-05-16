@@ -663,6 +663,7 @@ class Selection(object):
             :param entry: ``Selection`` may include BootEntry data
             :param params: ``Selection`` may include BootParams data
             :param profile: ``Selection`` may include OsProfile data
+            :param host: ``Selection`` may include Host data
             :returns: ``None`` on success
             :returntype: ``NoneType``
             :raises: ``ValueError`` if excluded criteria are present
@@ -771,6 +772,7 @@ def find_minimum_sha_prefix(shas, min_prefix):
         ``shas``.
 
         :param shas: A set of SHA IDs
+        :param min_prefix: Initial minimum prefix value
         :returns: The minimum unique prefix length for the set
         :returntype: int
     """
@@ -856,7 +858,7 @@ def load_profiles_for_class(profile_class, profile_type,
         :param profile_class: The profile class to instantiate.
         :param profile_type: A string description of the profile type.
         :param profiles_path: Path to the on-disk profile directory.
-        :param profiles_ext: Extension of profile files.
+        :param profile_ext: Extension of profile files.
 
         :returns: None
     """

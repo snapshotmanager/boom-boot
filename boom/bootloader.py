@@ -842,6 +842,7 @@ def select_params(s, bp):
         in ``s`` and return ``True`` if it passes, or ``False``
         otherwise.
 
+        :param s: Selection criteria
         :param bp: The BootParams to test
         :returntype: bool
         :returns: True if BootParams passes selection or ``False``
@@ -865,7 +866,8 @@ def select_entry(s, be):
         in ``s`` and return ``True`` if it passes, or ``False``
         otherwise.
 
-        :param bp: The BootEntry to test
+        :param s: The selection criteria
+        :param be: The BootEntry to test
         :returntype: bool
         :returns: True if BootEntry passes selection or ``False``
                   otherwise.
@@ -2330,6 +2332,8 @@ class BootEntry(object):
 
             :param force: Force this entry to be written to disk even
                           if the entry is unmodified.
+            :param expand: Expand bootloader environment variables in
+                           on-disk entry.
             :raises: ``OSError`` if the temporary entry file cannot be
                      renamed, or if setting file permissions on the
                      new entry file fails.
