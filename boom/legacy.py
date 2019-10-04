@@ -77,11 +77,11 @@ def _get_grub1_device(force=False):
     try:
         _log_debug("Calling grub1 shell with '%s'" % find_cmd)
         p = Popen(grub_cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        out = p.communicate(input=find_cmd)
+        out = p.communicate(input=bytes(find_cmd.encode('utf8')))
     except OSError:
         raise BoomLegacyFormatError("Could not execute grub1 shell.")
 
-    for line in out[0].splitlines():
+    for line in out[0].decode('utf8').splitlines():
         if re.match(find_rgx, line):
             __grub1_device = line.lstrip().rstrip()
             _log_debug("Set grub1 device to '%s'" % __grub1_device)
