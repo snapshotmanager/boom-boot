@@ -285,10 +285,10 @@ class HostProfileTests(unittest.TestCase):
         # Reload host profiles from disk: a failure to clean up in an
         # earlier test may have left the profile list in an inconsistent
         # state.
-        host_id = "2b4048d37f3c42b1d5e2a9ede501b2815fac9c69"
+        host_id = "6af0980a6607b20cda34a45d2869c9be020914b4"
         load_host_profiles()
         hp = HostProfile(machine_id="fffffffffffffff", host_name="localhost",
-                         os_id="3fc389b", label="")
+                         os_id="3fc389b", label="testhp")
         hp.write_profile()
         hp_list = find_host_profiles(selection=Selection(host_id=host_id))
         self.assertEqual(len(hp_list), 1)
@@ -443,7 +443,7 @@ class HostProfileTests(unittest.TestCase):
         self.assertFalse(hps)
 
         # Valid single host_id
-        hps = find_host_profiles(Selection(host_id="2b4048d"))
+        hps = find_host_profiles(Selection(host_id="373ccd1"))
         self.assertTrue(hps)
         # Adjusted to current test data
         self.assertEqual(1, len(hps))

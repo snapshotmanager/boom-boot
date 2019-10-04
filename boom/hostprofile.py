@@ -414,6 +414,8 @@ class HostProfile(BoomProfile):
     _required_keys = HOST_REQUIRED_KEYS
     _identity_key = BOOM_HOST_ID
 
+    _osp = None
+
     def _key_data(self, key):
         if key in self._profile_data:
             return self._profile_data[key]
@@ -785,6 +787,27 @@ class HostProfile(BoomProfile):
             return
         self._profile_data[BOOM_OS_ID] = value
         self.__set_os_profile()
+        self._dirty()
+        self._generate_id()
+
+    @property
+    def osp(self):
+        """The ``OsProfile`` used by this ``HostProfile``.
+
+            :getter: returns the ``OsProfile`` object used by this
+                     ``HostProfile``.
+            :setter: stores a new ``OsProfile`` for use by this
+                     ``HostProfile`` and updates the stored ``os_id``
+                     value in the host profile.
+        """
+        return self._osp
+
+    @osp.setter
+    def osp(self, osp):
+        if self._osp and osp.os_id == self._osp.os_id:
+            return
+        self._osp = osp
+        self._profile_data[BOOM_OS_ID] = osp.os_id
         self._dirty()
         self._generate_id()
 
