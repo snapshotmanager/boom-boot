@@ -185,6 +185,12 @@ class CommandHelperTests(unittest.TestCase):
         import boom.command
         boom.command.show_legacy()
 
+    def test__get_machine_id(self):
+        # FIXME: does not cover _DBUS_MACHINE_ID hosts or exceptions
+        # reading /etc/machine-id.
+        machine_id = boom.command._get_machine_id()
+        self.assertTrue(machine_id)
+
 
 # Default test OsProfile identifiers
 test_os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"

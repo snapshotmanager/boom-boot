@@ -82,9 +82,6 @@ FORMAT_KEYS = [
     FMT_OS_VERSION, FMT_OS_VERSION_ID
 ]
 
-_MACHINE_ID = "/etc/machine-id"
-_DBUS_MACHINE_ID = "/var/lib/dbus/machine-id"
-
 BOOM_LOG_DEBUG = logging.DEBUG
 BOOM_LOG_INFO = logging.INFO
 BOOM_LOG_WARN = logging.WARNING
@@ -812,32 +809,6 @@ def min_id_width(min_prefix, objs, attr):
     return find_minimum_sha_prefix(ids, min_prefix)
 
 
-def _get_machine_id():
-    """Return the current host's machine-id.
-
-        Get the machine-id value for the running system by reading from
-        ``/etc/machine-id`` and return it as a string.
-
-        :returns: The ``machine_id`` as a string
-        :rtype: str
-    """
-    if path_exists(_MACHINE_ID):
-        path = _MACHINE_ID
-    elif path_exists(_DBUS_MACHINE_ID):
-        path = _DBUS_MACHINE_ID
-    else:
-        return None
-
-    with open(path, "r") as f:
-        try:
-            machine_id = f.read().strip()
-        except Exception as e:
-            _log_error("Could not read machine-id from '%s': %s" %
-                       (_MACHINE_ID, e))
-            machine_id = None
-    return machine_id
-
-
 def load_profiles_for_class(profile_class, profile_type,
                             profiles_path, profile_ext):
     """Load profiles from disk.
@@ -932,7 +903,6 @@ __all__ = [
     'blank_or_comment',
     'parse_name_value',
     'parse_btrfs_subvol',
-    '_get_machine_id',
     'find_minimum_sha_prefix',
     'min_id_width',
     'load_profiles_for_class'

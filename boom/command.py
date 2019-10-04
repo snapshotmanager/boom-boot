@@ -35,7 +35,7 @@ from boom.legacy import *
 from boom.config import *
 
 from os import environ, uname, getcwd
-from os.path import basename, isabs, join
+from os.path import basename, exists as path_exists, isabs, join
 from argparse import ArgumentParser
 import platform
 import logging
@@ -43,6 +43,11 @@ import logging
 #: The environment variable from which to take the location of the
 #: ``/boot`` file system.
 BOOM_BOOT_PATH_ENV="BOOM_BOOT_PATH"
+
+#: Path to the system machine-id file
+_MACHINE_ID = "/etc/machine-id"
+#: Path to the legacy system machine-id file
+_DBUS_MACHINE_ID = "/var/lib/dbus/machine-id"
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
@@ -288,6 +293,32 @@ _params_fields = [
 
 _default_entry_fields = "bootid,version,osname,rootdev"
 _verbose_entry_fields = (_default_entry_fields + ",options,machineid")
+
+
+def _get_machine_id():
+    """Return the current host's machine-id.
+
+        Get the machine-id value for the running system by reading from
+        ``/etc/machine-id`` and return it as a string.
+
+        :returns: The ``machine_id`` as a string
+        :rtype: str
+    """
+    if path_exists(_MACHINE_ID):
+        path = _MACHINE_ID
+    elif path_exists(_DBUS_MACHINE_ID):
+        path = _DBUS_MACHINE_ID
+    else:
+        return None
+
+    with open(path, "r") as f:
+        try:
+            machine_id = f.read().strip()
+        except Exception as e:
+            _log_error("Could not read machine-id from '%s': %s" %
+                       (_MACHINE_ID, e))
+            machine_id = None
+    return machine_id
 
 
 def _subvol_from_arg(subvol):
