@@ -528,12 +528,12 @@ class HostProfile(BoomProfile):
         """Set this ``HostProfile``'s ``osp`` member to the
             corresponding profile for the set ``os_id``.
         """
-        osps = find_profiles(Selection(os_id=self.os_id))
+        os_id = self._profile_data[BOOM_OS_ID]
+        osps = find_profiles(Selection(os_id=os_id))
         if not osps:
-            raise ValueError("OsProfile not found: %s" % self.os_id)
+            raise ValueError("OsProfile not found: %s" % os_id)
         if len(osps) > 1:
-            raise ValueError("OsProfile identifier '%s' is ambiguous" %
-                             self.os_id)
+            raise ValueError("OsProfile identifier '%s' is ambiguous" % os_id)
 
         self.osp = osps[0]
 
@@ -721,15 +721,6 @@ class HostProfile(BoomProfile):
         return self.osp.disp_os_id
 
     @property
-    def os_id(self):
-        """The ``os_id`` of this profile.
-
-            :getter: returns the ``os_id`` as a string.
-            :type: string
-        """
-        return self.osp.os_id
-
-    @property
     def host_id(self):
         if BOOM_HOST_ID not in self._profile_data:
             self._generate_id()
@@ -786,7 +777,7 @@ class HostProfile(BoomProfile):
             :getter: returns the ``os_id`` as a string.
             :type: string
         """
-        return self._profile_data[BOOM_OS_ID]
+        return self.osp.os_id
 
     @os_id.setter
     def os_id(self, value):
