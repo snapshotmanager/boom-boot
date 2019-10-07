@@ -2794,7 +2794,30 @@ def main(args):
     if cmd_args.config:
         set_boom_config_path(cmd_args.config)
 
-    load_boom_config(path=cmd_args.config)
+    if not path_exists(get_boom_path()):
+        _log_error("Configuration directory '%s' not found."
+                  % get_boom_path())
+        return 1
+
+    if not path_exists(get_boom_config_path()):
+        _log_error("Configuration file '%s' not found."
+                  % get_boom_config_path())
+        return 1
+
+    if not path_exists(boom_profiles_path()):
+        _log_error("OS profile configuration path '%s' not found."
+                  % boom_profiles_path())
+        return 1
+
+    if not path_exists(boom_host_profiles_path()):
+        _log_error("Host profile configuration path '%s' not found."
+                  % boom_host_profiles_path())
+        return 1
+
+    if not path_exists(boom_entries_path()):
+        _log_error("Boot loader entries directory '%s' not found."
+                   % boom_entries_path())
+        return 1
 
     # Parse an LV name from root_lv and re-write the root_device if found
     if cmd_args.root_lv:
