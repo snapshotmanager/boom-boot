@@ -786,20 +786,22 @@ class BoomProfile(object):
             :rtype: list of (str, str)
         """
         key_format = "%%{%s}"
-        cap_regex_all = "(\S+)"
-        cap_regex_num = "(\d+)"
+        regex_all = "\S+"
+        regex_num = "\d+"
         regex_words = []
 
         if not fmt:
             return regex_words
 
+        _log_debug_profile("Making format regex list for '%s'" % fmt)
+
         # Keys captured by single regex
         key_regex = {
-            FMT_VERSION: cap_regex_all,
-            FMT_LVM_ROOT_LV: cap_regex_all,
-            FMT_BTRFS_SUBVOL_ID: cap_regex_num,
-            FMT_BTRFS_SUBVOL_PATH: cap_regex_all,
-            FMT_ROOT_DEVICE: cap_regex_all,
+            FMT_VERSION: regex_all,
+            FMT_LVM_ROOT_LV: regex_all,
+            FMT_BTRFS_SUBVOL_ID: regex_num,
+            FMT_BTRFS_SUBVOL_PATH: regex_all,
+            FMT_ROOT_DEVICE: regex_all,
         }
 
         # Keys requiring expansion
@@ -814,46 +816,50 @@ class BoomProfile(object):
             FMT_INITRAMFS: [self.initramfs_pattern]
         }
 
-        # Parent key names to preserve during recursion
-        #
-        # If a key name is listed in preserve_keys, the key name is
-        # taken as the regex name returned to the caller when
-        # recursing to evaluate an expanded format key.
-        #
-        # This allows the correct key name to be reported when a key
-        # evaluates to a string containing further format keys.
-        #
-        # This logic is not applied to the ROOT_OPTS key since the
-        # key names of the keys composing ROOT_OPTS (BTRFS/LVM2)
-        # directly map to BootParams attribute names.
-        preserve_keys = [FMT_KERNEL, FMT_INITRAMFS]
-
-        def _substitute_keys(fmt, keyname=None):
+        def _substitute_keys(word):
             """Return a list of regular expressions matching the format keys
-                found in ``fmt``, expanding and substituting format keys
+                found in ``word``, expanding and substituting format keys
                 as necessary until all keys have been replaced with a
-                capturing regular expression. Or something. Go with it.
+                regular expression.
+
+                For keys that form part of a word that represents the
+                canonical source of a BootParams attribute value (for e.g.
+                'root=%{root_device}') the regular expression returned will
+                include a capture group for the attribute value.
             """
             subst = []
-            did_subst = 0
+            did_subst = False
+            capture = (
+                "root=%{root_device}", "rd.lvm.lv=%{lvm_root_lv}",
+                "subvolid=%{btrfs_subvol_id}", "subvol=%{btrfs_subvol_path}"
+            )
+
+            replace = ("rootflags=%{btrfs_subvolume}",)
+
             for key in FORMAT_KEYS:
                 k = key_format % key
-                if k in fmt and key in key_regex:
-                    # Simple regex substitution
-                    fmt = fmt.replace(k, key_regex[key])
-                    subst.append((keyname if keyname else key, fmt))
-                    did_subst += 1
-                elif k in fmt and key in key_exp:
+                if k in word and key in key_regex:
+                    regex_fmt = "%s"
+                    keyname = ""
+                    if word in capture:
+                        regex_fmt = "(%s)"
+                        keyname = key
+                    word = word.replace(k, regex_fmt % key_regex[key])
+                    subst.append((keyname, word))
+                    did_subst = True
+                elif k in word and key in key_exp:
                     # Recursive expansion and substitution
-                    pk = key if (not keyname and
-                                 key in preserve_keys) else keyname
                     for e in key_exp[key]:
-                        subst += _substitute_keys(e, keyname=pk)
-                    did_subst += 1
+                        if word in replace:
+                            exp = e
+                        else:
+                            exp = word.replace(key_format % key, e)
+                        subst += _substitute_keys(exp)
+                        did_subst = True
 
             if not did_subst:
                 # Non-formatted word
-                subst.append(("", fmt))
+                subst.append(("", word))
 
             return subst
 
