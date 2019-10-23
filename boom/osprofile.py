@@ -802,6 +802,8 @@ class BoomProfile(object):
             FMT_BTRFS_SUBVOL_ID: regex_num,
             FMT_BTRFS_SUBVOL_PATH: regex_all,
             FMT_ROOT_DEVICE: regex_all,
+            FMT_KERNEL: regex_all,
+            FMT_INITRAMFS: regex_all
         }
 
         # Keys requiring expansion
@@ -812,8 +814,6 @@ class BoomProfile(object):
             FMT_BTRFS_SUBVOLUME: ["subvol=%{btrfs_subvol_path}",
                                   "subvolid=%{btrfs_subvol_id}"],
             FMT_ROOT_OPTS: [self.root_opts_lvm2, self.root_opts_btrfs],
-            FMT_KERNEL: [self.kernel_pattern],
-            FMT_INITRAMFS: [self.initramfs_pattern]
         }
 
         def _substitute_keys(word):
