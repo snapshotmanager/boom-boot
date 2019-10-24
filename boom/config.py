@@ -31,7 +31,7 @@ import logging
 try:
     # Python2
     from ConfigParser import SafeConfigParser as ConfigParser, ParsingError
-except ModuleNotFoundError:
+except ImportError:
     # Python3
     from configparser import ConfigParser, ParsingError
 
