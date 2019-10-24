@@ -207,12 +207,12 @@ class BoomConfig(object):
         """
         cstr = ""
         cstr += '[defaults]\n'
-        cstr += 'boot_path = "%s"\n' % self.boot_path
-        cstr += 'boom_path = "%s"\n\n' % self.boom_path
+        cstr += 'boot_path = %s\n' % self.boot_path
+        cstr += 'boom_path = %s\n\n' % self.boom_path
 
         cstr += '[legacy]\n'
         cstr += 'enable = %s\n' % self.legacy_enable
-        cstr += 'format = "%s"\n' % self.legacy_format
+        cstr += 'format = %s\n' % self.legacy_format
         cstr += 'sync = %s' % self.legacy_sync
 
         return cstr

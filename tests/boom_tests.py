@@ -160,8 +160,8 @@ class BoomTests(unittest.TestCase):
 
     def test_BoomConfig__str__(self):
         bc = boom.BoomConfig(boot_path="/boot", legacy_enable=False)
-        xstr = ('[defaults]\nboot_path = "/boot"\nboom_path = "/boot/boom"\n\n'
-                '[legacy]\nenable = False\nformat = "grub1"\nsync = True')
+        xstr = ('[defaults]\nboot_path = /boot\nboom_path = /boot/boom\n\n'
+                '[legacy]\nenable = False\nformat = grub1\nsync = True')
         self.assertEqual(str(bc), xstr)
 
     def test_BoomConfig__repr__(self):
