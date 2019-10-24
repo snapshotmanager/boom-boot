@@ -323,6 +323,15 @@ def get_boom_path():
     return __config.boom_path
 
 
+def get_cache_path():
+    """Return the currently configured boot file system path.
+
+        :returns: the path to the /boot file system.
+        :rtype: str
+    """
+    return __config.cache_path
+
+
 def set_boot_path(boot_path):
     """Sets the location of the boot file system to ``boot_path``.
 
@@ -392,6 +401,36 @@ def set_boom_path(boom_path):
     __config.boom_path = boom_path
     set_boom_config_path(__config.boom_path)
 
+    cache_path = path_join(boom_path, "cache")
+    if path_exists(cache_path):
+        set_cache_path(cache_path)
+
+def set_cache_path(cache_path):
+    """Set the location of the boom image cache directory.
+
+        Set the location of the boom image cache path stored in
+        the active configuration to ``cache_path``. This defaults to the
+        'cache/' sub-directory in the boom configuration directory
+        ``config.boom_path``: this may be overridden by calling this
+        function with a different path.
+
+        :param cache_path: the path to the 'cache/' directory containing
+                          cached boot images.
+        :returns: ``None``
+        :raises: ValueError if ``cache_path`` does not exist.
+    """
+    global __config
+    err_str = "Cache path %s does not exist" % cache_path
+    if isabs(cache_path) and not path_exists(cache_path):
+        raise ValueError(err_str)
+    elif not path_exists(path_join(__config.cache_path, cache_path)):
+        raise ValueError(err_str)
+
+    if not isabs(cache_path):
+        cache_path = path_join(__config.cache_path, cache_path)
+
+    __config.cache_path = cache_path
+    _log_debug("Set cache path to: %s" % cache_path)
 
 def get_boom_config_path():
     """Return the currently configured boom configuration file path.
@@ -902,8 +941,10 @@ __all__ = [
     # Path configuration
     'get_boot_path',
     'get_boom_path',
+    'get_cache_path',
     'set_boot_path',
     'set_boom_path',
+    'set_cache_path',
     'set_boom_config_path',
     'get_boom_config_path',
 

@@ -279,4 +279,8 @@ class BoomPathTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             boom.set_boom_path("loader")
 
+    def test_set_get_cache_path(self):
+        cache_path = BOOT_ROOT_TEST + "/boom/cache"
+        boom.set_cache_path(cache_path)
+        self.assertEqual(boom.get_cache_path(), cache_path)
 # vim: set et ts=4 sw=4 :
