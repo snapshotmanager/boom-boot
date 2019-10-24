@@ -211,6 +211,10 @@ class BoomConfig(object):
     legacy_format = "grub1"
     legacy_sync = True
 
+    cache_enable = True
+    cache_path = DEFAULT_CACHE_PATH
+    cache_auto_update = True
+
     def __str__(self):
         """Return a string representation of this ``BoomConfig`` in
             boom.conf (INI) notation.
@@ -223,7 +227,12 @@ class BoomConfig(object):
         cstr += '[legacy]\n'
         cstr += 'enable = %s\n' % self.legacy_enable
         cstr += 'format = %s\n' % self.legacy_format
-        cstr += 'sync = %s' % self.legacy_sync
+        cstr += 'sync = %s\n\n' % self.legacy_sync
+
+        cstr += '[cache]\n'
+        cstr += 'enable = %s\n' % self.cache_enable
+        cstr += 'cache_path = %s\n' % self.cache_path
+        cstr += 'auto_update = %s\n' % self.cache_auto_update
 
         return cstr
 
@@ -231,15 +240,20 @@ class BoomConfig(object):
         """Return a string representation of this ``BoomConfig`` in
             BoomConfig initialiser notation.
         """
-        cstr = ('BoomConfig(boot_path="%s",boom_path="%s",' %
+        cstr = ('BoomConfig(boot_path="%s", boom_path="%s", ' %
                 (self.boot_path, self.boom_path))
-        cstr += ('enable_legacy=%s,legacy_format="%s",' %
+        cstr += ('enable_legacy=%s, legacy_format="%s", ' %
                  (self.legacy_enable, self.legacy_format))
-        cstr += 'legacy_sync=%s)' % self.legacy_sync
+        cstr += 'legacy_sync=%s, ' % self.legacy_sync
+        cstr += 'cache_enable=%s, ' % self.cache_enable
+        cstr += 'cache_path="%s", ' % self.cache_path
+        cstr += 'cache_auto_update=%s)' % self.cache_auto_update
+
         return cstr
 
     def __init__(self, boot_path=None, boom_path=None, legacy_enable=None,
-                 legacy_format=None, legacy_sync=None):
+                 legacy_format=None, legacy_sync=None, cache_enable=None,
+                 cache_path=None, cache_auto_update=None):
         """Initialise a new ``BoomConfig`` object with the supplied
             configuration values, or defaults for any unset arguments.
 
@@ -254,6 +268,9 @@ class BoomConfig(object):
         self.legacy_enable = legacy_enable or self.legacy_enable
         self.legacy_format = legacy_format or self.legacy_format
         self.legacy_sync = legacy_sync or self.legacy_sync
+        self.cache_enable = cache_enable or self.cache_enable
+        self.cache_path = cache_path or self.cache_path
+        self.cache_auto_update = cache_auto_update or self.cache_auto_update
 
 
 __config = BoomConfig()

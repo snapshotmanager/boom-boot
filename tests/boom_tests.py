@@ -161,14 +161,17 @@ class BoomTests(unittest.TestCase):
     def test_BoomConfig__str__(self):
         bc = boom.BoomConfig(boot_path="/boot", legacy_enable=False)
         xstr = ('[defaults]\nboot_path = /boot\nboom_path = /boot/boom\n\n'
-                '[legacy]\nenable = False\nformat = grub1\nsync = True')
+                '[legacy]\nenable = False\nformat = grub1\nsync = True\n\n'
+                '[cache]\nenable = True\ncache_path = /boot/boom/cache\n'
+                'auto_update = True\n')
         self.assertEqual(str(bc), xstr)
 
     def test_BoomConfig__repr__(self):
         bc = boom.BoomConfig(boot_path="/boot", legacy_enable=False)
-        xrepr = ('BoomConfig(boot_path="/boot",boom_path="/boot/boom",'
-                 'enable_legacy=False,legacy_format="grub1",'
-                 'legacy_sync=True)')
+        xrepr = ('BoomConfig(boot_path="/boot", boom_path="/boot/boom", '
+                 'enable_legacy=False, legacy_format="grub1", '
+                 'legacy_sync=True, cache_enable=True, '
+                 'cache_path="/boot/boom/cache", cache_auto_update=True)')
         self.assertEqual(repr(bc), xrepr)
 
     def test_set_boom_config(self):
