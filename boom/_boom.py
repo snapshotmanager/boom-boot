@@ -211,9 +211,9 @@ class BoomConfig(object):
         cstr += 'boom_path = "%s"\n\n' % self.boom_path
 
         cstr += '[legacy]\n'
-        cstr += 'enable = "%s"\n' % self.legacy_enable
+        cstr += 'enable = %s\n' % self.legacy_enable
         cstr += 'format = "%s"\n' % self.legacy_format
-        cstr += 'sync = "%s"' % self.legacy_sync
+        cstr += 'sync = %s' % self.legacy_sync
 
         return cstr
 
@@ -223,9 +223,9 @@ class BoomConfig(object):
         """
         cstr = ('BoomConfig(boot_path="%s",boom_path="%s",' %
                 (self.boot_path, self.boom_path))
-        cstr += ('enable_legacy="%s",legacy_format="%s",' %
+        cstr += ('enable_legacy=%s,legacy_format="%s",' %
                  (self.legacy_enable, self.legacy_format))
-        cstr += 'legacy_sync="%s")' % self.legacy_sync
+        cstr += 'legacy_sync=%s)' % self.legacy_sync
         return cstr
 
     def __init__(self, boot_path=None, boom_path=None, legacy_enable=None,
