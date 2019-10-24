@@ -1323,6 +1323,31 @@ class CommandTests(unittest.TestCase):
         r = boom.command._delete_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
 
+    def test__create_cmd_with_override(self):
+        args = get_create_cmd_args()
+        args.title = "override test"
+        # Use a profile that includes BOOT_IMAGE=%{kernel} in BOOM_OS_OPTIONS
+        args.profile = "d4439b7"
+        # Use an image string ("vmlinux") that does not match the OsProfile
+        # template pattern for a Linux bzImage ("vmlinu*z*").
+        args.linux = "/vmzlinux-test"
+        args.initrd = "/initrd-test.img"
+        opts = boom.command._report_opts_from_args(args)
+        boom.command._create_cmd(args, None, opts, None)
+
+        # Find entry and verify --linux and --initrd override
+        be = find_entries(Selection(title=args.title))[0]
+        boot_id = be.boot_id
+        self.assertEqual(be.linux, args.linux)
+        self.assertEqual(be.initrd, args.initrd)
+
+        # Reload entry and verify boot_id and overrides
+        drop_entries()
+        load_entries()
+        self.assertEqual(be.boot_id, boot_id)
+        self.assertEqual(be.linux, args.linux)
+        self.assertEqual(be.initrd, args.initrd)
+
     def test__delete_cmd(self):
         """Test the _delete_cmd() handler with a valid entry.
         """
