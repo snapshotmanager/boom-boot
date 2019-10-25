@@ -222,6 +222,13 @@ def _int_if_val(val):
     """
     return int(val) if val is not None else None
 
+
+def _bool_to_yes_no(bval):
+    """Return the string 'yes' if ``bval`` is ``True`` or 'no' otherwise.
+    """
+    return "yes" if bval else "no"
+
+
 #: Fields derived from BootEntry data.
 _entry_fields = [
     BoomFieldType(
@@ -250,7 +257,7 @@ _entry_fields = [
         REP_STR, lambda f, d: f.report_str(basename(d.entry_path))),
     BoomFieldType(
         BR_ENTRY, "readonly", "ReadOnly", "Entry is read-only", 9,
-        REP_STR, lambda f, d: f.report_str(str(d.read_only)))
+        REP_STR, lambda f, d: f.report_str(_bool_to_yes_no(d.read_only)))
 ]
 
 #: Fields derived from BootEntry data, with bootloader variables expanded.
@@ -281,7 +288,7 @@ _expand_entry_fields = [
         REP_STR, lambda f, d: f.report_str(basename(d.entry_path))),
     BoomFieldType(
         BR_ENTRY, "readonly", "ReadOnly", "Entry is read-only", 9,
-        REP_STR, lambda f, d: f.report_str(str(d.read_only)))
+        REP_STR, lambda f, d: f.report_str(_bool_to_yes_no(d.read_only)))
 ]
 
 #: Fields derived from BootParams data
