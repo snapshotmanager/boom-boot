@@ -157,7 +157,7 @@ _profile_fields = [
         BR_PROFILE, "options", "Options", "Kernel options", 24,
         REP_STR, lambda f, d: f.report_str(d.options)),
     BoomFieldType(
-        BR_PROFILE, "profilepath", "Profile path", "On-disk profile path", 12,
+        BR_PROFILE, "profilepath", "ProfilePath", "On-disk profile path", 12,
         REP_STR, lambda f, d: f.report_str(d._profile_path()))
 ]
 
@@ -196,7 +196,7 @@ _host_fields = [
         BR_HOST, "options", "Options", "Kernel options", 24,
         REP_STR, lambda f, d: f.report_str(d.options)),
     BoomFieldType(
-        BR_HOST, "profilepath", "Profile path", "On-disk profile path", 12,
+        BR_HOST, "profilepath", "ProfilePath", "On-disk profile path", 12,
         REP_STR, lambda f, d: f.report_str(d._profile_path())),
     BoomFieldType(
         BR_HOST, "addopts", "AddOptions", "Added Options", 12,
@@ -240,14 +240,17 @@ _entry_fields = [
         BR_ENTRY, "initramfs", "Initramfs", "Initramfs image", 40,
         REP_STR, lambda f, d: f.report_str(d.initrd)),
     BoomFieldType(
-        BR_ENTRY, "machineid", "Machine ID", "Machine identifier", 10,
+        BR_ENTRY, "machineid", "MachineID", "Machine identifier", 10,
         REP_SHA, lambda f, d: f.report_sha(d.machine_id)),
     BoomFieldType(
-        BR_ENTRY, "entrypath", "Entry path", "On-disk entry path", 12,
+        BR_ENTRY, "entrypath", "EntryPath", "On-disk entry path", 12,
         REP_STR, lambda f, d: f.report_str(d.entry_path)),
     BoomFieldType(
-        BR_ENTRY, "entryfile", "Entry file", "On-disk entry file name", 12,
-        REP_STR, lambda f, d: f.report_str(basename(d.entry_path)))
+        BR_ENTRY, "entryfile", "EntryFile", "On-disk entry file name", 12,
+        REP_STR, lambda f, d: f.report_str(basename(d.entry_path))),
+    BoomFieldType(
+        BR_ENTRY, "readonly", "ReadOnly", "Entry is read-only", 9,
+        REP_STR, lambda f, d: f.report_str(str(d.read_only)))
 ]
 
 #: Fields derived from BootEntry data, with bootloader variables expanded.
@@ -268,14 +271,17 @@ _expand_entry_fields = [
         BR_ENTRY, "initramfs", "Initramfs", "Initramfs image", 40,
         REP_STR, lambda f, d: f.report_str(d.initrd)),
     BoomFieldType(
-        BR_ENTRY, "machineid", "Machine ID", "Machine identifier", 10,
+        BR_ENTRY, "machineid", "MachineID", "Machine identifier", 10,
         REP_SHA, lambda f, d: f.report_sha(d.machine_id)),
     BoomFieldType(
-        BR_ENTRY, "entrypath", "Entry path", "On-disk entry path", 12,
+        BR_ENTRY, "entrypath", "EntryPath", "On-disk entry path", 12,
         REP_STR, lambda f, d: f.report_str(d.entry_path)),
     BoomFieldType(
-        BR_ENTRY, "entryfile", "Entry file", "On-disk entry file name", 12,
-        REP_STR, lambda f, d: f.report_str(basename(d.entry_path)))
+        BR_ENTRY, "entryfile", "EntryFile", "On-disk entry file name", 12,
+        REP_STR, lambda f, d: f.report_str(basename(d.entry_path))),
+    BoomFieldType(
+        BR_ENTRY, "readonly", "ReadOnly", "Entry is read-only", 9,
+        REP_STR, lambda f, d: f.report_str(str(d.read_only)))
 ]
 
 #: Fields derived from BootParams data
