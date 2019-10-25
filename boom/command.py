@@ -244,7 +244,10 @@ _entry_fields = [
         REP_SHA, lambda f, d: f.report_sha(d.machine_id)),
     BoomFieldType(
         BR_ENTRY, "entrypath", "Entry path", "On-disk entry path", 12,
-        REP_STR, lambda f, d: f.report_str(d.entry_path))
+        REP_STR, lambda f, d: f.report_str(d.entry_path)),
+    BoomFieldType(
+        BR_ENTRY, "entryfile", "Entry file", "On-disk entry file name", 12,
+        REP_STR, lambda f, d: f.report_str(basename(d.entry_path)))
 ]
 
 #: Fields derived from BootEntry data, with bootloader variables expanded.
@@ -269,7 +272,10 @@ _expand_entry_fields = [
         REP_SHA, lambda f, d: f.report_sha(d.machine_id)),
     BoomFieldType(
         BR_ENTRY, "entrypath", "Entry path", "On-disk entry path", 12,
-        REP_STR, lambda f, d: f.report_str(d.entry_path))
+        REP_STR, lambda f, d: f.report_str(d.entry_path)),
+    BoomFieldType(
+        BR_ENTRY, "entryfile", "Entry file", "On-disk entry file name", 12,
+        REP_STR, lambda f, d: f.report_str(basename(d.entry_path)))
 ]
 
 #: Fields derived from BootParams data
