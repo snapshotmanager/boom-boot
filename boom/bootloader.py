@@ -2250,6 +2250,14 @@ class BootEntry(object):
         file_name = BOOT_ENTRIES_FORMAT % id_tuple
         return path_join(boom_entries_path(), file_name)
 
+    @property
+    def entry_path(self):
+        """The path to the on-disk file containing this ``BootEntry``.
+        """
+        if self.read_only:
+            return self._last_path
+        return self._entry_path
+
     def write_entry(self, force=False, expand=False):
         """Write out entry to disk.
 
