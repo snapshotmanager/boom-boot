@@ -324,7 +324,6 @@ def set_boot_path(boot_path):
     __config.boot_path = boot_path
     _log_debug("Set boot path to: %s" % boot_path)
     __config.boom_path = path_join(boot_path, DEFAULT_BOOM_DIR)
-    _log_debug("Set boom path to: %s" % __config.boom_path)
 
     # If a boom/ directory exists at the boot path, automatically set
     # the boom path to it. Otherwise, we assume that the caller will
@@ -362,7 +361,7 @@ def set_boom_path(boom_path):
         raise ValueError("Path does not contain a valid boom configuration"
                          ": %s" % path_join(boom_path, "profiles"))
 
-    _log_debug("Set boom path to: %s" % DEFAULT_BOOM_DIR)
+    _log_debug("Set boom path to: %s" % boom_path)
     __config.boom_path = boom_path
     set_boom_config_path(__config.boom_path)
 
