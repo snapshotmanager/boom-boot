@@ -2399,6 +2399,7 @@ __all__ = [
     'BOOM_ENTRY_GRUB_USERS',
     'BOOM_ENTRY_GRUB_ARG',
     'BOOM_ENTRY_GRUB_CLASS',
+    'BOOM_ENTRY_ID',
 
     # Root device pattern
     'DEV_PATTERN',
