@@ -1579,11 +1579,11 @@ def _apply_optional_keys(be, cmd_args):
         invalid optional key.
     """
     if cmd_args.grub_arg:
-        be.grub_arg = cmd_args.grub_arg
+        be.grub_arg = cmd_args.grub_arg.strip()
     if cmd_args.grub_class:
-        be.grub_class = cmd_args.grub_class
+        be.grub_class = cmd_args.grub_class.strip()
     if cmd_args.grub_users:
-        be.grub_users = cmd_args.grub_users
+        be.grub_users = cmd_args.grub_users.strip()
 
 
 def _create_cmd(cmd_args, select, opts, identifier):
