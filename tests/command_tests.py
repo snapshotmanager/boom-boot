@@ -1707,7 +1707,7 @@ class CommandTests(unittest.TestCase):
         """Test that creation of an OsProfile from /etc/os-release on
             the running host succeeds.
         """
-        # Depending on the maching the test suite is running on, it is
+        # Depending on the machine the test suite is running on it is
         # possible that an OsProfile already exists for the system. To
         # avoid a collision between an existing host OsProfile and the
         # newly created test profile, delete any existing profile from
@@ -1741,17 +1741,6 @@ class CommandTests(unittest.TestCase):
         identifier = "d4439b7"
         r = boom.command._create_profile_cmd(args, None, None, identifier)
         self.assertEqual(r, 1)
-
-    def test__create_profile_cmd_from_host(self):
-        args = MockArgs()
-        args.from_host = True
-        args.uname_pattern = "test1"
-
-        # Workaround the possibility that the host profile already exists.
-        boom.command._delete_profile_cmd(args, None, None, "d4439b7")
-
-        r = boom.command._create_profile_cmd(args, None, None, None)
-        self.assertEqual(r, 0)
 
     def test__delete_profile_cmd_valid_identifier(self):
         """Test that _delete_profile_cmd() deletes a profile via a
