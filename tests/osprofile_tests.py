@@ -82,7 +82,8 @@ class OsProfileTests(unittest.TestCase):
                 'Root options (LVM2): "rd.lvm.lv=%{lvm_root_lv}",\n'
                 'Root options (BTRFS): "rootflags=%{btrfs_subvolume}",\n'
                 'Options: "root=%{root_device} ro %{root_opts}",\n'
-                'Title: "%{os_name} %{os_version_id} (%{version})"')
+                'Title: "%{os_name} %{os_version_id} (%{version})",\n'
+                'UTS release pattern: ""')
 
         self.assertEqual(str(osp), xstr)
         osp.delete_profile()
@@ -100,7 +101,8 @@ class OsProfileTests(unittest.TestCase):
                  'BOOM_OS_ROOT_OPTS_LVM2:"rd.lvm.lv=%{lvm_root_lv}", '
                  'BOOM_OS_ROOT_OPTS_BTRFS:"rootflags=%{btrfs_subvolume}", '
                  'BOOM_OS_OPTIONS:"root=%{root_device} ro %{root_opts}", '
-                 'BOOM_OS_TITLE:"%{os_name} %{os_version_id} (%{version})"})')
+                 'BOOM_OS_TITLE:"%{os_name} %{os_version_id} (%{version})", '
+                 'BOOM_OS_UNAME_PATTERN:""})')
 
         self.assertEqual(repr(osp), xrepr)
         osp.delete_profile()

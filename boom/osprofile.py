@@ -84,14 +84,15 @@ BOOM_OS_OPTIONAL_KEYS = "BOOM_OS_OPTIONAL_KEYS"
 #: keys, root option keys, and optional keys (currently the Linux
 #: kernel command line).
 OS_PROFILE_KEYS = [
-    # Keys 0-7 (ID to INITRAMFS_PATTERN) are mandatory.
+    # Keys 0-6 (ID to INITRAMFS_PATTERN) are mandatory.
     BOOM_OS_ID, BOOM_OS_NAME, BOOM_OS_SHORT_NAME, BOOM_OS_VERSION,
-    BOOM_OS_VERSION_ID, BOOM_OS_UNAME_PATTERN,
+    BOOM_OS_VERSION_ID,
     BOOM_OS_KERNEL_PATTERN, BOOM_OS_INITRAMFS_PATTERN,
-    # At least one of keys 8-9 (ROOT_OPTS) is required.
+    # At least one of keys 7-8 (ROOT_OPTS) is required.
     BOOM_OS_ROOT_OPTS_LVM2, BOOM_OS_ROOT_OPTS_BTRFS,
-    # The OPTIONS and TITLE keys are optional.
-    BOOM_OS_OPTIONS, BOOM_OS_TITLE, BOOM_OS_OPTIONAL_KEYS
+    # The OPTIONS, TITLE and UNAME_PATTERN keys are optional.
+    BOOM_OS_OPTIONS, BOOM_OS_TITLE, BOOM_OS_OPTIONAL_KEYS,
+    BOOM_OS_UNAME_PATTERN
 ]
 
 #: A map of Boom profile keys to human readable key names suitable
@@ -114,13 +115,14 @@ OS_KEY_NAMES = {
 }
 
 #: Boom profile keys that must exist in a valid profile.
-OS_REQUIRED_KEYS = OS_PROFILE_KEYS[0:8]
+OS_REQUIRED_KEYS = OS_PROFILE_KEYS[0:7]
 
 #: Boom profile keys for different forms of root device specification.
-OS_ROOT_KEYS = OS_PROFILE_KEYS[8:10]
+OS_ROOT_KEYS = OS_PROFILE_KEYS[8:9]
 
 #: Keys with default values
 _DEFAULT_KEYS = {
+    BOOM_OS_UNAME_PATTERN: "",
     BOOM_OS_KERNEL_PATTERN: "/vmlinuz-%{version}",
     BOOM_OS_INITRAMFS_PATTERN: "/initramfs-%{version}.img",
     BOOM_OS_ROOT_OPTS_LVM2: "rd.lvm.lv=%{lvm_root_lv}",
