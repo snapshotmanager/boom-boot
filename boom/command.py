@@ -894,7 +894,7 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
 def _os_profile_from_file(os_release, uname_pattern,
                           kernel_pattern, initramfs_pattern,
                           root_opts_lvm2, root_opts_btrfs,
-                          options):
+                          options, profile_data=None):
     """Create OsProfile from os-release file.
 
         Construct a new ``OsProfile`` object from the specified path,
@@ -911,20 +911,7 @@ def _os_profile_from_file(os_release, uname_pattern,
         :returns: A new OsProfile
         :rtype: OsProfile
     """
-    osp = OsProfile.from_os_release_file(os_release)
-    if uname_pattern:
-        osp.uname_pattern = uname_pattern
-    if kernel_pattern:
-        osp.kernel_pattern = kernel_pattern
-    if initramfs_pattern:
-        osp.initramfs_pattern = initramfs_pattern
-    if root_opts_lvm2:
-        osp.root_opts_lvm2 = root_opts_lvm2
-    if root_opts_btrfs:
-        osp.root_opts_btrfs = root_opts_btrfs
-    if options:
-        osp.options = options
-
+    osp = OsProfile.from_os_release_file(os_release, profile_data=profile_data)
     osp.write_profile()
     return osp
 
