@@ -1422,7 +1422,7 @@ class OsProfile(BoomProfile):
                  version_id=None, profile_file=None, profile_data=None,
                  uname_pattern=None, kernel_pattern=None,
                  initramfs_pattern=None, root_opts_lvm2=None,
-                 root_opts_btrfs=None, options=None):
+                 root_opts_btrfs=None, options=None, optional_keys=None):
         """Initialise a new ``OsProfile`` object.
 
             If neither ``profile_file`` nor ``profile_data`` is given,
@@ -1489,6 +1489,9 @@ class OsProfile(BoomProfile):
         self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
         self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
         self._profile_data[BOOM_OS_OPTIONS] = options
+
+        if optional_keys:
+            self.optional_keys = optional_keys
 
         required_args = [name, short_name, version, version_id]
         if all([not val for val in required_args]):
