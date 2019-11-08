@@ -1343,6 +1343,9 @@ class OsProfile(BoomProfile):
         """
         err_str = "Invalid profile data (missing %s)"
 
+        _log_debug_profile("Initialising OsProfile from profile_data=%s" %
+                           profile_data)
+
         # Set profile defaults
         for key in _DEFAULT_KEYS:
             if key not in profile_data:
