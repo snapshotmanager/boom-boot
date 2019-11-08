@@ -958,36 +958,32 @@ def create_profile(name, short_name, version, version_id,
     def _have_key(pd, arg, key):
         return arg or pd and key in pd
 
-    if profile_file:
-        return _os_profile_from_file(profile_file, uname_pattern,
-                                     kernel_pattern, initramfs_pattern,
-                                     root_opts_lvm2, root_opts_btrfs,
-                                     options)
-
-    if  not _have_key(profile_data, name, BOOM_OS_NAME):
-        raise ValueError("Profile name cannot be empty.")
-
-    if  not _have_key(profile_data, short_name, BOOM_OS_SHORT_NAME):
-        raise ValueError("Profile short name cannot be empty.")
-
-    if not _have_key(profile_data, version, BOOM_OS_VERSION):
-        raise ValueError("Profile version cannot be empty.")
-
-    if not _have_key(profile_data, version_id, BOOM_OS_VERSION_ID):
-        raise ValueError("Profile version ID cannot be empty.")
-
     if not profile_data:
         profile_data = {}
 
-    # Allow keyword arguments to override
-    if name:
-        profile_data[BOOM_OS_NAME] = name
-    if short_name:
-        profile_data[BOOM_OS_SHORT_NAME] = short_name
-    if version:
-        profile_data[BOOM_OS_VERSION] = version
-    if version_id:
-        profile_data[BOOM_OS_VERSION_ID] = version_id
+    if not profile_file:
+        if  not _have_key(profile_data, name, BOOM_OS_NAME):
+            raise ValueError("Profile name cannot be empty.")
+
+        if  not _have_key(profile_data, short_name, BOOM_OS_SHORT_NAME):
+            raise ValueError("Profile short name cannot be empty.")
+
+        if not _have_key(profile_data, version, BOOM_OS_VERSION):
+            raise ValueError("Profile version cannot be empty.")
+
+        if not _have_key(profile_data, version_id, BOOM_OS_VERSION_ID):
+            raise ValueError("Profile version ID cannot be empty.")
+
+        # Allow keyword arguments to override
+        if name:
+            profile_data[BOOM_OS_NAME] = name
+        if short_name:
+            profile_data[BOOM_OS_SHORT_NAME] = short_name
+        if version:
+            profile_data[BOOM_OS_VERSION] = version
+        if version_id:
+            profile_data[BOOM_OS_VERSION_ID] = version_id
+
     if uname_pattern:
         profile_data[BOOM_OS_UNAME_PATTERN] = uname_pattern
     if kernel_pattern:
@@ -1002,6 +998,12 @@ def create_profile(name, short_name, version, version_id,
         profile_data[BOOM_OS_OPTIONS] = options
     if optional_keys:
         profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
+
+    if profile_file:
+        return _os_profile_from_file(profile_file, uname_pattern,
+                                     kernel_pattern, initramfs_pattern,
+                                     root_opts_lvm2, root_opts_btrfs,
+                                     options, profile_data=profile_data)
 
     osp = OsProfile(name, short_name, version, version_id,
                     profile_data=profile_data)
