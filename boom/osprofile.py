@@ -1570,57 +1570,68 @@ class OsProfile(BoomProfile):
     #
 
     @classmethod
-    def from_os_release(cls, os_release):
+    def from_os_release(cls, os_release, profile_data=None):
         """Build an OsProfile from os-release file data.
 
             Construct a new OsProfile object using data obtained from
             a file in os-release(5) format.
 
             :param os_release: String data in os-release(5) format
+            :param profile_data: an optional dictionary of profile data
+                                 overriding default values.
             :returns: A new OsProfile for the specified os-release data
             :rtype: OsProfile
         """
         release_data = {}
+        profile_data = profile_data or {}
         for line in os_release:
             if blank_or_comment(line):
                 continue
             name, value = parse_name_value(line)
             release_data[name] = value
-        osp = OsProfile(release_data["NAME"],
-                        release_data["ID"],
-                        release_data["VERSION"],
-                        release_data["VERSION_ID"])
 
-        for key in _DEFAULT_KEYS:
-            osp._profile_data[key] = _DEFAULT_KEYS[key]
+        release_keys = {"NAME": BOOM_OS_NAME,
+                        "ID": BOOM_OS_SHORT_NAME,
+                        "VERSION": BOOM_OS_VERSION,
+                        "VERSION_ID": BOOM_OS_VERSION_ID}
+
+        for key in release_keys.keys():
+            profile_data[release_keys[key]] = release_data[key]
+
+        osp = OsProfile(profile_data=profile_data)
 
         return osp
 
     @classmethod
-    def from_os_release_file(cls, path):
+    def from_os_release_file(cls, path, profile_data={}):
         """Build an OsProfile from an on-disk os-release file.
 
             Construct a new OsProfile object using data obtained from
             the file specified by 'path'.
 
             :param path: Path to a file in os-release(5) format
+            :param profile_data: an optional dictionary of profile data
+                                 overriding default values.
             :returns: A new OsProfile for the specified os-release file
             :rtype: OsProfile
         """
         with open(path, "r") as f:
-            return cls.from_os_release(f)
+            return cls.from_os_release(f, profile_data=profile_data)
 
     @classmethod
-    def from_host_os_release(cls):
+    def from_host_os_release(cls, profile_data={}):
         """Build an OsProfile from the current hosts's os-release.
 
             Construct a new OsProfile object using data obtained from
             the running hosts's /etc/os-release file.
 
+            :param profile_data: an optional dictionary of profile data
+                                 overriding default values.
             :returns: A new OsProfile for the current host
             :rtype: OsProfile
         """
-        return cls.from_os_release_file("/etc/os-release")
+        return cls.from_os_release_file("/etc/os-release",
+                                        profile_data=profile_data)
 
     def _profile_path(self):
         """Return the path to this profile's on-disk data.
