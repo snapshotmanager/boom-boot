@@ -405,6 +405,7 @@ def set_boom_path(boom_path):
     if path_exists(cache_path):
         set_cache_path(cache_path)
 
+
 def set_cache_path(cache_path):
     """Set the location of the boom image cache directory.
 
@@ -431,6 +432,7 @@ def set_cache_path(cache_path):
 
     __config.cache_path = cache_path
     _log_debug("Set cache path to: %s" % cache_path)
+
 
 def get_boom_config_path():
     """Return the currently configured boom configuration file path.
