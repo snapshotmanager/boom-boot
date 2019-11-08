@@ -31,6 +31,12 @@ DEFAULT_BOOM_DIR = "boom"
 #: The root directory for Boom configuration files.
 DEFAULT_BOOM_PATH = path_join(DEFAULT_BOOT_PATH, DEFAULT_BOOM_DIR)
 
+#: The default directory name for the Boom cache.
+DEFAULT_CACHE_DIR = "cache"
+
+#: The path to the root directory of the Boom cache.
+DEFAULT_CACHE_PATH = path_join(DEFAULT_BOOM_PATH, DEFAULT_CACHE_DIR)
+
 #: Configuration file mode
 BOOT_CONFIG_MODE = 0o644
 
@@ -106,10 +112,14 @@ BOOM_DEBUG_PROFILE = 1
 BOOM_DEBUG_ENTRY = 2
 BOOM_DEBUG_REPORT = 4
 BOOM_DEBUG_COMMAND = 8
-BOOM_DEBUG_ALL = (BOOM_DEBUG_PROFILE |
-                  BOOM_DEBUG_ENTRY |
-                  BOOM_DEBUG_REPORT |
-                  BOOM_DEBUG_COMMAND)
+BOOM_DEBUG_CACHE = 16
+BOOM_DEBUG_ALL = (
+    BOOM_DEBUG_PROFILE
+    | BOOM_DEBUG_ENTRY
+    | BOOM_DEBUG_REPORT
+    | BOOM_DEBUG_COMMAND
+    | BOOM_DEBUG_CACHE
+)
 
 __debug_mask = 0
 
@@ -896,6 +906,7 @@ __all__ = [
     'BOOM_DEBUG_ENTRY',
     'BOOM_DEBUG_REPORT',
     'BOOM_DEBUG_COMMAND',
+    'BOOM_DEBUG_CACHE',
     'BOOM_DEBUG_ALL',
 
     # Utility routines
