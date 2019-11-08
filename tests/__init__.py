@@ -94,6 +94,7 @@ class MockArgs(object):
     no_dev = False
     no_headings = False
     options = ""
+    optional_keys = ""
     os_id = ""
     os_options = ""
     os_release = ""

@@ -1125,7 +1125,7 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
 
 def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
                  initramfs_pattern=None, root_opts_lvm2=None,
-                 root_opts_btrfs=None, options=None):
+                 root_opts_btrfs=None, options=None, optional_keys=None):
     """Edit an existing operating system profile.
 
         Modify an existing OsProfile by changing one or more of the
@@ -1162,6 +1162,7 @@ def edit_profile(selection=None, uname_pattern=None, kernel_pattern=None,
     osp.root_opts_lvm2 = root_opts_lvm2 or osp.root_opts_lvm2
     osp.root_opts_btrfs = root_opts_btrfs or osp.root_opts_btrfs
     osp.options = options or osp.options
+    osp.optional_keys = optional_keys or osp.optional_keys
     osp.write_profile()
     return osp
 
@@ -2017,7 +2018,9 @@ def _create_profile_cmd(cmd_args, select, opts, identifier):
                              initramfs_pattern=cmd_args.initramfs_pattern,
                              root_opts_lvm2=cmd_args.lvm_opts,
                              root_opts_btrfs=cmd_args.btrfs_opts,
-                             options=cmd_args.os_options, profile_file=release)
+                             options=cmd_args.os_options,
+                             optional_keys=cmd_args.optional_keys,
+                             profile_file=release)
     except ValueError as e:
         print(e)
         return 1
@@ -2216,13 +2219,15 @@ def _edit_profile_cmd(cmd_args, select, opts, identifier):
     root_opts_lvm2 = cmd_args.lvm_opts
     root_opts_btrfs = cmd_args.btrfs_opts
     options = cmd_args.os_options
+    optional_keys = cmd_args.optional_keys
 
     try:
         osp = edit_profile(selection=select, uname_pattern=uname_pattern,
                            kernel_pattern=kernel_pattern,
                            initramfs_pattern=initramfs_pattern,
                            root_opts_lvm2=root_opts_lvm2,
-                           root_opts_btrfs=root_opts_btrfs, options=options)
+                           root_opts_btrfs=root_opts_btrfs, options=options,
+                           optional_keys=optional_keys)
     except ValueError as e:
         print(e)
         return 1
@@ -2755,6 +2760,9 @@ def main(args):
                         help="Suppress output of report headings"),
     parser.add_argument("--no-dev", "--nodev", action='store_true',
                         help="Disable checks for a valid root device")
+    parser.add_argument("--optional-keys", metavar="KEYS", type=str,
+                        help="Optional keys allows by this operating system "
+                        "profile")
     parser.add_argument("-o", "--options", metavar="FIELDS", type=str,
                         help="Specify which fields to display")
     parser.add_argument("--os-version", "--osversion", metavar="OSVERSION",
