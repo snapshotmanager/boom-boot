@@ -1975,6 +1975,10 @@ def _create_profile_cmd(cmd_args, select, opts, identifier):
         print("profile create does not accept <identifier>")
         return 1
 
+    if cmd_args.options:
+        print("Invalid argument for profile create: --options")
+        return 1
+
     if cmd_args.os_release or cmd_args.from_host:
         name = None
         short_name = None
@@ -2205,7 +2209,7 @@ def _edit_profile_cmd(cmd_args, select, opts, identifier):
                cmd_args.version, cmd_args.os_version_id)
 
     if cmd_args.options:
-        print("Invalid argument for 'profile edit': --options")
+        print("Invalid argument for profile edit: --options")
         return 1
 
     if any(id_keys):
