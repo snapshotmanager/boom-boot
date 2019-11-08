@@ -933,21 +933,22 @@ def create_profile(name, short_name, version, version_id,
                    uname_pattern=None, kernel_pattern=None,
                    initramfs_pattern=None, root_opts_lvm2=None,
                    root_opts_btrfs=None, options=None,
-                   profile_data=None, profile_file=None):
+                   optional_keys=None, profile_data=None,
+                   profile_file=None):
     """Create new operating system profile.
 
         Create the specified OsProfile in the configured profiles
         directory.
-    
+
         OsProfile key values may be specified either by passing
         individual keyword arguments, or by passing a dictionary
         of OsProfile key name to value pairs as the ``profile_data``
         argument. If a key is present as both a keyword argument
         and in the ``profile_data`` dictionary, the argument will
         take precedence.
-    
+
         An error is raised if a matching profile already exists.
-    
+
         :param name: The name of the new OsProfile
         :param short_name: The short name of the new OsProfile
         :param version: The version string of the new OsProfile
@@ -1012,6 +1013,8 @@ def create_profile(name, short_name, version, version_id,
         profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
     if options:
         profile_data[BOOM_OS_OPTIONS] = options
+    if optional_keys:
+        profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
 
     osp = OsProfile(name, short_name, version, version_id,
                     profile_data=profile_data)
