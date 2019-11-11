@@ -42,7 +42,7 @@ import logging
 
 #: The environment variable from which to take the location of the
 #: ``/boot`` file system.
-BOOM_BOOT_PATH_ENV="BOOM_BOOT_PATH"
+BOOM_BOOT_PATH_ENV = "BOOM_BOOT_PATH"
 
 #: Path to the system machine-id file
 _MACHINE_ID = "/etc/machine-id"
@@ -69,6 +69,7 @@ _OPTIONAL_KEY_MAP = {
     BOOM_ENTRY_GRUB_CLASS: "grub_class",
     BOOM_ENTRY_ID: "id"
 }
+
 
 #
 # Reporting object types
@@ -103,6 +104,7 @@ class BoomReportObj(object):
         self.be = boot_entry
         self.osp = os_profile
         self.hp = host_profile
+
 
 #: BootEntry report object type
 BR_ENTRY = 1
@@ -216,6 +218,7 @@ _host_fields = [
 
 _default_host_fields = "hostid,hostname,machineid,osid"
 _verbose_host_fields = _default_host_fields + ",options,addopts,delopts"
+
 
 def _int_if_val(val):
     """Return an int if val is defined or None otherwise.
@@ -400,7 +403,7 @@ def _canonicalize_lv_name(lvname):
                          "are not supported.")
     if lvname.startswith(dev_prefix):
         lvname = lvname[len(dev_prefix):]
-    if not '/' in lvname or lvname.count('/') != 1:
+    if '/' not in lvname or lvname.count('/') != 1:
         raise ValueError("Root logical volume name must be in VG/LV format.")
     return lvname
 
@@ -677,6 +680,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 
     return clone_be
 
+
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
                btrfs_subvol_id=None, profile=None, architecture=None,
@@ -705,7 +709,7 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
         :param architecture: An optional BLS architecture string.
         :param add_opts: A list of additional kernel options to append.
         :param del_opts: A list of template-supplied options to drop.
-        :param expand: Expand bootloader environment variables in on-disk entry.
+        :param expand: Expand bootloader environment variables.
 
         :returns: The modified ``BootEntry``
         :rtype: ``BootEntry``
@@ -824,6 +828,7 @@ def print_entries(selection=None, output_fields=None, opts=None,
     return _do_print_type(report_fields, selected, output_fields=output_fields,
                           opts=opts, sort_keys=sort_keys)
 
+
 #
 # OsProfile manipulation
 #
@@ -886,7 +891,6 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
             _log_error("%s requires --profile or a matching HostProfile" %
                        command)
         return None
-
 
     return hp or osp
 
@@ -962,10 +966,10 @@ def create_profile(name, short_name, version, version_id,
         profile_data = {}
 
     if not profile_file:
-        if  not _have_key(profile_data, name, BOOM_OS_NAME):
+        if not _have_key(profile_data, name, BOOM_OS_NAME):
             raise ValueError("Profile name cannot be empty.")
 
-        if  not _have_key(profile_data, short_name, BOOM_OS_SHORT_NAME):
+        if not _have_key(profile_data, short_name, BOOM_OS_SHORT_NAME):
             raise ValueError("Profile short name cannot be empty.")
 
         if not _have_key(profile_data, version, BOOM_OS_VERSION):
@@ -1009,6 +1013,7 @@ def create_profile(name, short_name, version, version_id,
                     profile_data=profile_data)
     osp.write_profile()
     return osp
+
 
 def delete_profiles(selection=None):
     """Delete profiles matching selection criteria.
@@ -1185,6 +1190,7 @@ def list_profiles(selection=None):
 
     return osps
 
+
 def print_profiles(selection=None, opts=None, output_fields=None,
                    sort_keys=None, expand=False):
     """Print operating system profiles matching selection criteria.
@@ -1252,7 +1258,7 @@ def create_host(machine_id=None, host_name=None, os_id=None, label=None,
     def _have_key(hd, arg, key):
         return arg or hd and key in hd
 
-    if  not _have_key(host_data, host_name, BOOM_OS_NAME):
+    if not _have_key(host_data, host_name, BOOM_OS_NAME):
         raise ValueError("Host name cannot be empty.")
 
     if not _have_key(host_data, machine_id, BOOM_OS_VERSION):
@@ -1523,7 +1529,7 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
                           for the operation
         :param loader: Which boot loader to use
     """
-    (name, decorator, path)  = find_legacy_loader(loader, None)
+    (name, decorator, path) = find_legacy_loader(loader, None)
     bes = find_entries(selection=selection)
     [print(decorator(be)) for be in bes]
 
@@ -2071,6 +2077,7 @@ def _delete_profile_cmd(cmd_args, select, opts, identifier):
     print("Deleted %d profile%s" % (nr, "s" if nr > 1 else ""))
     return 0
 
+
 def _clone_profile_cmd(cmd_args, select, opts, identifier):
     """Clone profile command handler.
 
@@ -2150,6 +2157,7 @@ def _generic_show_cmd(select, find_fn, fmt, get_data):
         first = False
     return 0
 
+
 def _show_profile_cmd(cmd_args, select, opts, identifier):
     """Show profile command handler.
 
@@ -2172,6 +2180,7 @@ def _show_profile_cmd(cmd_args, select, opts, identifier):
     fmt = "OS Profile (os_id=%s)\n%s"
     return _generic_show_cmd(select, find_profiles, fmt, _profile_get_data)
 
+
 def _list_profile_cmd(cmd_args, select, opts, identifier):
     """List profile command handler.
 
@@ -2188,6 +2197,7 @@ def _list_profile_cmd(cmd_args, select, opts, identifier):
 
     return _generic_list_cmd(cmd_args, select, opts, _verbose_profile_fields,
                              print_profiles)
+
 
 def _edit_profile_cmd(cmd_args, select, opts, identifier):
     """Edit profile command handler.
@@ -2511,24 +2521,6 @@ def _show_legacy_cmd(cmd_args, select, opts, identifier):
     show_legacy(selection=select, loader=config.legacy_format)
 
 
-boom_usage = """%(prog}s [type] <command> [options]\n\n"
-                [entry] create <title> <version> [--osprofile=os_id] [...]
-                [entry] delete [title|version|boot_id|os_id]
-                [entry] clone --boot-id ID
-                [entry] list [title|version|boot_id|os_id|root_device|machine_id]\n\n
-                [entry] edit [...]
-                profile create <name> <shortname> <version> <versionid> [...]
-                profile delete [...]
-                profile list [...]
-                profile edit [...]
-                host create <name> <machineid> [...]
-                host delete [...]
-                host list [...]
-                host edit [...]
-                legacy write [...]
-                legacy delete [...]
-             """
-
 CREATE_CMD = "create"
 DELETE_CMD = "delete"
 CLONE_CMD = "clone"
@@ -2600,6 +2592,7 @@ def _id_from_arg(cmd_args, cmdtype, cmd):
             return cmd_args.profile
     return None
 
+
 def _match_cmd_type(cmdtype):
     for t in _boom_command_types:
         if t[0].startswith(cmdtype):
@@ -2636,8 +2629,10 @@ def _report_opts_from_args(cmd_args):
 
     return opts
 
+
 def get_uts_release():
     return uname()[2]
+
 
 def setup_logging(cmd_args):
     global _console_handler
@@ -2709,8 +2704,9 @@ def main(args):
     parser.add_argument("-B", "--btrfs-subvolume", "--btrfssubvolume",
                         metavar="SUBVOL", type=str,
                         help="The path or ID of a BTRFS subvolume")
-    parser.add_argument("--btrfs-opts", "--btrfsopts", metavar="OPTS", type=str,
-                        help="A template option string for BTRFS devices")
+    parser.add_argument("--btrfs-opts", "--btrfsopts", metavar="OPTS",
+                        type=str, help="A template option string for BTRFS "
+                        "devices")
     parser.add_argument("-c", "--config", metavar="FILE", type=str,
                         help="Path to a boom configuration file", default=None)
     parser.add_argument("-d", "--del-opts", "--delopts", metavar="OPTIONS",
@@ -2829,28 +2825,28 @@ def main(args):
         set_boom_config_path(cmd_args.config)
 
     if not path_exists(get_boom_path()):
-        _log_error("Configuration directory '%s' not found."
-                  % get_boom_path())
+        _log_error("Configuration directory '%s' not found." %
+                   get_boom_path())
         return 1
 
     if not path_exists(get_boom_config_path()):
-        _log_error("Configuration file '%s' not found."
-                  % get_boom_config_path())
+        _log_error("Configuration file '%s' not found." %
+                   get_boom_config_path())
         return 1
 
     if not path_exists(boom_profiles_path()):
-        _log_error("OS profile configuration path '%s' not found."
-                  % boom_profiles_path())
+        _log_error("OS profile configuration path '%s' not found." %
+                   boom_profiles_path())
         return 1
 
     if not path_exists(boom_host_profiles_path()):
-        _log_error("Host profile configuration path '%s' not found."
-                  % boom_host_profiles_path())
+        _log_error("Host profile configuration path '%s' not found." %
+                   boom_host_profiles_path())
         return 1
 
     if not path_exists(boom_entries_path()):
-        _log_error("Boot loader entries directory '%s' not found."
-                   % boom_entries_path())
+        _log_error("Boot loader entries directory '%s' not found." %
+                   boom_entries_path())
         return 1
 
     # Parse an LV name from root_lv and re-write the root_device if found
@@ -2903,6 +2899,7 @@ def main(args):
 
     shutdown_logging()
     return status
+
 
 __all__ = [
     # BootEntry manipulation
