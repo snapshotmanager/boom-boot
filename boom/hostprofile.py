@@ -79,7 +79,7 @@ BOOM_HOST_DEL_OPTS = "BOOM_HOST_DEL_OPTS"
 BOOM_HOST_LABEL = "BOOM_HOST_LABEL"
 
 #: Constant for shared machine_id key
-BOOM_ENTRY_MACHINE_ID="BOOM_ENTRY_MACHINE_ID"
+BOOM_ENTRY_MACHINE_ID = "BOOM_ENTRY_MACHINE_ID"
 
 #: Ordered list of possible host profile keys, partitioned into
 #: mandatory keys, optional host profile keys, keys mapping to
@@ -154,6 +154,7 @@ def _host_exists(host_id):
     if host_id in _host_profiles_by_host_id:
         return True
     return False
+
 
 def boom_host_profiles_path():
     """Return the path to the boom host profiles directory.
@@ -250,6 +251,7 @@ def min_machine_id_width():
     """
     return min_id_width(7, _host_profiles, "machine_id")
 
+
 def select_host_profile(s, hp):
     """Test the supplied host profile against selection criteria.
 
@@ -291,7 +293,7 @@ def select_host_profile(s, hp):
     if s.os_kernel_pattern and hp.kernel_pattern != s.os_kernel_pattern:
         return False
     if (s.os_initramfs_pattern and
-        hp.initramfs_pattern != s.os_initramfs_pattern):
+            hp.initramfs_pattern != s.os_initramfs_pattern):
         return False
     if s.os_options and hp.options != s.os_options:
         return False
@@ -389,8 +391,8 @@ def match_host_profile(entry):
         if hp.machine_id == entry.machine_id:
             _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
                        "to HostProfile(name='%s', machine_id='%s')" %
-                        (entry.version, entry.disp_boot_id, hp.host_name,
-                         hp.machine_id))
+                       (entry.version, entry.disp_boot_id, hp.host_name,
+                        hp.machine_id))
             return hp
 
     return None
@@ -435,7 +437,8 @@ class HostProfile(BoomProfile):
             Profile attributes are printed as "Name: value, " pairs,
             with like attributes grouped together onto lines.
 
-            :returns: A human readable string representation of this HostProfile.
+            :returns: A human readable string representation of this
+                      HostProfile.
 
             :rtype: string
         """
@@ -586,7 +589,6 @@ class HostProfile(BoomProfile):
             self._dirty()
 
         self._append_profile()
-
 
     def __init__(self, machine_id=None, host_name=None, label=None, os_id=None,
                  kernel_pattern=None, initramfs_pattern=None,
@@ -917,7 +919,8 @@ class HostProfile(BoomProfile):
     def kernel_pattern(self, value):
         kernel_key = key_from_key_name(FMT_KERNEL)
         if kernel_key in value:
-            raise ValueError("HostProfile.kernel cannot contain %s" % kernel_key)
+            raise ValueError("HostProfile.kernel cannot contain %s" %
+                             kernel_key)
         self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
         self._dirty()
 
@@ -937,7 +940,8 @@ class HostProfile(BoomProfile):
     def initramfs_pattern(self, value):
         initramfs_key = key_from_key_name(FMT_INITRAMFS)
         if initramfs_key in value:
-            raise ValueError("HostProfile.initramfs cannot contain %s" % initramfs_key)
+            raise ValueError("HostProfile.initramfs cannot contain %s" %
+                             initramfs_key)
         self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
         self._dirty()
 
@@ -958,8 +962,8 @@ class HostProfile(BoomProfile):
     def root_opts_lvm2(self, value):
         root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
         if root_opts_key in value:
-                raise ValueError("HostProfile.root_opts_lvm2 cannot contain %s" %
-                                 root_opts_key)
+            raise ValueError("HostProfile.root_opts_lvm2 cannot contain ""%s" %
+                             root_opts_key)
         self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = value
         self._dirty()
 
@@ -979,8 +983,8 @@ class HostProfile(BoomProfile):
     def root_opts_btrfs(self, value):
         root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
         if root_opts_key in value:
-                raise ValueError("HostProfile.root_opts_btrfs cannot contain"
-                                 " %s" % root_opts_key)
+            raise ValueError("HostProfile.root_opts_btrfs cannot contain %s" %
+                             root_opts_key)
         self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
         self._dirty()
 
