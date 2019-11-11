@@ -35,10 +35,12 @@ except ModuleNotFoundError:
     # Python3
     from configparser import ConfigParser, ParsingError
 
+
 class BoomConfigError(BoomError):
     """Base class for boom configuration errors.
     """
     pass
+
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
@@ -200,7 +202,7 @@ def write_boom_config(config=None, path=None):
                    (path, e))
         try:
             unlink(tmp_path)
-        except:
+        except Exception:
             pass
         raise e
 
