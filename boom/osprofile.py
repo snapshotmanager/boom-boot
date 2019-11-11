@@ -169,6 +169,7 @@ def _profile_exists(os_id):
         return True
     return False
 
+
 def boom_profiles_path():
     """Return the path to the boom profiles directory.
 
@@ -314,7 +315,7 @@ def select_profile(s, osp):
     if s.os_kernel_pattern and osp.kernel_pattern != s.os_kernel_pattern:
         return False
     if (s.os_initramfs_pattern and
-        s.os_initramfs_pattern != osp.initramfs_pattern):
+            s.os_initramfs_pattern != osp.initramfs_pattern):
         return False
     if s.os_options and osp.options != s.os_options:
         return False
@@ -415,8 +416,8 @@ def match_os_profile(entry):
         if osp.match_uname_version(entry.version):
             _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
                        "to OsProfile(name='%s', os_id='%s')" %
-                        (entry.version, entry.disp_boot_id, osp.os_name,
-                         osp.disp_os_id))
+                       (entry.version, entry.disp_boot_id, osp.os_name,
+                        osp.disp_os_id))
             return osp
 
     # No matching uname pattern: attempt to match options template
@@ -427,7 +428,7 @@ def match_os_profile(entry):
             _log_debug("Matched BootEntry(version='%s', boot_id='%s') "
                        "to OsProfile(name='%s', os_id='%s')" %
                        (entry.version, entry.disp_boot_id, osp.os_name,
-                       osp.disp_os_id))
+                        osp.disp_os_id))
             return osp
 
     _log_debug_profile("No matching profile found for boot_id=%s" %
@@ -557,6 +558,7 @@ class BoomProfile(object):
             BOOM_OS_ROOT_OPTS_LVM2: [FMT_ROOT_OPTS],
             BOOM_OS_ROOT_OPTS_BTRFS: [FMT_ROOT_OPTS],
         }
+
         def _check_format_key_value(key, value, bad_keys):
             for bad_key in bad_keys:
                 if bad_key in value:
@@ -788,8 +790,8 @@ class BoomProfile(object):
             :rtype: list of (str, str)
         """
         key_format = "%%{%s}"
-        regex_all = "\S+"
-        regex_num = "\d+"
+        regex_all = r"\S+"
+        regex_num = r"\d+"
         regex_words = []
 
         if not fmt:
@@ -1166,7 +1168,7 @@ class BoomProfile(object):
                        (profile_path, e))
             try:
                 unlink(tmp_path)
-            except:
+            except Exception:
                 pass
             raise e
 
