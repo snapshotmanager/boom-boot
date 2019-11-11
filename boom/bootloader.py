@@ -179,6 +179,7 @@ _entries = None
 #: Pattern for forming root device paths from LVM2 names.
 DEV_PATTERN = "/dev/%s"
 
+
 def boom_entries_path():
     """Return the path to the boom profiles directory.
 
@@ -195,6 +196,7 @@ __etc_grub_d = "../etc/grub.d"
 __boom_grub_d = "42_boom"
 __etc_default = "../etc/default"
 __boom_defaults = "boom"
+
 
 def check_bootloader():
     """Check the configuration state of the system bootloader to ensure
@@ -289,8 +291,8 @@ def _match_root_lv(root_device, rd_lvm_lv):
     def dm_split_name(name):
         for i in range(1, len(name)):
             if name[i] == '-':
-              if name[i - 1] != '-' and name[i + 1] != '-':
-                return (name[0:i], name[i + 1:])
+                if name[i - 1] != '-' and name[i + 1] != '-':
+                    return (name[0:i], name[i + 1:])
 
     # root_device=/dev/vg/lv
     if rd_lvm_lv == root_device[5:]:
@@ -740,6 +742,7 @@ class BootParams(object):
 
         return bp
 
+
 def _add_entry(entry):
     """Add a new entry to the list of loaded on-disk entries.
 
@@ -835,6 +838,7 @@ def min_boot_id_width():
     """
     return min_id_width(7, _entries, "boot_id")
 
+
 def select_params(s, bp):
     """Test BootParams against Selection criteria.
 
@@ -858,6 +862,7 @@ def select_params(s, bp):
         return False
 
     return True
+
 
 def select_entry(s, be):
     """Test BootEntry against Selection criteria.
@@ -1230,7 +1235,7 @@ class BootEntry(object):
             add_items.append((BOOM_ENTRY_VERSION, self.version))
 
         # Sort the item list to give stable list ordering on Py3.
-        items = sorted(items, key=lambda i:i[0], reverse=True)
+        items = sorted(items, key=lambda i: i[0], reverse=True)
 
         return items + add_items
 
@@ -1692,14 +1697,14 @@ class BootEntry(object):
         NEEDS = "needs"
 
         format_key_specs = {
-            FMT_VERSION: [{BE_ATTR:"version", BP_ATTR:"version"}],
+            FMT_VERSION: [{BE_ATTR: "version", BP_ATTR: "version"}],
             FMT_LVM_ROOT_LV: [{BP_ATTR: "lvm_root_lv"}],
             FMT_LVM_ROOT_OPTS: [{OSP_ATTR: "root_opts_lvm2"}],
             FMT_BTRFS_ROOT_OPTS: [{OSP_ATTR: "root_opts_btrfs"}],
-            FMT_BTRFS_SUBVOLUME: [{BP_ATTR:"btrfs_subvol_id", NEEDS: "bp",
+            FMT_BTRFS_SUBVOLUME: [{BP_ATTR: "btrfs_subvol_id", NEEDS: "bp",
                                    PRED_FN: [mkpred(bp, "has_btrfs")],
                                    VAL_FMT: "subvolid=%s"},
-                                  {BP_ATTR:"btrfs_subvol_path", NEEDS: "bp",
+                                  {BP_ATTR: "btrfs_subvol_path", NEEDS: "bp",
                                    PRED_FN: [mkpred(bp, "has_btrfs")],
                                    VAL_FMT: "subvol=%s"}],
             FMT_ROOT_DEVICE: [{BP_ATTR: "root_device", NEEDS: "bp"}],
@@ -1714,7 +1719,7 @@ class BootEntry(object):
 
         for key_name in format_key_specs.keys():
             key = key_format % key_name
-            if not key in fmt:
+            if key not in fmt:
                 continue
             for key_spec in format_key_specs[key_name]:
                 # Check NEEDS
@@ -1780,7 +1785,7 @@ class BootEntry(object):
         """
         if not self._osp or not self._osp.optional_keys:
             return False
-        if not key in self._osp.optional_keys:
+        if key not in self._osp.optional_keys:
             return False
         return True
 
@@ -1916,7 +1921,6 @@ class BootEntry(object):
     def version(self, version):
         self._entry_data[BOOM_ENTRY_VERSION] = version
         self._dirty()
-
 
     def _options(self, expand=False):
         """The command line options for this ``BootEntry``, optionally
@@ -2307,7 +2311,7 @@ class BootEntry(object):
                        (entry_path, e))
             try:
                 unlink(tmp_path)
-            except:
+            except Exception:
                 pass
             raise e
 
