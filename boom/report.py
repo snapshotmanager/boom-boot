@@ -77,6 +77,7 @@ except NameError:
 
 num_types = (int, float)
 
+
 class BoomReportOpts(object):
     """BoomReportOpts()
         Options controlling the formatting and output of a boom report.
@@ -235,7 +236,7 @@ class BoomFieldProperties(object):
     implicit = False
     sort_key = False
     sort_dir = None
-    compact_one = False # used for implicit fields
+    compact_one = False  # used for implicit fields
     compacted = False
     sort_posn = None
 
@@ -331,6 +332,7 @@ class BoomRow(object):
     _fields = None
     #: fields in sort order
     _sort_fields = None
+
     def __init__(self, report):
         self._report = report
         self._fields = []
@@ -343,12 +345,14 @@ class BoomRow(object):
         """
         self._fields.append(field)
 
+
 def __none_returning_fn(obj):
     """Dummy data function for special report types.
 
         :returns: None
     """
     return None
+
 
 # Implicit report fields and types
 
@@ -359,12 +363,14 @@ _implicit_special_report_types = [
     )
 ]
 
+
 def __no_report_fn(f, d):
     """Dummy report function for special report types.
 
         :returns: None
     """
     return
+
 
 _special_field_help_name = "help"
 
@@ -596,7 +602,7 @@ class BoomReport(object):
             :param field_num: The field number of the key to add
             :param sort: The sort direction for this key
             :param implicit: True if field_num is implicit, else False
-            :param type_only: True if this call should only update types 
+            :param type_only: True if this call should only update types
         """
         fields = self._implicit_fields if implicit else self._fields
         found = None
@@ -637,7 +643,7 @@ class BoomReport(object):
             raise ValueError("Sort key name cannot be empty")
 
         if key_name.startswith('+'):
-            sort_dir =  ASCENDING
+            sort_dir = ASCENDING
             key_name = key_name[1:]
         elif key_name.startswith('-'):
             sort_dir = DESCENDING
@@ -754,7 +760,8 @@ class BoomReport(object):
                     shas[num].add(field.report_string)
         for num in shas.keys():
             min_prefix = max(MIN_SHA_WIDTH, props_map[num].width)
-            props_map[num].width = find_minimum_sha_prefix(shas[num], min_prefix)
+            props_map[num].width = find_minimum_sha_prefix(shas[num],
+                                                           min_prefix)
 
     def __recalculate_fields(self):
         """Recalculate field widths.
@@ -886,6 +893,7 @@ class BoomReport(object):
                     :param other: The other object to be compared
                 """
                 return _row_cmp(self.obj, other.obj) == 0
+
             def __le__(self, other):
                 """Test if less than or equal to.
 
@@ -1071,6 +1079,7 @@ class BoomReport(object):
             return self._output_as_rows()
         else:
             return self._output_as_columns()
+
 
 __all__ = [
     # Module constants
