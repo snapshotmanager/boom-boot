@@ -31,12 +31,12 @@ import logging
 import re
 
 #: Format strings use to construct begin/end markers
-BOOM_LEGACY_BEGIN_FMT="#--- BOOM_%s_BEGIN ---"
-BOOM_LEGACY_END_FMT="#--- BOOM_%s_END ---"
+BOOM_LEGACY_BEGIN_FMT = "#--- BOOM_%s_BEGIN ---"
+BOOM_LEGACY_END_FMT = "#--- BOOM_%s_END ---"
 
 #: Constants for legacy boot loaders supported by boom
-BOOM_LOADER_GRUB1="grub1"
-BOOM_GRUB1_CFG_PATH="grub/grub.conf"
+BOOM_LOADER_GRUB1 = "grub1"
+BOOM_GRUB1_CFG_PATH = "grub/grub.conf"
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
@@ -46,9 +46,9 @@ _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
 
-
 #: Grub1 root device cache
 __grub1_device = None
+
 
 def _get_grub1_device(force=False):
     """Determine the current grub1 root device and return it as a
@@ -170,7 +170,6 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
             with open(path, "r") as cfg_f:
                 for line in cfg_f:
                     tmp_f.write(line)
-    
             tmp_f.write(begin_tag + "\n")
             bes = find_entries(selection=selection)
             for be in bes:
@@ -194,9 +193,10 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
                    (path, e))
         try:
             unlink(tmp_path)
-        except:
+        except Exception:
             pass
         raise e
+
 
 def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
     """Delete all boom managed entries from the specified legacy boot
@@ -258,7 +258,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
 
     # Pre-set configuration error messages. Use a string format for
     # the line number so that 'EOF' can be passed for end-of-file.
-    err_dupe_begin = ("Duplicate Boom begin tag at %s in legacy " + 
+    err_dupe_begin = ("Duplicate Boom begin tag at %s in legacy " +
                       "configuration file '%s'")
     err_dupe_end = ("Duplicate Boom end tag at %s in legacy " +
                     "configuration file '%s'")
@@ -288,7 +288,6 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
                                                  (line_nr, path))
                         in_boom_cfg = True
                         continue
-    
                     if end_tag in line:
                         if found_boom:
                             _legacy_format_error(err_dupe_end, (line_nr, path))
@@ -297,10 +296,8 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
                         in_boom_cfg = False
                         found_boom = True
                         continue
-    
                     if not in_boom_cfg:
                         tmp_f.write(line)
-    
                     line_nr += 1
     except BoomLegacyFormatError as e:
         _log_error("Error parsing %s configuration: %s" % (name, e))
@@ -326,7 +323,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
                    (path, e))
         try:
             unlink(tmp_path)
-        except:
+        except Exception:
             pass
         raise e
 
@@ -361,6 +358,7 @@ class Grub1BootEntry(object):
         return grub1_fmt % (self.be.title, _get_grub1_device(),
                             self.be.linux, self.be.options, self.be.initrd)
 
+
 #: Map of legacy boot loader decorator classes and defaults.
 #: Each entry in _loader_map is a three tuple containing the
 #: format's name, decorator class and default configuration path.
@@ -386,3 +384,4 @@ __all__ = [
     'Grub1BootEntry'
 ]
 
+# vim: set et ts=4 sw=4 :
