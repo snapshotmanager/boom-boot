@@ -129,7 +129,7 @@ def _root_lv_from_cmdline():
                 if "rd.lvm.lv" in arg:
                     (rd, vglv) = arg.split("=")
                     return "/dev/%s" % vglv
-        return ""
+        return None
 
 
 def get_logical_volume():
@@ -177,6 +177,12 @@ def get_root_lv():
     return get_logical_volume()[5:]
 
 
+def have_root_lv():
+    """Return ``True`` if a usable root logical volume is present,
+        or ``False`` otherwise.
+    """
+    return bool(get_root_lv())
+
 # Test predicates
 
 def have_root():
@@ -214,7 +220,7 @@ def have_grub1():
 __all__ = [
     'BOOT_ROOT_TEST', 'SANDBOX_PATH',
     'rm_sandbox', 'mk_sandbox', 'reset_sandbox', 'reset_boom_paths',
-    'get_logical_volume', 'get_root_lv',
+    'get_logical_volume', 'get_root_lv', 'have_root_lv',
     'MockArgs',
     'have_root', 'have_lvm', 'have_grub1'
 ]
