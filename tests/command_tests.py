@@ -386,6 +386,7 @@ class CommandTests(unittest.TestCase):
         bes = list_entries(Selection(version=version))
         self.assertEqual(len(bes), nr)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_create_entry_notitle(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -394,6 +395,7 @@ class CommandTests(unittest.TestCase):
             be = create_entry(None, "2.6.0", "ffffffff", test_lv,
                               lvm_root_lv=test_root_lv, profile=osp)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_create_entry_noversion(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -401,6 +403,7 @@ class CommandTests(unittest.TestCase):
             be = create_entry("ATITLE", None, "ffffffff", test_lv,
                               lvm_root_lv=test_root_lv, profile=osp)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_create_entry_nomachineid(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -408,6 +411,7 @@ class CommandTests(unittest.TestCase):
             be = create_entry("ATITLE", "2.6.0", "", test_lv,
                               lvm_root_lv=test_root_lv, profile=osp)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_create_entry_norootdevice(self):
         # FIXME: should this default from the lvm_root_lv?
         # Fedora 24 (Workstation Edition)
@@ -416,6 +420,7 @@ class CommandTests(unittest.TestCase):
             be = create_entry("ATITLE", "2.6.0", "ffffffff", None,
                               lvm_root_lv=test_root_lv, profile=osp)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_create_entry_noosprofile(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -438,6 +443,7 @@ class CommandTests(unittest.TestCase):
                          btrfs_subvol_id=btrfs_subvol_id, profile=osp,
                          allow_no_dev=True)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_create_delete_entry(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -448,7 +454,8 @@ class CommandTests(unittest.TestCase):
         delete_entries(Selection(boot_id=be.boot_id))
         self.assertFalse(exists(be._entry_path))
 
-    @unittest.skipIf(not have_grub1(), "requires grub1")
+    @unittest.skipIf(not have_grub1() or not have_root_lv(), "requires "
+                     "grub1 and LVM")
     def test_create_delete_entry_with_legacy(self):
         config = BoomConfig()
         config.legacy_enable = True
@@ -497,6 +504,7 @@ class CommandTests(unittest.TestCase):
         be.delete_entry()
         self.assertFalse(exists(be._entry_path))
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_clone_delete_entry(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -515,6 +523,7 @@ class CommandTests(unittest.TestCase):
         self.assertFalse(exists(be._entry_path))
         self.assertFalse(exists(be2._entry_path))
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_clone_entry_no_args(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -540,6 +549,7 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(orig_be.options, be.options)
         be.delete_entry()
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_clone_dupe(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -570,6 +580,7 @@ class CommandTests(unittest.TestCase):
             bad_be = edit_entry(Selection(boot_id="6"), title="NEWTITLE")
 
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_edit_entry_add_opts(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -608,6 +619,7 @@ class CommandTests(unittest.TestCase):
         # Clean up entries
         edit_be.delete_entry()
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_edit_entry_add_opts_with_add_opts(self):
         edit_title = "EDITED_TITLE"
         edit_add_opts = "foo"
@@ -655,6 +667,7 @@ class CommandTests(unittest.TestCase):
         # Clean up entries
         edit_be.delete_entry()
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_edit_entry_del_opts(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -693,6 +706,7 @@ class CommandTests(unittest.TestCase):
         # Clean up entries
         edit_be.delete_entry()
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_edit_entry_del_opts_with_del_opts(self):
         edit_title = "EDITED_TITLE"
         edit_del_opts = "rhgb"
@@ -744,6 +758,7 @@ class CommandTests(unittest.TestCase):
         # Clean up entries
         edit_be.delete_entry()
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_edit_entry_del_opts(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -758,6 +773,7 @@ class CommandTests(unittest.TestCase):
         be.delete_entry()
         self.assertFalse(exists(be._entry_path))
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_edit_delete_entry(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -777,6 +793,7 @@ class CommandTests(unittest.TestCase):
 
         self.assertFalse(exists(edit_be._entry_path))
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_edit_entry_no_args(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
@@ -789,6 +806,7 @@ class CommandTests(unittest.TestCase):
 
         be.delete_entry()
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_edit_entry_with_add_del_opts(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
