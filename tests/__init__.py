@@ -174,7 +174,8 @@ def get_root_lv():
     """Return the logical volume found by ``get_logical_volume()``
         in LVM VG/LV notation.
     """
-    return get_logical_volume()[5:]
+    lv = get_logical_volume()
+    return lv[5:] if lv else None
 
 
 def have_root_lv():
