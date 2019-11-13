@@ -1731,13 +1731,16 @@ class CommandTests(unittest.TestCase):
         # Depending on the machine the test suite is running on it is
         # possible that an OsProfile already exists for the system. To
         # avoid a collision between an existing host OsProfile and the
-        # newly created test profile, delete any existing profile from
-        # the test sandbox first.
+        # newly created test profile, attempt to delete any existing
+        # profile from the test sandbox first.
         drop_profiles()
         host_os_id = OsProfile.from_host_os_release().os_id
         load_profiles()
         if host_os_id:
-            delete_profiles(selection=Selection(os_id=host_os_id))
+            try:
+                delete_profiles(selection=Selection(os_id=host_os_id))
+            except Exception:
+                pass
 
         args = MockArgs()
         args.uname_pattern = "test1"
