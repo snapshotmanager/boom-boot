@@ -1278,6 +1278,7 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test__create_cmd_version_from_uts(self):
         """Test the _create_cmd() handler with missing version, and the
             default version obtained from the system UTS data.
@@ -1297,6 +1298,7 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test__create_cmd_auto_machine_id(self):
         """Test the _create_cmd() handler with automatic machine_id.
         """
@@ -1341,6 +1343,7 @@ class CommandTests(unittest.TestCase):
         r = boom.command._delete_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test__create_cmd_with_override(self):
         args = get_create_cmd_args()
         args.title = "override test"
