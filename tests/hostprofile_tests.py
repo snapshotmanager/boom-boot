@@ -27,6 +27,9 @@ from boom.hostprofile import *
 from boom.bootloader import *
 from boom import *
 
+# For private member validation checks
+import boom.hostprofile
+
 from tests import *
 
 BOOT_ROOT_TEST = abspath("./tests")
@@ -316,30 +319,42 @@ class HostProfileTests(unittest.TestCase):
         del_opts = "rhgb quiet"
         select = Selection(host_del_opts=del_opts)
         hp_list = find_host_profiles(selection=select)
-        # Adjusted to current test data
-        self.assertEqual(1, len(hp_list))
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.del_opts == del_opts:
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hp_list))
         self.assertEqual(del_opts, hp_list[0].del_opts)
 
     def test_hostprofile_find_profiles_by_os_id(self):
         os_id = "3fc389b"
         hp_list = find_host_profiles(selection=Selection(os_id=os_id))
-        # Adjusted to current test data
-        self.assertEqual(2, len(hp_list))
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.os_id.startswith(os_id):
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hp_list))
         self.assertTrue(hp_list[0].os_id.startswith(os_id))
 
     def test_hostprofile_find_profiles_by_os_name(self):
         os_name = "Fedora"
         hp_list = find_host_profiles(selection=Selection(os_name=os_name))
-        # Adjusted to current test data
-        self.assertEqual(3, len(hp_list))
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.os_name == os_name:
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hp_list))
         self.assertEqual(os_name, hp_list[0].os_name)
 
     def test_hostprofile_find_profiles_by_os_short_name(self):
         os_short_name = "fedora"
         select = Selection(os_short_name=os_short_name)
         hp_list = find_host_profiles(selection=select)
-        # Adjusted to current test data
-        self.assertEqual(3, len(hp_list))
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.os_short_name == os_short_name:
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hp_list))
         self.assertEqual(os_short_name, hp_list[0].os_short_name)
 
     def test_hostprofile_find_profiles_by_os_version(self):
@@ -354,31 +369,40 @@ class HostProfileTests(unittest.TestCase):
         os_version_id = "7.2"
         select = Selection(os_version_id=os_version_id)
         hp_list = find_host_profiles(selection=select)
-        # Adjusted to current test data
-        self.assertEqual(2, len(hp_list))
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.os_version_id == os_version_id:
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hp_list))
         self.assertEqual(os_version_id, hp_list[0].os_version_id)
 
     def test_hostprofile_find_profiles_by_uname_pattern(self):
         uname_pattern = "el7"
         select = Selection(os_uname_pattern=uname_pattern)
         hp_list = find_host_profiles(selection=select)
-        # Adjusted to current test data
-        self.assertEqual(2, len(hp_list))
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.uname_pattern == uname_pattern:
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hp_list))
         self.assertEqual(uname_pattern, hp_list[0].uname_pattern)
 
     def test_hostprofile_find_profiles_by_kernel_pattern(self):
         kernel_pattern = "/vmlinuz-%{version}"
         select = Selection(os_kernel_pattern=kernel_pattern)
         hp_list = find_host_profiles(selection=select)
-        # Adjusted to current test data
-        self.assertEqual(5, len(hp_list))
+
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.kernel_pattern == kernel_pattern:
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hp_list))
         self.assertEqual(kernel_pattern, hp_list[0].kernel_pattern)
 
         # Non-matching
         kernel_pattern = "NOTAREALKERNELPATTERN"
         select = Selection(os_kernel_pattern=kernel_pattern)
         hp_list = find_host_profiles(selection=select)
-        # Adjusted to current test data
         self.assertFalse(hp_list)
 
     def test_hostprofile_find_profiles_by_initramfs_pattern(self):
@@ -392,7 +416,6 @@ class HostProfileTests(unittest.TestCase):
                                             initramfs_pattern,
                                             exact=True, default=True)
 
-        # Adjusted to current test data
         self.assertEqual(profile_count, len(hp_list))
         self.assertEqual(initramfs_pattern, hp_list[0].initramfs_pattern)
 
@@ -407,8 +430,11 @@ class HostProfileTests(unittest.TestCase):
         options = "root=%{root_device} ro %{root_opts} rhgb quiet"
         select = Selection(os_options=options)
         hp_list = find_host_profiles(selection=select)
-        # Adjusted to current test data
-        self.assertEqual(2, len(hp_list))
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.options == options:
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hp_list))
         self.assertEqual(options, hp_list[0].options)
 
         # Non-matching
@@ -442,34 +468,53 @@ class HostProfileTests(unittest.TestCase):
         hps = find_host_profiles(Selection(host_id="fffffff"))
         self.assertFalse(hps)
 
+        host_id1 = "373ccd1"
         # Valid single host_id
-        hps = find_host_profiles(Selection(host_id="373ccd1"))
+        hps = find_host_profiles(Selection(host_id=host_id1))
         self.assertTrue(hps)
-        # Adjusted to current test data
-        self.assertEqual(1, len(hps))
+
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.host_id.startswith(host_id1):
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hps))
 
         # Two host profiles exist for this host_id (and with no label).
         # This is because this host is used for "hand edited host"
         # testing. Although this is not a valid configuratio that can
         # be reached using the Boom CLI it is still expected to work
         # and to produce consistent API behaviour.
-        hps = find_host_profiles(Selection(host_id="5ebcb1f"))
+        host_id2 = "5ebcb1f"
+        hps = find_host_profiles(Selection(host_id=host_id2))
         self.assertTrue(hps)
-        # Adjusted to current test data
-        self.assertEqual(1, len(hps))
+
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.host_id.startswith(host_id2):
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hps))
 
         # Valid host_id scoped by label
-        hps = find_host_profiles(Selection(host_id="373ccd1",
-                                           host_label="ALABEL"))
+        host_label = "ALABEL"
+        hps = find_host_profiles(Selection(host_id=host_id1,
+                                           host_label=host_label))
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.host_id.startswith(host_id1):
+                if hp.label == host_label:
+                    nr_hps += 1
         self.assertTrue(hps)
-        # Adjusted to current test data
-        self.assertEqual(1, len(hps))
+        self.assertEqual(nr_hps, len(hps))
 
     def test_find_host_host_name(self):
-        hps = find_host_profiles(Selection(host_name="localhost.localdomain"))
+        host_name = "localhost.localdomain"
+        hps = find_host_profiles(Selection(host_name=host_name))
         self.assertTrue(hps)
-        # Adjusted to current test data
-        self.assertEqual(2, len(hps))
+        nr_hps = 0
+        for hp in boom.hostprofile._host_profiles:
+            if hp.host_name == host_name:
+                nr_hps += 1
+        self.assertEqual(nr_hps, len(hps))
 
     def test_find_host_host_short_name(self):
         load_host_profiles()
