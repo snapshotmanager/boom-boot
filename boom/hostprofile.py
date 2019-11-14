@@ -1028,6 +1028,12 @@ class HostProfile(BoomProfile):
         self._profile_data[BOOM_OS_TITLE] = value
         self._dirty()
 
+    @property
+    def optional_keys(self):
+        if not self.osp or not self.osp.optional_keys:
+            return ""
+        return self.osp.optional_keys
+
     #
     # HostProfile specific properties
     #
