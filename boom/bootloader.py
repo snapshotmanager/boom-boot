@@ -2405,6 +2405,10 @@ __all__ = [
     'BOOM_ENTRY_GRUB_CLASS',
     'BOOM_ENTRY_GRUB_ID',
 
+    # Lists of valid BootEntry keys
+    'ENTRY_KEYS',
+    'OPTIONAL_KEYS',
+
     # Root device pattern
     'DEV_PATTERN',
 
