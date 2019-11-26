@@ -1593,6 +1593,22 @@ def _apply_optional_keys(be, cmd_args):
         be.grub_users = cmd_args.grub_users.strip()
 
 
+def _set_optional_key_defaults(profile, cmd_args):
+    """Apply default values for all optional keys supported by
+        ``profile`` to command line arguments ``cmd_args``.
+    """
+    for opt_key in OPTIONAL_KEYS:
+        bls_key = key_to_bls_name(opt_key)
+        if bls_key not in profile.optional_keys:
+            if getattr(cmd_args, bls_key) is not None:
+                print("Profile with os_id='%s' does not support %s" %
+                      (profile.disp_os_id, _optional_key_to_arg(bls_key)))
+                return 1
+        else:
+            if getattr(cmd_args, bls_key) is None:
+                setattr(cmd_args, bls_key, optional_key_default(opt_key))
+
+
 def _create_cmd(cmd_args, select, opts, identifier):
     """Create entry command handler.
 
@@ -1647,12 +1663,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
     if not profile:
         return 1
 
-    optional_keys = _optional_key_args(cmd_args)
-    for opt_key in optional_keys:
-        if opt_key not in profile.optional_keys:
-            print("Profile with os_id='%s' does not support %s" %
-                  (profile.disp_os_id, _optional_key_to_arg(opt_key)))
-            return 1
+    _set_optional_key_defaults(profile, cmd_args)
 
     if not cmd_args.title and not profile.title:
         print("create requires --title")
