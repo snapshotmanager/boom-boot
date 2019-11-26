@@ -887,10 +887,30 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
     return hp or osp
 
 
-def _os_profile_from_file(os_release, uname_pattern,
-                          kernel_pattern, initramfs_pattern,
-                          root_opts_lvm2, root_opts_btrfs,
-                          options, profile_data=None):
+def _uname_heuristic(name, version_id):
+    """Attempt to guess a uname pattern for a given OS name and
+        version_id value.
+
+        This is currently supported for Red Hat Enterprise Linux and
+        Fedora since both distributions provide a fixed string in the
+        UTS release string that can be used to match candidate kernel
+        versions against.
+
+        :returns: ``True`` if uname pattern heuristics should be used
+                  for this OS or ``False`` otherwise.
+    """
+    _name_to_uname = {
+        "Red Hat Enterprise Server": "el",
+        "Red Hat Enterprise Workstation": "el",
+        "Fedora": "fc"
+    }
+
+    if name in _name_to_uname:
+        return "%s%s" % (_name_to_uname[name], version_id)
+    return None
+
+
+def _os_profile_from_file(os_release, uname_pattern, profile_data=None):
     """Create OsProfile from os-release file.
 
         Construct a new ``OsProfile`` object from the specified path,
@@ -907,7 +927,22 @@ def _os_profile_from_file(os_release, uname_pattern,
         :returns: A new OsProfile
         :rtype: OsProfile
     """
+    profile_data[BOOM_OS_UNAME_PATTERN] = uname_pattern
     osp = OsProfile.from_os_release_file(os_release, profile_data=profile_data)
+
+    # When creating an OsProfile from an os-release file we cannot
+    # guess the uname_pattern until after the file has been read and
+    # the os_name and os_version_id values have been set.
+    if uname_pattern:
+        osp.uname_pattern = uname_pattern
+    else:
+        # Attempt to guess a uname_pattern for operating systems
+        # that have predictable UTS release patterns.
+        osp.uname_pattern = _uname_heuristic(osp.os_name, osp.os_version_id)
+
+    if not osp.uname_pattern:
+        raise ValueError("Could not determine uname pattern for '%s'" %
+                         osp.os_name)
     osp.write_profile()
     return osp
 
@@ -980,8 +1015,21 @@ def create_profile(name, short_name, version, version_id,
         if version_id:
             profile_data[BOOM_OS_VERSION_ID] = version_id
 
-    if uname_pattern:
-        profile_data[BOOM_OS_UNAME_PATTERN] = uname_pattern
+        if uname_pattern:
+            profile_data[BOOM_OS_UNAME_PATTERN] = uname_pattern
+        elif BOOM_OS_UNAME_PATTERN not in profile_data:
+            # Attempt to guess a uname_pattern for operating systems
+            # that have predictable UTS release patterns.
+            pattern = _uname_heuristic(
+                profile_data[BOOM_OS_NAME],
+                profile_data[BOOM_OS_VERSION_ID]
+            )
+            if pattern:
+                profile_data[BOOM_OS_UNAME_PATTERN] = pattern
+            else:
+                raise ValueError("Could not determine uname pattern for '%s'" %
+                                 profile_data[BOOM_OS_NAME])
+
     if kernel_pattern:
         profile_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
     if initramfs_pattern:
@@ -997,9 +1045,7 @@ def create_profile(name, short_name, version, version_id,
 
     if profile_file:
         return _os_profile_from_file(profile_file, uname_pattern,
-                                     kernel_pattern, initramfs_pattern,
-                                     root_opts_lvm2, root_opts_btrfs,
-                                     options, profile_data=profile_data)
+                                     profile_data=profile_data)
 
     osp = OsProfile(name, short_name, version, version_id,
                     profile_data=profile_data)
@@ -2004,10 +2050,6 @@ def _create_profile_cmd(cmd_args, select, opts, identifier):
         else:
             version_id = cmd_args.os_version_id
         release = None
-
-    if not cmd_args.uname_pattern:
-        print("profile create requires --uname-pattern")
-        return 1
 
     try:
         osp = create_profile(name, short_name, version, version_id,
