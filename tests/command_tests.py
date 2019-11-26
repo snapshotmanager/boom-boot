@@ -1305,6 +1305,7 @@ class CommandTests(unittest.TestCase):
         args = get_create_cmd_args()
         args.machine_id = None
         args.profile = None
+        args.version = None
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._create_cmd(args, None, opts, None)
         self.assertNotEqual(r, 1)
