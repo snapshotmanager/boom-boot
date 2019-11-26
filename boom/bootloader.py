@@ -145,6 +145,26 @@ KEY_MAP = {
     BOOM_ENTRY_GRUB_ID: "id"
 }
 
+#: Default values for optional keys
+OPTIONAL_KEY_DEFAULTS = {
+    BOOM_ENTRY_GRUB_USERS: "$grub_users",
+    BOOM_ENTRY_GRUB_ARG: "kernel",
+    BOOM_ENTRY_GRUB_CLASS: "--unrestricted",
+    BOOM_ENTRY_GRUB_ID: None
+}
+
+
+def optional_key_default(key):
+    """Return the default value for the optional key ``key``.
+
+        :param key: A Boom optional entry key.
+        :returns: The default value for optional key ``key``.
+        :rtype: str
+    """
+    if key not in OPTIONAL_KEY_DEFAULTS.keys():
+        raise ValueError("Unknown optional BootEntry key: %s" % key)
+    return OPTIONAL_KEY_DEFAULTS[key]
+
 
 def __make_map_key(key_map):
     """Compatibility function to generate a reverse dictionary on
@@ -2417,6 +2437,9 @@ __all__ = [
 
     # BootParams and BootEntry objects
     'BootParams', 'BootEntry',
+
+    # Default values for optional BootEntry keys
+    'optional_key_default',
 
     # Path configuration
     'boom_entries_path',

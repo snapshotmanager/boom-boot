@@ -2718,13 +2718,10 @@ def main(args):
     parser.add_argument("-E", "--expand-variables", action="store_true",
                         help="Expand bootloader environment variables")
     parser.add_argument("--grub-arg", metavar="ARGS", type=str,
-                        default="--unrestricted",
                         help="Pass additional arguments to the Grub2 loader")
     parser.add_argument("--grub-class", metavar="CLASS", type=str,
-                        default="kernel",
                         help="Specify a Grub2 class for this entry")
     parser.add_argument("--grub-users", metavar="USERS", type=str,
-                        default="$grub_users",
                         help="Grub user list for password protection")
     parser.add_argument("-H", "--from-host", "--fromhost",
                         help="Take os-release values from the running host",
