@@ -910,6 +910,25 @@ def _uname_heuristic(name, version_id):
     return None
 
 
+def _default_optional_keys(osp):
+    """Set default optional keys for OsProfile
+
+        Attempt to set default optional keys for a given OsProfile
+        if the distribution is known to support the Red Hat BLS
+        extensions.
+    """
+    all_optional_keys = "grub_arg grub_class grub_users id"
+    _default_optional_keys = [
+        "Red Hat Enterprise Linux Server",
+        "Red Hat Enterprise Linux Workstation",
+        "CentOS Linux",
+        "Fedora"
+    ]
+    if osp.os_name in _default_optional_keys:
+        return all_optional_keys
+    return ""
+
+
 def _os_profile_from_file(os_release, uname_pattern, profile_data=None):
     """Create OsProfile from os-release file.
 
@@ -1049,6 +1068,10 @@ def create_profile(name, short_name, version, version_id,
 
     osp = OsProfile(name, short_name, version, version_id,
                     profile_data=profile_data)
+
+    if not osp.optional_keys:
+        osp.optional_keys = _default_optional_keys(osp)
+
     osp.write_profile()
     return osp
 
