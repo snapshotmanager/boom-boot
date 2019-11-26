@@ -1064,7 +1064,8 @@ class BoomProfile(object):
         _valid_optional_keys = [
             "grub_users",
             "grub_arg",
-            "grub_class"
+            "grub_class",
+            "id"
         ]
         if optional_key not in _valid_optional_keys:
             raise ValueError("Unknown optional key: '%s'" % optional_key)
