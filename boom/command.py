@@ -917,7 +917,7 @@ def _default_optional_keys(osp):
         if the distribution is known to support the Red Hat BLS
         extensions.
     """
-    all_optional_keys = "grub_arg grub_class grub_users id"
+    all_optional_keys = "grub_users grub_arg grub_class id"
     _default_optional_keys = [
         "Red Hat Enterprise Linux Server",
         "Red Hat Enterprise Linux Workstation",
