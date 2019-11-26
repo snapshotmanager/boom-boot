@@ -166,6 +166,18 @@ def optional_key_default(key):
     return OPTIONAL_KEY_DEFAULTS[key]
 
 
+def key_to_bls_name(key):
+    """Return the BLS key name for the corresponding Boom entry key.
+
+        :param key: A Boom entry key.
+        :returns: A string representing the BLS key name.
+        :rtype: str
+    """
+    if key not in KEY_MAP.keys():
+        raise ValueError("Unknown BootEntry key: %s" % key)
+    return KEY_MAP[key]
+
+
 def __make_map_key(key_map):
     """Compatibility function to generate a reverse dictionary on
         Python 2.6 which does not support dictionary comprehension
@@ -2437,6 +2449,9 @@ __all__ = [
 
     # BootParams and BootEntry objects
     'BootParams', 'BootEntry',
+
+    # BLS Key lookup
+    'key_to_bls_name',
 
     # Default values for optional BootEntry keys
     'optional_key_default',
