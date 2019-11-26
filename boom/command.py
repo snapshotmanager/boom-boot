@@ -62,14 +62,6 @@ _log_error = _log.error
 _default_log_level = logging.WARNING
 _console_handler = None
 
-# Map of optional key names to BLS notation
-_OPTIONAL_KEY_MAP = {
-    BOOM_ENTRY_GRUB_USERS: "grub_users",
-    BOOM_ENTRY_GRUB_ARG: "grub_arg",
-    BOOM_ENTRY_GRUB_CLASS: "grub_class",
-    BOOM_ENTRY_ID: "id"
-}
-
 
 #
 # Reporting object types
@@ -1559,23 +1551,6 @@ def _optional_key_to_arg(optional_key):
         BOOM_ENTRY_GRUB_CLASS: "--grub-class"
     }
     return _key_map[optional_key] if optional_key in _key_map else None
-
-
-def _optional_key_args(cmd_args):
-    """Test for the presence of arguments that invoke optional
-        keys that must be permitted by the selected ``OsProfile``.
-
-        Returns a list of optional key names if any optional key
-        arguments are present, or the empty list otherwise.
-    """
-    optional_keys = []
-    if cmd_args.grub_arg:
-        optional_keys.append(_OPTIONAL_KEY_MAP[BOOM_ENTRY_GRUB_ARG])
-    if cmd_args.grub_class:
-        optional_keys.append(_OPTIONAL_KEY_MAP[BOOM_ENTRY_GRUB_CLASS])
-    if cmd_args.grub_users:
-        optional_keys.append(_OPTIONAL_KEY_MAP[BOOM_ENTRY_GRUB_USERS])
-    return optional_keys
 
 
 def _apply_optional_keys(be, cmd_args):
