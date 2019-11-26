@@ -100,14 +100,14 @@ BOOM_ENTRY_GRUB_ARG = "BOOM_ENTRY_GRUB_ARG"
 #: The Red Hat ``BootEntry`` grub_class key.
 BOOM_ENTRY_GRUB_CLASS = "BOOM_ENTRY_GRUB_CLASS"
 #: The Red Hat ``BootEntry`` id key.
-BOOM_ENTRY_ID = "BOOM_ENTRY_ID"
+BOOM_ENTRY_GRUB_ID = "BOOM_ENTRY_GRUB_ID"
 
 #: Optional keys not defined by the upstream BLS specification.
 OPTIONAL_KEYS = [
     BOOM_ENTRY_GRUB_USERS,
     BOOM_ENTRY_GRUB_ARG,
     BOOM_ENTRY_GRUB_CLASS,
-    BOOM_ENTRY_ID
+    BOOM_ENTRY_GRUB_ID
 ]
 
 #: An ordered list of all possible ``BootEntry`` keys.
@@ -125,7 +125,7 @@ ENTRY_KEYS = [
     BOOM_ENTRY_DEVICETREE, BOOM_ENTRY_ARCHITECTURE,
     # Optional implementation defined BLS keys
     BOOM_ENTRY_GRUB_USERS, BOOM_ENTRY_GRUB_ARG, BOOM_ENTRY_GRUB_CLASS,
-    BOOM_ENTRY_ID
+    BOOM_ENTRY_GRUB_ID
 ]
 
 #: Map Boom entry names to BLS keys
@@ -142,7 +142,7 @@ KEY_MAP = {
     BOOM_ENTRY_GRUB_USERS: "grub_users",
     BOOM_ENTRY_GRUB_ARG: "grub_arg",
     BOOM_ENTRY_GRUB_CLASS: "grub_class",
-    BOOM_ENTRY_ID: "id"
+    BOOM_ENTRY_GRUB_ID: "id"
 }
 
 
@@ -2235,18 +2235,18 @@ class BootEntry(object):
             :setter: Store a new ``id`` value.
             :type: string
         """
-        bls_key = KEY_MAP[BOOM_ENTRY_ID]
+        bls_key = KEY_MAP[BOOM_ENTRY_GRUB_ID]
         if not self._have_optional_key(bls_key):
             return ""
-        return self._entry_data_property(BOOM_ENTRY_ID)
+        return self._entry_data_property(BOOM_ENTRY_GRUB_ID)
 
     @id.setter
     def id(self, ident):
-        bls_key = KEY_MAP[BOOM_ENTRY_ID]
+        bls_key = KEY_MAP[BOOM_ENTRY_GRUB_ID]
         if not self._have_optional_key(bls_key):
             raise ValueError("OsProfile os_id=%s does not allow '%s'" %
                              (self._osp.disp_os_id, bls_key))
-        self._entry_data[BOOM_ENTRY_ID] = ident
+        self._entry_data[BOOM_ENTRY_GRUB_ID] = ident
 
     @property
     def _entry_path(self):
@@ -2403,7 +2403,7 @@ __all__ = [
     'BOOM_ENTRY_GRUB_USERS',
     'BOOM_ENTRY_GRUB_ARG',
     'BOOM_ENTRY_GRUB_CLASS',
-    'BOOM_ENTRY_ID',
+    'BOOM_ENTRY_GRUB_ID',
 
     # Root device pattern
     'DEV_PATTERN',

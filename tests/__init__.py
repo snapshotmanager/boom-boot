@@ -81,6 +81,7 @@ class MockArgs(object):
     host_name = ""
     host_profile = ""
     host_profile = ""
+    id = ""
     identifier = ""
     initramfs_pattern = ""
     initrd = ""
