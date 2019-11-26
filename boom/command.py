@@ -1560,6 +1560,8 @@ def _apply_optional_keys(be, cmd_args):
         optional keys, or will handle exceptions raised by setting an
         invalid optional key.
     """
+    if cmd_args.id:
+        be.id = cmd_args.id.strip()
     if cmd_args.grub_arg:
         be.grub_arg = cmd_args.grub_arg.strip()
     if cmd_args.grub_class:
@@ -2709,6 +2711,8 @@ def main(args):
                         help="Specify a Grub2 class for this entry")
     parser.add_argument("--grub-users", metavar="USERS", type=str,
                         help="Grub user list for password protection")
+    parser.add_argument("--grub-id", metavar="ID", type=str, dest="id",
+                        help="Grub menu identifier string")
     parser.add_argument("-H", "--from-host", "--fromhost",
                         help="Take os-release values from the running host",
                         action="store_true")
