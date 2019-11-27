@@ -841,6 +841,8 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
         # Attempt to find a matching OsProfile by version string
         osp = match_os_profile_by_version(version)
         os_id = osp.os_id if osp else None
+        if not osp:
+            print("No matching OsProfile found for version '%s'" % version)
     else:
         os_id = cmd_args.profile
 
@@ -880,8 +882,8 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
             return None
     elif not osp and not hps:
         if not optional:
-            _log_error("%s requires --profile or a matching HostProfile" %
-                       command)
+            _log_error("%s requires --profile or a matching OsProfile "
+                       "or HostProfile" % command)
         return None
 
     return hp or osp
