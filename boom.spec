@@ -6,9 +6,9 @@ Version:	0.9
 Release:	1%{?dist}
 Summary:	%{summary}
 
-URL: https://github.com/bmr-cymru/boom	
-Source0: boom-%{version}.tar.gz
 License:	GPLv2
+URL:		https://github.com/snapshotmanager/boom
+Source0:	https://github.com/snapshotmanager/boom/archive/%{version}.tar.gz
 
 BuildArch:	noarch
 
