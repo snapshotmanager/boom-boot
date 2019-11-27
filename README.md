@@ -111,31 +111,46 @@ the system default python runtime for that distribution version.
 ## The boom command
 
 The `boom` command is the main interface to the boom boot manager.
-It is able to create, delete, edit and display boot entries and
-operating system profiles and provides reports showing the available
-profiles and entries, and their configurations.
+It is able to create, delete, edit and display boot entries,
+operating system and host profiles and provides reports showing the
+available profiles and entries, and their configurations.
 
-All `boom` commands operate on either an *OsProfile* or a *BootEntry*:
+Boom commands normally operate on a particular object type: a boot
+entry, a host profile or an OS profile. Commands are also provided
+to manipulate legacy boot loader configurations (for systems that
+do not natively support the BLS standard).
+
+```
+# boom [entry] <command> <options> # `BootEntry` command
+```
 
 ```
 # boom profile <command> <options> # `OsProfile` command
 ```
 
 ```
-# boom [entry] <command> <options> # `BootEntry` command
+# boom hostprofile <command> <options> # `HostProfile` command
+```
+
+```
+# boom legacy <command> <options> # Legacy boot loader commands
 ```
 
 If no command type is given `entry` is assumed.
 
-### Operating System Profiles and Boot Entries
+### Profiles and Boot Entries
 
-The two main object types in boom are the `OsProfile` and `BootEntry`.
+The two main object types in boom are the `Profile` and `BootEntry`.
+Profiles support tailoring boot entry configuration to either a
+specific operating system distribution (`OsProfile`), or a specific
+installation (`HostProfile`, based on the system `machine-id`).
 
 Boom stores boot loader entries (`BootEntry`) in the system BLS loader
 directory - normally `/boot/loader/entries`.
 
 Boom `OsProfile` files are stored in the boom configuration directory,
-`/boot/boom/profiles`.
+`/boot/boom/profiles` and `HostProfile` data is found in
+`/boot/boom/hosts`.
 
 The location of the boot file system may be overridden using the
 `--boot-dir` command line option and the location of both the boot
@@ -192,6 +207,32 @@ line. The defaults are suitable for most Linux operating systems but
 can be customised to allow for particular OS requirements, or to set
 custom behaviours.
 
+#### HostProfile
+
+A `HostProfile` provides an additional means to customise the boot
+configuration on a per-installation basis. Use of host profiles is
+optional: if no `HostProfile` exits for a given host then the
+default values from the corresponding `OsProfile` are used.
+
+Values specified in a Boom `HostProfile` are automatically applied
+whenever a boot entry for the corresponding `machine-id` is created
+or edited. Multiple Boom `HostProfile` templates can be defined for
+a given system and distinguished by a *label*: for example
+'production', 'debug' or other profile labels used to identify
+and group commonly-used sets of boot options.
+
+Host profiles can be used to add or remove kernel command line
+options, or to modify existing template values provided by the
+`OsProfile` (including the location and naming of the kernel,
+initramfs and other boot images). This can be used to automatically
+apply settings where required, for example adding `nomodeset` or
+other kernel command line parameters if required for that
+installation, or modifying the command line to enable or disable
+debugging, logging or storage activation options.
+
+Like the `OsProfile`, a `HostProfile` is uniquely identified by
+a `HostId` identifier.
+
 #### BootEntry
 
 A `BootEntry` is an individual bootloader entry for one instance of an
@@ -218,30 +259,31 @@ identifier.
 
 ### Boom subcommands
 
-For each type, boom provides six subcommands:
+For both profile and boot entry command types, boom provides six
+subcommands:
 
   * `create`
-  * `delete --profile OS_ID | --boot-id BOOT_ID [...]`
-  * `clone --profile OS_ID | --boot-id BOOT_ID [...]`
+  * `delete --profile OS_ID | --host-profile HOST_ID | --boot-id BOOT_ID [...]`
+  * `clone --profile OS_ID | --host-profile HOST_ID | --boot-id BOOT_ID [...]`
   * `show`
   * `list`
   * `edit`
 
 #### create
 
-Create a new `OsProfile` or `BootEntry` using the values entered on
-the command line.
+Create a new `OsProfile` `HostProfile`, or `BootEntry` using the
+values entered on the command line.
 
 #### delete
 
-Delete the specified `OsProfile` or BootEntry.
+Delete the specified profile or BootEntry.
 
 #### clone
 
-Create a new `OsProfile` or `BootEntry` by cloning an existing object
-and modifying its properties. A `boot_id` or `os_id` must be used
-to select the object to clone. Any remaining command line options
-modify the newly created object.
+Create a new profile or `BootEntry` by cloning an existing object
+and modifying its properties. A `boot_id`, `os_id` or `host_id`
+must be used to select the object to clone. Any remaining command
+line options modify the newly created object.
 
 #### show
 
@@ -253,8 +295,8 @@ List objects matching selection criteria as a tabular report.
 
 #### edit
 
-Modify an existing `OsProfile` or `BootEntry` by changing one or
-more of its attributes.
+Modify an existing profile or `BootEntry` by changing one or more
+of its attributes.
 
 It is not possible to change the name, short name, version, or
 version identifier of an `OsProfile` using this command, since these
@@ -268,8 +310,8 @@ The new `boot_id` is written to the terminal on success.
 
 ### Reporting commands
 
-The `boom entry list` and `boom profile list` commands generate a
-tabular report as output. To control the list of displayed fields
+The `boom entry list` and `boom host|profile list` commands generate
+a tabular report as output. To control the list of displayed fields
 use the `-o/--options FIELDS` argument:
 
 ```
@@ -357,6 +399,26 @@ OS profiles Fields
   options       - Kernel options [str]
 ```
 
+`HostProfile` fields:
+```
+boom host list -o help
+Host profiles Fields
+--------------------
+  hostid        - Host identifier [sha]
+  machineid     - Machine identifier [sha]
+  osid          - OS identifier [sha]
+  hostname      - Host name [str]
+  label         - Host label [str]
+  kernelpattern - Kernel image pattern [str]
+  initrdpattern - Initrd pattern [str]
+  lvm2opts      - LVM2 options [str]
+  btrfsopts     - BTRFS options [str]
+  options       - Kernel options [str]
+  profilepath   - On-disk profile path [str]
+  addopts       - Added Options [str]
+  delopts       - Deleted Options [str]
+```
+
 ### Getting help
 
 Help is available for the `boom` command and each command line option.
@@ -406,6 +468,38 @@ The uname pattern is used when an on-disk boot loader entry is found that
 does not contain an OS identifier (for e.g. a manually edited entry, or
 one created by a different program).
 
+### Creating a HostProfile
+Boom can optionally apply further customisation to the boot entries
+it creates by defining a *HostProfile*. The host profile can be used
+to modify the templates (boot image names and paths, boot entry
+titles, kernel command line options etc) provided by the `OsProfile`.
+
+To create a new host profile for the current system use the
+`host create` command, specifying the parameters to modify. For
+example, to create a new host profile for a system running Fedora 30
+that adds the "debug" kernel command line argument, and removes the
+"rhgb" and "quiet" arguments run:
+
+```
+boom profile list --name Fedora --osversionid 30
+OsID    Name                     OsVersion               
+8896596 Fedora                   30 (Workstation Edition)
+
+boom host create --profile 8896596 --add-opts debug --del-opts "rhgb quiet"
+Created host profile with host_id ff4266a:
+  Host ID: "ff4266a7a0ceac789d65df75a1edd47b832dd9c5",
+  Host name: "localhost.localdomain",
+  Machine ID: "653b444d513a43239c37deae4f5fe644",
+  OS ID: "8896596a45fcc9e36e9c87aee77ab3e422da2635",
+  Add options: "debug", Del options: "rhgb quiet",
+  Name: "Fedora", Short name: "fedora", Version: "30 (Workstation Edition)",
+  Version ID: "30", UTS release pattern: "fc30",
+  Kernel pattern: "/vmlinuz-%{version}", Initramfs pattern: "/initramfs-%{version}.img",
+  Root options (LVM2): "rd.lvm.lv=%{lvm_root_lv}",
+  Root options (BTRFS): "rootflags=%{btrfs_subvolume}",
+  Options: "root=%{root_device} ro %{root_opts}"
+```
+
 ### Creating a BootEntry
 To create a new boot entry using an existing `OsProfile`, use the
 `boom create` command, specifying the `OsProfile` using its assigned
@@ -414,7 +508,6 @@ identifier:
 ```
 # boom profile list --short-name rhel
 OsID    Name                            OsVersion
-3fc389b Red Hat Enterprise Linux Server 7.2 (Maipo)
 98c3edb Red Hat Enterprise Linux Server 6 (Server)
 c0b921e Red Hat Enterprise Linux Server 7 (Server)
 
@@ -455,9 +548,9 @@ OsProfile of the running host, these options can be omitted from the
 create command:
 
 ```
-# boom create --title "Fedora 26 snapshot (4.13.5-200.fc26.x86_64)" --root-lv vg_hex/root-snap-f26
+# boom create --title "Fedora 26 snapshot" --root-lv vg_hex/root-snap-f26
 Created entry with boot_id d12c177:
-  title Fedora 26 snapshot (4.13.5-200.fc26.x86_64)
+  title Fedora 26 snapshot
   machine-id 611f38fd887d41dea7eb3403b2730a76
   version 4.13.5-200.fc26.x86_64
   linux /kernel-4.13.5-200.fc26.x86_64
@@ -582,7 +675,9 @@ The object API is implemented in several `boom` sub-modules:
 
   * `boom`
   * `boom.bootloader`
+  * `boom.config`
   * `boom.osprofile`
+  * `boom.hostprofile`
   * `boom.report`
 
 Applications using the object API need only import the sub-modules that
