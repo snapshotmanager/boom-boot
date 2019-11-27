@@ -35,6 +35,6 @@ from __future__ import print_function
 from ._boom import *
 from ._boom import __all__
 
-__version__ = "0.9"
+__version__ = "1.0"
 
 # vim: set et ts=4 sw=4 :

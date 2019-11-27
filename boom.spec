@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom
-Version:	0.9
+Version:	1.0
 Release:	1%{?dist}
 Summary:	%{summary}
 
@@ -151,6 +151,9 @@ rm doc/conf.py
 
 
 %changelog
+* Wed Nov 27 2019 Bryn M. Reeves <bmr@redhat.com> - 1.0-1
+- Bump release for boom-1.0
+
 * Thu Oct 03 2019 Miro Hrončok <mhroncok@redhat.com> - 1.0-0.5.20190329git6ff3e08
 - Rebuilt for Python 3.8.0rc1 (#1748018)
 
