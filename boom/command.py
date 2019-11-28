@@ -908,7 +908,7 @@ def _uname_heuristic(name, version_id):
     }
 
     if name in _name_to_uname:
-        return "%s%s" % (_name_to_uname[name], version_id)
+        return "%s%s" % (_name_to_uname[name], version_id.replace(".", "_"))
     return None
 
 
