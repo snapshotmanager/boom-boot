@@ -2787,9 +2787,7 @@ def main(args):
                         help="Take os-release values from the running host",
                         action="store_true")
     parser.add_argument("-P", "--host-profile", metavar="PROFILE", type=str,
-                        help="A boom host profile identifier")
-    parser.add_argument("--host-id", metavar="HOSTID", type=str,
-                        help="A host profile identifier")
+                        help="A boom host profile identifier", dest="host_id")
     parser.add_argument("--host-name", metavar="HOSTNAME", type=str,
                         help="The host name associated with a host profile")
     parser.add_argument("-i", "--initrd", metavar="IMG", type=str,

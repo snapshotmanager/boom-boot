@@ -629,7 +629,7 @@ class Selection(object):
                       os_version_id=args.os_version_id,
                       os_options=args.os_options,
                       os_uname_pattern=args.uname_pattern,
-                      host_id=args.host_profile)
+                      host_id=args.host_id)
 
         _log_debug("Initialised %s from arguments" % repr(s))
         return s
