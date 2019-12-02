@@ -901,14 +901,17 @@ def _uname_heuristic(name, version_id):
         :returns: ``True`` if uname pattern heuristics should be used
                   for this OS or ``False`` otherwise.
     """
+    el_uname = "el"
+    fc_uname = "fc"
     _name_to_uname = {
-        "Red Hat Enterprise Server": "el",
-        "Red Hat Enterprise Workstation": "el",
-        "Fedora": "fc"
+        "Red Hat Enterprise Linux": el_uname,
+        "Red Hat Enterprise Linux Server": el_uname,
+        "Red Hat Enterprise Linux Workstation": el_uname,
+        "Fedora": fc_uname
     }
 
     if name in _name_to_uname:
-        return "%s%s" % (_name_to_uname[name], version_id.replace(".", "_"))
+        return "%s%s" % (_name_to_uname[name], version_id[0])
     return None
 
 
