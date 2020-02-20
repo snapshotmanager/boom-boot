@@ -1912,7 +1912,7 @@ class CommandTests(unittest.TestCase):
         args = MockArgs()
         args.profile = "d4439b7"
         args.uname_pattern = "nf26"
-        args.os_options = "boot and stuff"
+        args.os_options = "root=%{root_device} boot and stuff"
         r = boom.command._edit_profile_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
@@ -1922,7 +1922,7 @@ class CommandTests(unittest.TestCase):
         args = MockArgs()
         os_id = "d4439b7"
         args.uname_pattern = "nf26"
-        args.os_options = "boot and stuff"
+        args.os_options = "root=%{root_device} boot and stuff"
         r = boom.command._edit_profile_cmd(args, None, None, os_id)
         self.assertEqual(r, 0)
 

@@ -427,13 +427,20 @@ class BootEntryTests(unittest.TestCase):
     # BootParams recovery tests
     def test_BootParams_from_entry_no_opts(self):
         osp = self.test_osp
-        osp.options = ""
+        osp.options = "root=%{root_device}"
 
         be = MockBootEntry()
         be.options = ""
+        be.expand_options = ""
         be._osp = osp
 
-        self.assertFalse(BootParams.from_entry(be))
+        # Logs warning (no root_device)
+        bp = BootParams.from_entry(be)
+
+        # Assert that root_device is empty and that other parameters
+        # are still recovered.
+        self.assertEqual(bp.root_device, "")
+        self.assertEqual(bp.version, "1.1.1")
 
     def test_BootParams_from_entry_no_root_device(self):
         osp = self.test_osp
@@ -444,7 +451,7 @@ class BootEntryTests(unittest.TestCase):
 
         self.assertTrue(BootParams.from_entry(be))
 
-    def test_BootEntry_empty_format_key(self):
+    def test_BootEntry_fixed_options_string(self):
         # Assert that key properties of a BootEntry with empty format keys
         # return the empty string.
         from boom.bootloader import (
@@ -455,7 +462,7 @@ class BootEntryTests(unittest.TestCase):
 
         osp = self.test_osp
         # Clear the OsProfile.options format key
-        osp.options = ""
+        osp.options = "root=/dev/myroot"
 
         bp = BootParams(version="2.2.2", lvm_root_lv="vg00/lvol0")
         be = BootEntry(entry_data={BOOM_ENTRY_TITLE: "title",
@@ -465,7 +472,7 @@ class BootEntryTests(unittest.TestCase):
                        BOOM_ENTRY_INITRD: "/initramfs-1.1.1.img"},
                        osprofile=osp, boot_params=bp, allow_no_dev=True)
 
-        self.assertEqual(be.options, "")
+        self.assertEqual(be.options, "root=/dev/myroot")
 
     def test_BootEntry_write(self):
         # Use a real OsProfile here: the entry will be written to disk, and
