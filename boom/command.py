@@ -910,8 +910,12 @@ def _uname_heuristic(name, version_id):
         "Fedora": fc_uname
     }
 
+    # Strip trailing minor version ident from elX_Y
+    if "_" in version_id:
+        version_id = version_id[0:find("_")]
+
     if name in _name_to_uname:
-        return "%s%s" % (_name_to_uname[name], version_id[0])
+        return "%s%s" % (_name_to_uname[name], version_id)
     return None
 
 
