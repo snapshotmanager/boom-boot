@@ -533,10 +533,14 @@ class Selection(object):
     host_add_opts = None
     host_del_opts = None
 
+    # Cache fields
+    path = None
+    img_id = None
+
     #: Selection criteria applying to BootEntry objects
     entry_attrs = [
         "boot_id", "title", "version", "machine_id", "linux", "initrd", "efi",
-        "options", "devicetree"
+        "options", "devicetree", "path"
     ]
 
     #: Selection criteria applying to BootParams objects
@@ -557,7 +561,12 @@ class Selection(object):
         "host_add_opts", "host_del_opts", "machine_id"
     ]
 
-    all_attrs = entry_attrs + params_attrs + profile_attrs + host_attrs
+    #: Cache selection supports a subset of entry_attrs
+    cache_attrs = ["version", "linux", "initrd", "path", "timestamp", "img_id"]
+
+    all_attrs = (
+        entry_attrs + params_attrs + profile_attrs + host_attrs + cache_attrs
+    )
 
     def __str__(self):
         """Format this ``Selection`` object as a human readable string.
@@ -595,7 +604,8 @@ class Selection(object):
                  os_uname_pattern=None, os_kernel_pattern=None,
                  os_initramfs_pattern=None, host_id=None,
                  host_name=None, host_label=None, host_short_name=None,
-                 host_add_opts=None, host_del_opts=None):
+                 host_add_opts=None, host_del_opts=None, path=None,
+                 timestamp=None, img_id=None):
         """Initialise a new Selection object.
 
             Initialise a new Selection object with the specified selection
@@ -627,6 +637,9 @@ class Selection(object):
             :param host_short_name: The host short name to match
             :param host_add_opts: Host add options to match
             :param host_del_opts: Host del options to match
+            :param path: An cache image path to match
+            :param timestamp: A cache entry timestamp to match
+            :param img_id: A cache image identifier to match
             :returns: A new Selection instance
             :rtype: Selection
         """
@@ -656,6 +669,9 @@ class Selection(object):
         self.host_short_name = host_short_name
         self.host_add_opts = host_add_opts
         self.host_del_opts = host_del_opts
+        self.path = path
+        self.timestamp = timestamp
+        self.img_id = img_id
 
     @classmethod
     def from_cmd_args(cls, args):
@@ -715,7 +731,7 @@ class Selection(object):
         return hasattr(self, attr) and getattr(self, attr) is not None
 
     def check_valid_selection(self, entry=False, params=False,
-                              profile=False, host=False):
+                              profile=False, host=False, cache=False):
         """Check a Selection for valid criteria.
 
             Check this ``Selection`` object to ensure it contains only
@@ -728,6 +744,7 @@ class Selection(object):
             :param params: ``Selection`` may include BootParams data
             :param profile: ``Selection`` may include OsProfile data
             :param host: ``Selection`` may include Host data
+            :param cache: ``Selection`` may include Cache data
             :returns: ``None`` on success
             :rtype: ``NoneType``
             :raises: ``ValueError`` if excluded criteria are present
@@ -743,6 +760,8 @@ class Selection(object):
             valid_attrs += self.profile_attrs
         if host:
             valid_attrs += self.host_attrs
+        if cache:
+            valid_attrs += self.cache_attrs
 
         for attr in self.all_attrs:
             if self.__attr_has_value(attr) and attr not in valid_attrs:
