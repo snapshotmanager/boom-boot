@@ -88,6 +88,84 @@ FORMAT_KEYS = [
     FMT_OS_VERSION, FMT_OS_VERSION_ID
 ]
 
+
+#
+# Taken from python3.7/stat.py - for compatibility with py2.7
+#
+
+_S_IFDIR = 0o040000  # directory
+_S_IFCHR = 0o020000  # character device
+_S_IFBLK = 0o060000  # block device
+_S_IFREG = 0o100000  # regular file
+_S_IFIFO = 0o010000  # fifo (named pipe)
+_S_IFLNK = 0o120000  # symbolic link
+_S_IFSOC = 0o140000  # socket file
+
+_S_ISUID = 0o4000    # set UID bit
+_S_ISGID = 0o2000    # set GID bit
+_S_ENFMT = _S_ISGID  # file locking enforcement
+_S_ISVTX = 0o1000    # sticky bit
+_S_IREAD = 0o0400    # Unix V7 synonym for _S_IRUSR
+_S_IWRITE = 0o0200   # Unix V7 synonym for _S_IWUSR
+_S_IEXEC = 0o0100    # Unix V7 synonym for _S_IXUSR
+_S_IRWXU = 0o0700    # mask for owner permissions
+_S_IRUSR = 0o0400    # read by owner
+_S_IWUSR = 0o0200    # write by owner
+_S_IXUSR = 0o0100    # execute by owner
+_S_IRWXG = 0o0070    # mask for group permissions
+_S_IRGRP = 0o0040    # read by group
+_S_IWGRP = 0o0020    # write by group
+_S_IXGRP = 0o0010    # execute by group
+_S_IRWXO = 0o0007    # mask for others (not in group) permissions
+_S_IROTH = 0o0004    # read by others
+_S_IWOTH = 0o0002    # write by others
+_S_IXOTH = 0o0001    # execute by others
+
+_filemode_table = (
+    ((_S_IFLNK,            "l"),
+     (_S_IFREG,            "-"),
+     (_S_IFBLK,            "b"),
+     (_S_IFDIR,            "d"),
+     (_S_IFCHR,            "c"),
+     (_S_IFIFO,            "p")),
+
+    ((_S_IRUSR,            "r"),),
+    ((_S_IWUSR,            "w"),),
+    ((_S_IXUSR | _S_ISUID, "s"),
+     (_S_ISUID,            "S"),
+     (_S_IXUSR,            "x")),
+
+    ((_S_IRGRP,            "r"),),
+    ((_S_IWGRP,            "w"),),
+    ((_S_IXGRP | _S_ISGID, "s"),
+     (_S_ISGID,            "S"),
+     (_S_IXGRP,            "x")),
+
+    ((_S_IROTH,            "r"),),
+    ((_S_IWOTH,            "w"),),
+    ((_S_IXOTH | _S_ISVTX, "t"),
+     (_S_ISVTX,            "T"),
+     (_S_IXOTH,            "x"))
+)
+
+
+def boom_filemode(mode):
+    """Convert a file's mode to a string of the form '-rwxrwxrwx'."""
+    perm = []
+    for table in _filemode_table:
+        for bit, char in table:
+            if mode & bit == bit:
+                perm.append(char)
+                break
+        else:
+            perm.append("-")
+    return "".join(perm)
+
+
+#
+# Logging
+#
+
 BOOM_LOG_DEBUG = logging.DEBUG
 BOOM_LOG_INFO = logging.INFO
 BOOM_LOG_WARN = logging.WARNING
@@ -994,7 +1072,8 @@ __all__ = [
     'parse_btrfs_subvol',
     'find_minimum_sha_prefix',
     'min_id_width',
-    'load_profiles_for_class'
+    'load_profiles_for_class',
+    'boom_filemode'
 ]
 
 # vim: set et ts=4 sw=4
