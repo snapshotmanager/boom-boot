@@ -301,7 +301,7 @@ class BoomField(object):
         """
         if value is not None and not isinstance(value, num_types):
             raise TypeError("Value for report_num() must be a numeric type.")
-        report_string = str(value) if value else ""
+        report_string = str(value)
         sort_value = value if value is not None else -1
         self.set_value(report_string, sort_value=sort_value)
 
