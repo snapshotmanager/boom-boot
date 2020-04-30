@@ -219,7 +219,7 @@ def drop_profiles():
         :returns: None
     """
     global _profiles, _profiles_by_id, _profiles_loaded
-    nr_profiles = len(_profiles) - 1
+    nr_profiles = len(_profiles) - 1 if _profiles else 0
 
     _profiles = []
     _profiles_by_id = {}
@@ -228,7 +228,8 @@ def drop_profiles():
                               version="", version_id="")
     _profiles.append(_null_profile)
     _profiles_by_id[_null_profile.os_id] = _null_profile
-    _log_info("Dropped %d profiles" % nr_profiles)
+    if nr_profiles:
+        _log_info("Dropped %d profiles" % nr_profiles)
     _profiles_loaded = False
 
 
