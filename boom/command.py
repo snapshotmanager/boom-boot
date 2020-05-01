@@ -1635,6 +1635,72 @@ def print_hosts(selection=None, opts=None, output_fields=None,
                           opts=opts, sort_keys=sort_keys)
 
 
+def _print_cache(find_fn, selection=None, opts=None, output_fields=None,
+                 sort_keys=None, expand=False):
+    """Print cache entries (with or without images) matching selection
+        criteria.
+
+        Selection criteria may be expressed via a ``Selection`` object
+        passed to the call using the ``Selection`` parameter.
+
+        :param selection: A Selection object giving selection
+                          criteria for the operation
+        :param output_fields: a comma-separated list of output fields
+        :param opts: output formatting and control options
+        :param sort_keys: a comma-separated list of sort keys
+        :param expand: unused
+        :returns: the number of matching profiles output
+        :rtype: int
+    """
+    output_fields = _expand_fields(_default_cache_fields, output_fields)
+
+    ces = find_fn(selection=selection)
+    selected = [BoomReportObj(None, None, None, ce) for ce in ces]
+    report_fields = _cache_fields
+    return _do_print_type(report_fields, selected, output_fields=output_fields,
+                          opts=opts, sort_keys=sort_keys)
+
+
+def print_cache(selection=None, opts=None, output_fields=None,
+                sort_keys=None, expand=False):
+    """Print cache entries matching selection criteria.
+
+        Selection criteria may be expressed via a ``Selection`` object
+        passed to the call using the ``Selection`` parameter.
+
+        :param selection: A Selection object giving selection
+                          criteria for the operation
+        :param output_fields: a comma-separated list of output fields
+        :param opts: output formatting and control options
+        :param sort_keys: a comma-separated list of sort keys
+        :param expand: unused
+        :returns: the number of matching profiles output
+        :rtype: int
+    """
+    return _print_cache(find_cache_paths, selection=selection, opts=opts,
+                        output_fields=output_fields, sort_keys=sort_keys)
+
+
+def print_cache_images(selection=None, opts=None, output_fields=None,
+                       sort_keys=None, expand=False):
+    """Print cache entries and images matching selection criteria.
+
+        Selection criteria may be expressed via a ``Selection`` object
+        passed to the call using the ``Selection`` parameter.
+
+        :param selection: A Selection object giving selection
+                          criteria for the operation
+        :param output_fields: a comma-separated list of output fields
+        :param opts: output formatting and control options
+        :param sort_keys: a comma-separated list of sort keys
+        :param expand: unused
+        :returns: the number of matching profiles output
+        :rtype: int
+    """
+    return _print_cache(find_cache_images, selection=selection, opts=opts,
+                        output_fields=output_fields, sort_keys=sort_keys)
+
+
 def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
     """Print boot entries in legacy boot loader formats.
 
@@ -3016,7 +3082,10 @@ __all__ = [
 
     # HostProfile manipulation
     'create_host', 'delete_hosts', 'clone_host', 'edit_host',
-    'list_hosts', 'print_hosts'
+    'list_hosts', 'print_hosts',
+
+    # Cache manipulation
+    'print_cache', 'print_cache_images'
 ]
 
 # vim: set et ts=4 sw=4 :
