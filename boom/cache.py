@@ -686,4 +686,12 @@ def find_cache_images(selection=None):
     _log_debug_cache("Found %d cached images" % len(matches))
     return matches
 
+
+__all__ = [
+    "CACHE_CACHED", "CACHE_MISSING", "CACHE_BROKEN", "CACHE_RESTORED",
+    "drop_cache", "load_cache", "write_cache",
+    "cache_path", "uncache_path",
+    "find_cache_paths", "find_cache_images"
+]
+
 # vim: set et ts=4 sw=4 :
