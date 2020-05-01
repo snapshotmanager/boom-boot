@@ -2656,6 +2656,21 @@ def _edit_host_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
+def _list_cache_cmd(cmd_args, select, opts, identifier):
+    """List cache command handler.
+
+        List the cache entries that match the given selection criteria
+        as a tabular report, with one entry per row.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria fore the profiles to list
+        :returns: integer status code returned from ``main()``
+    """
+    print_fn = print_cache if not cmd_args.verbose else print_cache_images
+    return _generic_list_cmd(cmd_args, select, opts, _verbose_cache_fields,
+                             print_fn)
+
+
 def _write_legacy_cmd(cmd_args, select, opts, identifier):
     if identifier:
         print("write legacy does not accept a boot_id")
@@ -2705,6 +2720,7 @@ WRITE_CMD = "write"
 ENTRY_TYPE = "entry"
 PROFILE_TYPE = "profile"
 HOST_TYPE = "host"
+CACHE_TYPE = "cache"
 LEGACY_TYPE = "legacy"
 
 _boom_entry_commands = [
@@ -2734,6 +2750,10 @@ _boom_host_commands = [
     (EDIT_CMD, _edit_host_cmd)
 ]
 
+_boom_cache_commands = [
+    (LIST_CMD, _list_cache_cmd)
+]
+
 _boom_legacy_commands = [
     (WRITE_CMD, _write_legacy_cmd),
     (CLEAR_CMD, _clear_legacy_cmd),
@@ -2744,6 +2764,7 @@ _boom_command_types = [
     (ENTRY_TYPE, _boom_entry_commands),
     (PROFILE_TYPE, _boom_profile_commands),
     (HOST_TYPE, _boom_host_commands),
+    (CACHE_TYPE, _boom_cache_commands),
     (LEGACY_TYPE, _boom_legacy_commands)
 ]
 
