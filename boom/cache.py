@@ -18,9 +18,10 @@ images required to load boom-defined boot entries.
 from __future__ import print_function
 
 from boom import *
+from boom.bootloader import *
 
 from hashlib import sha1
-from os import listdir, unlink, stat
+from os import listdir, unlink, stat, chown, chmod
 from stat import S_ISREG, S_IMODE, ST_MODE, ST_UID, ST_GID, ST_MTIME
 from os.path import (
     join as path_join, exists as path_exists, sep as path_sep,
@@ -66,6 +67,16 @@ PATH_ATTRS = "path_attrs"
 
 #: Image timestamp
 IMAGE_TS = "image_ts"
+
+# Cache states
+#: Path is cached
+CACHE_CACHED = "CACHED"
+#: Path is cached and missing from /boot
+CACHE_MISSING = "MISSING"
+#: Path is cached but image missing or damaged
+CACHE_BROKEN = "BROKEN"
+#: Path is cached and has been restored to /boot
+CACHE_RESTORED = "RESTORED"
 
 #
 # Path names in the boom boot image cache
@@ -270,7 +281,7 @@ def _remove_boot(boot_path):
     boot_dir = dirname(boot_path)
     dot_path = _RESTORED_DOT_PATTERN % basename(boot_path)
     if not path_exists(path_join(boot_dir, dot_path)):
-        raise ValueError("'%s' is not boom managed")
+        raise ValueError("'%s' is not boom managed" % boot_path)
     unlink(boot_path)
     unlink(path_join(boot_dir, dot_path))
 
@@ -414,5 +425,265 @@ def _is_restored(boot_path):
     dot_path = _RESTORED_DOT_PATTERN % basename(boot_path)
     return path_exists(path_join(boot_dir, dot_path))
 
+
+class CacheEntry(object):
+    """In-memory representation of cached boot image.
+    """
+    #: The image path for this CacheEntry
+    path = None
+
+    @property
+    def img_id(self):
+        return self.images[0][0]
+
+    @property
+    def disp_img_id(self):
+        shas = set([img_id for (img_id, ts) in self.images])
+        width = find_minimum_sha_prefix(shas, 7)
+        return self.images[0][0][0:width]
+
+    @property
+    def mode(self):
+        """The file system mode for this CacheEntry.
+        """
+        return self._pathdata[PATH_MODE]
+
+    @property
+    def uid(self):
+        """The file system uid for this CacheEntry.
+        """
+        return self._pathdata[PATH_UID]
+
+    @property
+    def gid(self):
+        """The file system gid for this CacheEntry.
+        """
+        return self._pathdata[PATH_GID]
+
+    @property
+    def attrs(self):
+        """The dictionary of extended attrs for this CacheEntry.
+        """
+        return self._pathdata[PATH_ATTRS]
+
+    @property
+    def timestamp(self):
+        """The timestamp of the most recent image for this CacheEntry.
+        """
+        return self.images[0][1]
+
+    @property
+    def state(self):
+        """Return a string representing the state of this cache entry.
+        """
+        boot_path = _image_path_to_boot(self.path)
+        cache_path = _image_id_to_cache_path(self.images[0][0])
+        boot_exists = path_exists(boot_path)
+        cache_exists = path_exists(cache_path)
+        if boot_exists and cache_exists:
+            boot_path_id = _image_id_from_path(boot_path)
+            if _is_restored(boot_path) and self.img_id == boot_path_id:
+                return CACHE_RESTORED
+            else:
+                return CACHE_CACHED
+        if cache_exists and not boot_exists:
+            return CACHE_MISSING
+        if boot_exists and not cache_exists:
+            return CACHE_BROKEN
+        return CACHE_UNKNOWN
+
+    @property
+    def count(self):
+        """Return the current number of boot entries that reference
+            this cache entry.
+        """
+        return len(find_entries(Selection(path=self.path)))
+
+    #: The list of cached images for this CacheEntry sorted by increasing age
+    images = []
+
+    def __init__(self, path, pathdata, images):
+        """Initialise a CacheEntry object with information from
+            the on-disk cache.
+        """
+        self.path = path
+        self._pathdata = pathdata
+        self.images = images
+
+    def __str__(self):
+        fmt = "Path: %s\nImage ID: %s\nMode: %s\nUid: %d Gid: %d\nTs: %d"
+        return fmt % (
+            self.path,
+            self.disp_img_id,
+            boom_filemode(self.mode),
+            self.uid, self.gid,
+            self.timestamp
+        )
+
+    def __repr__(self):
+        shas = set([img_id for (img_id, ts) in self.images])
+        width = find_minimum_sha_prefix(shas, 7)
+        rep = '"%s", %s, %s' % (
+            self.path,
+            self._pathdata,
+            # FIXME: properly generate minimum abrevs
+            [(img_id[0:width - 1], ts) for (img_id, ts) in self.images]
+        )
+        return "CacheEntry(" + rep + ")"
+
+    def restore(self):
+        """Restore this CacheEntry to the /boot file system.
+        """
+        boot_path = _image_path_to_boot(self.path)
+        cache_path = _image_id_to_cache_path(self.images[0][0])
+        dot_path = _RESTORED_DOT_PATTERN % basename(boot_path)
+        boot_dir = dirname(boot_path)
+
+        if self.state not in (CACHE_MISSING, CACHE_RESTORED):
+            raise ValueError("Restore failed: CacheEntry state is not "
+                             "MISSING or RESTORED")
+
+        shutil.copy2(cache_path, boot_path)
+        try:
+            chown(boot_path, self.uid, self.gid)
+            chmod(boot_path, self.mode)
+        except OSError as e:
+            try:
+                unlink(boot_path)
+            except OSError:
+                pass
+            raise e
+
+        try:
+            dot_file = open(path_join(boot_dir, dot_path), "w")
+            dot_file.close()
+        except OSError as e:
+            try:
+                unlink(boot_path)
+            except OSError:
+                pass
+            raise e
+
+    def purge(self):
+        """Remove the boom restored image copy from the /boot file system.
+        """
+        boot_path = _image_path_to_boot(self.path)
+        if self.state is not CACHE_RESTORED:
+            raise ValueError("Purge failed: CacheEntry state is not RESTORED")
+        _remove_boot(boot_path)
+
+
+def select_cache_entry(s, ce):
+    """Test CacheEntry against Selection criteria.
+
+        Test the supplied ``CacheEntry`` against the selection criteria
+        in ``s`` and return ``True`` if it passes, or ``False``
+        otherwise.
+
+        :param s: The selection criteria
+        :param be: The CacheEntry to test
+        :rtype: bool
+        :returns: True if CacheEntry passes selection or ``False``
+                  otherwise.
+    """
+    # Version matches if version string is contained in image path.
+    if s.version and s.version not in ce.path:
+        return False
+
+    # Image path match is an exact match.
+    if s.linux and s.linux != ce.path:
+        return False
+    if s.initrd and s.initrd != ce.path:
+        return False
+    if s.path and s.path != ce.path:
+        return False
+    if s.timestamp and s.timestamp != ce.timestamp:
+        return False
+    if s.img_id and s.img_id not in ce.img_id:
+        return False
+    return True
+
+
+def _find_cache_entries(selection=None, images=False):
+    """Find cache entries matching selection criteria.
+
+        Return a list of ``CacheEntry`` objects matching the supplied
+        ``selection`` criteria. If ``images`` is ``True`` a separate
+        entry is returned for each image in the cache: otherwise one
+        ``CacheEntry`` object is returned for each cached path.
+
+        ;param selection: cache entry selection criteria.
+        :param images: return results by images instead of paths.
+        :returns: A list of matching ``CacheEntry`` objects.
+    """
+    global _index, _paths, _images
+    matches = []
+
+    if not _index:
+        load_cache()
+
+    # Use null search criteria if unspecified
+    selection = selection if selection else Selection()
+
+    selection.check_valid_selection(cache=True)
+
+    _log_debug_cache("Finding cache entries for %s" % repr(selection))
+
+    for path in _index:
+        def ts_key(val):
+            return val[1]
+
+        def tuplicate(img_id):
+            """Return a (img_id, image_ts) tuple for the given img_id.
+            """
+            return (img_id, _images[img_id][IMAGE_TS])
+
+        entry_images = [tuplicate(img_id) for img_id in _index[path]]
+        # Sort images list from newest to oldest
+        entry_images = sorted(entry_images, reverse=True, key=ts_key)
+        if not images:
+            ce = CacheEntry(path, _paths[path], entry_images)
+            if select_cache_entry(selection, ce):
+                matches.append(ce)
+        else:
+            for img_tuple in entry_images:
+                ce = CacheEntry(path, _paths[path], [img_tuple])
+                if select_cache_entry(selection, ce):
+                    matches.append(ce)
+
+    return matches
+
+
+def find_cache_paths(selection=None):
+    """Find cache entries matching selection criteria.
+
+        Return a list of ``CacheEntry`` objects matching the supplied
+        ``selection`` criteria, one for each path that exists in the
+        cache. For each cached path a ``CacheEntry`` object is returned
+        with a list of images that are cached for that path. The image
+        list is sorted by timestamp with the most recent entry first.
+
+        ;param selection: cache entry selection criteria.
+        :returns: A list of matching ``CacheEntry`` objects.
+    """
+    matches = _find_cache_entries(selection=selection, images=False)
+    _log_debug_cache("Found %d cached paths" % len(matches))
+    return matches
+
+
+def find_cache_images(selection=None):
+    """Find cache entries matching selection criteria.
+
+        Return a list of ``CacheEntry`` objects matching the supplied
+        ``selection`` criteria, one for each image that exists in the
+        cache. Each ``CacheEntry`` object is returned with a list
+        containing a single image.
+
+        ;param selection: cache entry selection criteria.
+        :returns: A list of matching ``CacheEntry`` objects.
+    """
+    matches = _find_cache_entries(selection=selection, images=True)
+    _log_debug_cache("Found %d cached images" % len(matches))
+    return matches
 
 # vim: set et ts=4 sw=4 :
