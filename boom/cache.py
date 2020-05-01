@@ -399,4 +399,20 @@ def uncache_path(img_path):
 
     write_cache()
 
+
+#: Boom restored dot file pattern
+_RESTORED_DOT_PATTERN = ".%s.boomrestored"
+
+
+def _is_restored(boot_path):
+    """Return ``True`` if ``boot_path`` was restored by boom, or
+        ``False`` otherwise.
+
+        :param boot_path: The absolute path to a boot image.
+    """
+    boot_dir = dirname(boot_path)
+    dot_path = _RESTORED_DOT_PATTERN % basename(boot_path)
+    return path_exists(path_join(boot_dir, dot_path))
+
+
 # vim: set et ts=4 sw=4 :
