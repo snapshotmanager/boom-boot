@@ -833,7 +833,7 @@ def load_profiles_for_class(profile_class, profile_type,
         :returns: None
     """
     profile_files = listdir(profiles_path)
-    _log_info("Loading %s profiles from %s" % (profile_type, profiles_path))
+    _log_debug("Loading %s profiles from %s" % (profile_type, profiles_path))
     for pf in profile_files:
         if not pf.endswith(".%s" % profile_ext):
             continue

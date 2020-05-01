@@ -826,7 +826,7 @@ def load_entries(machine_id=None):
 
     drop_entries()
 
-    _log_info("Loading boot entries from '%s'" % entries_path)
+    _log_debug("Loading boot entries from '%s'" % entries_path)
     for entry in listdir(entries_path):
         if not entry.endswith(".conf"):
             continue
@@ -841,7 +841,7 @@ def load_entries(machine_id=None):
             _log_info("Could not load BootEntry '%s': %s" %
                       (entry_path, e))
 
-    _log_info("Loaded %d entries" % len(_entries))
+    _log_debug("Loaded %d entries" % len(_entries))
 
 
 def write_entries():

@@ -250,7 +250,7 @@ def load_profiles():
     global _profiles_loaded
     drop_profiles()
     load_profiles_for_class(OsProfile, "Os", boom_profiles_path(), "profile")
-    _log_info("Loaded %d profiles" % (len(_profiles) - 1))
+    _log_debug("Loaded %d profiles" % (len(_profiles) - 1))
     _profiles_loaded = True
 
 

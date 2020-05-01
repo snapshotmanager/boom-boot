@@ -207,7 +207,7 @@ def load_host_profiles():
     load_profiles_for_class(HostProfile, "Host", profiles_path, "host")
 
     _host_profiles_loaded = True
-    _log_info("Loaded %d host profiles" % len(_host_profiles))
+    _log_debug("Loaded %d host profiles" % len(_host_profiles))
 
 
 def write_host_profiles(force=False):
