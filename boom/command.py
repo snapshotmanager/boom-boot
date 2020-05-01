@@ -33,6 +33,7 @@ from boom.bootloader import *
 from boom.hostprofile import *
 from boom.legacy import *
 from boom.config import *
+from boom.cache import *
 
 from os import environ, uname, getcwd
 from os.path import basename, exists as path_exists, isabs, join
@@ -83,8 +84,10 @@ class BoomReportObj(object):
     be = None
     osp = None
     hp = None
+    ce = None
 
-    def __init__(self, boot_entry=None, os_profile=None, host_profile=None):
+    def __init__(self, boot_entry=None, os_profile=None, host_profile=None,
+                 cache_entry=None):
         """Initialise new BoomReportObj objects.
 
             Construct a new BoomReportObj object containing the
@@ -96,6 +99,7 @@ class BoomReportObj(object):
         self.be = boot_entry
         self.osp = os_profile
         self.hp = host_profile
+        self.ce = cache_entry
 
 
 #: BootEntry report object type
@@ -106,6 +110,8 @@ BR_PROFILE = 2
 BR_PARAMS = 4
 #: HostProfile report object type
 BR_HOST = 8
+#: CacheEntry report object type
+BR_CACHE = 16
 
 #: Report object type table for ``boom.command`` reports.
 _report_obj_types = [
@@ -116,7 +122,9 @@ _report_obj_types = [
     BoomReportObjType(
         BR_PARAMS, "Boot parameters", "param_", lambda o: o.be.bp),
     BoomReportObjType(
-        BR_HOST, "Host profiles", "host_", lambda o: o.hp)
+        BR_HOST, "Host profiles", "host_", lambda o: o.hp),
+    BoomReportObjType(
+        BR_CACHE, "Cache entries", "cache_", lambda o: o.ce)
 ]
 
 #
@@ -315,6 +323,38 @@ _params_fields = [
 
 _default_entry_fields = "bootid,version,osname,rootdev"
 _verbose_entry_fields = (_default_entry_fields + ",options,machineid")
+
+
+#: Fields derived from CacheEntry data
+_cache_fields = [
+    BoomFieldType(
+        BR_CACHE, "imgid", "ImageID", "Image identifier", 7,
+        REP_SHA, lambda f, d: f.report_sha(d.img_id)),
+    BoomFieldType(
+        BR_CACHE, "path", "Path", "Image path", 24,
+        REP_STR, lambda f, d: f.report_str(d.path)),
+    BoomFieldType(
+        BR_CACHE, "mode", "Mode", "Path mode", 8,
+        REP_STR, lambda f, d: f.report_str(boom_filemode(d.mode))),
+    BoomFieldType(
+        BR_CACHE, "uid", "User", "User ID", 5,
+        REP_NUM, lambda f, d: f.report_num(d.uid)),
+    BoomFieldType(
+        BR_CACHE, "gid", "Group", "Group ID", 5,
+        REP_NUM, lambda f, d: f.report_num(d.gid)),
+    BoomFieldType(
+        BR_CACHE, "ts", "Timestamp", "Timestamp", 10,
+        REP_NUM, lambda f, d: f.report_num(d.timestamp)),
+    BoomFieldType(
+        BR_CACHE, "state", "State", "State", 8,
+        REP_STR, lambda f, d: f.report_str(d.state)),
+    BoomFieldType(
+        BR_CACHE, "count", "Count", "Use Count", 5,
+        REP_NUM, lambda f, d: f.report_num(d.count))
+]
+
+_default_cache_fields = "path,imgid,ts,state"
+_verbose_cache_fields = "path,imgid,ts,mode,uid,gid,state,count"
 
 
 def _get_machine_id():
@@ -812,7 +852,7 @@ def print_entries(selection=None, output_fields=None, opts=None,
     output_fields = _expand_fields(_default_entry_fields, output_fields)
 
     bes = find_entries(selection=selection)
-    selected = [BoomReportObj(be, be._osp, None) for be in bes]
+    selected = [BoomReportObj(be, be._osp, None, None) for be in bes]
 
     entry_fields = _expand_entry_fields if expand else _entry_fields
     report_fields = entry_fields + _profile_fields + _params_fields
@@ -1283,7 +1323,7 @@ def print_profiles(selection=None, opts=None, output_fields=None,
     output_fields = _expand_fields(_default_profile_fields, output_fields)
 
     osps = find_profiles(selection=selection)
-    selected = [BoomReportObj(None, osp, None) for osp in osps]
+    selected = [BoomReportObj(None, osp, None, None) for osp in osps]
 
     report_fields = _profile_fields
     return _do_print_type(report_fields, selected, output_fields=output_fields,
@@ -1589,7 +1629,7 @@ def print_hosts(selection=None, opts=None, output_fields=None,
     output_fields = _expand_fields(_default_host_fields, output_fields)
 
     hps = find_host_profiles(selection=selection)
-    selected = [BoomReportObj(None, None, hp) for hp in hps]
+    selected = [BoomReportObj(None, None, hp, None) for hp in hps]
     report_fields = _host_fields
     return _do_print_type(report_fields, selected, output_fields=output_fields,
                           opts=opts, sort_keys=sort_keys)
