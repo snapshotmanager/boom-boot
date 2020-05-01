@@ -920,7 +920,13 @@ def select_entry(s, be):
         return False
     if s.machine_id and be.machine_id != s.machine_id:
         return False
-
+    if s.linux and be.linux != s.linux:
+        return False
+    if s.initrd and be.initrd != s.initrd:
+        return False
+    if s.path:
+        if s.path != be.linux and s.path != be.initrd:
+            return False
     if not select_params(s, be.bp):
         return False
 
