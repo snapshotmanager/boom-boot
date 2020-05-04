@@ -2656,6 +2656,36 @@ def _edit_host_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
+def _show_cache_cmd(cmd_args, select, opts, identifier):
+    """Show cache command handler.
+
+        Show the cache entries that match the given selection criteria
+        in human readable form. Each matching entry is printed as a
+        multi-line record.
+
+        :param cmd_args: Command line arguments for the command
+        :param select: Selection criteria for the profiles to show.
+        :returns: integer status code returned from ``main()``
+    """
+    if identifier is not None:
+        select = Selection(path=identifier)
+
+    try:
+        find_fn = find_cache_images if cmd_args.verbose else find_cache_paths
+        ces = find_fn(selection=select)
+    except ValueError as e:
+        print(e)
+        return 1
+    first = True
+    for ce in ces:
+        ws = "" if first else "\n"
+        ce_str = str(ce)
+        ce_str = _str_indent(ce_str, 2)
+        print("%sCache Entry (img_id=%s)\n%s" % (ws, ce.disp_img_id, ce_str))
+        first = False
+    return 0
+
+
 def _list_cache_cmd(cmd_args, select, opts, identifier):
     """List cache command handler.
 
@@ -2751,6 +2781,7 @@ _boom_host_commands = [
 ]
 
 _boom_cache_commands = [
+    (SHOW_CMD, _show_cache_cmd),
     (LIST_CMD, _list_cache_cmd)
 ]
 
