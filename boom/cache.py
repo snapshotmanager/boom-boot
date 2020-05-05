@@ -308,6 +308,25 @@ def _remove(cache_path):
         raise e
 
 
+def _insert_path(path, img_id, mode, uid, gid, attrs):
+    """Insert a path into the path map and index dictionaries.
+    """
+    global _paths, _index
+
+    if path not in _paths:
+        _paths[path] = {}
+    _paths[path][PATH_MODE] = mode
+    _paths[path][PATH_UID] = uid
+    _paths[path][PATH_GID] = gid
+    _paths[path][PATH_ATTRS] = attrs
+
+    # Add the img_id to the list of images for this path
+    if path in _index and img_id not in _index[path]:
+        _index[path].append(img_id)
+    else:
+        _index[path] = [img_id]
+
+
 def cache_path(img_path, update=True):
     """Add an image to the boom boot image cache.
 
@@ -328,6 +347,7 @@ def cache_path(img_path, update=True):
 
     img_id = _image_id_from_path(boot_path)
     cache_path = _image_id_to_cache_path(img_id)
+    path_ts = image_ts = st[ST_MTIME]
 
     # Already present?
     if img_path in _paths:
@@ -335,20 +355,12 @@ def cache_path(img_path, update=True):
         if not update:
             return
 
-    if img_path in _paths and img_id in _paths[img_path]:
+    if img_path in _paths and img_id in _index[img_path]:
         _log_info("Image with img_id=%s already cached for path '%s'" %
                   (img_id[0:6], img_path))
         return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
     _log_info("Adding new image with img_id=%s for path '%s'" %
               (img_id[0:6], img_path))
-
-    # Initialise path dictionary and index list for new path
-    if img_path not in _paths:
-        _paths[img_path] = {}
-    if img_path not in _index:
-        _index[img_path] = []
-
-    path_ts = image_ts = st[ST_MTIME]
 
     path_mode = st[ST_MODE]
     path_uid = st[ST_UID]
@@ -360,14 +372,7 @@ def cache_path(img_path, update=True):
 
     # Set cache entry metadata
     _images[img_id] = {IMAGE_TS: image_ts}
-    _paths[img_path][PATH_MODE] = path_mode
-    _paths[img_path][PATH_UID] = path_uid
-    _paths[img_path][PATH_GID] = path_gid
-    _paths[img_path][PATH_ATTRS] = path_attrs
-
-    # Add the img_id to the list of images for this path
-    _index[img_path].append(img_id)
-
+    _insert_path(img_path, img_id, path_mode, path_uid, path_gid, path_attrs)
     write_cache()
 
     return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
