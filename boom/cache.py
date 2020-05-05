@@ -338,7 +338,7 @@ def cache_path(img_path, update=True):
     if img_path in _paths and img_id in _paths[img_path]:
         _log_info("Image with img_id=%s already cached for path '%s'" %
                   (img_id[0:6], img_path))
-        return
+        return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
     _log_info("Adding new image with img_id=%s for path '%s'" %
               (img_id[0:6], img_path))
 
@@ -369,6 +369,8 @@ def cache_path(img_path, update=True):
     _index[img_path].append(img_id)
 
     write_cache()
+
+    return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
 
 
 def uncache_path(img_path):
