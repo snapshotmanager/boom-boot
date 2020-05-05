@@ -538,17 +538,24 @@ class CacheEntry(object):
         )
         return "CacheEntry(" + rep + ")"
 
-    def restore(self):
+    def restore(self, dest=None):
         """Restore this CacheEntry to the /boot file system.
         """
+        img_id = self.images[0][0]
+        if dest:
+            if dest not in _index:
+                _insert_path(dest, img_id, self.mode, self.uid, self.gid,
+                             self.attrs)
+            self.path = dest
+            write_cache()
         boot_path = _image_path_to_boot(self.path)
-        cache_path = _image_id_to_cache_path(self.images[0][0])
+        cache_path = _image_id_to_cache_path(img_id)
         dot_path = _RESTORED_DOT_PATTERN % basename(boot_path)
         boot_dir = dirname(boot_path)
 
         if self.state not in (CACHE_MISSING, CACHE_RESTORED):
             raise ValueError("Restore failed: CacheEntry state is not "
-                             "MISSING or RESTORED")
+                             "%s or %s" % (CACHE_MISSING, CACHE_RESTORED))
 
         shutil.copy2(cache_path, boot_path)
         try:
