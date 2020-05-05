@@ -706,6 +706,12 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
     if orig_be.options != orig_be.expand_options:
         clone_be.options = orig_be.options
 
+    # Boot image overrides?
+    if orig_be.initrd != clone_be.initrd:
+        clone_be.initrd = orig_be.initrd
+    if orig_be.linux != clone_be.linux:
+        clone_be.linux = orig_be.linux
+
     if write:
         clone_be.write_entry(expand=expand)
         __write_legacy()
@@ -1970,6 +1976,8 @@ def _clone_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
+    # Command-line overrides take precedence over any overridden values
+    # in the cloned BootEntry.
     _apply_profile_overrides(be, cmd_args)
 
     try:
@@ -2117,6 +2125,8 @@ def _edit_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
+    # Command-line overrides take precedence over any overridden values
+    # in the edited BootEntry.
     _apply_profile_overrides(be, cmd_args)
 
     try:
