@@ -36,7 +36,7 @@ from boom.config import *
 from boom.cache import *
 
 from os import environ, uname, getcwd
-from os.path import basename, exists as path_exists, isabs, join
+from os.path import basename, exists as path_exists, isabs, join, sep
 from argparse import ArgumentParser
 import platform
 import logging
@@ -506,14 +506,50 @@ def _merge_add_del_opts(orig_opts, opts):
 # Command driven API: BootEntry and OsProfile management and reporting.
 #
 
+# Boot image cache modes
+
+#: Use original image (no caching)
+I_NONE = None
+I_CACHE = "cache"
+I_BACKUP = "backup"
+
+
 #
 # BootEntry manipulation
 #
 
+def _find_backup_name(img_path):
+    """Generate a new, unique backup pathname.
+    """
+    img_backup = ("%s.boom" % img_path)[1:] + "%d"
+    backup_nr = 0
+    while path_exists(join(get_boot_path(), img_backup % backup_nr)):
+        backup_nr += 1
+    return sep + img_backup % backup_nr
+
+
+def _cache_image(img_path, backup):
+    """Cache the image found at ``img_path`` and optionally create
+        a backup copy.
+    """
+    try:
+        ce = cache_path(img_path)
+    except (OSError, ValueError) as e:
+        _log_error("Could not cache path %s: %s" % (img_path, e))
+        raise e
+    if backup:
+        img_backup = _find_backup_name(img_path)
+        _log_debug("backing up '%s' as '%s'" % (img_path, img_backup))
+        ce.restore(dest=img_backup)
+        uncache_path(img_path)
+        return img_backup
+    return img_path
+
+
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None, profile=None,
                  add_opts=None, del_opts=None, write=True, architecture=None,
-                 expand=False, allow_no_dev=False):
+                 expand=False, allow_no_dev=False, images=I_NONE):
     """Create new boot loader entry.
 
         Create the specified boot entry in the configured loader directory.
@@ -534,6 +570,8 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         :param architecture: An optional BLS architecture string.
         :param expand: Expand bootloader environment variables.
         :param allow_no_dev: Accept a non-existent or invalid root dev.
+        :param images: Whether to cache or backup boot images in the new
+                       entry.
         :returns: a ``BootEntry`` object corresponding to the new entry.
         :rtype: ``BootEntry``
         :raises: ``ValueError`` if either required values are missing or
@@ -569,6 +607,10 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
     be = BootEntry(title=title, machine_id=machine_id,
                    osprofile=profile, boot_params=bp,
                    architecture=architecture, allow_no_dev=allow_no_dev)
+
+    if images in (I_BACKUP, I_CACHE):
+        be.initrd = _cache_image(be.initrd, images == I_BACKUP)
+        be.linux = _cache_image(be.linux, images == I_BACKUP)
 
     if find_entries(Selection(boot_id=be.boot_id)):
         raise ValueError("Entry already exists (boot_id=%s)." %
@@ -619,7 +661,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                 root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
                 btrfs_subvol_id=None, profile=None, architecture=None,
                 add_opts=None, del_opts=None,
-                write=True, expand=False, allow_no_dev=False):
+                write=True, expand=False, allow_no_dev=False, images=I_NONE):
     """Clone an existing boot loader entry.
 
         Create the specified boot entry in the configured loader directory
@@ -698,9 +740,6 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                          osprofile=profile, boot_params=bp,
                          architecture=architecture,
                          allow_no_dev=allow_no_dev)
-    if find_entries(Selection(boot_id=clone_be.boot_id)):
-        raise ValueError("Entry already exists (boot_id=%s)." %
-                         clone_be.disp_boot_id)
 
     orig_be = find_entries(selection)[0]
     if orig_be.options != orig_be.expand_options:
@@ -712,6 +751,15 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
     if orig_be.linux != clone_be.linux:
         clone_be.linux = orig_be.linux
 
+    if images in (I_BACKUP, I_CACHE):
+        print("IMAGES: %s backup=%s" % (images, images == I_BACKUP))
+        clone_be.initrd = _cache_image(clone_be.initrd, images == I_BACKUP)
+        clone_be.linux = _cache_image(clone_be.linux, images == I_BACKUP)
+
+    if find_entries(Selection(boot_id=clone_be.boot_id)):
+        raise ValueError("Entry already exists (boot_id=%s)." %
+                         clone_be.disp_boot_id)
+
     if write:
         clone_be.write_entry(expand=expand)
         __write_legacy()
@@ -722,7 +770,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
 def edit_entry(selection=None, title=None, version=None, machine_id=None,
                root_device=None, lvm_root_lv=None, btrfs_subvol_path=None,
                btrfs_subvol_id=None, profile=None, architecture=None,
-               add_opts=None, del_opts=None, expand=False):
+               add_opts=None, del_opts=None, expand=False, images=I_NONE):
     """Edit an existing boot loader entry.
 
         Modify an existing BootEntry by changing one or more of the
@@ -797,6 +845,10 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
     be.bp.add_opts = add_opts
     be.bp.del_opts = del_opts
+
+    if images in (I_BACKUP, I_CACHE):
+        be.initrd = _cache_image(be.initrd, images == I_BACKUP)
+        be.linux = _cache_image(be.linux, images == I_BACKUP)
 
     be.update_entry(expand=expand)
     __write_legacy()
@@ -1847,6 +1899,8 @@ def _create_cmd(cmd_args, select, opts, identifier):
 
     arch = cmd_args.architecture
 
+    images = I_BACKUP if cmd_args.backup else I_NONE
+
     try:
         be = create_entry(title, version, machine_id,
                           root_device, lvm_root_lv=lvm_root_lv,
@@ -1855,7 +1909,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
                           add_opts=add_opts, del_opts=del_opts,
                           architecture=arch, write=False,
                           expand=cmd_args.expand_variables,
-                          allow_no_dev=no_dev)
+                          allow_no_dev=no_dev, images=images)
 
     except BoomRootDeviceError as brde:
         print(brde)
@@ -1962,6 +2016,8 @@ def _clone_cmd(cmd_args, select, opts, identifier):
 
     arch = cmd_args.architecture
 
+    images = I_BACKUP if cmd_args.backup else I_NONE
+
     try:
         be = clone_entry(select, title=title, version=version,
                          machine_id=machine_id, root_device=root_device,
@@ -1970,7 +2026,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
                          btrfs_subvol_id=btrfs_subvol_id, profile=profile,
                          add_opts=add_opts, del_opts=del_opts,
                          architecture=arch, expand=cmd_args.expand_variables,
-                         allow_no_dev=cmd_args.no_dev)
+                         allow_no_dev=cmd_args.no_dev, images=images)
 
     except ValueError as e:
         print(e)
@@ -2921,6 +2977,8 @@ def main(args):
                         help="Additional kernel options to append", type=str)
     parser.add_argument("--architecture", metavar="ARCH", default=None,
                         help="An optional BLS architecture string", type=str)
+    parser.add_argument("--backup", action="store_true",
+                        help="Back up boot images used by entry")
     parser.add_argument("-b", "--boot-id", "--bootid", metavar="BOOT_ID",
                         type=str, help="The BOOT_ID of a boom boot entry")
     parser.add_argument("--boot-dir", "--bootdir", metavar="PATH", type=str,
@@ -3107,6 +3165,9 @@ def main(args):
         print("Unknown command: %s %s" % (cmd_type[0], cmd_args.command))
         return 1
 
+    if cmd_args.backup:
+        load_cache()
+
     select = Selection.from_cmd_args(cmd_args)
     opts = _report_opts_from_args(cmd_args)
     identifier = _id_from_arg(cmd_args, cmd_type[0], command[0])
@@ -3138,7 +3199,8 @@ __all__ = [
     'list_hosts', 'print_hosts',
 
     # Cache manipulation
-    'print_cache', 'print_cache_images'
+    'print_cache', 'print_cache_images',
+    'I_NONE', 'I_CACHE', 'I_BACKUP'
 ]
 
 # vim: set et ts=4 sw=4 :
