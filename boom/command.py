@@ -2886,6 +2886,8 @@ def main(args):
     if cmd_args.config:
         set_boom_config_path(cmd_args.config)
 
+    load_boom_config()
+
     if not path_exists(get_boom_path()):
         _log_error("Configuration directory '%s' not found." %
                    get_boom_path())
