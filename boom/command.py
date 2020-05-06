@@ -546,6 +546,23 @@ def _cache_image(img_path, backup):
     return img_path
 
 
+def _find_one_entry(select):
+    """Find exactly one entry, and raise ValueError if zero or more
+        than one entry is found.
+
+        :param: An instance of ``Selection`` specificying match criteria.
+        :returns: A single instance of ``BootEntry``
+        :raises: ValueError if selection results are empty or non-unique
+    """
+    bes = find_entries(select)
+    if not bes:
+        raise ValueError("No matching entry found for boot ID %s" %
+                         select.boot_id)
+    if len(bes) > 1:
+        raise ValueError("Selection criteria must match exactly one entry")
+    return bes[0]
+
+
 def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None, profile=None,
                  add_opts=None, del_opts=None, write=True, architecture=None,
@@ -703,15 +720,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                          "machine_id, root_device, lvm_root_lv, "
                          "btrfs_subvol_path, btrfs_subvol_id, profile")
 
-    bes = find_entries(selection=selection)
-    if not bes:
-        raise ValueError("No matching entry found for boot ID %s" %
-                         selection.boot_id)
-
-    if len(bes) > 1:
-        raise ValueError("clone criteria must match exactly one entry")
-
-    be = bes[0]
+    be = _find_one_entry(selection)
 
     _log_debug("Cloning entry with boot_id='%s'" % be.disp_boot_id)
 
@@ -811,16 +820,7 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     # Discard all selection criteria but boot_id.
     selection = Selection(boot_id=selection.boot_id)
 
-    bes = find_entries(selection=selection)
-
-    if not bes:
-        raise ValueError("No matching entry found for boot ID %s" %
-                         selection.boot_id)
-
-    if len(bes) > 1:
-        raise ValueError("edit criteria must match exactly one entry")
-
-    be = bes[0]
+    be = _find_one_entry(selection)
 
     _log_debug("Editing entry with boot_id='%s'" % be.disp_boot_id)
 
@@ -2004,7 +2004,11 @@ def _clone_cmd(cmd_args, select, opts, identifier):
 
     # Discard all selection criteria but boot_id.
     select = Selection(boot_id=select.boot_id)
-    be = find_entries(select)[0]
+    try:
+        be = _find_one_entry(select)
+    except ValueError as e:
+        print(e)
+        return 1
 
     version = cmd_args.version or be.version
     machine_id = cmd_args.machine_id or be.machine_id
@@ -2161,7 +2165,11 @@ def _edit_cmd(cmd_args, select, opts, identifier):
 
     # Discard all selection criteria but boot_id.
     select = Selection(boot_id=select.boot_id)
-    be = find_entries(select)[0]
+    try:
+        be = _find_one_entry(select)
+    except ValueError as e:
+        print(e)
+        return 1
 
     version = cmd_args.version or be.version
     machine_id = cmd_args.machine_id or be.machine_id
