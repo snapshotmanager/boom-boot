@@ -418,6 +418,22 @@ def uncache_path(img_path):
     write_cache()
 
 
+def clean_cache():
+    """Remove unused cache entries.
+
+        Iterate over the set of cache entries and remove any paths
+        that are not referenced by any BootEntry, and remove all
+        images that are not referenced by a path.
+    """
+    ces = find_cache_paths()
+    nr_unused = 0
+    for ce in ces:
+        if not ce.count:
+            nr_unused += 1
+            ce.uncache()
+    _log_info("Removed %d unused cache entries" % nr_unused)
+
+
 #: Boom restored dot file pattern
 _RESTORED_DOT_PATTERN = ".%s.boomrestored"
 
@@ -709,7 +725,7 @@ def find_cache_images(selection=None):
 __all__ = [
     "CACHE_CACHED", "CACHE_MISSING", "CACHE_BROKEN", "CACHE_RESTORED",
     "drop_cache", "load_cache", "write_cache",
-    "cache_path", "uncache_path",
+    "cache_path", "uncache_path", "clean_cache",
     "find_cache_paths", "find_cache_images"
 ]
 
