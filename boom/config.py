@@ -69,8 +69,6 @@ _CFG_LEGACY_SYNC = "sync"
 _CFG_SECT_CACHE = "cache"
 _CFG_CACHE_ENABLE = "enable"
 _CFG_CACHE_PATH = "cache_path"
-_CFG_CACHE_AUTO_UPDATE = "auto_update"
-_CFG_CACHE_MODULES = "modules"
 
 
 def _read_boom_config(path=None):
@@ -130,14 +128,6 @@ def _read_boom_config(path=None):
         if cfg.has_option(_CFG_SECT_CACHE, _CFG_CACHE_PATH):
             _log_debug("Found cache.cache_path")
             bc.cache_path = cfg.get(_CFG_SECT_CACHE, _CFG_CACHE_PATH)
-        if cfg.has_option(_CFG_SECT_CACHE, _CFG_CACHE_AUTO_UPDATE):
-            _log_debug("Found cache.auto_update")
-            bc.cache_auto_update = cfg.get(_CFG_SECT_CACHE,
-                                           _CFG_CACHE_AUTO_UPDATE)
-        if cfg.has_option(_CFG_SECT_CACHE, _CFG_CACHE_MODULES):
-            _log_debug("Found cache.modules")
-            modules = cfg.get(_CFG_SECT_CACHE, _CFG_CACHE_MODULES)
-            bc.cache_modules = any([t for t in trues if t in modules])
 
     _log_debug("read configuration: %s" % repr(bc))
     bc._cfg = cfg

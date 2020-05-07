@@ -291,7 +291,6 @@ class BoomConfig(object):
 
     cache_enable = True
     cache_path = DEFAULT_CACHE_PATH
-    cache_auto_update = True
 
     def __str__(self):
         """Return a string representation of this ``BoomConfig`` in
@@ -310,7 +309,6 @@ class BoomConfig(object):
         cstr += '[cache]\n'
         cstr += 'enable = %s\n' % self.cache_enable
         cstr += 'cache_path = %s\n' % self.cache_path
-        cstr += 'auto_update = %s\n' % self.cache_auto_update
 
         return cstr
 
@@ -324,14 +322,13 @@ class BoomConfig(object):
                  (self.legacy_enable, self.legacy_format))
         cstr += 'legacy_sync=%s, ' % self.legacy_sync
         cstr += 'cache_enable=%s, ' % self.cache_enable
-        cstr += 'cache_path="%s", ' % self.cache_path
-        cstr += 'cache_auto_update=%s)' % self.cache_auto_update
+        cstr += 'cache_path="%s")' % self.cache_path
 
         return cstr
 
     def __init__(self, boot_path=None, boom_path=None, legacy_enable=None,
                  legacy_format=None, legacy_sync=None, cache_enable=None,
-                 cache_path=None, cache_auto_update=None):
+                 cache_path=None):
         """Initialise a new ``BoomConfig`` object with the supplied
             configuration values, or defaults for any unset arguments.
 
@@ -348,7 +345,6 @@ class BoomConfig(object):
         self.legacy_sync = legacy_sync or self.legacy_sync
         self.cache_enable = cache_enable or self.cache_enable
         self.cache_path = cache_path or self.cache_path
-        self.cache_auto_update = cache_auto_update or self.cache_auto_update
 
 
 __config = BoomConfig()
