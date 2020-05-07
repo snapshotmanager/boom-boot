@@ -9,7 +9,7 @@ setup(
     description=("""The Boom Boot Manager."""),
     author='Bryn M. Reeves',
     author_email='bmr@redhat.com',
-    url='https://github.com/bmr-cymru/boom',
+    url='https://github.com/snapshotmanager/boom',
     license="GPLv2",
     test_suite="tests",
     scripts=['bin/boom'],

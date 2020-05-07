@@ -58,7 +58,7 @@ parameters.
 
 This project is hosted at:
 
-  * http://github.com/bmr-cymru/boom
+  * http://github.com/snapshotmanager/boom
 
 For the latest version, to contribute, and for more information, please visit
 the project pages or join the mailing list.
@@ -66,7 +66,7 @@ the project pages or join the mailing list.
 To clone the current master (development) branch run:
 
 ```
-git clone git://github.com/bmr-cymru/boom.git
+git clone git://github.com/snapshotmanager/boom.git
 ```
 ## Reporting bugs
 
@@ -700,8 +700,8 @@ and [Read the Docs][6].
 Installation and user documentation will be added in a future update.
 
  [0]: https://systemd.io/BOOT_LOADER_SPECIFICATION
- [1]: https://github.com/bmr-cymru/snapshot-boot-docs
- [2]: https://github.com/bmr-cymru/boom/issues
+ [1]: https://github.com/snapshotmanager/snapshot-boot-docs
+ [2]: https://github.com/snapshotmanager/boom/issues
  [3]: https://www.redhat.com/mailman/listinfo/dm-devel
  [4]: https://boom.readthedocs.org/en/latest/index.html#
  [5]: http://sphinx-doc.org/
