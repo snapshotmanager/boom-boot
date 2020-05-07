@@ -586,6 +586,11 @@ class CacheEntry(object):
             raise ValueError("Purge failed: CacheEntry state is not RESTORED")
         _remove_boot(boot_path)
 
+    def uncache(self):
+        """Remove this CacheEntry from the boot image cache.
+        """
+        uncache_path(self.path)
+
 
 def select_cache_entry(s, ce):
     """Test CacheEntry against Selection criteria.
