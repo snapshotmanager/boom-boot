@@ -145,7 +145,7 @@ def _image_id_from_file(img_file):
     """Calculate the image identifier (SHA1) for the image file
         open at ``img_file``.
 
-        :param img_file: An open file-like object.
+        :param img_file: An file-like object open for binary reading.
         :returns: The image identifier for ``img_file``.
         :rtype: str
     """
@@ -166,7 +166,7 @@ def _image_id_from_path(img_path):
         :returns: The image identifier for ``img_path``.
         :rtype: str
     """
-    with open(img_path) as img_file:
+    with open(img_path, "rb") as img_file:
         return _image_id_from_file(img_file)
 
 
