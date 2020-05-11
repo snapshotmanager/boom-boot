@@ -610,6 +610,11 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
     if not profile:
         raise ValueError("Cannot create entry without OsProfile.")
 
+    bc = get_boom_config()
+    if images is not I_NONE and not bc.cache_enable:
+        raise BoomConfigError("Cannot use images=%s with image cache disabled"
+                              " (config.cache_enable=False)" % images)
+
     add_opts = add_opts.split() if add_opts else []
     del_opts = del_opts.split() if del_opts else []
 
@@ -720,6 +725,11 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                          "machine_id, root_device, lvm_root_lv, "
                          "btrfs_subvol_path, btrfs_subvol_id, profile")
 
+    bc = get_boom_config()
+    if images is not I_NONE and not bc.cache_enable:
+        raise BoomConfigError("Cannot use images=%s with image cache disabled"
+                              " (config.cache_enable=False)" % images)
+
     be = _find_one_entry(selection)
 
     _log_debug("Cloning entry with boot_id='%s'" % be.disp_boot_id)
@@ -816,6 +826,11 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
         raise ValueError("edit requires one or more of:\ntitle, version, "
                          "machine_id, root_device, lvm_root_lv, "
                          "btrfs_subvol_path, btrfs_subvol_id, profile")
+
+    bc = get_boom_config()
+    if images is not I_NONE and not bc.cache_enable:
+        raise BoomConfigError("Cannot use images=%s with image cache disabled"
+                              " (config.cache_enable=False)" % images)
 
     # Discard all selection criteria but boot_id.
     selection = Selection(boot_id=selection.boot_id)
