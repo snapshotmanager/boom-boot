@@ -28,6 +28,7 @@ from os.path import (
     basename, dirname
 )
 from json import load as json_load, dump as json_dump
+from errno import ENOENT
 import shutil
 import logging
 
@@ -210,8 +211,14 @@ def load_cache(verify=True, digests=False):
     ids = _load_image_ids(cache_path)
 
     cachedata = {}
-    with open(index_path, "r") as index_file:
-        cachedata = json_load(index_file)
+    try:
+        with open(index_path, "r") as index_file:
+            cachedata = json_load(index_file)
+    except IOError as e:
+        if e.errno != ENOENT:
+            raise e
+        _log_debug("No metadata found: starting empty cache")
+        return
 
     index = cachedata["index"]
 
