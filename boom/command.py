@@ -3173,7 +3173,11 @@ def main(args):
         print("Unknown command: %s %s" % (cmd_type[0], cmd_args.command))
         return 1
 
-    if cmd_args.backup:
+    if cmd_args.backup and not bc.cache_enable:
+        print("--backup specified but cache disabled"
+              " (config.cache_enable=False)")
+        return 1
+    elif cmd_args.backup:
         load_cache()
 
     select = Selection.from_cmd_args(cmd_args)
