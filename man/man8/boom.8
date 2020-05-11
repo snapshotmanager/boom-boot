@@ -1268,6 +1268,23 @@ The kernel command line options template for this OS profile.
 .B profilepath
 The absolute path to this OS Profile's on-disk configuration file.
 .
+.SS Host Profile fields
+.
+Host Profile fields provide access to the details of a profile's
+configuration including identity fields and the template strings
+used to generate entries. This includes all fields available in
+the OS Profile report as well as additional Host Profile identity
+fields.
+.TP
+.B hostid
+Host profile identifier.
+.TP
+.B hostname
+The hostname of this host profile.
+.TP
+.B label
+The label of this host profile.
+.
 .SH REPORTING COMMANDS
 Both the \fBentry list\fP and \fBprofile list\fP commands use a common
 reporting system to display the results of the query. The selection of
