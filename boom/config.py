@@ -145,6 +145,7 @@ def load_boom_config(path=None):
     """
     bc = _read_boom_config(path=path)
     set_boom_config(bc)
+    return bc
 
 
 def _sync_config(bc, cfg):
