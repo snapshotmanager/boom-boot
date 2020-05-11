@@ -3138,6 +3138,10 @@ def main(args):
                    boom_entries_path())
         return 1
 
+    if cmd_type[0] == CACHE_TYPE and not bc.cache_enable:
+        _log_error("Boot image cache disabled (config.cache_enable=False)")
+        return 1
+
     # Parse an LV name from root_lv and re-write the root_device if found
     if cmd_args.root_lv:
         try:
