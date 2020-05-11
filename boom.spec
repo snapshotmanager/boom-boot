@@ -3,12 +3,13 @@
 
 Name:		boom
 Version:	1.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{summary}
 
 License:	GPLv2
 URL:		https://github.com/snapshotmanager/boom
-Source0:	https://github.com/snapshotmanager/boom/archive/%{version}.tar.gz
+#Source0:	https://github.com/snapshotmanager/boom/archive/%{version}.tar.gz
+Source0:	boom-%{version}.tar.gz
 
 BuildArch:	noarch
 
@@ -79,7 +80,7 @@ include this support in both Red Hat Enterprise Linux 7 and Fedora).
 This package provides integration scripts for grub2 bootloader.
 
 %prep
-%setup -q -n boom-%{commit}
+%setup -q -n boom-%{version}
 # NOTE: Do not use backup extension - MANIFEST.in is picking them
 
 %build
@@ -106,6 +107,7 @@ install -m 644 etc/default/boom ${RPM_BUILD_ROOT}/etc/default
 install -d -m 700 ${RPM_BUILD_ROOT}/boot/boom/profiles
 install -d -m 700 ${RPM_BUILD_ROOT}/boot/boom/hosts
 install -d -m 700 ${RPM_BUILD_ROOT}/boot/loader/entries
+install -d -m 700 ${RPM_BUILD_ROOT}/boot/boom/cache
 install -m 644 examples/boom.conf ${RPM_BUILD_ROOT}/boot/boom
 
 mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man8
@@ -141,6 +143,7 @@ rm doc/conf.py
 %config(noreplace) /boot/boom/boom.conf
 %dir /boot/boom/profiles
 %dir /boot/boom/hosts
+%dir /boot/boom/cache
 %dir /boot/loader/entries
 
 %files grub2
@@ -151,6 +154,9 @@ rm doc/conf.py
 
 
 %changelog
+* Mon May 11 2020 Bryn M. Reeves <bnr@redhat.com> - 1.0-2
+- Include boom/cache directory in package
+
 * Wed Nov 27 2019 Bryn M. Reeves <bmr@redhat.com> - 1.0-1
 - Bump release for boom-1.0
 
