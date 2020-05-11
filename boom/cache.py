@@ -204,6 +204,8 @@ def load_cache(verify=True, digests=False):
 
     index_path = path_join(cache_path, _CACHE_INDEX)
 
+    _log_debug("Loading cache entries from '%s'" % index_path)
+
     # Get the set of known image_id values
     ids = _load_image_ids(cache_path)
 
@@ -231,6 +233,9 @@ def load_cache(verify=True, digests=False):
         if image_id not in ids:
             _log_warn("Found orphan image_id '%s'" % image)
             # clean up?
+
+    _log_debug("Loaded %d cache paths and %d images" %
+               (len(paths), len(sum(index.values(), []))))
 
     _index = index
     _paths = paths
