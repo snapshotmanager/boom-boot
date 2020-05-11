@@ -8,7 +8,6 @@
 .  RI [ create | delete | clone | show | list | edit ]
 ..
 .
-.
 .de ARG_LEGACY_TYPES
 .  RI legacy
 ..
@@ -17,7 +16,15 @@
 .  RI [ write | clear | show ]
 ..
 .
+.de ARG_CACHE_TYPES
+.  RI cache
+..
 .
+.de ARG_CACHE_COMMAND
+.  RI [ list | show ]
+..
+.
+..
 .SH NAME
 .
 Boom \(em linux boot manager
@@ -45,6 +52,17 @@ Boom \(em linux boot manager
 .  ad b
 ..
 .CMD_LEGACY_COMMAND
+
+.
+.HP
+.B boom
+.de CMD_CACHE_COMMAND
+.  ad l
+.  ARG_CACHE_TYPES
+.  ARG_CACHE_COMMAND
+.  ad b
+..
+.CMD_CACHE_COMMAND
 
 .
 .HP
@@ -553,6 +571,42 @@ Boom \(em linux boot manager
 .  ad b
 ..
 .CMD_LEGACY_SHOW
+
+.
+.HP
+.B boom
+.de CMD_CACHE_LIST
+.  ad l
+.  BR cache
+.  BR \fBlist
+.  IR [ img_id ]
+.  RB [ --image
+.  IR img_id ]
+.  RB [ --linux
+.  IR kernel_path ]
+.  RB [ --initrd
+.  IR initrd_path ]
+.  ad b
+..
+.CMD_CACHE_LIST
+.
+.HP
+.B boom
+.de CMD_CACHE_SHOW
+.  ad l
+.  BR cache
+.  BR \fBshow
+.  IR [ img_id ]
+.  RB [ --image
+.  IR img_id ]
+.  RB [ --linux
+.  IR kernel_path ]
+.  RB [ --initrd
+.  IR initrd_path ]
+.  ad b
+..
+.CMD_CACHE_SHOW
+
 .
 .PD
 .ad b
@@ -1168,6 +1222,43 @@ Display the selected boot entries as they would appear in the
 configured legacy boot loader format. The normal command line
 selection options may be used to control the set of entries
 written to the terminal.
+
+.SH BOOT IMAGE CACHE
+Boom can optionally cache or back up the images used by a boom
+BootEntry. This allows an entry to be booted in the case that a
+subsequent update has removed the original kernel and initramfs
+images and can be used to recover an earlier system state from
+a snapshot following even major operating system updates.
+.
+.HP
+.B boom
+.CMD_CACHE_LIST
+.br
+Output a tabular report of paths present in the boot image cache.
+
+Displays a report with one cache entry per line, containing fields
+describing the properties of the cache entry.
+
+The list of fields to display is given with \fB--options\fP as a comma
+separated list of field names. To obtain a list of available fields run
+'\fBboom host list -o help\fP'. If the list of fields begins with the
+'\fB+\fP' character the specified fields are appended to the default
+field list. Otherwise the given list of fields replaces the default set
+of report fields.
+
+Report output may be sorted by multiple user-defined keys using
+the \fB--sort\fP option. The option expects a comma separated list
+of keys, with optional '\fB+\fP' and '\fB-\fP' prefixes indicating
+ascending and descending sort for that field respectively.
+.
+.HP
+.B boom
+.CMD_CACHE_SHOW
+.br
+Display matching cache entries on standard output.
+
+Entries matching selection criteria are printed in a compact multi-line
+format.
 .
 .SH REPORT FIELDS
 .
@@ -1284,6 +1375,37 @@ The hostname of this host profile.
 .TP
 .B label
 The label of this host profile.
+.
+.SS Cache Entry fields
+.
+Cache entry fields provide information on the paths and images
+stored in the boom boot image cache.
+.TP
+.B imgid
+Image identifier.
+.TP
+.B path
+Path to the cached image, relative to the boot file system.
+.TP
+.B mode
+Path file system mode in human-readable format.
+.TP
+.B uid
+Image owner user identifier.
+.TP
+.B gid
+Image owner group identifier.
+.TP
+.B ts
+Image timestamp. The mtime of the image file at the time it was added
+to the cache.
+.TP
+.B state
+A string description of the cache entry state: \fBCACHED\fp,
+\fBMISSING\fP, \fBRESTORED\fP, or \fBBROKEN\fp.
+.TP
+.B count
+The number of boot entries that reference this boot image.
 .
 .SH REPORTING COMMANDS
 Both the \fBentry list\fP and \fBprofile list\fP commands use a common
