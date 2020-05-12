@@ -285,6 +285,15 @@ class CacheTests(unittest.TestCase):
         ces = find_cache_paths(Selection(path=img_path))
         self.assertEqual(len(ces), 1)
 
+    def test_cache_path_dupe(self):
+        img_name = self._make_null_testimg(restored=False)
+        img_path = join("/", img_name)
+
+        ce1 = cache_path(img_path)
+        ce2 = cache_path(img_path)
+
+        self.assertEqual(repr(ce1), repr(ce2))
+
     def test_cache_path_nonex_path_raises(self):
         img_name = "nonexistent"
         img_path = join("/", img_name)
