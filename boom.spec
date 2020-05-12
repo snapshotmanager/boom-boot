@@ -2,8 +2,8 @@
 %global sphinx_docs 1
 
 Name:		boom
-Version:	1.0
-Release:	2%{?dist}
+Version:	1.1
+Release:	0.1.beta%{?dist}
 Summary:	%{summary}
 
 License:	GPLv2
@@ -154,7 +154,10 @@ rm doc/conf.py
 
 
 %changelog
-* Mon May 11 2020 Bryn M. Reeves <bnr@redhat.com> - 1.0-2
+* Tue May 12 2020 Bryn M. Reeves <bmr@redhat.com> = 1.1-0.1.beta
+- Bump release
+
+* Mon May 11 2020 Bryn M. Reeves <bmr@redhat.com> - 1.0-2
 - Include boom/cache directory in package
 
 * Wed Nov 27 2019 Bryn M. Reeves <bmr@redhat.com> - 1.0-1
