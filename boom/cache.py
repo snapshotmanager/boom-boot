@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
+# Copyright (C) 2020 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
 #
 # cache.py - Boom boot image cache
 #
