@@ -443,7 +443,8 @@ def clean_cache():
         if not ce.count:
             nr_unused += 1
             ce.uncache()
-    _log_info("Removed %d unused cache entries" % nr_unused)
+    if nr_unused:
+        _log_info("Removed %d unused cache entries" % nr_unused)
 
 
 #: Boom restored dot file pattern
