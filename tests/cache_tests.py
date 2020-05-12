@@ -322,4 +322,11 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(len(ces), 0)
 
 
+    def test_uncache_path_not_cached(self):
+        img_name = self._make_null_testimg(restored=False)
+        img_path = join("/", img_name)
+
+        with self.assertRaises(ValueError) as cm:
+            uncache_path(img_path)
+
 # vim: set et ts=4 sw=4 :
