@@ -15,7 +15,8 @@ import unittest
 import logging
 from sys import stdout
 from os import listdir, makedirs
-from os.path import abspath, exists, join
+from os.path import abspath, basename, dirname, exists, join
+from glob import glob
 import shutil
 import re
 
@@ -246,6 +247,20 @@ class CommandTests(unittest.TestCase):
         shutil.copytree(self.boom_path, boom_sandbox)
         shutil.copytree(self.loader_path, loader_sandbox)
         shutil.copytree(self.grub_path, grub_sandbox)
+
+        # Copy boot images
+        images = glob(join(BOOT_ROOT_TEST, "initramfs*"))
+        images += glob(join(BOOT_ROOT_TEST, "vmlinuz*"))
+        for image in images:
+            def _dotfile(img_path):
+                pattern = ".%s.boomrestored"
+                img_name = basename(img_path)
+                img_dir = dirname(img_path)
+                return join(img_dir, pattern % img_name)
+
+            shutil.copy2(image, boot_sandbox)
+            if exists(_dotfile(image)):
+                shutil.copy2(_dotfile(image), boot_sandbox)
 
         # Set boom paths
         set_boot_path(boot_sandbox)
