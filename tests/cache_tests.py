@@ -196,6 +196,14 @@ class CacheTests(unittest.TestCase):
                 ximage_count += 1
         self.assertEqual(len(boom.cache._images), ximage_count)
 
+    def test_load_cache_no_cacheindex(self):
+        # Wipe cache
+        unlink(join(SANDBOX_PATH, "boot/boom/cache/cacheindex.json"))
+        load_cache()
+        self.assertFalse(len(boom.cache._index))
+        self.assertFalse(len(boom.cache._paths))
+        self.assertFalse(len(boom.cache._images))
+
     def test_write_cache(self):
         # Re-write the current cache state
         write_cache()
