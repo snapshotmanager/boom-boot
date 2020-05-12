@@ -60,6 +60,17 @@ boom.command module
     :show-inheritance:
 
 
+boom.cache module
+-----------------
+
+.. automodule:: boom.cache
+    :members:
+    :special-members:
+    :exclude-members: __dict__, __module__, __weakref__
+    :undoc-members:
+    :show-inheritance:
+
+
 boom.report module
 ------------------
 
@@ -70,6 +81,5 @@ boom.report module
     :exclude-members: __dict__, __module__, __weakref__
     :undoc-members:
     :show-inheritance:
-
 
 
