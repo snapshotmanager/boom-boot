@@ -35,6 +35,25 @@ format (currently only \fbgrub\fP syntax is supported).
 If the value of the \fBsync\fP key is true the legacy configuration
 will be automatically written whenever entries are added, removed, or
 modified.
+.TP
+.B cache
+The cache section contains settings that control the behavior of the
+boom boot image cache. The \fBenable\fP key enables or disables the
+boot image cache: if the cache is disabled then the \fBboom cache\fP
+command and cache-related options such as \fB\-\-backup\fP are not
+available.
+
+The path to the on-disk cache may be changed by setting the
+\fBcache_path\fP key. By default the cache is located in a
+subdirectory of /boot at /boot/boom/cache. Alternately a separate
+file system may be used to contain the cache (mounted at this path
+or another location specified in \fBboom.conf\fP). In this case the
+cache file system should be configured to be mounted at the same
+location in all installed operating system instances.
+
+If the \fBauto_clean\fP key is enabled boom will automatically
+remove cache entries when they are no longer used by a boom boot
+entry.
 .
 .SH AUTHORS
 .
