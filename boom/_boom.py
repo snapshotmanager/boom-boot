@@ -290,6 +290,7 @@ class BoomConfig(object):
     legacy_sync = True
 
     cache_enable = True
+    cache_auto_clean = True
     cache_path = DEFAULT_CACHE_PATH
 
     def __str__(self):
@@ -308,6 +309,7 @@ class BoomConfig(object):
 
         cstr += '[cache]\n'
         cstr += 'enable = %s\n' % self.cache_enable
+        cstr += 'auto_clean = %s\n' % self.cache_auto_clean
         cstr += 'cache_path = %s\n' % self.cache_path
 
         return cstr
@@ -322,13 +324,14 @@ class BoomConfig(object):
                  (self.legacy_enable, self.legacy_format))
         cstr += 'legacy_sync=%s, ' % self.legacy_sync
         cstr += 'cache_enable=%s, ' % self.cache_enable
+        cstr += 'auto_clean=%s, ' % self.cache_auto_clean
         cstr += 'cache_path="%s")' % self.cache_path
 
         return cstr
 
     def __init__(self, boot_path=None, boom_path=None, legacy_enable=None,
                  legacy_format=None, legacy_sync=None, cache_enable=None,
-                 cache_path=None):
+                 cache_auto_clean=None, cache_path=None):
         """Initialise a new ``BoomConfig`` object with the supplied
             configuration values, or defaults for any unset arguments.
 
@@ -337,6 +340,10 @@ class BoomConfig(object):
             :param legacy_enable: enable legacy bootloader support
             :param legacy_format: the legacy bootlodaer format to write
             :param legacy_sync: the legacy sync mode
+            :param cache_enable: enable boot image cache
+            :param cache_auto_clean: automatically clean up unused boot
+                                     images
+            :param cache_path: the path to the boot image cache
         """
         self.boot_path = boot_path or self.boot_path
         self.boom_path = boom_path or self.boom_path
@@ -344,6 +351,7 @@ class BoomConfig(object):
         self.legacy_format = legacy_format or self.legacy_format
         self.legacy_sync = legacy_sync or self.legacy_sync
         self.cache_enable = cache_enable or self.cache_enable
+        self.cache_auto_clean = cache_auto_clean or self.cache_auto_clean
         self.cache_path = cache_path or self.cache_path
 
 

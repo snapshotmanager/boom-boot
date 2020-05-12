@@ -3212,6 +3212,9 @@ def main(args):
         except Exception as e:
             _log_error("Command failed: %s" % e)
 
+    if bc.cache_enable and bc.cache_auto_clean:
+        clean_cache()
+
     shutdown_logging()
     return status
 
