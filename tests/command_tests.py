@@ -2186,6 +2186,10 @@ class CommandTests(unittest.TestCase):
         r = boom.command._edit_host_cmd(args, None, None, host_id)
         self.assertEqual(r, 0)
 
+    def test__list_cache_cmd(self):
+        args = MockArgs()
+        r = boom.command._list_cache_cmd(args, None, None, None)
+
     def test_boom_main_noargs(self):
         args = ['bin/boom', '--help']
         boom.command.main(args)
