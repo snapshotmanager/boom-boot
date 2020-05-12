@@ -2190,6 +2190,10 @@ class CommandTests(unittest.TestCase):
         args = MockArgs()
         r = boom.command._list_cache_cmd(args, None, None, None)
 
+    def test__show_cache_cmd(self):
+        args = MockArgs()
+        r = boom.command._show_cache_cmd(args, None, None, None)
+
     def test_boom_main_noargs(self):
         args = ['bin/boom', '--help']
         boom.command.main(args)
