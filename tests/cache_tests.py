@@ -329,4 +329,11 @@ class CacheTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             uncache_path(img_path)
 
+    def test_uncache_in_use(self):
+        img_path = "/vmlinuz-4.16.11-100.fc26.x86_64"
+        uncache_path(img_path)
+
+        ces = find_cache_paths(Selection(path=img_path))
+        self.assertEqual(len(ces), 0)
+
 # vim: set et ts=4 sw=4 :
