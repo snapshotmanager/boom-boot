@@ -87,26 +87,19 @@ the available options and commands.
 
 ### Builds and packages
 Binary packages for Fedora and Red Hat Enterprise Linux are available
-from the [copr repository][9]. These builds use the RPM spec file
-distributed in the git repository and include all the necessary
-library modules, binaries, and configuration files needed to install
-and use boom.
+from the distribution repositories.
 
-To enable the repository on Fedora, run:
+Red Hat Enterprise Linux 7:
 
 ```
-# dnf copr enable bmr/boom
+# yum -y install lvm2-python-boom
 ```
 
-The python2 and python3 versions of boom may be installed by running:
+Red Hat Enterprise Linux 8 and Fedora:
 
 ```
-# dnf -y install python2-boom python3-boom
+# dnf -y install boom-boot
 ```
-
-Note that although both python 2 and 3 versions of the library are
-provided only one package contains the `boom` binary, depending on
-the system default python runtime for that distribution version.
 
 ## The boom command
 
@@ -708,4 +701,3 @@ Installation and user documentation will be added in a future update.
  [6]: https://www.readthedocs.org/
  [7]: https://boom.readthedocs.io/en/latest/boom.html#module-boom.command
  [8]: https://boom.readthedocs.io/en/latest/boom.html
- [9]: https://copr.fedorainfracloud.org/coprs/bmr/boom/
