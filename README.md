@@ -301,6 +301,36 @@ When editing a BootEntry, the `boot_id` will change: this is
 because the options that define an entry form the entry's identity.
 The new `boot_id` is written to the terminal on success.
 
+### Boot image cache
+
+Boom can optionally back up the boot images used by a boom BootEntry
+so that the entry can still be used if an operating system update
+removes the kernel or initramfs image used.
+
+To use backup images the boot image cache must be enabled in the
+`boom.conf` configuration file and the `--backup` option should
+be given to the `boom entry` `create`, `edit`, or `clone`
+subcommands.
+
+When `--backup` is used boom will make a copy of each boot image
+used by the new entry by adding a '.boomN' suffix (where `N` is a
+number) to the file name. The new BootEntry uses the backup copy
+of the image rather than the original file name.
+
+If the `auto_clean` configuration option is set cache entries are
+automatically removed when they are no longer in use by any
+BootEntry.
+
+#### boom cache command
+
+The `boom cache` command gives information about the paths and
+images stored in the boom boot iamge cache. The `boom cache list`
+command gives information on cache entries in a tabular report
+format similar to other `list` commands.
+
+Detailed information on selected cache entries is provided by the
+`boom cache show` command.
+
 ### Reporting commands
 
 The `boom entry list` and `boom host|profile list` commands generate
