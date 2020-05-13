@@ -403,4 +403,8 @@ class CacheTests(unittest.TestCase):
         ces = find_cache_paths()
         self.assertTrue(ces)
 
+    def test_find_cache_images(self):
+        ces = find_cache_images()
+        self.assertTrue(ces)
+
 # vim: set et ts=4 sw=4 :
