@@ -64,7 +64,7 @@ class MockArgs(object):
     add_opts = ""
     architecture = None
     backup = False
-    boot_id = "12345678"
+    boot_id = None
     btrfs_opts = ""
     btrfs_subvolume = "23"
     command = ""

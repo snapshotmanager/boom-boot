@@ -202,7 +202,7 @@ class BoomTests(unittest.TestCase):
         cmd_args = MockArgs()
         s = boom.Selection.from_cmd_args(cmd_args)
         self.assertEqual(s.btrfs_subvol_id, "23")
-        self.assertEqual(s.boot_id, "12345678")
+        self.assertEqual(s.boot_id, None)
 
     def test_Selection_from_cmd_args_subvol(self):
         cmd_args = MockArgs()
