@@ -1025,7 +1025,9 @@ def _uname_heuristic(name, version_id):
 
     # Strip trailing minor version ident from elX_Y
     if "_" in version_id:
-        version_id = version_id[0:find("_")]
+        version_id = version_id[0:version_id.find("_")]
+    if "." in version_id:
+        version_id = version_id[0:version_id.find(".")]
 
     if name in _name_to_uname:
         return "%s%s" % (_name_to_uname[name], version_id)
