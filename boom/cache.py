@@ -232,7 +232,7 @@ def load_cache(verify=True, digests=False):
     paths = cachedata["paths"]
     for path in paths.keys():
         if path not in index:
-            _log_warn("No image for path '%' found in cache" % path)
+            _log_warn("No image for path '%s' found in cache" % path)
             # mark as broken
 
     images = cachedata["images"]
