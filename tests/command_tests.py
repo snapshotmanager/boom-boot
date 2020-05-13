@@ -1617,14 +1617,46 @@ class CommandTests(unittest.TestCase):
         r = boom.command._list_cmd(args, None, opts, None)
         self.assertEqual(r, 0)
 
+    def test__list_cmd_with_sort(self):
+        args = MockArgs()
+        args.sort = "bootid"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_cmd(args, Selection(), opts, None)
+        self.assertEqual(r, 0)
+
+    def test__list_cmd_with_sort_ascending(self):
+        args = MockArgs()
+        args.sort = "+bootid"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_cmd(args, Selection(), opts, None)
+        self.assertEqual(r, 0)
+
+    def test__list_cmd_with_sort_descending(self):
+        args = MockArgs()
+        args.sort = "-bootid"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_cmd(args, Selection(), opts, None)
+        self.assertEqual(r, 0)
+
+    def test__list_cmd_with_sort_two(self):
+        args = MockArgs()
+        args.sort = "bootid,version"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_cmd(args, Selection(), opts, None)
+        self.assertEqual(r, 0)
+
+    def test__list_cmd_with_sort_bad(self):
+        args = MockArgs()
+        args.sort = "qux"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_cmd(args, Selection(), opts, None)
+        self.assertEqual(r, 1)
+
     def test__list_cmd_with_options_help(self):
-        """Test the _list_cmd() handler with report field options
-            string.
-        """
         args = MockArgs()
         args.options = "help"
         opts = boom.command._report_opts_from_args(args)
-        r = boom.command._list_cmd(args, None, opts, None)
+        r = boom.command._list_cmd(args, Selection(), opts, None)
         self.assertEqual(r, 0)
 
     def test__list_cmd_verbose(self):
