@@ -381,4 +381,22 @@ class CacheTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             ce.restore()
 
+    def test_cache_purge_restored(self):
+        img_path="/initramfs-2.6.0.img"
+        ce = cache_path(img_path)
+        unlink(join(get_boot_path(), img_path[1:]))
+        self.assertEqual(ce.state, CACHE_MISSING)
+        ce.restore()
+        self.assertEqual(ce.state, CACHE_RESTORED)
+        ce.purge()
+        self.assertEqual(ce.state, CACHE_MISSING)
+
+    def test_cache_purge_not_restored(self):
+        # A path that is not RESTORED|MISSING
+        img_path = "/vmlinuz-4.16.11-100.fc26.x86_64"
+        ce = find_cache_paths(Selection(path=img_path))[0]
+        self.assertEqual(ce.state, CACHE_CACHED)
+        with self.assertRaises(ValueError) as cm:
+            ce.purge()
+
 # vim: set et ts=4 sw=4 :
