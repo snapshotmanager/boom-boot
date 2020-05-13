@@ -359,7 +359,7 @@ def cache_path(img_path, update=True):
 
     img_id = _image_id_from_path(boot_path)
     cache_path = _image_id_to_cache_path(img_id)
-    path_ts = image_ts = st[ST_MTIME]
+    image_ts = st[ST_MTIME]
 
     # Already present?
     if img_path in _paths:
