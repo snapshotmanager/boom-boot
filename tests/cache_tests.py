@@ -399,4 +399,8 @@ class CacheTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             ce.purge()
 
+    def test_find_cache_paths(self):
+        ces = find_cache_paths()
+        self.assertTrue(ces)
+
 # vim: set et ts=4 sw=4 :
