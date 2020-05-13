@@ -1617,6 +1617,16 @@ class CommandTests(unittest.TestCase):
         r = boom.command._list_cmd(args, None, opts, None)
         self.assertEqual(r, 0)
 
+    def test__list_cmd_with_options_help(self):
+        """Test the _list_cmd() handler with report field options
+            string.
+        """
+        args = MockArgs()
+        args.options = "help"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._list_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
     def test__list_cmd_verbose(self):
         """Test the _list_cmd() handler with a valid entry and
             verbose output.
