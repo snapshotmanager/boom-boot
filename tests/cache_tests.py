@@ -358,4 +358,20 @@ class CacheTests(unittest.TestCase):
         cache_path("/initramfs-2.6.0.img")
         clean_cache()
 
+    def test_cache_state_missing_and_restore(self):
+        img_path="/initramfs-2.6.0.img"
+        ce = cache_path(img_path)
+        unlink(join(get_boot_path(), img_path[1:]))
+        self.assertEqual(ce.state, CACHE_MISSING)
+        ce.restore()
+        self.assertEqual(ce.state, CACHE_RESTORED)
+
+    def test_cache_state_missing_and_restore_with_dest(self):
+        img_path="/initramfs-2.6.0.img"
+        ce = cache_path(img_path)
+        unlink(join(get_boot_path(), img_path[1:]))
+        self.assertEqual(ce.state, CACHE_MISSING)
+        ce.restore(dest=img_path + ".boom0")
+        self.assertEqual(ce.state, CACHE_RESTORED)
+
 # vim: set et ts=4 sw=4 :
