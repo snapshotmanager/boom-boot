@@ -3,7 +3,7 @@
 
 Name:		boom
 Version:	1.1
-Release:	0.1.beta%{?dist}
+Release:	1%{?dist}
 Summary:	%{summary}
 
 License:	GPLv2
@@ -154,6 +154,9 @@ rm doc/conf.py
 
 
 %changelog
+* Wed May 13 2020 Bryn M. Reeves <bmr@redhat.com> = 1.1
+- Bump release
+
 * Tue May 12 2020 Bryn M. Reeves <bmr@redhat.com> = 1.1-0.1.beta
 - Bump release
 
