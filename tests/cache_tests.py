@@ -374,4 +374,11 @@ class CacheTests(unittest.TestCase):
         ce.restore(dest=img_path + ".boom0")
         self.assertEqual(ce.state, CACHE_RESTORED)
 
+    def test_cache_restore_non_missing_raises(self):
+        # A path that is not RESTORED|MISSING
+        img_path = "/vmlinuz-4.16.11-100.fc26.x86_64"
+        ce = find_cache_paths(Selection(path=img_path))[0]
+        with self.assertRaises(ValueError) as cm:
+            ce.restore()
+
 # vim: set et ts=4 sw=4 :
