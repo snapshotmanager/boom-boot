@@ -351,4 +351,11 @@ class CacheTests(unittest.TestCase):
         ces = find_cache_paths(Selection(path=img_path))
         self.assertEqual(len(ces), 0)
 
+    def test_clean_cache(self):
+        clean_cache()
+
+    def test_clean_cache_unrefed(self):
+        cache_path("/initramfs-2.6.0.img")
+        clean_cache()
+
 # vim: set et ts=4 sw=4 :
