@@ -22,7 +22,7 @@ from boom.bootloader import *
 
 from hashlib import sha1
 from os import listdir, unlink, stat, chown, chmod
-from stat import S_ISREG, S_IMODE, ST_MODE, ST_UID, ST_GID, ST_MTIME
+from stat import S_ISREG, ST_MODE, ST_UID, ST_GID, ST_MTIME
 from os.path import (
     join as path_join, exists as path_exists, sep as path_sep,
     basename, dirname
