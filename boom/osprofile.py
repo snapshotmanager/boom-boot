@@ -1426,10 +1426,7 @@ class OsProfile(BoomProfile):
                         comment = ""
         self._comments = comments
 
-        try:
-            self._from_data(profile_data, dirty=False)
-        except ValueError as e:
-            raise ValueError(str(e) + "in %s" % profile_file)
+        self._from_data(profile_data, dirty=False)
 
     def __init__(self, name=None, short_name=None, version=None,
                  version_id=None, profile_file=None, profile_data=None,
