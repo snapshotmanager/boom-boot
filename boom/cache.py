@@ -21,7 +21,7 @@ from boom import *
 from boom.bootloader import *
 
 from hashlib import sha1
-from os import listdir, unlink, stat, chown, chmod
+from os import chmod, chown, fdatasync, listdir, stat, unlink
 from stat import S_ISREG, ST_MODE, ST_UID, ST_GID, ST_MTIME
 from os.path import (
     join as path_join, exists as path_exists, sep as path_sep,
@@ -264,6 +264,7 @@ def write_cache():
 
     with open(index_path, "w") as index_file:
         json_dump(cachedata, index_file)
+        fdatasync(index_file.fileno())
 
 
 def _insert_copy(boot_path, cache_path):
