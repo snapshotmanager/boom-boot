@@ -54,6 +54,11 @@ _test_obj_types = [
 
 
 class ReportTests(unittest.TestCase):
+    def test_BoomFieldType_no_type(self):
+        with self.assertRaises(ValueError):
+            bf = BoomFieldType(0, None, "None", "Nothing", 0,
+                               REP_NUM, lambda x: x)
+
     def test_BoomFieldType_no_name(self):
         with self.assertRaises(ValueError):
             bf = BoomFieldType(BR_NUM, None, "None", "Nothing", 0,
