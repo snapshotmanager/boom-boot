@@ -522,8 +522,17 @@ def _find_backup_name(img_path):
     """Generate a new, unique backup pathname.
     """
     img_backup = ("%s.boom" % img_path)[1:] + "%d"
+
+    def _backup_img(backup_nr):
+        return sep + img_backup % backup_nr
+
+    def _backup_path(backup_nr):
+        return join(get_boot_path(), img_backup[1:] % backup_nr)
+
     backup_nr = 0
-    while path_exists(join(get_boot_path(), img_backup % backup_nr)):
+    while path_exists(_backup_path(backup_nr)):
+        if find_cache_paths(Selection(path=_backup_img(backup_nr))):
+            break
         backup_nr += 1
     return sep + img_backup % backup_nr
 
@@ -532,6 +541,11 @@ def _cache_image(img_path, backup):
     """Cache the image found at ``img_path`` and optionally create
         a backup copy.
     """
+    if "." in img_path:
+        ext = img_path.rsplit(".", 1)[1]
+        if ext.startswith("boom") and ext[4:].isdigit():
+            if find_cache_paths(Selection(path=img_path)):
+                return img_path
     try:
         ce = cache_path(img_path)
     except (OSError, ValueError) as e:
