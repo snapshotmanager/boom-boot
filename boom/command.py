@@ -771,7 +771,6 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
         clone_be.linux = orig_be.linux
 
     if images in (I_BACKUP, I_CACHE):
-        print("IMAGES: %s backup=%s" % (images, images == I_BACKUP))
         clone_be.initrd = _cache_image(clone_be.initrd, images == I_BACKUP)
         clone_be.linux = _cache_image(clone_be.linux, images == I_BACKUP)
 
