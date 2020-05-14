@@ -778,6 +778,13 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
     if orig_be.options != orig_be.expand_options:
         clone_be.options = orig_be.options
 
+    # Clone optional keys allowed by profile
+    for optional_key in orig_be._osp.optional_keys.split():
+        if optional_key in clone_be._osp.optional_keys:
+            if hasattr(orig_be, optional_key):
+                setattr(clone_be, optional_key,
+                        getattr(orig_be, optional_key))
+
     # Boot image overrides?
     if orig_be.initrd != clone_be.initrd:
         clone_be.initrd = orig_be.initrd
@@ -2069,6 +2076,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
     # Command-line overrides take precedence over any overridden values
     # in the cloned BootEntry.
     _apply_profile_overrides(be, cmd_args)
+    _apply_optional_keys(be, cmd_args)
 
     try:
         be.write_entry(expand=cmd_args.expand_variables)
