@@ -238,7 +238,7 @@ def load_cache(verify=True, digests=False):
     images = cachedata["images"]
     for image_id in images.keys():
         if image_id not in ids:
-            _log_warn("Found orphan image_id '%s'" % image)
+            _log_warn("Found orphan image_id '%s'" % image_id)
             # clean up?
 
     _log_debug("Loaded %d cache paths and %d images" %
