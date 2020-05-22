@@ -352,7 +352,7 @@ def _grub2_get_env(name):
         _log_error("Could not obtain grub2 environment: %s" % e)
         return ""
 
-    for line in out.splitlines():
+    for line in out.decode('utf8').splitlines():
         (env_name, value) = line.split('=', 1)
         if name == env_name:
             return value.strip()
