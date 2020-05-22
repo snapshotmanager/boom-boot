@@ -840,6 +840,8 @@ def load_entries(machine_id=None):
         except Exception as e:
             _log_info("Could not load BootEntry '%s': %s" %
                       (entry_path, e))
+            if get_debug_mask():
+                raise e
 
     _log_debug("Loaded %d entries" % len(_entries))
 
