@@ -1012,6 +1012,8 @@ def load_profiles_for_class(profile_class, profile_type,
         except Exception as e:
             _log_warn("Failed to load %s from '%s': %s" %
                       (profile_class.__name__, pf_path, e))
+            if get_debug_mask():
+                raise e
             continue
 
 
