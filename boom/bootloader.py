@@ -1079,10 +1079,9 @@ class BootEntry(object):
             key_fmt = '%s%s"%s"' if quote else '%s%s%s'
             key_fmt += tail
 
-            if attr == "options" and expand:
-                attr_val = getattr(self, "expand_options")
-            else:
-                attr_val = getattr(self, attr)
+            attr_val = getattr(self, attr)
+            if expand:
+                attr_val = _expand_vars(attr_val)
 
             if bls:
                 key_data = (_transform_key(attr), sep, attr_val)
