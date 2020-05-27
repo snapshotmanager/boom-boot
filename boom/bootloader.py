@@ -148,8 +148,8 @@ KEY_MAP = {
 #: Default values for optional keys
 OPTIONAL_KEY_DEFAULTS = {
     BOOM_ENTRY_GRUB_USERS: "$grub_users",
-    BOOM_ENTRY_GRUB_ARG: "kernel",
-    BOOM_ENTRY_GRUB_CLASS: "--unrestricted",
+    BOOM_ENTRY_GRUB_ARG: "--unrestricted",
+    BOOM_ENTRY_GRUB_CLASS: "kernel",
     BOOM_ENTRY_GRUB_ID: None
 }
 
