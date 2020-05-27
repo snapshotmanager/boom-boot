@@ -2903,6 +2903,18 @@ _boom_command_types = [
 ]
 
 
+def _get_command_verbs():
+    """Return the set of command verbs known to boom.
+    """
+    verbs = set()
+    all_cmds = [_boom_entry_commands, _boom_profile_commands,
+                _boom_host_commands, _boom_cache_commands,
+                _boom_legacy_commands]
+    for cmd_list in all_cmds:
+        verbs.update([cmd[0] for cmd in cmd_list])
+    return verbs
+
+
 def _id_from_arg(cmd_args, cmdtype, cmd):
     if cmd == CREATE_CMD:
         if cmdtype == ENTRY_TYPE:
@@ -3126,6 +3138,23 @@ def main(args):
     parser.add_argument("-v", "--version", metavar="VERSION", type=str,
                         help="The kernel version of a boom "
                         "boot entry")
+
+    if len(args) < 3:
+        parser.print_usage()
+        print("Too few arguments: %s" % " ".join(args[1:]))
+        return 1
+
+    cmd_types = [cmdtype[0] for cmdtype in _boom_command_types]
+    cmd_verbs = _get_command_verbs()
+
+    type_arg = args[1] if len(args) > 1 else ""
+    cmd_arg = args[2] if len(args) > 2 else ""
+
+    if type_arg not in cmd_types or cmd_arg not in cmd_verbs:
+        parser.print_usage()
+        print("Unknown command: %s %s" % (type_arg, cmd_arg))
+        return 1
+
     try:
         cmd_args = parser.parse_args(args=args[1:])
     except SystemExit as e:
@@ -3138,6 +3167,9 @@ def main(args):
         return 1
     setup_logging(cmd_args)
     cmd_type = _match_cmd_type(cmd_args.type)
+    if not cmd_type:
+        print("Unknown command type: %s" % cmd_args.type)
+        return 1
 
     if cmd_args.boot_dir or BOOM_BOOT_PATH_ENV in environ:
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
@@ -3204,10 +3236,6 @@ def main(args):
         except ValueError:
             # No valid VG name
             pass
-
-    if not cmd_type:
-        print("Unknown command type: %s" % cmd_args.type)
-        return 1
 
     type_cmds = cmd_type[1]
     command = _match_command(cmd_args.command, type_cmds)
