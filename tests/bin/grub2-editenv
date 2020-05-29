@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ "$1" == "list" ]; then
+    cat <<EOF
+saved_entry=b49e623f993c4fd7b200c5e350f9cacc-4.18.0-167.el8.x86_64
+kernelopts=root=/dev/mapper/rhel-root ro crashkernel=auto resume=/dev/mapper/rhel-swap rd.lvm.lv=rhel/root rd.lvm.lv=rhel/swap rhgb quiet 
+boot_success=0
+boot_indeterminate=2
+grub_users=root
+EOF
+fi
+
+exit 0
+

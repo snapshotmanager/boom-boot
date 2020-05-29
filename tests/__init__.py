@@ -13,7 +13,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from os.path import join, abspath
-from os import geteuid, getegid, makedirs
+from os import environ, getcwd, geteuid, getegid, makedirs
 from subprocess import Popen, PIPE
 import shutil
 import errno
@@ -55,6 +55,15 @@ def reset_boom_paths():
     """Reset configurable boom module paths to the default test values.
     """
     boom.set_boot_path(BOOT_ROOT_TEST)
+
+def set_mock_path():
+    """Set the PATH environment variable to tests/bin to include mock
+        binaries used in the boom test suite.
+    """
+    os_path = environ['PATH']
+    os_path = join(getcwd(), "tests/bin") + ":" + os_path
+    environ['PATH'] = os_path
+
 
 # Mock objects
 
@@ -223,7 +232,7 @@ def have_grub1():
 __all__ = [
     'BOOT_ROOT_TEST', 'SANDBOX_PATH',
     'rm_sandbox', 'mk_sandbox', 'reset_sandbox', 'reset_boom_paths',
-    'get_logical_volume', 'get_root_lv', 'have_root_lv',
+    'set_mock_path', 'get_logical_volume', 'get_root_lv', 'have_root_lv',
     'MockArgs',
     'have_root', 'have_lvm', 'have_grub1'
 ]
