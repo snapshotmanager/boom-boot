@@ -955,6 +955,12 @@ class BootEntryTests(unittest.TestCase):
                 "grub_class --unrestricted")
         self.assertEqual(xstr, be.expanded())
 
+    def test_BootEntry_expanded_no_vars(self):
+        # A boot entry with no Grub2 environment variable references
+        be = find_entries(Selection(boot_id="b3389d2"))[0]
+        xstr = str(be)
+        self.assertEqual(xstr, be.expanded())
+
 class BootLoaderBasicTests(unittest.TestCase):
     def test_import(self):
         import boom.bootloader
