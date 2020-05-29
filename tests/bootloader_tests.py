@@ -379,6 +379,9 @@ class BootEntryTests(unittest.TestCase):
         shutil.copytree(self.boom_path, boom_sandbox)
         shutil.copytree(self.loader_path, loader_sandbox)
 
+        # Set PATH environment variable
+        set_mock_path()
+
         # Set boom paths
         boom.set_boot_path(boot_sandbox)
 
