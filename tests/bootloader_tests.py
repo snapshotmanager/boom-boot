@@ -941,6 +941,19 @@ class BootEntryTests(unittest.TestCase):
         be.delete_entry()
         self.assertFalse(exists(be._entry_path))
 
+    def test_BootEntry_expanded_vars(self):
+        # A boot entry with Grub2 environment variable references
+        be = find_entries(Selection(boot_id="526f54a"))[0]
+        xstr = ("title grub args\n" +
+                "machine-id 653b444d513a43239c37deae4f5fe644\n" +
+                "version 5.4.7-100.fc30.x86_64\n" +
+                "linux /vmlinuz-5.4.7-100.fc30.x86_64\n" +
+                "initrd /initramfs-5.4.7-100.fc30.x86_64.img\n" +
+                "options root=/dev/vg_hex/root ro rd.lvm.lv=vg_hex/root\n" +
+                "grub_users root\n"
+                "grub_arg kernel\n"
+                "grub_class --unrestricted")
+        self.assertEqual(xstr, be.expanded())
 
 class BootLoaderBasicTests(unittest.TestCase):
     def test_import(self):
