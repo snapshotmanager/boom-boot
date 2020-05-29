@@ -225,8 +225,8 @@ def load_cache(verify=True, digests=False):
     for path in index.keys():
         for image_id in index[path]:
             if image_id not in ids:
-                _log_warn("Image identifier '%s' not found in cache" %
-                          image_id)
+                _log_warn("Image identifier '%s' not found in cache for path %s" %
+                          (image_id, path))
                 # mark as broken
 
     paths = cachedata["paths"]
@@ -238,7 +238,7 @@ def load_cache(verify=True, digests=False):
     images = cachedata["images"]
     for image_id in images.keys():
         if image_id not in ids:
-            _log_warn("Found orphan image_id '%s'" % image_id)
+            _log_warn("Found unknown image_id '%s'" % image_id)
             # clean up?
 
     _log_debug("Loaded %d cache paths and %d images" %
