@@ -534,7 +534,10 @@ class CacheEntry(object):
         """Return the current number of boot entries that reference
             this cache entry.
         """
-        return len(find_entries(Selection(path=self.path)))
+        entries = find_entries(Selection(path=self.path))
+        # Ignore foreign boot entries
+        entries = [entry for entry in entries if not entry.read_only]
+        return len(entries)
 
     #: The list of cached images for this CacheEntry sorted by increasing age
     images = []
