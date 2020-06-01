@@ -225,8 +225,8 @@ def load_cache(verify=True, digests=False):
     for path in index.keys():
         for image_id in index[path]:
             if image_id not in ids:
-                _log_warn("Image identifier '%s' not found in cache for path %s" %
-                          (image_id, path))
+                _log_warn("Image identifier '%s' not found in cache"
+                          " for path %s" % (image_id, path))
                 # mark as broken
 
     paths = cachedata["paths"]
