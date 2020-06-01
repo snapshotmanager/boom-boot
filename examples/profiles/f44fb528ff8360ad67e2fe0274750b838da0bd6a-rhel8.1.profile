@@ -1,1 +1,0 @@
-../../tests/boom/profiles/f44fb528ff8360ad67e2fe0274750b838da0bd6a-rhel8.1.profile
