@@ -391,7 +391,7 @@ def cache_path(img_path, update=True):
     return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
 
 
-def uncache_path(img_path):
+def uncache_path(img_path, force=False):
     """Remove paths from the boot image cache.
 
         Remove ``img_path`` from the boot image cache and discard any
@@ -410,9 +410,16 @@ def uncache_path(img_path):
     ts = _images[img_id][IMAGE_TS]
 
     ce = CacheEntry(img_path, _paths[img_path], [(img_id, ts)])
-    if ce.count:
+    count = ce.count
+
+    if count and not force:
+        _log_info("Retaining cache path '%s' used by %d boot entries" %
+                  (img_path, count))
+        return
+
+    if count:
         _log_warn("Uncaching path '%s' used by %d boot entries"
-                  % (img_path, ce.count))
+                  % (img_path, count))
 
     # Remove entry from the path index and metadata
     images = _index.pop(img_path)
