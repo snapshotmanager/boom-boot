@@ -547,16 +547,16 @@ def _cache_image(img_path, backup):
             if find_cache_paths(Selection(path=img_path)):
                 return img_path
     try:
-        ce = cache_path(img_path)
+        if backup:
+            img_backup = _find_backup_name(img_path)
+            _log_debug("backing up '%s' as '%s'" % (img_path, img_backup))
+            ce = backup_path(img_path, img_backup)
+            return img_backup
+        else:
+            ce = cache_path(img_path)
     except (OSError, ValueError) as e:
         _log_error("Could not cache path %s: %s" % (img_path, e))
         raise e
-    if backup:
-        img_backup = _find_backup_name(img_path)
-        _log_debug("backing up '%s' as '%s'" % (img_path, img_backup))
-        ce.restore(dest=img_backup)
-        uncache_path(img_path)
-        return img_backup
     return img_path
 
 

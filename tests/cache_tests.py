@@ -315,6 +315,21 @@ class CacheTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             cache_path(img_path)
 
+    def test_backup_path(self):
+        img_name = self._make_null_testimg(restored=False)
+        img_path = join("/", img_name)
+        backup_img = img_path + ".boom0"
+
+        backup_path(img_path, backup_img)
+
+        # Assert backup is in cache
+        ces = find_cache_paths(Selection(path=backup_img))
+        self.assertEqual(len(ces), 1)
+
+        # Assert original is not in cache
+        ces = find_cache_paths(Selection(path=img_path))
+        self.assertEqual(len(ces), 0)
+
     def test_uncache_path(self):
         img_name = self._make_null_testimg(restored=False)
         img_path = join("/", img_name)
@@ -342,11 +357,25 @@ class CacheTests(unittest.TestCase):
         uncache_path(img_path)
 
         ces = find_cache_paths(Selection(path=img_path))
+        self.assertEqual(len(ces), 1)
+
+    def test_uncache_in_use_force(self):
+        img_path = "/vmlinuz-4.16.11-100.fc26.x86_64"
+        uncache_path(img_path, force=True)
+
+        ces = find_cache_paths(Selection(path=img_path))
         self.assertEqual(len(ces), 0)
 
     def test_uncache_restored(self):
         img_path = "/initramfs-3.10.1-1.el7.img"
         uncache_path(img_path)
+
+        ces = find_cache_paths(Selection(path=img_path))
+        self.assertEqual(len(ces), 1)
+
+    def test_uncache_restored_force(self):
+        img_path = "/initramfs-3.10.1-1.el7.img"
+        uncache_path(img_path, force=True)
 
         ces = find_cache_paths(Selection(path=img_path))
         self.assertEqual(len(ces), 0)

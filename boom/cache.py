@@ -340,16 +340,20 @@ def _insert_path(path, img_id, mode, uid, gid, attrs):
         _index[path] = [img_id]
 
 
-def cache_path(img_path, update=True):
+def _cache_path(img_path, update=True, backup=None):
     """Add an image to the boom boot image cache.
 
         :param img_path: The path to the on-disk boot image relative to
                          the configured /boot directory.
         :returns: None
     """
-    global _index, _paths, _images
+    def this_entry():
+        """Return a new CacheEntry object representing the newly cached
+            path.
+        """
+        return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
 
-    _log_debug_cache("Caching path '%s'" % img_path)
+    global _index, _paths, _images
 
     boot_path = _image_path_to_boot(img_path)
     st = stat(boot_path)
@@ -362,6 +366,8 @@ def cache_path(img_path, update=True):
     cache_path = _image_id_to_cache_path(img_id)
     image_ts = st[ST_MTIME]
 
+    img_path = backup or img_path
+
     # Already present?
     if img_path in _paths:
         _log_info("Path '%s' already cached." % img_path)
@@ -371,7 +377,7 @@ def cache_path(img_path, update=True):
     if img_path in _paths and img_id in _index[img_path]:
         _log_info("Image with img_id=%s already cached for path '%s'" %
                   (img_id[0:6], img_path))
-        return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
+        return this_entry()
     _log_info("Adding new image with img_id=%s for path '%s'" %
               (img_id[0:6], img_path))
 
@@ -388,7 +394,32 @@ def cache_path(img_path, update=True):
     _insert_path(img_path, img_id, path_mode, path_uid, path_gid, path_attrs)
     write_cache()
 
-    return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
+    return this_entry()
+
+
+def cache_path(img_path, update=True):
+    """Add an image to the boom boot image cache.
+
+        :param img_path: The path to the on-disk boot image relative to
+                         the configured /boot directory.
+        :returns: None
+    """
+    _log_debug_cache("Caching path '%s'" % img_path)
+    return _cache_path(img_path, update=update)
+
+
+def backup_path(img_path, backup_path):
+    """Back up an image to the boom boot image cache.
+
+        :param img_path: The path to the on-disk boot image relative to
+                         the configured /boot directory.
+        :param backup_path: The path where the backup image will be created.
+        :returns: None
+    """
+    _log_debug_cache("Backing up path '%s' as '%s'" % (img_path, backup_path))
+    ce = _cache_path(img_path, backup=backup_path)
+    ce.restore()
+    return ce
 
 
 def uncache_path(img_path, force=False):
@@ -749,7 +780,7 @@ def find_cache_images(selection=None):
 __all__ = [
     "CACHE_CACHED", "CACHE_MISSING", "CACHE_BROKEN", "CACHE_RESTORED",
     "drop_cache", "load_cache", "write_cache",
-    "cache_path", "uncache_path", "clean_cache",
+    "cache_path", "backup_path", "uncache_path", "clean_cache",
     "find_cache_paths", "find_cache_images"
 ]
 
