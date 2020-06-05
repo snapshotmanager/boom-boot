@@ -1508,6 +1508,7 @@ class BootEntry(object):
             if self.disp_boot_id != match.group(2):
                 _log_info("Entry file name does not match boot_id: %s" %
                           entry_basename)
+                self.read_only = True
 
         self._last_path = entry_file
         self._unwritten = False
