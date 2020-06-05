@@ -226,7 +226,6 @@ def drop_profiles():
 
     _null_profile = OsProfile(name="", short_name="",
                               version="", version_id="")
-    _profiles.append(_null_profile)
     _profiles_by_id[_null_profile.os_id] = _null_profile
     if nr_profiles:
         _log_info("Dropped %d profiles" % nr_profiles)
