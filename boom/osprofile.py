@@ -667,7 +667,7 @@ class BoomProfile(object):
         comment = ""
         ptype = self.__class__.__name__
 
-        _log_debug("Loading %sProfile from '%s'" %
+        _log_debug("Loading %s from '%s'" %
                    (ptype, basename(profile_file)))
         with open(profile_file, "r") as pf:
             for line in pf:
@@ -1222,7 +1222,7 @@ class BoomProfile(object):
             return
         try:
             unlink(profile_path)
-            _log_debug("Deleted %sProfile(id='%s')" % (ptype, profile_id))
+            _log_debug("Deleted %s(id='%s')" % (ptype, profile_id))
         except Exception as e:
             _log_error("Error removing %s file '%s': %s" %
                        (ptype, profile_path, e))
@@ -1412,7 +1412,7 @@ class OsProfile(BoomProfile):
         comment = ""
         ptype = self.__class__.__name__
 
-        _log_debug("Loading %sProfile from '%s'" %
+        _log_debug("Loading %s from '%s'" %
                    (ptype, basename(profile_file)))
         with open(profile_file, "r") as pf:
             for line in pf:
