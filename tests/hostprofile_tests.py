@@ -266,6 +266,7 @@ class HostProfileTests(unittest.TestCase):
         # Re-set test /boot
         set_boot_path(BOOT_ROOT_TEST)
 
+    @unittest.skipIf(have_root(), "DAC controls do not apply to root")
     def test_write_host_profiles_fail(self):
         load_host_profiles()
         # Set the /boot path to a non-writable path for the test user.
