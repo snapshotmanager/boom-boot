@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom
-Version:	1.1
+Version:	1.2
 Release:	1%{?dist}
 Summary:	%{summary}
 
