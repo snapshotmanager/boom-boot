@@ -482,24 +482,72 @@ def _do_print_type(report_fields, selected, output_fields=None,
     return br.report_output()
 
 
-def _merge_add_del_opts(orig_opts, opts):
+def _merge_add_del_opts(bp, add_opts, del_opts):
     """Merge a set of existing bootparams option alterations with
         a set of command-line provided values to produce a single
         set of options to add or remove from a cloned or edited
         ``BootEntry``.
-        :param orig_opts: A list of original option modifications
-        :param opts: A space-separated string containing a list of
-                     command line option modifications
-        :returns: A single list containing the merged options
-    """
-    # Merge new and cloned kernel options
-    all_opts = set()
-    if opts:
-        all_opts.update(opts.split())
-    if orig_opts:
-        all_opts.update(orig_opts)
 
-    return list(all_opts)
+        The sets are merged giving precedence to alterations on the
+        current command line: i.e. if an option is present in both
+        ``bp.del_opts`` and ``add_opts`` (or vice versa) then the
+        option taken from the current command line will be effective.
+
+        :param bp: A ``BootParams`` object with the original ``add_opts``
+                   and ``del_opts`` values.
+        :param add_opts: A space-separated string containing a list of
+                         additional options taken from the current
+                         command line.
+        :param del_opts: A space-separated string containing a list of
+                         options to delete taken from the current
+                         command line.
+        :returns: A tuple ``(effective_add_opts, effective_del_opts)``
+                  giving the final effective values as a list of
+                  strings, one per option word.
+    """
+    def _merge_opts(orig_opts, opts, r_opts):
+        # Merge new and cloned kernel options
+        all_opts = set()
+        if opts:
+            all_opts.update(opts)
+        if orig_opts:
+            all_opts.update(orig_opts)
+        all_opts = list(all_opts)
+        return [o for o in all_opts if o not in r_opts]
+
+    _log_debug_cmd("Add opts: %s" % add_opts)
+    _log_debug_cmd("Del opts: %s" % del_opts)
+    _log_debug_cmd("Original add_opts: %s" % bp.add_opts)
+    _log_debug_cmd("Original del_opts: %s" % bp.del_opts)
+
+    r_del_opts = []
+    r_add_opts = []
+
+    add_opts = add_opts.split() if add_opts else []
+    del_opts = del_opts.split() if del_opts else []
+
+    for add_opt in list(add_opts):
+        # Do not allow conflicting command line add/del opts
+        if add_opt in del_opts:
+            raise ValueError("Conflicting --add-opts %s and --del-opts %s" %
+                             (add_opt, add_opt))
+
+        if add_opt in bp.del_opts:
+            r_del_opts.append(add_opt)
+            add_opts.remove(add_opt)
+
+    for del_opt in list(del_opts):
+        if del_opt in bp.add_opts:
+            r_add_opts.append(del_opt)
+            del_opts.remove(del_opt)
+
+    add_opts = _merge_opts(bp.add_opts, add_opts, r_add_opts)
+    del_opts = _merge_opts(bp.del_opts, del_opts, r_del_opts)
+
+    _log_debug_cmd("Effective add options: %s" % add_opts)
+    _log_debug_cmd("Effective del options: %s" % del_opts)
+
+    return (add_opts, del_opts)
 
 
 #
@@ -759,10 +807,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                        else be.bp.btrfs_subvol_id)
     profile = profile if profile else be._osp
 
-    add_opts = _merge_add_del_opts(be.bp.add_opts, add_opts)
-    del_opts = _merge_add_del_opts(be.bp.del_opts, del_opts)
-    _log_debug_cmd("Effective add options: %s" % add_opts)
-    _log_debug_cmd("Effective del options: %s" % del_opts)
+    (add_opts, del_opts) = _merge_add_del_opts(be.bp, add_opts, del_opts)
 
     bp = BootParams(version, root_device, lvm_root_lv=lvm_root_lv,
                     btrfs_subvol_path=btrfs_subvol_path,
@@ -864,10 +909,7 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
     machine_id = machine_id or be.machine_id
     version = version or be.version
 
-    add_opts = _merge_add_del_opts(be.bp.add_opts, add_opts)
-    del_opts = _merge_add_del_opts(be.bp.del_opts, del_opts)
-    _log_debug_cmd("Effective add options: %s" % add_opts)
-    _log_debug_cmd("Effective del options: %s" % del_opts)
+    (add_opts, del_opts) = _merge_add_del_opts(be.bp, add_opts, del_opts)
 
     be._osp = profile or be._osp
     be.title = title or be.title
