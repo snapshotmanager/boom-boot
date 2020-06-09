@@ -927,6 +927,11 @@ def edit_entry(selection=None, title=None, version=None, machine_id=None,
         be.initrd = _cache_image(be.initrd, images == I_BACKUP)
         be.linux = _cache_image(be.linux, images == I_BACKUP)
 
+    # Is the entry now identical to an existing entry?
+    if len(find_entries(Selection(boot_id=be.boot_id))) > 1:
+        raise ValueError("Entry already exists (boot_id=%s)." %
+                         be.disp_boot_id)
+
     be.update_entry(expand=expand)
     __write_legacy()
 
