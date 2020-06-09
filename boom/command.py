@@ -2256,6 +2256,9 @@ def _edit_cmd(cmd_args, select, opts, identifier):
 
     profile = _find_profile(cmd_args, version, machine_id, "edit")
 
+    add_opts = cmd_args.add_opts
+    del_opts = cmd_args.del_opts
+
     arch = cmd_args.architecture
 
     try:
@@ -2264,6 +2267,7 @@ def _edit_cmd(cmd_args, select, opts, identifier):
                         lvm_root_lv=lvm_root_lv,
                         btrfs_subvol_path=btrfs_subvol_path,
                         btrfs_subvol_id=btrfs_subvol_id, profile=profile,
+                        add_opts=add_opts, del_opts=del_opts,
                         architecture=arch, expand=cmd_args.expand_variables)
     except ValueError as e:
         print(e)
