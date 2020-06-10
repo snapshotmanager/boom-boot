@@ -519,6 +519,7 @@ class CommandTests(unittest.TestCase):
         be.delete_entry()
         self.assertFalse(exists(be._entry_path))
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_clone_entry_del_opts_and_re_add(self):
         # Fedora 24 (Workstation Edition)
 
@@ -537,6 +538,7 @@ class CommandTests(unittest.TestCase):
         # Assert it's back
         self.assertTrue("rhgb quiet" in be2.options)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_clone_entry_add_opts_and_re_del(self):
         # Fedora 24 (Workstation Edition)
 
