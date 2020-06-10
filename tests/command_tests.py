@@ -519,6 +519,42 @@ class CommandTests(unittest.TestCase):
         be.delete_entry()
         self.assertFalse(exists(be._entry_path))
 
+    def test_clone_entry_del_opts_and_re_add(self):
+        # Fedora 24 (Workstation Edition)
+
+        # Delete rhgb quiet
+        osp = get_os_profile_by_id(test_os_id)
+        be = create_entry("delopts", "2.6.0", "ffffffff", test_lv,
+                          lvm_root_lv=test_root_lv, profile=osp,
+                          del_opts="rhgb quiet")
+
+        # Assert it's gone
+        self.assertFalse("rhgb quiet" in be.options)
+
+        be2 = clone_entry(Selection(boot_id=be.boot_id), title="addoptsclone",
+                          add_opts="rhgb quiet")
+
+        # Assert it's back
+        self.assertTrue("rhgb quiet" in be2.options)
+
+    def test_clone_entry_add_opts_and_re_del(self):
+        # Fedora 24 (Workstation Edition)
+
+        # Add debug
+        osp = get_os_profile_by_id(test_os_id)
+        be = create_entry("addopts", "2.6.0", "ffffffff", test_lv,
+                          lvm_root_lv=test_root_lv, profile=osp,
+                          add_opts="debug")
+
+        # Assert it's there
+        self.assertTrue("debug" in be.options)
+
+        be2 = clone_entry(Selection(boot_id=be.boot_id), title="deloptsclone",
+                          del_opts="debug")
+
+        # Assert it's gone
+        self.assertFalse("debug" in be2.options)
+
     @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_clone_delete_entry(self):
         # Fedora 24 (Workstation Edition)
