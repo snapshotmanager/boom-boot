@@ -701,11 +701,13 @@ class BootParams(object):
                 if match:
                     if len(match.groups()):
                         value = match.group(1)
-                        _log_debug_entry("Matched: '%s' (%s)" %
+                        _log_debug_entry("Matching: '%s' (%s)" %
                                          (value, name))
                     if name == "lvm_root_lv":
                         if not _match_root_lv(bp.root_device, value):
                             continue
+                        _log_debug_entry("Matched root_device=%s to %s=%s"
+                                         % (bp.root_device, name, value))
                     matches[word] = True
                     if name:
                         _log_debug_entry("Matched %s=%s" % (name, value))
