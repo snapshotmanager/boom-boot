@@ -561,7 +561,7 @@ class HostProfileTests(unittest.TestCase):
         self.assertFalse(hp)
 
     def test_match_host_profile(self):
-        bes = find_entries(Selection(boot_id="dc5f44d"))
+        bes = find_entries(Selection(boot_id="242d946"))
         self.assertTrue(bes)
         be = bes[0]
         self.assertTrue(be)
