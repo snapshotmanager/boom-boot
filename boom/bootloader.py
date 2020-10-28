@@ -699,7 +699,6 @@ class BootParams(object):
             for word in be.expand_options.split():
                 match = re.search(exp, word) if name else re.match(exp, word)
                 if match:
-                    matches[word] = True
                     if len(match.groups()):
                         value = match.group(1)
                         _log_debug_entry("Matched: '%s' (%s)" %
@@ -707,6 +706,7 @@ class BootParams(object):
                     if name == "lvm_root_lv":
                         if not _match_root_lv(bp.root_device, value):
                             continue
+                    matches[word] = True
                     if name:
                         _log_debug_entry("Matched %s=%s" % (name, value))
                         setattr(bp, name, value)
