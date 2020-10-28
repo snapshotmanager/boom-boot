@@ -707,8 +707,9 @@ class BootParams(object):
                     if name == "lvm_root_lv":
                         if not _match_root_lv(bp.root_device, value):
                             continue
-                    setattr(bp, name, value)
-                    continue
+                    if name:
+                        _log_debug_entry("Matched %s=%s" % (name, value))
+                        setattr(bp, name, value)
 
             # The root_device key is handled specially since it is required
             # for a valid BootEntry.
