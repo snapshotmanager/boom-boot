@@ -766,7 +766,6 @@ class BootParams(object):
 
         # Compile list of unique non-template options
         bp.add_opts = [opt for opt in be.options.split() if is_add(opt)]
-        bp.add_opts = list(set(bp.add_opts))
 
         # Compile list of deleted template options
         bp.del_opts = [o for o in [r[1] for r in opts_regexes] if is_del(o)]
