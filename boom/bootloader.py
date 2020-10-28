@@ -767,6 +767,10 @@ class BootParams(object):
         # Compile list of unique non-template options
         bp.add_opts = [opt for opt in be.options.split() if is_add(opt)]
 
+        # Remove add_opts options from BootEntry stored options
+        entry_opts = [opt for opt in be.options.split() if opt not in bp.add_opts]
+        be._entry_data[BOOM_ENTRY_OPTIONS] = " ".join(entry_opts)
+
         # Compile list of deleted template options
         bp.del_opts = [o for o in [r[1] for r in opts_regexes] if is_del(o)]
 
