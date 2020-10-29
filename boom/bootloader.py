@@ -1429,9 +1429,10 @@ class BootEntry(object):
 
         if BOOM_ENTRY_OPTIONS in self._entry_data:
             orig_options = self._entry_data[BOOM_ENTRY_OPTIONS]
+            option_words = self.options.split()
 
             # Remove add_opts options from BootEntry stored options
-            opts = [o for o in self.options.split() if o not in self.bp.add_opts]
+            opts = [opt for opt in option_words if opt not in self.bp.add_opts]
             self._entry_data[BOOM_ENTRY_OPTIONS] = " ".join(opts)
 
             # Test whether the re-generated options match the stored values.
