@@ -59,6 +59,21 @@ class CacheHelperTests(unittest.TestCase):
         not modify on-disk state and do not use a unique test
         fixture.
     """
+
+    # Test fixture init/cleanup
+    def setUp(self):
+        """Set up a test fixture for the CacheHelperTests class.
+        """
+        set_boom_config(config)
+        set_boot_path(BOOT_ROOT_TEST)
+
+    def tearDown(self):
+        # Drop any in-memory entries and profiles modified by tests
+        drop_entries()
+        drop_profiles()
+        drop_host_profiles()
+        drop_cache()
+
     def test__make_relative_with_non_abs_path(self):
         path = "not/an/absolute/path"
         self.assertEqual(path, boom.cache._make_relative(path))
