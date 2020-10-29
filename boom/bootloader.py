@@ -1813,7 +1813,6 @@ class BootEntry(object):
         #
         # Other callers should always rely on the standard methods.
         boot_id = sha1(self.__str(no_boot_id=True).encode('utf-8')).hexdigest()
-        _log_debug_entry("Generated new boot_id='%s'" % boot_id)
         return boot_id
 
     def _entry_data_property(self, name):
@@ -1886,6 +1885,7 @@ class BootEntry(object):
             self._dirty()
         if not self.__boot_id or self._unwritten:
             self.__boot_id = self.__generate_boot_id()
+            _log_debug_entry("Generated new boot_id='%s'" % self.__boot_id)
         return self.__boot_id
 
     @property
