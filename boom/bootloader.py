@@ -682,9 +682,6 @@ class BootParams(object):
         bp = BootParams(version)
         matches = {}
 
-        _log_debug_entry("Initialising BootParams() from "
-                         "BootEntry(boot_id='%s')" % be.boot_id)
-
         opts_regexes = osp.make_format_regexes(osp.options)
         if not opts_regexes:
             return None
@@ -769,10 +766,6 @@ class BootParams(object):
 
         # Compile list of unique non-template options
         bp.add_opts = [opt for opt in be.options.split() if is_add(opt)]
-
-        # Remove add_opts options from BootEntry stored options
-        entry_opts = [o for o in be.options.split() if o not in bp.add_opts]
-        be._entry_data[BOOM_ENTRY_OPTIONS] = " ".join(entry_opts)
 
         # Compile list of deleted template options
         bp.del_opts = [o for o in [r[1] for r in opts_regexes] if is_del(o)]
@@ -1422,13 +1415,32 @@ class BootEntry(object):
         self.machine_id = self.machine_id or ""
         self.architecture = self.architecture or ""
 
+        boot_id = self.boot_id
         if boot_params:
             self.bp = boot_params
             # boot_params is always authoritative
             self._entry_data[BOOM_ENTRY_VERSION] = self.bp.version
         else:
+            _log_debug_entry("Initialising BootParams() from "
+                             "BootEntry(boot_id='%s')" % boot_id)
             # Attempt to recover BootParams from entry data
-            self.bp = BootParams.from_entry(self)
+            self._bp = BootParams.from_entry(self)
+            self._bp_generation = self._bp.generation
+
+        if BOOM_ENTRY_OPTIONS in self._entry_data:
+            orig_options = self._entry_data[BOOM_ENTRY_OPTIONS]
+
+            # Remove add_opts options from BootEntry stored options
+            opts = [o for o in self.options.split() if o not in self.bp.add_opts]
+            self._entry_data[BOOM_ENTRY_OPTIONS] = " ".join(opts)
+
+            # Test whether the re-generated options match the stored values.
+            if boot_id != self.__generate_boot_id():
+                self._entry_data[BOOM_ENTRY_OPTIONS] = orig_options
+                self.read_only = True
+                _log_warn("Options for BootEntry(boot_id=%s) do not match "
+                          "OsProfile: marking read-only" %
+                          boot_id[:min_boot_id_width()])
 
         if self.machine_id:
             # Wrap OsProfile in HostProfile if available
