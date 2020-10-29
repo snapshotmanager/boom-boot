@@ -624,9 +624,10 @@ class CacheEntry(object):
         dot_path = _RESTORED_DOT_PATTERN % basename(boot_path)
         boot_dir = dirname(boot_path)
 
-        if self.state not in (CACHE_MISSING, CACHE_RESTORED):
+        restore_states = (CACHE_MISSING, CACHE_RESTORED)
+        if self.state not in restore_states:
             raise ValueError("Restore failed: CacheEntry state is not "
-                             "%s or %s" % (CACHE_MISSING, CACHE_RESTORED))
+                             "%s or %s" % restore_states)
 
         shutil.copy2(cache_path, boot_path)
         try:
