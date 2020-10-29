@@ -1434,7 +1434,7 @@ class BootEntry(object):
             # Wrap OsProfile in HostProfile if available
             self.__match_host_profile()
 
-        if self.bp:
+        if not self.read_only:
             def _pop_if_set(key):
                 if key in _entry_data:
                     if _entry_data[key] == getattr(self, KEY_MAP[key]):
@@ -2049,7 +2049,7 @@ class BootEntry(object):
 
         if BOOM_ENTRY_OPTIONS in self._entry_data:
             opts = self._entry_data_property(BOOM_ENTRY_OPTIONS)
-            if self.bp:
+            if self.bp and not self.read_only:
                 opts = add_opts(opts, self.bp.add_opts)
                 return do_exp(del_opts(opts, self.bp.del_opts))
             return do_exp(opts)
