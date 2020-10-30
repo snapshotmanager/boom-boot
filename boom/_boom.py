@@ -886,7 +886,7 @@ def blank_or_comment(line):
     return not line.strip() or line.lstrip().startswith('#')
 
 
-def parse_name_value(nvp, separator="="):
+def parse_name_value(nvp, separator="=", allow_empty=False):
     """Parse a name value pair string.
 
         Parse a ``name='value'`` style string into its component parts,
@@ -907,16 +907,19 @@ def parse_name_value(nvp, separator="="):
         # whitespace anywhere within the string.
         name, value = nvp.rstrip('\n').split(separator, 1)
     except ValueError:
-        raise val_err
+        if not allow_empty or not nvp:
+            raise val_err
+        name = nvp.strip(separator)
+        value = None
 
     # Value cannot start with '='
-    if value.startswith('='):
+    if value and value.startswith('='):
         raise val_err
 
     name = name.strip()
-    value = value.lstrip()
+    value = value.lstrip() if value else None
 
-    if "#" in value:
+    if value and "#" in value:
         value, comment = value.split("#", 1)
 
     valid_name_chars = string.ascii_letters + string.digits + "_-,.'\""
@@ -925,8 +928,12 @@ def parse_name_value(nvp, separator="="):
         raise ValueError("Invalid characters in name: %s (%s)" %
                          (name, bad_chars))
 
-    if value.startswith('"') or value.startswith("'"):
-        value = value[1:-1]
+    if value:
+        if value.startswith('"') or value.startswith("'"):
+            quotes = "\"'"
+            value = value.rstrip(quotes)
+            value = value.lstrip(quotes)
+
     return (name, value)
 
 

@@ -1474,7 +1474,8 @@ class BootEntry(object):
                 if blank_or_comment(line):
                     comment += line if line else ""
                 else:
-                    bls_key, value = parse_name_value(line, separator=None)
+                    bls_key, value = parse_name_value(line, separator=None,
+                                                      allow_empty=True)
                     # Convert BLS key name to Boom notation
                     key = _transform_key(bls_key)
                     if key not in MAP_KEY:
