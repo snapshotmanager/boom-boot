@@ -224,8 +224,10 @@ def drop_profiles():
     _profiles = []
     _profiles_by_id = {}
 
+    optional_keys = "id grub_users grub_arg grub_class"
     _null_profile = OsProfile(name="", short_name="",
-                              version="", version_id="")
+                              version="", version_id="",
+                              optional_keys=optional_keys)
     _profiles_by_id[_null_profile.os_id] = _null_profile
     if nr_profiles:
         _log_info("Dropped %d profiles" % nr_profiles)
@@ -1506,6 +1508,9 @@ class OsProfile(BoomProfile):
         if all([not val for val in required_args]):
             # NULL profile
             for key in OS_PROFILE_KEYS:
+                # Allow optional_keys for the NULL profile
+                if key == BOOM_OS_OPTIONAL_KEYS:
+                    continue
                 self._profile_data[key] = ""
         elif any([not val for val in required_args]):
             raise ValueError("Invalid profile arguments: name, "
