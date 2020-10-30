@@ -2159,6 +2159,12 @@ def _show_cmd(cmd_args, select, opts, identifier):
     if identifier is not None:
         select = Selection(boot_id=identifier)
 
+    if identifier or cmd_args.all:
+        if select:
+            select.allow_null_profile = True
+        else:
+            select = Selection(allow_null=True)
+
     try:
         bes = find_entries(selection=select)
     except ValueError as e:
@@ -2220,6 +2226,12 @@ def _list_cmd(cmd_args, select, opts, identifier):
     identifier = identifier or cmd_args.boot_id
     if identifier is not None:
         select = Selection(boot_id=identifier)
+
+    if cmd_args.all:
+        if select:
+            select.allow_null_profile = True
+        else:
+            select = Selection(allow_null=True)
 
     return _generic_list_cmd(cmd_args, select, opts, _verbose_entry_fields,
                              print_entries)
@@ -3087,6 +3099,8 @@ def main(args):
                         "operate on", nargs="?", default=None)
     parser.add_argument("-a", "--add-opts", "--addopts", metavar="OPTIONS",
                         help="Additional kernel options to append", type=str)
+    parser.add_argument("--all", action="store_true",
+                        help="Include entries with no valid profile")
     parser.add_argument("--architecture", metavar="ARCH", default=None,
                         help="An optional BLS architecture string", type=str)
     parser.add_argument("--backup", action="store_true",

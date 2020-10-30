@@ -71,6 +71,7 @@ class MockArgs(object):
     """Mock arguments class for testing boom command line infrastructure.
     """
     add_opts = ""
+    all = False
     architecture = None
     backup = False
     boot_id = None
