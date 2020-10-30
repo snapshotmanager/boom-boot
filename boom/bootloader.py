@@ -1163,22 +1163,8 @@ class BootEntry(object):
         if not isinstance(key, str):
             raise TypeError("BootEntry key must be a string.")
 
-        if key in self._entry_data:
-            return self._entry_data[key]
-        if key == BOOM_ENTRY_LINUX:
-            return self.linux
-        if key == BOOM_ENTRY_INITRD:
-            return self.initrd
-        if key == BOOM_ENTRY_OPTIONS:
-            return self.options
-        if key == BOOM_ENTRY_DEVICETREE:
-            return self.devicetree
-        if key == BOOM_ENTRY_EFI:
-            return self.efi
-        if key == BOOM_ENTRY_BOOT_ID:
-            return self.boot_id
-        if self.bp and key == BOOM_ENTRY_VERSION:
-            return self.bp.version
+        if key in KEY_MAP and hasattr(self, KEY_MAP[key]):
+            return getattr(self, KEY_MAP[key])
 
         raise KeyError("BootEntry key %s not present." % key)
 
@@ -1191,24 +1177,10 @@ class BootEntry(object):
         if not isinstance(key, str):
             raise TypeError("BootEntry key must be a string.")
 
-        if key == BOOM_ENTRY_VERSION and self.bp:
-            self.bp.version = value
-        elif key == BOOM_ENTRY_LINUX and self.bp:
-            self.linux = value
-        elif key == BOOM_ENTRY_INITRD and self.bp:
-            self.initrd = value
-        elif key == BOOM_ENTRY_OPTIONS and self.bp:
-            self.options = value
-        elif key == BOOM_ENTRY_DEVICETREE and self.bp:
-            self.devicetree = value
-        elif key == BOOM_ENTRY_EFI and self.bp:
-            self.efi = value
-        elif key == BOOM_ENTRY_BOOT_ID:
-            raise TypeError("'boot_id' property does not support assignment")
-        elif key in self._entry_data:
-            self._entry_data[key] = value
-        else:
-            raise KeyError("BootEntry key %s not present." % key)
+        if key in KEY_MAP and hasattr(self, KEY_MAP[key]):
+            return setattr(self, KEY_MAP[key], value)
+
+        raise KeyError("BootEntry key %s not present." % key)
 
     def keys(self):
         """Return the list of keys for this ``BootEntry``.
