@@ -607,6 +607,9 @@ class Selection(object):
     os_root_opts_btrfs = None
     os_options = None
 
+    # Should results include the null profile?
+    allow_null_profile = False
+
     # HostProfile fields
     host_id = None
     host_name = None
@@ -684,7 +687,7 @@ class Selection(object):
                  os_id=None, os_name=None, os_short_name=None,
                  os_version=None, os_version_id=None, os_options=None,
                  os_uname_pattern=None, os_kernel_pattern=None,
-                 os_initramfs_pattern=None, host_id=None,
+                 os_initramfs_pattern=None, allow_null=False, host_id=None,
                  host_name=None, host_label=None, host_short_name=None,
                  host_add_opts=None, host_del_opts=None, path=None,
                  timestamp=None, img_id=None):
@@ -713,6 +716,7 @@ class Selection(object):
             :param os_uname_pattern: The os_uname_pattern to match
             :param os_kernel_pattern: The kernel_pattern to match
             :param os_initramfs_pattern: The initramfs_pattern to match
+            :param allow_null: Allow selecting the null profile
             :param host_id: The host identifier to match
             :param host_name: The host name to match
             :param host_label: The host label to match
@@ -745,6 +749,7 @@ class Selection(object):
         self.os_uname_pattern = os_uname_pattern
         self.os_kernel_pattern = os_kernel_pattern
         self.os_initramfs_pattern = os_initramfs_pattern
+        self.allow_null_profile = allow_null
         self.host_id = host_id
         self.host_name = host_name
         self.host_label = host_label

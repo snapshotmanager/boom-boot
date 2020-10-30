@@ -298,7 +298,7 @@ def select_profile(s, osp):
         :returns: True if ``osp`` passes selection or ``False``
                   otherwise.
     """
-    if _is_null_profile(osp):
+    if not s.allow_null_profile and _is_null_profile(osp):
         return False
     if s.os_id and not osp.os_id.startswith(s.os_id):
         return False
