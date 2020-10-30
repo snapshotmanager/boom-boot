@@ -1032,6 +1032,7 @@ class BootEntry(object):
     _osp = None
     _bp = None
     _bp_generation = None
+    _suppress_machine_id = False
 
     # Read only state for foreign BLS entries
     read_only = False
@@ -1075,6 +1076,8 @@ class BootEntry(object):
         be_str = prefix
 
         for key in [k for k in ENTRY_KEYS if getattr(self, KEY_MAP[k])]:
+            if key == BOOM_ENTRY_MACHINE_ID and self._suppress_machine_id:
+                continue
             attr = KEY_MAP[key]
             key_fmt = '%s%s"%s"' if quote else '%s%s%s'
             key_fmt += tail
@@ -1462,6 +1465,26 @@ class BootEntry(object):
             :rtype: None
             :raises: ValueError
         """
+        def machine_id_from_filename(filename):
+            """Try to obtain a machine-id value from a BLS entry file name.
+
+                :param filename: The file name of the BLS snippet.
+                :param returns: The machine-id or the empty string if it
+                                could not be read.
+            """
+            machine_id_len = 32
+            machine_id_chars = "0123456789abcdef"
+            try:
+                maybe_machine_id = filename.split("-")[0]
+            except ValueError:
+                return ""
+            if len(maybe_machine_id) != machine_id_len:
+                return ""
+            for c in maybe_machine_id:
+                if c not in machine_id_chars:
+                    return ""
+            return maybe_machine_id
+
         entry_data = {}
         comments = {}
         comment = ""
@@ -1489,6 +1512,23 @@ class BootEntry(object):
                         comments[key] = comment
                         comment = ""
         self._comments = comments
+
+        # Red Hat native BLS entries do not set the machine-id BLS key:
+        # this does not matter when we are reading and displaying the
+        # entry, but it becomes important when cloning since we want to
+        # use the BOOM_ENTRY_MACHINE_ID value as the first component of
+        # the file name. Handle these entries by reading the machine-id
+        # value from the file name and setting the _suppress_machine_id
+        # attribute on the BootEntry. This prevents the machine-id from
+        # appearing in string representations of the BootEntry or being
+        # part of the boot_id calculation, but is not copied across a
+        # clone operation (meaning that the cloned entry has normal boom
+        # machine-id handling).
+        if BOOM_ENTRY_MACHINE_ID not in entry_data:
+            machine_id = machine_id_from_filename(entry_basename)
+            if machine_id:
+                entry_data[BOOM_ENTRY_MACHINE_ID] = machine_id
+                self._suppress_machine_id = True
 
         self.__from_data(entry_data, boot_params)
 
