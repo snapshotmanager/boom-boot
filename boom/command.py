@@ -508,12 +508,12 @@ def _merge_add_del_opts(bp, add_opts, del_opts):
     def _merge_opts(orig_opts, opts, r_opts):
         # Merge new and cloned kernel options
         all_opts = []
-        if opts:
-            for opt in opts:
-                if opt not in all_opts:
-                    all_opts.append(opt)
         if orig_opts:
             for opt in orig_opts:
+                if opt not in all_opts:
+                    all_opts.append(opt)
+        if opts:
+            for opt in opts:
                 if opt not in all_opts:
                     all_opts.append(opt)
         return [o for o in all_opts if o not in r_opts]
