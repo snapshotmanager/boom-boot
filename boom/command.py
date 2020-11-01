@@ -848,7 +848,7 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                          clone_be.disp_boot_id)
 
     if write:
-        clone_be.write_entry(expand=expand)
+        clone_be.write_entry()
         __write_legacy()
 
     return clone_be

@@ -657,7 +657,7 @@ class BootParams(object):
         return self.lvm_root_lv is not None and len(self.lvm_root_lv)
 
     @classmethod
-    def from_entry(cls, be):
+    def from_entry(cls, be, expand=False):
         """Recover BootParams from BootEntry.
 
         Recover BootParams values from a templated BootEntry: each
@@ -672,6 +672,7 @@ class BootParams(object):
         is possible unless a new, valid, OsProfile is attached.
 
         :param be: The BootEntry to recover BootParams from.
+        :param expand: Expand bootloader environment variables.
         :returns: A newly initialised BootParams object.
         :rtype: ``BootParams``
         :raises: ValueError if expected values cannot be matched.
@@ -764,8 +765,10 @@ class BootParams(object):
                 return True
             return False
 
+        options = be.expand_options.split() if expand else be.options.split()
+
         # Compile list of unique non-template options
-        bp.add_opts = [opt for opt in be.options.split() if is_add(opt)]
+        bp.add_opts = [opt for opt in options if is_add(opt)]
 
         # Compile list of deleted template options
         bp.del_opts = [o for o in [r[1] for r in opts_regexes] if is_del(o)]
@@ -970,6 +973,7 @@ def find_entries(selection=None):
     for be in _entries:
         if select_entry(selection, be):
             matches.append(be)
+
     _log_debug_entry("Found %d entries" % len(matches))
     return matches
 
