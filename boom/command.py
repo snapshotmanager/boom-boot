@@ -823,8 +823,11 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                          architecture=architecture,
                          allow_no_dev=allow_no_dev)
 
-    if be.options != be.expand_options:
+    if be.options != be.expand_options and not expand:
         clone_be.options = be.options
+    else:
+        clone_be.bp.add_opts = add_opts
+        clone_be.bp.del_opts = del_opts
 
     # Clone optional keys allowed by profile
     for optional_key in be._osp.optional_keys.split():
