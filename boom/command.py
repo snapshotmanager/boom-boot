@@ -823,22 +823,21 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
                          architecture=architecture,
                          allow_no_dev=allow_no_dev)
 
-    orig_be = find_entries(selection)[0]
-    if orig_be.options != orig_be.expand_options:
-        clone_be.options = orig_be.options
+    if be.options != be.expand_options:
+        clone_be.options = be.options
 
     # Clone optional keys allowed by profile
-    for optional_key in orig_be._osp.optional_keys.split():
+    for optional_key in be._osp.optional_keys.split():
         if optional_key in clone_be._osp.optional_keys:
-            if hasattr(orig_be, optional_key):
+            if hasattr(be, optional_key):
                 setattr(clone_be, optional_key,
-                        getattr(orig_be, optional_key))
+                        getattr(be, optional_key))
 
     # Boot image overrides?
-    if orig_be.initrd != clone_be.initrd:
-        clone_be.initrd = orig_be.initrd
-    if orig_be.linux != clone_be.linux:
-        clone_be.linux = orig_be.linux
+    if be.initrd != clone_be.initrd:
+        clone_be.initrd = be.initrd
+    if be.linux != clone_be.linux:
+        clone_be.linux = be.linux
 
     if images in (I_BACKUP, I_CACHE):
         clone_be.initrd = _cache_image(clone_be.initrd, images == I_BACKUP)
