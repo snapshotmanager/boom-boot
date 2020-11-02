@@ -802,20 +802,21 @@ def clone_entry(selection=None, title=None, version=None, machine_id=None,
     title = title if title else be.title
     version = version if version else be.version
     machine_id = machine_id if machine_id else be.machine_id
-    root_device = root_device if root_device else be.bp.root_device
-    lvm_root_lv = lvm_root_lv if lvm_root_lv else be.bp.lvm_root_lv
-    btrfs_subvol_path = (btrfs_subvol_path if btrfs_subvol_path
-                         else be.bp.btrfs_subvol_path)
-    btrfs_subvol_id = (btrfs_subvol_id if btrfs_subvol_id
-                       else be.bp.btrfs_subvol_id)
     profile = profile if profile else be._osp
 
-    (add_opts, del_opts) = _merge_add_del_opts(be.bp, add_opts, del_opts)
+    bp = BootParams.from_entry(be, expand=expand)
+    (add_opts, del_opts) = _merge_add_del_opts(bp, add_opts, del_opts)
 
-    bp = BootParams(version, root_device, lvm_root_lv=lvm_root_lv,
-                    btrfs_subvol_path=btrfs_subvol_path,
-                    btrfs_subvol_id=btrfs_subvol_id,
-                    add_opts=add_opts, del_opts=del_opts)
+    bp.root_device = root_device if root_device else bp.root_device
+    bp.lvm_root_lv = lvm_root_lv if lvm_root_lv else bp.lvm_root_lv
+
+    if btrfs_subvol_path and btrfs_subvol_id:
+        raise ValueError("cannot set btrfs_subvol_path and btrfs_subvol_id")
+
+    if btrfs_subvol_path:
+        bp.btrfs_subvol_path = btrfs_subvol_path
+    elif btrfs_subvol_id:
+        bp.btrfs_subvol_id = btrfs_subvol_id
 
     clone_be = BootEntry(title=title, machine_id=machine_id,
                          osprofile=profile, boot_params=bp,
