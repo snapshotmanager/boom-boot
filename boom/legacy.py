@@ -172,7 +172,13 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
                     tmp_f.write(line)
             tmp_f.write(begin_tag + "\n")
             bes = find_entries(selection=selection)
-            for be in bes:
+            # Entries are naturally in the order returned by the file system:
+            # this may lead to confusing re-ordering of entries in the legacy
+            # boot loader configuration file, as boom entries are modified or
+            # re-written (causing a change to the entry's inode number).
+            #
+            # Prevent this by sorting entries lexically by version.
+            for be in sorted(bes, key=lambda b: b.version):
                 dbe = decorator(be)
                 tmp_f.write(str(dbe) + "\n")
             tmp_f.write(end_tag + "\n")
