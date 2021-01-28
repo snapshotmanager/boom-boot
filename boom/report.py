@@ -121,7 +121,7 @@ class BoomReportOpts(object):
 
 class BoomReportObjType(object):
     """BoomReportObjType()
-        Class representing a type of objecct to be reported on.
+        Class representing a type of object to be reported on.
         Instances of ``BoomReportObjType`` must specify an identifier,
         a description, and a data function that will return the correct
         type of object from a compound object containing data objects
