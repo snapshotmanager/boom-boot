@@ -210,6 +210,17 @@ class CommandHelperTests(unittest.TestCase):
         self.assertEqual(bp.add_opts, add_opts)
         self.assertEqual(bp.del_opts, del_opts)
 
+    def test__merge_add_del_opts_with_add(self):
+        bp = BootParams(version="1.1.1", root_device="/dev/vg00/lvol0")
+        _merge_add_del_opts = boom.command._merge_add_del_opts
+
+        # Empty bp and add places add in final add_opts
+        to_add = "debug"
+        to_del = ""
+        (add_opts, del_opts) = _merge_add_del_opts(bp, to_add, to_del)
+        self.assertEqual([to_add], add_opts)
+        self.assertEqual([], del_opts)
+
 
 # Default test OsProfile identifiers
 test_os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"
