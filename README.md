@@ -699,10 +699,14 @@ The object API is implemented in several `boom` sub-modules:
 
   * `boom`
   * `boom.bootloader`
+  * `boom.cache`
+  * `boom.command`
   * `boom.config`
-  * `boom.osprofile`
   * `boom.hostprofile`
+  * `boom.legacy`
+  * `boom.osprofile`
   * `boom.report`
+
 
 Applications using the object API need only import the sub-modules that
 contain the needed interfaces.
