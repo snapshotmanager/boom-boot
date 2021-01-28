@@ -657,7 +657,7 @@ def create_entry(title, version, machine_id, root_device, lvm_root_lv=None,
         :returns: a ``BootEntry`` object corresponding to the new entry.
         :rtype: ``BootEntry``
         :raises: ``ValueError`` if either required values are missing or
-                 a duplicate entry exists, or``OsError`` if an error
+                 a duplicate entry exists, or ``OsError`` if an error
                  occurs while writing the entry file.
     """
     if not title and not profile.title:
