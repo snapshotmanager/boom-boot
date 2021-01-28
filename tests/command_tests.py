@@ -232,6 +232,18 @@ class CommandHelperTests(unittest.TestCase):
         self.assertEqual([], add_opts)
         self.assertEqual(to_del.split(), del_opts)
 
+    def test__merge_add_del_opts_with_add_appends(self):
+        bp = BootParams(version="1.1.1", root_device="/dev/vg00/lvol0",
+                        add_opts=["log_buf_len=16M"])
+        _merge_add_del_opts = boom.command._merge_add_del_opts
+
+        # bp with add_opts and and command line add gives correct order
+        # of final add_opts list (command line additions appended).
+        to_add = "debug"
+        to_del = ""
+        (add_opts, del_opts) = _merge_add_del_opts(bp, to_add, to_del)
+        self.assertEqual(["log_buf_len=16M", "debug"], add_opts)
+
 
 # Default test OsProfile identifiers
 test_os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"
