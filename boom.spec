@@ -154,6 +154,26 @@ rm doc/conf.py
 
 
 %changelog
+* Thu Jan 29 2020 Bryn M. Reeves <bmr@redhat.com> = 1.3
+- Check for duplicates consistently in the clone and edit commands
+- Apply correct command line precedence to --add-opts and --del-opts
+- Correctly merge multiple --add/del-opts when editing or cloning
+- Correctly propagate --add/del-opts in boom edit commands
+- Enhanced logging of --add/del-opts merge logic
+- The default Python interpreter is now /usr/bin/python
+- Fixed re-ordering of options modifications when read from disk
+- Do not set BootParams attributes for anonymous option words
+- Make lvm_root_lv validation checks more strict
+- Improve BootParams.from_entry() parameter recovery debug logging
+- Include sample OsProfile for Fedora 32
+- Re-set sandbox state in test suite to ensure run-to-run consistency
+- Improve compatibility with Red Hat BLS implementation
+- Allow non-boom managed entries to be listed and displayed
+- Handle quirks in Red Hat's use of the BLS machine_id key
+- Allow grub2 bootloader variables to be expanded when cloning entries
+- Simplify clone_entry logic and make consistent with edit_entry
+- Ensure stable ordering of legacy boot entry configuration
+
 * Wed May 13 2020 Bryn M. Reeves <bmr@redhat.com> = 1.1
 - Bump release
 
