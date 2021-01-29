@@ -154,7 +154,7 @@ rm doc/conf.py
 
 
 %changelog
-* Thu Jan 29 2020 Bryn M. Reeves <bmr@redhat.com> = 1.3
+* Thu Jan 28 2020 Bryn M. Reeves <bmr@redhat.com> = 1.3
 - Check for duplicates consistently in the clone and edit commands
 - Apply correct command line precedence to --add-opts and --del-opts
 - Correctly merge multiple --add/del-opts when editing or cloning
