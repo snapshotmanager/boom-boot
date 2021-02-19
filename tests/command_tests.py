@@ -244,6 +244,22 @@ class CommandHelperTests(unittest.TestCase):
         (add_opts, del_opts) = _merge_add_del_opts(bp, to_add, to_del)
         self.assertEqual(["log_buf_len=16M", "debug"], add_opts)
 
+    def test__optional_key_to_arg_valid(self):
+        _optional_key_to_arg = boom.command._optional_key_to_arg
+        valid_keys_and_args = {
+            "BOOM_ENTRY_GRUB_USERS": "--grub-users",
+            "BOOM_ENTRY_GRUB_ARG": "--grub-arg",
+            "BOOM_ENTRY_GRUB_CLASS": "--grub-class",
+            "BOOM_ENTRY_GRUB_ID": "--grub-id"
+        }
+        for opt_key in valid_keys_and_args.keys():
+            self.assertEqual(_optional_key_to_arg(opt_key),
+                             valid_keys_and_args[opt_key])
+
+    def test__optional_key_to_arg_invalid(self):
+        _optional_key_to_arg = boom.command._optional_key_to_arg
+        self.assertEqual(_optional_key_to_arg("INVALID_KEY"), None)
+
 
 # Default test OsProfile identifiers
 test_os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"
