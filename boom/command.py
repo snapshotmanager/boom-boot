@@ -1883,7 +1883,8 @@ def _optional_key_to_arg(optional_key):
     _key_map = {
         BOOM_ENTRY_GRUB_USERS: "--grub-users",
         BOOM_ENTRY_GRUB_ARG: "--grub-arg",
-        BOOM_ENTRY_GRUB_CLASS: "--grub-class"
+        BOOM_ENTRY_GRUB_CLASS: "--grub-class",
+        BOOM_ENTRY_GRUB_ID: "--grub-id"
     }
     return _key_map[optional_key] if optional_key in _key_map else None
 
@@ -1914,7 +1915,7 @@ def _set_optional_key_defaults(profile, cmd_args):
         if bls_key not in profile.optional_keys:
             if getattr(cmd_args, bls_key) is not None:
                 print("Profile with os_id='%s' does not support %s" %
-                      (profile.disp_os_id, _optional_key_to_arg(bls_key)))
+                      (profile.disp_os_id, _optional_key_to_arg(opt_key)))
                 return 1
         else:
             if getattr(cmd_args, bls_key) is None:
