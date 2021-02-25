@@ -287,13 +287,13 @@ class CommandTests(unittest.TestCase):
     """Test boom.command APIs
     """
 
-    # Master BLS loader directory for sandbox
+    # Main BLS loader directory for sandbox
     loader_path = join(BOOT_ROOT_TEST, "loader")
 
-    # Master boom configuration path for sandbox
+    # Main boom configuration path for sandbox
     boom_path = join(BOOT_ROOT_TEST, "boom")
 
-    # Master grub configuration path for sandbox
+    # Main grub configuration path for sandbox
     grub_path = join(BOOT_ROOT_TEST, "grub")
 
     # Test fixture init/cleanup

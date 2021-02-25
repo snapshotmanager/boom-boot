@@ -81,10 +81,10 @@ def _count_value_in_key(dir_path, ext, key_name, xvalue,
 
 
 class HostProfileTests(unittest.TestCase):
-    # Master boom configuration path for sandbox
+    # Main boom configuration path for sandbox
     boom_path = join(BOOT_ROOT_TEST, "boom")
 
-    # Master BLS loader directory for sandbox
+    # Main BLS loader directory for sandbox
     loader_path = join(BOOT_ROOT_TEST, "loader")
 
     def setUp(self):

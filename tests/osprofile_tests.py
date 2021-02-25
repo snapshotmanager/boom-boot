@@ -34,7 +34,7 @@ class OsProfileTests(unittest.TestCase):
     """Test OsProfile basic methods
     """
 
-    # Master boom configuration path for sandbox
+    # Main boom configuration path for sandbox
     boom_path = join(BOOT_ROOT_TEST, "boom")
 
     def setUp(self):

@@ -174,10 +174,10 @@ class BootEntryBasicTests(unittest.TestCase):
 
     # Sandbox paths
 
-    # Master BLS loader directory for sandbox
+    # Main BLS loader directory for sandbox
     loader_path = join(BOOT_ROOT_TEST, "loader")
 
-    # Master boom configuration path for sandbox
+    # Main boom configuration path for sandbox
     boom_path = join(BOOT_ROOT_TEST, "boom")
 
     def setUp(self):
@@ -354,10 +354,10 @@ class BootEntryTests(unittest.TestCase):
     # Standard test BootEntry. Tests must not modify this.
     test_be = None
 
-    # Master BLS loader directory for sandbox
+    # Main BLS loader directory for sandbox
     loader_path = join(BOOT_ROOT_TEST, "loader")
 
-    # Master boom configuration path for sandbox
+    # Main boom configuration path for sandbox
     boom_path = join(BOOT_ROOT_TEST, "boom")
 
     # Test fixture init/cleanup
@@ -970,10 +970,10 @@ class BootLoaderTests(unittest.TestCase):
     """Class for bootloader module-level tests.
     """
 
-    # Master BLS loader directory for sandbox
+    # Main BLS loader directory for sandbox
     loader_path = join(BOOT_ROOT_TEST, "loader")
 
-    # Master boom configuration path for sandbox
+    # Main boom configuration path for sandbox
     boom_path = join(BOOT_ROOT_TEST, "boom")
 
     # Test fixture init/cleanup
