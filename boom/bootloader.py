@@ -1396,7 +1396,7 @@ class BootEntry(object):
 
         boot_id = self.boot_id
         if boot_params:
-            self.bp = boot_params
+            self._bp = boot_params
             # boot_params is always authoritative
             self._entry_data[BOOM_ENTRY_VERSION] = self.bp.version
         else:
