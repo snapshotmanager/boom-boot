@@ -59,6 +59,8 @@ FMT_BTRFS_SUBVOL_ID = "btrfs_subvol_id"
 FMT_BTRFS_SUBVOL_PATH = "btrfs_subvol_path"
 #: BTRFS kernel command line options
 FMT_BTRFS_ROOT_OPTS = "btrfs_root_opts"
+#: Stratis pool UUID.
+FMT_STRATIS_POOL_UUID = "stratis_pool_uuid"
 #: Root device path.
 FMT_ROOT_DEVICE = "root_device"
 #: Root device options.
@@ -81,7 +83,7 @@ FORMAT_KEYS = [
     FMT_VERSION,
     FMT_LVM_ROOT_LV, FMT_LVM_ROOT_OPTS,
     FMT_BTRFS_SUBVOL_ID, FMT_BTRFS_SUBVOL_PATH,
-    FMT_BTRFS_SUBVOLUME, FMT_BTRFS_ROOT_OPTS,
+    FMT_BTRFS_SUBVOLUME, FMT_BTRFS_ROOT_OPTS, FMT_STRATIS_POOL_UUID,
     FMT_ROOT_DEVICE, FMT_ROOT_OPTS,
     FMT_KERNEL, FMT_INITRAMFS,
     FMT_OS_NAME, FMT_OS_SHORT_NAME,
@@ -1050,6 +1052,7 @@ __all__ = [
     'FMT_BTRFS_SUBVOL_ID',
     'FMT_BTRFS_SUBVOL_PATH',
     'FMT_BTRFS_ROOT_OPTS',
+    'FMT_STRATIS_POOL_UUID',
     'FMT_ROOT_DEVICE',
     'FMT_ROOT_OPTS',
     'FMT_KERNEL',
