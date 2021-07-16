@@ -178,7 +178,7 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
             # re-written (causing a change to the entry's inode number).
             #
             # Prevent this by sorting entries lexically by version.
-            for be in sorted(bes, key=lambda b: b.version):
+            for be in sorted(bes, key=lambda b: (b.version, b.title)):
                 dbe = decorator(be)
                 tmp_f.write(str(dbe) + "\n")
             tmp_f.write(end_tag + "\n")
