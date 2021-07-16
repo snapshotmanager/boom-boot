@@ -1394,33 +1394,16 @@ class BootEntry(object):
         self.machine_id = self.machine_id or ""
         self.architecture = self.architecture or ""
 
-        boot_id = self.boot_id
         if boot_params:
             self._bp = boot_params
             # boot_params is always authoritative
             self._entry_data[BOOM_ENTRY_VERSION] = self.bp.version
         else:
             _log_debug_entry("Initialising BootParams() from "
-                             "BootEntry(boot_id='%s')" % boot_id)
+                             "BootEntry(boot_id='%s')" % self.boot_id)
             # Attempt to recover BootParams from entry data
             self._bp = BootParams.from_entry(self)
             self._bp_generation = self._bp.generation
-
-        if BOOM_ENTRY_OPTIONS in self._entry_data:
-            orig_options = self._entry_data[BOOM_ENTRY_OPTIONS]
-            option_words = self.options.split()
-
-            # Remove add_opts options from BootEntry stored options
-            opts = [opt for opt in option_words if opt not in self.bp.add_opts]
-            self._entry_data[BOOM_ENTRY_OPTIONS] = " ".join(opts)
-
-            # Test whether the re-generated options match the stored values.
-            if boot_id != self.__generate_boot_id():
-                self._entry_data[BOOM_ENTRY_OPTIONS] = orig_options
-                self.read_only = True
-                _log_warn("Options for BootEntry(boot_id=%s) do not match "
-                          "OsProfile: marking read-only" %
-                          boot_id[:min_boot_id_width()])
 
         if self.machine_id:
             # Wrap OsProfile in HostProfile if available
