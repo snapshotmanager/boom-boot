@@ -4,6 +4,7 @@ python:
   - "3.6"
   - "3.7"
 install:
+  - "sudo apt install build-essential libdbus-1-dev"
   - "pip install -r requirements.txt"
   - "python setup.py install"
 script:
