@@ -61,6 +61,8 @@ FMT_BTRFS_SUBVOL_PATH = "btrfs_subvol_path"
 FMT_BTRFS_ROOT_OPTS = "btrfs_root_opts"
 #: Stratis pool UUID.
 FMT_STRATIS_POOL_UUID = "stratis_pool_uuid"
+#: Stratis kernel command line options.
+FMT_STRATIS_ROOT_OPTS = "stratis_root_opts"
 #: Root device path.
 FMT_ROOT_DEVICE = "root_device"
 #: Root device options.
@@ -1052,6 +1054,7 @@ __all__ = [
     'FMT_BTRFS_SUBVOL_ID',
     'FMT_BTRFS_SUBVOL_PATH',
     'FMT_BTRFS_ROOT_OPTS',
+    'FMT_STRATIS_ROOT_OPTS',
     'FMT_STRATIS_POOL_UUID',
     'FMT_ROOT_DEVICE',
     'FMT_ROOT_OPTS',
