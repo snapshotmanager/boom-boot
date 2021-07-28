@@ -1954,16 +1954,21 @@ class BootEntry(object):
             return ""
         bp = self.bp
         osp = self._osp
-        root_opts = "%s%s%s"
-        lvm_opts = ""
+        root_opts = []
+
         if bp.lvm_root_lv:
             lvm_opts = self._apply_format(osp.root_opts_lvm2)
+            root_opts.append(lvm_opts)
 
-        btrfs_opts = ""
         if bp.btrfs_subvol_id or bp.btrfs_subvol_path:
-            btrfs_opts += self._apply_format(osp.root_opts_btrfs)
-        spacer = " " if lvm_opts and btrfs_opts else ""
-        return root_opts % (lvm_opts, spacer, btrfs_opts)
+            btrfs_opts = self._apply_format(osp.root_opts_btrfs)
+            root_opts.append(btrfs_opts)
+
+        if is_stratis_device_path(self.bp.root_device):
+            stratis_opts = self._apply_format(ROOT_OPTS_STRATIS)
+            root_opts.append(stratis_opts)
+
+        return " ".join(root_opts)
 
     @property
     def title(self):
