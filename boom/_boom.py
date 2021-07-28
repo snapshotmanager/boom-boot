@@ -89,6 +89,14 @@ FORMAT_KEYS = [
 ]
 
 
+# Root options for btrfs volumes
+
+#: Volume specified by subvol path
+ROOT_OPTS_BTRFS_PATH = "subvol=%{btrfs_subvol_path}"
+
+#: Volume specified by subvol ID
+ROOT_OPTS_BTRFS_ID = "subvolid=%{btrfs_subvol_id}"
+
 #
 # Taken from python3.7/stat.py - for compatibility with py2.7
 #
@@ -1051,6 +1059,10 @@ __all__ = [
     'FMT_OS_VERSION',
     'FMT_OS_VERSION_ID',
     'FORMAT_KEYS',
+
+    # Root fs option templates
+    'ROOT_OPTS_BTRFS_PATH',
+    'ROOT_OPTS_BTRFS_ID',
 
     # API Classes
     'BoomConfig', 'Selection',

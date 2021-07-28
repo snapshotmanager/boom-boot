@@ -816,10 +816,9 @@ class BoomProfile(object):
         key_exp = {
             FMT_LVM_ROOT_OPTS: [self.root_opts_lvm2],
             FMT_BTRFS_ROOT_OPTS: [self.root_opts_btrfs],
-            # "fix" this by adding root_opts_btrfs_{id,path}?
-            FMT_BTRFS_SUBVOLUME: ["subvol=%{btrfs_subvol_path}",
-                                  "subvolid=%{btrfs_subvol_id}"],
             FMT_ROOT_OPTS: [self.root_opts_lvm2, self.root_opts_btrfs],
+            FMT_BTRFS_SUBVOLUME: [ROOT_OPTS_BTRFS_PATH,
+                                  ROOT_OPTS_BTRFS_ID],
         }
 
         def _substitute_keys(word):
@@ -837,7 +836,7 @@ class BoomProfile(object):
             did_subst = False
             capture = (
                 "root=%{root_device}", "rd.lvm.lv=%{lvm_root_lv}",
-                "subvolid=%{btrfs_subvol_id}", "subvol=%{btrfs_subvol_path}"
+                ROOT_OPTS_BTRFS_ID, ROOT_OPTS_BTRFS_PATH
             )
 
             replace = ("rootflags=%{btrfs_subvolume}",)
