@@ -836,7 +836,8 @@ class BoomProfile(object):
             did_subst = False
             capture = (
                 "root=%{root_device}", "rd.lvm.lv=%{lvm_root_lv}",
-                ROOT_OPTS_BTRFS_ID, ROOT_OPTS_BTRFS_PATH
+                ROOT_OPTS_BTRFS_ID, ROOT_OPTS_BTRFS_PATH,
+                ROOT_OPTS_STRATIS,
             )
 
             replace = ("rootflags=%{btrfs_subvolume}",)
