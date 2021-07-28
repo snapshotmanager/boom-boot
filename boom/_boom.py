@@ -92,6 +92,8 @@ FORMAT_KEYS = [
     FMT_OS_VERSION, FMT_OS_VERSION_ID
 ]
 
+#: Root options for Stratis root file systems
+ROOT_OPTS_STRATIS = "stratis.rootfs.pool_uuid=%{stratis_pool_uuid}"
 
 # Root options for btrfs volumes
 
@@ -1071,6 +1073,7 @@ __all__ = [
     # Root fs option templates
     'ROOT_OPTS_BTRFS_PATH',
     'ROOT_OPTS_BTRFS_ID',
+    'ROOT_OPTS_STRATIS',
 
     # API Classes
     'BoomConfig', 'Selection',
