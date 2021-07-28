@@ -400,6 +400,9 @@ class BootParams(object):
     #: The ID of the BTRFS subvolume to be used as the root file system.
     _btrfs_subvol_id = None
 
+    #: The UUID of the Stratis pool containing the root_device.
+    _stratis_pool_uuid = None
+
     #: A list of additional kernel options to append
     _add_opts = []
 
@@ -426,11 +429,13 @@ class BootParams(object):
         bp_str = prefix
 
         fields = ["version", "root_device", "lvm_root_lv",
-                  "btrfs_subvol_path", "btrfs_subvol_id"]
+                  "btrfs_subvol_path", "btrfs_subvol_id",
+                  "stratis_pool_uuid"]
         params = (
             self.root_device,
             self.lvm_root_lv,
-            self.btrfs_subvol_path, self.btrfs_subvol_id
+            self.btrfs_subvol_path, self.btrfs_subvol_id,
+            self.stratis_pool_uuid
         )
 
         # arg
@@ -471,7 +476,7 @@ class BootParams(object):
 
     def __init__(self, version, root_device=None, lvm_root_lv=None,
                  btrfs_subvol_path=None, btrfs_subvol_id=None,
-                 add_opts=None, del_opts=None):
+                 stratis_pool_uuid=None, add_opts=None, del_opts=None):
         """Initialise a new ``BootParams`` object.
 
             The root device is specified via the ``root_device``
@@ -509,6 +514,8 @@ class BootParams(object):
             :param btrfs_subvol_id: The BTRFS subvolume ID containing
                                     the root file system, for systems
                                     using BTRFS.
+            :param stratis_pool_uuid: The UUID of the Stratis pool that
+                                      contains root_device.
             :param add_opts: A list containing additional kernel
                              options to be appended to the command line.
             :param del_opts: A list containing kernel options to be
@@ -538,6 +545,9 @@ class BootParams(object):
             self.btrfs_subvol_path = btrfs_subvol_path
         if btrfs_subvol_id:
             self.btrfs_subvol_id = btrfs_subvol_id
+
+        if stratis_pool_uuid:
+            self._stratis_pool_uuid = stratis_pool_uuid
 
         self.add_opts = add_opts or []
         self.del_opts = del_opts or []
@@ -612,6 +622,23 @@ class BootParams(object):
         """
         self.generation += 1
         self._btrfs_subvol_id = value
+
+    @property
+    def stratis_pool_uuid(self):
+        """Return this ``BootParams`` object's stratis_pool_uuid.
+        """
+        if self._stratis_pool_uuid:
+            return self._stratis_pool_uuid
+        if self.has_stratis():
+            return format_pool_uuid(symlink_to_pool_uuid(self.root_device))
+        return ""
+
+    @stratis_pool_uuid.setter
+    def stratis_pool_uuid(self, value):
+        """Override this ``BootParams`` object's stratis_pool_uuid.
+        """
+        self.generation += 1
+        self._stratis_pool_uuid = value
 
     @property
     def add_opts(self):
