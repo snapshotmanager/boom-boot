@@ -119,9 +119,20 @@ def format_pool_uuid(pool_uuid):
     return str(uuid)
 
 
+def is_stratis_device_path(dev_path):
+    prefix = "/dev/stratis/"
+    if not normpath(dev_path).startswith(prefix):
+        return False
+    try:
+        pool_uuid = symlink_to_pool_uuid(dev_path)
+    except (dbus.DBusException, IndexError):
+        return False
+    return True
+
+
 __all__ = [
     "symlink_to_pool_uuid", "pool_name_to_pool_uuid",
-    "format_pool_uuid"
+    "format_pool_uuid", "is_stratis_device_path"
 ]
 
 # vim: set et ts=4 sw=4 :
