@@ -807,6 +807,7 @@ class BoomProfile(object):
             FMT_LVM_ROOT_LV: regex_all,
             FMT_BTRFS_SUBVOL_ID: regex_num,
             FMT_BTRFS_SUBVOL_PATH: regex_all,
+            FMT_STRATIS_POOL_UUID: regex_all,
             FMT_ROOT_DEVICE: regex_all,
             FMT_KERNEL: regex_all,
             FMT_INITRAMFS: regex_all
@@ -816,9 +817,14 @@ class BoomProfile(object):
         key_exp = {
             FMT_LVM_ROOT_OPTS: [self.root_opts_lvm2],
             FMT_BTRFS_ROOT_OPTS: [self.root_opts_btrfs],
-            FMT_ROOT_OPTS: [self.root_opts_lvm2, self.root_opts_btrfs],
             FMT_BTRFS_SUBVOLUME: [ROOT_OPTS_BTRFS_PATH,
                                   ROOT_OPTS_BTRFS_ID],
+            FMT_STRATIS_ROOT_OPTS: ROOT_OPTS_STRATIS,
+            FMT_ROOT_OPTS: [
+                self.root_opts_lvm2,
+                self.root_opts_btrfs,
+                ROOT_OPTS_STRATIS
+            ],
         }
 
         def _substitute_keys(word):
