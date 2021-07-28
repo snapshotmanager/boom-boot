@@ -1807,6 +1807,8 @@ class BootEntry(object):
                                   {BP_ATTR: "btrfs_subvol_path", NEEDS: "bp",
                                    PRED_FN: [mkpred(bp, "has_btrfs")],
                                    VAL_FMT: "subvol=%s"}],
+            FMT_STRATIS_POOL_UUID: [{BP_ATTR: "stratis_pool_uuid", NEEDS: "bp",
+                                     PRED_FN: [mkpred(bp, "has_stratis")]}],
             FMT_ROOT_DEVICE: [{BP_ATTR: "root_device", NEEDS: "bp"}],
             FMT_ROOT_OPTS: [{BE_ATTR: "root_opts", NEEDS: "bp"}],
             FMT_KERNEL: [{BE_ATTR: "linux", NEEDS: "bp"}],
