@@ -42,6 +42,7 @@ from __future__ import print_function
 from boom import *
 from boom.osprofile import *
 from boom.hostprofile import find_host_profiles
+from boom.stratis import *
 
 from os.path import basename, exists as path_exists, join as path_join
 from subprocess import Popen, PIPE
@@ -655,6 +656,18 @@ class BootParams(object):
             :rtype: bool
         """
         return self.lvm_root_lv is not None and len(self.lvm_root_lv)
+
+    def has_stratis(self):
+        """Return ``True`` if this BootParams object is configured to
+            use a Stratis root file system.
+
+            :returns: ``True`` if Stratis is in use, or ``False``
+                      otherwise.
+            :rtype: bool
+        """
+        if self.root_device is None:
+            return False
+        return is_stratis_device_path(self.root_device)
 
     @classmethod
     def from_entry(cls, be, expand=False):
