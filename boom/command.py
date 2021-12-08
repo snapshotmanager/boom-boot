@@ -1093,6 +1093,7 @@ def _uname_heuristic(name, version_id):
         "Red Hat Enterprise Linux": el_uname,
         "Red Hat Enterprise Linux Server": el_uname,
         "Red Hat Enterprise Linux Workstation": el_uname,
+        "Fedora Linux": fc_uname,
         "Fedora": fc_uname
     }
 
