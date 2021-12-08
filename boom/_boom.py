@@ -570,13 +570,10 @@ def parse_btrfs_subvol(subvol):
     if not subvol:
         return None
 
-    subvol_id = None
-    try:
+    if subvol.isnumeric():
         subvol_id = int(subvol)
         subvol = str(subvol_id)
-    except ValueError:
-        if not subvol.startswith('/'):
-            raise ValueError("Unrecognised BTRFS subvolume: %s" % subvol)
+
     return subvol
 
 
