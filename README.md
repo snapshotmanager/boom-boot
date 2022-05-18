@@ -1,4 +1,4 @@
-![Build Status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+![Boom CI](https://github.com/snapshotmanager/boom/actions/workflows/default.yml/badge.svg)
 # Boom
 
 Boom is a *boot manager* for Linux systems using boot loaders that
