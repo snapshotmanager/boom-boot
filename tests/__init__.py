@@ -209,11 +209,14 @@ def have_lvm():
     """Return ``True`` if the test suite is running on a system with
         at least one logical volume, or ``False`` otherwise.
     """
-    p = Popen(["lvs", "--noheadings", "-oname"], stdin=None, stdout=PIPE,
-              stderr=None, close_fds=True)
-    out = p.communicate()[0]
-    if len(out.splitlines()):
-        return True
+    try:
+        p = Popen(["lvs", "--noheadings", "-oname"], stdin=None, stdout=PIPE,
+                  stderr=None, close_fds=True)
+        out = p.communicate()[0]
+        if len(out.splitlines()):
+            return True
+    except:
+        pass
     return False
 
 
