@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/snapshotmanager/boom.svg?branch=main)](https://travis-ci.org/snapshotmanager/boom)
+![Build Status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
 # Boom
 
 Boom is a *boot manager* for Linux systems using boot loaders that
