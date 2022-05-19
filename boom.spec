@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.3
+Version:	1.4
 Release:	1%{?dist}
 Summary:	%{summary}
 
@@ -132,6 +132,45 @@ rm doc/conf.py
 
 
 %changelog
+* Thu May 19 2022 Bryn M. Reeves <bmr@redhat.com> = 1.4
+- Fix boom.spec ChangeLog date
+- Drop Grub2 integration scripts and defaults file
+- Simplify bootloader integration checks
+- Add stratis_tests.py
+- Fix workflow name in CI status badge URL
+- Update build status badge in README.md
+- Ensure have_lvm() returns False if lvs does not exist
+- Rewrite .travis.yml CI checks as GHA
+- Fix parsing of btrfs subvolumes
+- Fix uname heuristic for Fedora >=35
+- Generate Stratis syntax in BootEntry.root_opts()
+- Add Stratis format keys to make_format_regexes()
+- Add FMT_STRATIS_POOL_UUID to BootEntry string formatting table
+- Add ROOT_OPTS_STRATIS template
+- Add stratis_pool_uuid property to BootParams
+- Add BootParams.has_stratis()
+- Add is_stratis_device_path()
+- Update travis configuration for DBus
+- Add stratis sub-module
+- Add debug mask for boom.stratis
+- Add FMT_STRATIS_ROOT_OPTS
+- Add FMT_STRATIS_POOL_UUID format specifier
+- Add constants for btrfs path and ID volume syntax
+- Add constants for btrfs path and ID volume syntax
+- Fix missing line break in HostProfile.__str__()
+- Fix test_match_host_profile boot_id
+- Remove BOOM_ENTRY_OPTIONS hack from BootEntry.__from_data()
+- Sort legacy boot entries by (version, title)
+- Fix typo when initialising BootEntry with explicit BootParams
+- Change references to "master" locations to "main" locations
+- Rename toctree document to "main_doc"
+- Remove references to 'master' branch from README.md
+- Fix optional BLS key to command line argument decoding
+- Fix invalid date string in boom.spec
+- Fix docstring typo ('or``OsError``')
+- Add new submodules to README.md
+- Fix docstring typo ('objecct')
+
 * Thu Jan 28 2021 Bryn M. Reeves <bmr@redhat.com> = 1.3
 - Check for duplicates consistently in the clone and edit commands
 - Apply correct command line precedence to --add-opts and --del-opts
