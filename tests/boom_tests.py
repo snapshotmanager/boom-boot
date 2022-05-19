@@ -189,14 +189,9 @@ class BoomTests(unittest.TestCase):
             boom.set_boom_config(Qux())
 
     def test_parse_btrfs_subvol(self):
-        self.assertEqual("23", boom.parse_btrfs_subvol("23"))
-        self.assertEqual("/svol", boom.parse_btrfs_subvol("/svol"))
-        self.assertEqual(None, boom.parse_btrfs_subvol(None))
-
-    def test_parse_btrfs_subvol_bad_subvol(self):
-        with self.assertRaises(ValueError) as cm:
-            boom.parse_btrfs_subvol("foo23foo")
-            boom.set_boom_path("loader")
+        self.assertEqual((None, "23"), boom.parse_btrfs_subvol("23"))
+        self.assertEqual(("/svol", None), boom.parse_btrfs_subvol("/svol"))
+        self.assertEqual((None, None), boom.parse_btrfs_subvol(None))
 
     def test_Selection_from_cmd_args_subvol_id(self):
         cmd_args = MockArgs()

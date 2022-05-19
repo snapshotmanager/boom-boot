@@ -495,13 +495,17 @@ def parse_btrfs_subvol(subvol):
         :raises: ValueError if no valid subvolume was found
     """
     if not subvol:
-        return None
+        return (None, None)
 
+    subvol_path = None
+    subvol_id = None
     if subvol.isnumeric():
         subvol_id = int(subvol)
-        subvol = str(subvol_id)
+        subvol_id = str(subvol_id)
+    else:
+        subvol_path = subvol
 
-    return subvol
+    return (subvol_path, subvol_id)
 
 
 #
@@ -717,23 +721,15 @@ class Selection(object):
             :returns: A new Selection instance
             :rtype: Selection
         """
-        subvol = parse_btrfs_subvol(args.btrfs_subvolume)
-        if subvol and subvol.startswith('/'):
-            btrfs_subvol_path = subvol
-            btrfs_subvol_id = None
-        elif subvol:
-            btrfs_subvol_id = subvol
-            btrfs_subvol_path = None
-        else:
-            btrfs_subvol_id = btrfs_subvol_path = None
+        (subvol_path, subvol_id) = parse_btrfs_subvol(args.btrfs_subvolume)
 
         s = Selection(boot_id=args.boot_id, title=args.title,
                       version=args.version, machine_id=args.machine_id,
                       linux=args.linux, initrd=args.initrd, efi=args.efi,
                       root_device=args.root_device,
                       lvm_root_lv=args.root_lv,
-                      btrfs_subvol_path=btrfs_subvol_path,
-                      btrfs_subvol_id=btrfs_subvol_id,
+                      btrfs_subvol_path=subvol_path,
+                      btrfs_subvol_id=subvol_id,
                       os_id=args.profile, os_name=args.name,
                       os_short_name=args.short_name,
                       os_version=args.os_version,

@@ -74,20 +74,6 @@ class CommandHelperTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             boom.command._int_if_val(val)
 
-    def test_subvol_from_arg_subvol(self):
-        import boom.command
-        xtuple = ("/svol", None)
-        self.assertEqual(boom.command._subvol_from_arg("/svol"), xtuple)
-
-    def test_subvol_from_arg_subvolid(self):
-        import boom.command
-        xtuple = (None, "23")
-        self.assertEqual(boom.command._subvol_from_arg("23"), xtuple)
-
-    def test_subvol_from_arg_none(self):
-        import boom.command
-        self.assertEqual(boom.command._subvol_from_arg(None), (None, None))
-
     def test_str_indent(self):
         import boom.command
         instr = "1\n2\n3\n4"

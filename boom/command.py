@@ -384,30 +384,6 @@ def _get_machine_id():
     return machine_id
 
 
-def _subvol_from_arg(subvol):
-    """Parse a BTRFS subvolume from a string argument.
-
-        Parse a BTRFS subvolume path or identifier from a command line
-        argument string. Numeric values are assumed to be a subvolume ID
-        and values beginning with a '/' character are assumed to be a
-        subvolume path.
-
-        :param subvol: A subvolume path or ID string
-        :returns: (path, id) tuple or (None, None) if neither is found
-        :rtype: (str, str)
-    """
-    if not subvol:
-        return (None, None)
-    subvol = parse_btrfs_subvol(subvol)
-    if subvol.startswith('/'):
-        btrfs_subvol_path = subvol
-        btrfs_subvol_id = None
-    else:
-        btrfs_subvol_path = None
-        btrfs_subvol_id = subvol
-    return (btrfs_subvol_path, btrfs_subvol_id)
-
-
 def _str_indent(string, indent):
     """Indent all lines of a multi-line string.
 
@@ -1968,7 +1944,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
 
     lvm_root_lv = cmd_args.root_lv if cmd_args.root_lv else None
     subvol = cmd_args.btrfs_subvolume
-    (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
+    (subvol_path, subvol_id) = parse_btrfs_subvol(subvol)
 
     no_dev = cmd_args.no_dev
 
@@ -1997,8 +1973,8 @@ def _create_cmd(cmd_args, select, opts, identifier):
     try:
         be = create_entry(title, version, machine_id,
                           root_device, lvm_root_lv=lvm_root_lv,
-                          btrfs_subvol_path=btrfs_subvol_path,
-                          btrfs_subvol_id=btrfs_subvol_id, profile=profile,
+                          btrfs_subvol_path=subvol_path,
+                          btrfs_subvol_id=subvol_id, profile=profile,
                           add_opts=add_opts, del_opts=del_opts,
                           architecture=arch, write=False,
                           expand=cmd_args.expand_variables,
@@ -2093,7 +2069,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
     root_device = cmd_args.root_device
     lvm_root_lv = cmd_args.root_lv
     subvol = cmd_args.btrfs_subvolume
-    (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
+    (subvol_path, subvol_id) = parse_btrfs_subvol(subvol)
 
     # Discard all selection criteria but boot_id.
     select = Selection(boot_id=select.boot_id)
@@ -2119,8 +2095,8 @@ def _clone_cmd(cmd_args, select, opts, identifier):
         be = clone_entry(select, title=title, version=version,
                          machine_id=machine_id, root_device=root_device,
                          lvm_root_lv=lvm_root_lv,
-                         btrfs_subvol_path=btrfs_subvol_path,
-                         btrfs_subvol_id=btrfs_subvol_id, profile=profile,
+                         btrfs_subvol_path=subvol_path,
+                         btrfs_subvol_id=subvol_id, profile=profile,
                          add_opts=add_opts, del_opts=del_opts,
                          architecture=arch, expand=cmd_args.expand_variables,
                          allow_no_dev=cmd_args.no_dev, images=images)
@@ -2267,7 +2243,7 @@ def _edit_cmd(cmd_args, select, opts, identifier):
     root_device = cmd_args.root_device
     lvm_root_lv = cmd_args.root_lv
     subvol = cmd_args.btrfs_subvolume
-    (btrfs_subvol_path, btrfs_subvol_id) = _subvol_from_arg(subvol)
+    (subvol_path, subvol_id) = parse_btrfs_subvol(subvol)
 
     # Discard all selection criteria but boot_id.
     select = Selection(boot_id=select.boot_id)
@@ -2291,8 +2267,8 @@ def _edit_cmd(cmd_args, select, opts, identifier):
         be = edit_entry(selection=select, title=title, version=version,
                         machine_id=machine_id, root_device=root_device,
                         lvm_root_lv=lvm_root_lv,
-                        btrfs_subvol_path=btrfs_subvol_path,
-                        btrfs_subvol_id=btrfs_subvol_id, profile=profile,
+                        btrfs_subvol_path=subvol_path,
+                        btrfs_subvol_id=subvol_id, profile=profile,
                         add_opts=add_opts, del_opts=del_opts,
                         architecture=arch, expand=cmd_args.expand_variables)
     except ValueError as e:
