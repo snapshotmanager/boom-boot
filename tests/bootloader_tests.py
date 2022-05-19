@@ -1171,34 +1171,10 @@ class BootLoaderTestsWithData(unittest.TestCase):
 
 class BootLoaderTestsBoomOn(BootLoaderTestsWithData):
     # Boot config with boom disabled
-    bootloader_config = "boom_on"
+    bootloader_config = "default"
 
     def test_check_bootloader(self):
         self.bootloader_config_check(True)
-
-
-class BootLoaderTestsBoomOff(BootLoaderTestsWithData):
-    # Boot config with boom disabled
-    bootloader_config = "boom_off"
-
-    def test_check_bootloader(self):
-        self.bootloader_config_check(True)
-
-
-class BootLoaderTestsNoBoom(BootLoaderTestsWithData):
-    # Boot config with no boom configuration
-    bootloader_config = "no_boom"
-
-    def test_check_bootloader(self):
-        self.bootloader_config_check(False)
-
-
-class BootLoaderTestsNoGrubD(BootLoaderTestsWithData):
-    # Boot config with no boom configuration
-    bootloader_config = "no_grub_d"
-
-    def test_check_bootloader(self):
-        self.bootloader_config_check(False)
 
 
 # vim: set et ts=4 sw=4 :
