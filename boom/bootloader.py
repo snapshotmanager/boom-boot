@@ -224,10 +224,6 @@ def boom_entries_path():
 #: Private constants for Grub2 integration checks
 #: Paths outside /boot are referenced relative to /boot.
 __grub_cfg = "grub2/grub.cfg"
-__etc_grub_d = "../etc/grub.d"
-__boom_grub_d = "42_boom"
-__etc_default = "../etc/default"
-__boom_defaults = "boom"
 
 
 def check_bootloader():
@@ -242,33 +238,6 @@ def check_bootloader():
         _log_warn("No Grub2 configuration file found")
         return False
 
-    boom_grub_d = path_join(boot_path, __etc_grub_d, __boom_grub_d)
-    if not path_exists(boom_grub_d):
-        _log_warn("Boom grub2 script missing from '%s'" % __etc_grub_d)
-        return False
-
-    defaults_file = path_join(boot_path, __etc_default, __boom_defaults)
-    if not path_exists(defaults_file):
-        _log_warn("Boom configuration file missing from '%s'" % defaults_file)
-        return False
-
-    def is_yes(val):
-        return val == "y" or val == "yes"
-
-    submenu_enabled = False
-    with open(defaults_file, "r") as dfile:
-        for line in dfile:
-            (name, value) = parse_name_value(line)
-            if name == "BOOM_ENABLE_GRUB" and not is_yes(value):
-                _log_warn("Boom grub2 integration is disabled in '%s'" %
-                          defaults_file)
-            if name == "BOOM_USE_SUBMENU" and is_yes(value):
-                _log_info("Boom grub2 submenu support enabled")
-                submenu_enabled = True
-            if name == "BOOM_SUBMENU_NAME" and submenu_enabled:
-                _log_info("Boom grub2 submenu name is '%s'" % value)
-
-    found_boom_grub = False
     found_bls = False
     blscfg = "blscfg"
     with open(grub_cfg) as gfile:
@@ -276,11 +245,8 @@ def check_bootloader():
             if blscfg in line:
                 _log_info("Found BLS import statement in '%s'" % grub_cfg)
                 found_bls = True
-            if "BEGIN" in line and __boom_grub_d in line:
-                _log_info("Found Boom Grub2 integration in '%s'" % grub_cfg)
-                found_boom_grub = True
 
-    return found_boom_grub or found_bls
+    return found_bls
 
 
 class BoomRootDeviceError(BoomError):
