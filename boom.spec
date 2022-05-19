@@ -96,12 +96,6 @@ rm -r doc/_build
 %install
 %py3_install
 
-# Install Grub2 integration scripts
-mkdir -p ${RPM_BUILD_ROOT}/etc/grub.d
-mkdir -p ${RPM_BUILD_ROOT}/etc/default
-install -m 755 etc/grub.d/42_boom ${RPM_BUILD_ROOT}/etc/grub.d
-install -m 644 etc/default/boom ${RPM_BUILD_ROOT}/etc/default
-
 # Make configuration directories
 # mode 0700 - in line with /boot/grub2 directory:
 install -d -m 700 ${RPM_BUILD_ROOT}/boot/boom/profiles
