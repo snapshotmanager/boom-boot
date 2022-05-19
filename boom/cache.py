@@ -22,7 +22,7 @@ from boom.bootloader import *
 
 from hashlib import sha1
 from os import chmod, chown, fdatasync, listdir, stat, unlink
-from stat import S_ISREG, ST_MODE, ST_UID, ST_GID, ST_MTIME
+from stat import S_ISREG, ST_MODE, ST_UID, ST_GID, ST_MTIME, filemode
 from os.path import (
     join as path_join, exists as path_exists, sep as path_sep,
     basename, dirname
@@ -593,7 +593,7 @@ class CacheEntry(object):
         return fmt % (
             self.path,
             self.disp_img_id,
-            boom_filemode(self.mode),
+            filemode(self.mode),
             self.uid, self.gid,
             self.timestamp
         )

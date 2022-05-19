@@ -38,6 +38,7 @@ from boom.cache import *
 from os import environ, uname, getcwd
 from os.path import basename, exists as path_exists, isabs, join, sep
 from argparse import ArgumentParser
+from stat import filemode
 import platform
 import logging
 
@@ -335,7 +336,7 @@ _cache_fields = [
         REP_STR, lambda f, d: f.report_str(d.path)),
     BoomFieldType(
         BR_CACHE, "mode", "Mode", "Path mode", 8,
-        REP_STR, lambda f, d: f.report_str(boom_filemode(d.mode))),
+        REP_STR, lambda f, d: f.report_str(filemode(d.mode))),
     BoomFieldType(
         BR_CACHE, "uid", "User", "User ID", 5,
         REP_NUM, lambda f, d: f.report_num(d.uid)),
