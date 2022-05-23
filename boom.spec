@@ -1,7 +1,7 @@
 %global summary A set of libraries and tools for managing boot loader entries
 %global sphinx_docs 1
 
-Name:		boom
+Name:		boom-boot
 Version:	1.3
 Release:	1%{?dist}
 Summary:	%{summary}
@@ -13,14 +13,18 @@ Source0:	boom-%{version}.tar.gz
 
 BuildArch:	noarch
 
+BuildRequires:  make
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-devel
 %if 0%{?sphinx_docs}
+BuildRequires:  python3-dbus
 BuildRequires:	python3-sphinx
 %endif
 
 Requires: python3-boom = %{version}-%{release}
 Requires: %{name}-conf = %{version}-%{release}
+
+Obsoletes: boom-grub2 <= 1.3
 
 %package -n python3-boom
 Summary: %{summary}
@@ -36,10 +40,6 @@ Conflicts: boom
 
 %package conf
 Summary: %{summary}
-
-%package grub2
-Summary: %{summary}
-Supplements: (grub2 and boom-boot = %{version}-%{release})
 
 %description
 Boom is a boot manager for Linux systems using boot loaders that support
@@ -68,16 +68,6 @@ systemd-boot project, or Grub2 with the BLS patch (Red Hat Grub2 builds
 include this support in both Red Hat Enterprise Linux 7 and Fedora).
 
 This package provides configuration files for boom.
-
-%description grub2
-Boom is a boot manager for Linux systems using boot loaders that support
-the BootLoader Specification for boot entry configuration.
-
-Boom requires a BLS compatible boot loader to function: either the
-systemd-boot project, or Grub2 with the BLS patch (Red Hat Grub2 builds
-include this support in both Red Hat Enterprise Linux 7 and Fedora).
-
-This package provides integration scripts for grub2 bootloader.
 
 %prep
 %setup -q -n boom-%{version}
@@ -139,12 +129,6 @@ rm doc/conf.py
 %dir /boot/boom/hosts
 %dir /boot/boom/cache
 %dir /boot/loader/entries
-
-%files grub2
-%license COPYING
-%doc README.md
-%{_sysconfdir}/grub.d/42_boom
-%config(noreplace) %{_sysconfdir}/default/boom
 
 
 %changelog
