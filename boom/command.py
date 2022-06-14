@@ -1116,9 +1116,11 @@ def _default_optional_keys(osp):
     """
     all_optional_keys = "grub_users grub_arg grub_class id"
     _default_optional_keys = [
+        "Red Hat Enterprise Linux",
         "Red Hat Enterprise Linux Server",
         "Red Hat Enterprise Linux Workstation",
         "CentOS Linux",
+        "Fedora Linux",
         "Fedora"
     ]
     if osp.os_name in _default_optional_keys:
