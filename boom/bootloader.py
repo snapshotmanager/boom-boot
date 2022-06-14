@@ -1484,6 +1484,7 @@ class BootEntry(object):
 
         entry_basename = basename(entry_file)
         _log_debug("Loading BootEntry from '%s'" % entry_basename)
+        self._last_path = entry_file
 
         with open(entry_file, "r") as ef:
             for line in ef:
@@ -1536,7 +1537,6 @@ class BootEntry(object):
                           entry_basename)
                 self.read_only = True
 
-        self._last_path = entry_file
         self._unwritten = False
 
     def __init__(self, title=None, machine_id=None, osprofile=None,
