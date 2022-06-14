@@ -720,8 +720,7 @@ class BootParams(object):
             # The root_device key is handled specially since it is required
             # for a valid BootEntry.
             if name == 'root_device' and not value:
-                _log_warn("Entry with boot_id=%s has no root_device"
-                          % be.boot_id)
+                _log_warn("No root_device for entry at %s" % be._last_path)
                 setattr(bp, name, "")
 
         def is_add(opt):

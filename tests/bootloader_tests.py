@@ -158,6 +158,7 @@ class MockBootEntry(object):
     expand_options = "root=/dev/mapper/rhel-root ro rhgb quiet"
     _osp = None
     _entry_data = {}
+    _last_path = "/some/path/to/somewhere"
 
 
 class BootEntryBasicTests(unittest.TestCase):
