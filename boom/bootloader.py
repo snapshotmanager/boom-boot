@@ -2445,6 +2445,10 @@ class BootEntry(object):
             :raises: ``OsError`` if an error occurs removing the file or
                      ``ValueError`` if the entry does not exist.
         """
+        if self.read_only:
+            raise ValueError("Cannot delete read-only boot "
+                             "entry: %s" % self._last_path)
+
         if not path_exists(self._entry_path):
             raise ValueError("Entry does not exist: %s" % self._entry_path)
         try:
