@@ -189,7 +189,7 @@ class BootEntryBasicTests(unittest.TestCase):
         boom_sandbox = join(SANDBOX_PATH, "boot/boom")
         loader_sandbox = join(SANDBOX_PATH, "boot/loader")
 
-        # Initialise sandbox from master
+        # Initialise sandbox from main
         makedirs(boot_sandbox)
         shutil.copytree(self.boom_path, boom_sandbox)
         shutil.copytree(self.loader_path, loader_sandbox)
@@ -375,7 +375,7 @@ class BootEntryTests(unittest.TestCase):
         boom_sandbox = join(SANDBOX_PATH, "boot/boom")
         loader_sandbox = join(SANDBOX_PATH, "boot/loader")
 
-        # Initialise sandbox from master
+        # Initialise sandbox from main
         makedirs(boot_sandbox)
         shutil.copytree(self.boom_path, boom_sandbox)
         shutil.copytree(self.loader_path, loader_sandbox)
@@ -992,7 +992,7 @@ class BootLoaderTests(unittest.TestCase):
         boom_sandbox = join(SANDBOX_PATH, "boot/boom")
         loader_sandbox = join(SANDBOX_PATH, "boot/loader")
 
-        # Initialise sandbox from master
+        # Initialise sandbox from main
         makedirs(boot_sandbox)
         shutil.copytree(self.boom_path, boom_sandbox)
         shutil.copytree(self.loader_path, loader_sandbox)

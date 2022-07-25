@@ -296,7 +296,7 @@ class CommandTests(unittest.TestCase):
         grub_sandbox = join(SANDBOX_PATH, "boot/grub")
         loader_sandbox = join(SANDBOX_PATH, "boot/loader")
 
-        # Initialise sandbox from master
+        # Initialise sandbox from main
         makedirs(boot_sandbox)
         shutil.copytree(self.boom_path, boom_sandbox)
         shutil.copytree(self.loader_path, loader_sandbox)
