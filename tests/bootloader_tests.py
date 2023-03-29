@@ -1140,42 +1140,4 @@ class BootLoaderTestsCheckRootNonblock(BootLoaderTestsCheckRoot):
             boom.bootloader.check_root_device("tests/dev/null")
 
 
-class BootLoaderTestsWithData(unittest.TestCase):
-    """Base class for BootLoaderTests that require specific on-disk
-        test fixture data.
-
-        Each subclass sets ``bootloader_data`` to the subdirectory of
-        the ``bootloader_tests`` directory that contains the correct
-        set of configuration files.
-    """
-    # Set by subclass
-    bootloader_config = None
-
-    # Common to all subclasses
-    configs = join(BOOT_ROOT_TEST, "bootloader_configs")
-
-    def setUp(self):
-        rm_sandbox()
-        if not self.bootloader_config:
-            raise ValueError("bootloader_config is undefined")
-        config_path = join(self.configs, self.bootloader_config)
-        shutil.copytree(config_path, join(SANDBOX_PATH))
-        boom.set_boot_path(join(BOOT_ROOT_TEST, "sandbox/boot"))
-
-    def tearDown(self):
-        rm_sandbox()
-        reset_boom_paths()
-
-    def bootloader_config_check(self, value):
-        self.assertEqual(check_bootloader(), value)
-
-
-class BootLoaderTestsBoomOn(BootLoaderTestsWithData):
-    # Boot config with boom disabled
-    bootloader_config = "default"
-
-    def test_check_bootloader(self):
-        self.bootloader_config_check(True)
-
-
 # vim: set et ts=4 sw=4 :

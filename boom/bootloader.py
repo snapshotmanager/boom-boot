@@ -222,34 +222,6 @@ def boom_entries_path():
     return path_join(get_boot_path(), ENTRIES_PATH)
 
 
-#: Private constants for Grub2 integration checks
-#: Paths outside /boot are referenced relative to /boot.
-__grub_cfg = "grub2/grub.cfg"
-
-
-def check_bootloader():
-    """Check the configuration state of the system bootloader to ensure
-        that Boom integration is enabled. Currently only Grub2 with the
-        Red Hat BLS patches is supported.
-    """
-    boot_path = get_boot_path()
-
-    grub_cfg = path_join(boot_path, __grub_cfg)
-    if not path_exists(grub_cfg):
-        _log_warn("No Grub2 configuration file found")
-        return False
-
-    found_bls = False
-    blscfg = "blscfg"
-    with open(grub_cfg) as gfile:
-        for line in gfile:
-            if blscfg in line:
-                _log_info("Found BLS import statement in '%s'" % grub_cfg)
-                found_bls = True
-
-    return found_bls
-
-
 class BoomRootDeviceError(BoomError):
     """Boom exception indicating an invalid root device.
     """
@@ -2510,9 +2482,6 @@ __all__ = [
 
     # Formatting
     'min_boot_id_width',
-
-    # Bootloader integration check
-    'check_bootloader'
 ]
 
 # vim: set et ts=4 sw=4 :
