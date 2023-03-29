@@ -18,6 +18,7 @@ jobs:
           python3-coverage
           python3-nose
           python-unversioned-command
+          python3-toml
           bandit
       - name: Install Boom
         run: >
