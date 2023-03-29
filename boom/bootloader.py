@@ -1832,7 +1832,8 @@ class BootEntry(object):
         # the inclusion of the ``boot_id``.
         #
         # Other callers should always rely on the standard methods.
-        boot_id = sha1(self.__str(no_boot_id=True).encode('utf-8')).hexdigest()
+        boot_id = sha1(self.__str(no_boot_id=True).encode('utf-8'),
+                       usedforsecurity=False).hexdigest()
         return boot_id
 
     def _entry_data_property(self, name):

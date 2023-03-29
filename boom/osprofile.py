@@ -1326,7 +1326,8 @@ class OsProfile(BoomProfile):
         """
         hashdata = (self.os_short_name + self.os_version + self.os_version_id)
 
-        digest = sha1(hashdata.encode('utf-8')).hexdigest()
+        digest = sha1(hashdata.encode('utf-8'),
+                      usedforsecurity=False).hexdigest()
         self._profile_data[BOOM_OS_ID] = digest
 
     def _append_profile(self):

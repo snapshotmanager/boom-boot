@@ -150,7 +150,7 @@ def _image_id_from_file(img_file):
         :returns: The image identifier for ``img_file``.
         :rtype: str
     """
-    digest = sha1()
+    digest = sha1(usedforsecurity=False)
     while True:
         hashdata = img_file.read(_hash_size)
         if not hashdata:

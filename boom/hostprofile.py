@@ -527,7 +527,8 @@ class HostProfile(BoomProfile):
         """
         hashdata = (self.machine_id + self.label)
 
-        digest = sha1(hashdata.encode('utf-8')).hexdigest()
+        digest = sha1(hashdata.encode('utf-8'),
+                      usedforsecurity=False).hexdigest()
         self._profile_data[BOOM_HOST_ID] = digest
 
     def __set_os_profile(self):
