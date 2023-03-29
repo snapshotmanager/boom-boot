@@ -18,12 +18,16 @@ jobs:
           python3-coverage
           python3-nose
           python-unversioned-command
+          bandit
       - name: Install Boom
         run: >
           sudo python3 setup.py install
       - name: Check PyCodestyle
         run: >
           pycodestyle boom
+      - name: Run bandit
+        run: >
+          bandit -c bandit.toml -r boom
       - name: Run nosetests
         run: >
           nosetests -v --with-cover --cover-package=boom
