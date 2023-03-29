@@ -200,7 +200,8 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
         try:
             unlink(tmp_path)
         except Exception:
-            pass
+            _log_error("Error unlinking temporary path %s" %
+                       tmp_path)
         raise e
 
 
@@ -330,7 +331,8 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         try:
             unlink(tmp_path)
         except Exception:
-            pass
+            _log_error("Error unlinking temporary path %s" %
+                       tmp_path)
         raise e
 
 

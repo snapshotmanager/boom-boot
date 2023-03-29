@@ -1181,7 +1181,8 @@ class BoomProfile(object):
             try:
                 unlink(tmp_path)
             except Exception:
-                pass
+                _log_error("Error unlinking temporary path %s" %
+                           tmp_path)
             raise e
 
         _log_debug("Wrote %s (id=%s)'" % (ptype, profile_id))

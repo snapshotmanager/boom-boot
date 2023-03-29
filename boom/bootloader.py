@@ -2385,7 +2385,8 @@ class BootEntry(object):
             try:
                 unlink(tmp_path)
             except Exception:
-                pass
+                _log_error("Error unlinking temporary path %s" %
+                           tmp_path)
             raise e
 
         self._last_path = entry_path
