@@ -1337,7 +1337,7 @@ def clone_profile(selection=None, name=None, short_name=None, version=None,
         )
 
     osps = find_profiles(selection)
-    if not(osps):
+    if not osps:
         raise ValueError("No matching profile found: %s" % selection.os_id)
 
     if len(osps) > 1:
@@ -1629,7 +1629,7 @@ def clone_host(selection=None, machine_id=None, host_name=None, label=None,
         )
 
     hps = find_host_profiles(selection)
-    if not(hps):
+    if not hps:
         raise ValueError("No matching host profile found: %s" %
                          selection.host_id)
 
