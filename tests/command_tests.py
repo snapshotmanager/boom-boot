@@ -541,6 +541,7 @@ class CommandTests(unittest.TestCase):
         delete_entries(Selection(boot_id=be.boot_id))
         self.assertFalse(exists(be._entry_path))
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_create_add_opts_a_b_c(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
