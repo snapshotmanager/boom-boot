@@ -541,6 +541,20 @@ class CommandTests(unittest.TestCase):
         delete_entries(Selection(boot_id=be.boot_id))
         self.assertFalse(exists(be._entry_path))
 
+    def test_create_add_opts_a_b_c(self):
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id(test_os_id)
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", test_lv,
+                          lvm_root_lv=test_root_lv, profile=osp,
+                          add_opts="a b c")
+        boot_id = be.boot_id
+        be.write_entry()
+        drop_entries()
+        load_entries()
+        # Ensure boot_id of loaded entry matches original.
+        bes = find_entries(Selection(boot_id=boot_id))
+        self.assertTrue(bes)
+        self.assertEqual(boot_id, bes[0].boot_id)
 
     def test_delete_entries_no_matching_raises(self):
         with self.assertRaises(IndexError) as cm:
