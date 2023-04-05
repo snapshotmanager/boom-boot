@@ -44,11 +44,11 @@ _log_error = _log.error
 # Constants for the Stratisd DBus service
 
 #: The DBus name of the stratisd service
-_STRATISD_SERVICE = "org.storage.stratis2"
+_STRATISD_SERVICE = "org.storage.stratis3"
 #: The path to the stratisd service object
-_STRATISD_PATH = "/org/storage/stratis2"
+_STRATISD_PATH = "/org/storage/stratis3"
 #: The DBus name of the pool interface
-_POOL_IFACE = "org.storage.stratis2.pool"
+_POOL_IFACE = "org.storage.stratis3.pool.r0"
 #: The DBus timeout for stratisd in miliseconds
 _STRATISD_TIMEOUT = 120000
 
