@@ -1115,11 +1115,7 @@ def _os_profile_from_file(os_release, uname_pattern, profile_data=None):
 
         :param os_release: The os-release file to read
         :param uname_pattern: A replacement uname_pattern value
-        :param kernel_pattern: A replacement kernel_pattern value
-        :param initramfs_pattern: A replacement initramfs_pattern value
-        :param root_opts_lvm2: Replacement LVM2 root options
-        :param root_opts_btrfs: Replacement BTRFS root options
-        :param options: Replacement options string template
+        :param profile_data: Dictionary of profile key:value pairs
         :returns: A new OsProfile
         :rtype: OsProfile
     """
