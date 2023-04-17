@@ -3225,7 +3225,10 @@ def main(args):
     if cmd_args.config:
         set_boom_config_path(cmd_args.config)
 
-    bc = load_boom_config()
+    try:
+        bc = load_boom_config()
+    except ValueError as e:
+        _log_error("Could not load boom configuration: %s" % e)
 
     if not path_exists(get_boom_path()):
         _log_error("Configuration directory '%s' not found." %
