@@ -41,6 +41,7 @@ from argparse import ArgumentParser
 from stat import filemode
 import platform
 import logging
+import re
 
 #: The environment variable from which to take the location of the
 #: ``/boot`` file system.
@@ -1898,6 +1899,56 @@ def _set_optional_key_defaults(profile, cmd_args):
                 setattr(cmd_args, bls_key, optional_key_default(opt_key))
 
 
+def _lv_from_device_string(dev_path):
+    """Return an LVM2 vg/lv name from a /dev/mapper device path.
+    """
+    if dev_path.startswith("/dev/mapper"):
+        vg_lv_name = basename(dev_path)
+        vg_lv_name = re.sub(r"([^-])-([^-])", r"\1/\2", vg_lv_name)
+        vg_lv_name = re.sub(r"--", r"-", vg_lv_name)
+        return vg_lv_name
+    elif dev_path.startswith("/dev"):
+        try:
+            (dev, vg, lv) = dev_path.lstrip("/").split("/")
+        except ValueError:
+            return None
+        return join(vg, lv)
+    else:
+        return None
+
+
+def os_options_from_cmdline():
+    """Generate an os-options template from the running system.
+    """
+    options = ""
+    vg_lv_name = None
+    have_root = False
+    cmdline = open("/proc/cmdline").read().strip()
+    for word in cmdline.split():
+        if word.startswith("root="):
+            have_root = True
+            root_dev = word.split("=")[1]
+            vg_lv_name = _lv_from_device_string(root_dev)
+            options += "root=%{root_device} ro %{root_opts} "
+        elif word.startswith("rd.lvm.lv="):
+            if vg_lv_name:
+                if vg_lv_name in word:
+                    continue
+                else:
+                    options += word + " "
+        elif word.startswith("rootflags="):
+            continue
+        elif word == "ro":
+            continue
+        elif word.startswith("BOOT_IMAGE"):
+            continue
+        elif word.startswith("stratis.rootfs.pool_uuid"):
+            continue
+        else:
+            options += word + " "
+    return options.strip() if have_root else None
+
+
 def _create_cmd(cmd_args, select, opts, identifier):
     """Create entry command handler.
 
@@ -2337,6 +2388,11 @@ def _create_profile_cmd(cmd_args, select, opts, identifier):
             version_id = cmd_args.os_version_id
         release = None
 
+    if cmd_args.from_host and not cmd_args.os_options:
+        options = os_options_from_cmdline()
+    else:
+        options = cmd_args.os_options
+
     try:
         osp = create_profile(name, short_name, version, version_id,
                              uname_pattern=cmd_args.uname_pattern,
@@ -2344,7 +2400,7 @@ def _create_profile_cmd(cmd_args, select, opts, identifier):
                              initramfs_pattern=cmd_args.initramfs_pattern,
                              root_opts_lvm2=cmd_args.lvm_opts,
                              root_opts_btrfs=cmd_args.btrfs_opts,
-                             options=cmd_args.os_options,
+                             options=options,
                              optional_keys=cmd_args.optional_keys,
                              profile_file=release)
     except ValueError as e:
@@ -3327,7 +3383,7 @@ __all__ = [
 
     # OsProfile manipulation
     'create_profile', 'delete_profiles', 'clone_profile', 'edit_profile',
-    'list_profiles', 'print_profiles',
+    'list_profiles', 'print_profiles', 'os_options_from_cmdline',
 
     # HostProfile manipulation
     'create_host', 'delete_hosts', 'clone_host', 'edit_host',
