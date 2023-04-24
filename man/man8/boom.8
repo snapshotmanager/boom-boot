@@ -683,6 +683,11 @@ are: profile, entry, command, report.
 Specify an EFI application image for a boot entry.
 .
 .HP
+.BR -E | --expand-variables
+.br
+Expand bootloader variables in command output.
+.
+.HP
 .BR -H | --from-host | --fromhost
 .br
 When creating a new OS profile, use \fIos-release\fP data from the
@@ -1005,6 +1010,11 @@ Display boot entries matching selection criteria on standard out.
 
 Boot entries matching the criteria given on the command line are
 printed to the terminal in boot loader entry format.
+
+If \fB--expand-variables\fP is given then any bootloader
+environment variables in the output will be replaced with their
+current values, for example the $kernelopts variable that some
+distributions configure to store the kernel command line.
 .
 .P
 .B OS Profile Commands
