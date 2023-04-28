@@ -734,7 +734,10 @@ class BootParams(object):
                 templating operations.
             """
             # Ignore optional boot parameters
-            ignore_bp = ['rootflags', 'rd.lvm.lv', 'subvol', 'subvolid']
+            ignore_bp = [
+                    'rootflags', 'rd.lvm.lv', 'subvol', 'subvolid',
+                    'stratis.rootfs.pool_uuid'
+            ]
             opt_name = opt.split('=')[0]
             matched_opts = [k.split('=')[0] for k in matches.keys()]
             if opt_name not in matched_opts and opt_name not in ignore_bp:
