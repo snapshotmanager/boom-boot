@@ -1,20 +1,8 @@
-#!/usr/bin/env python
-from setuptools import setup
+"""
+Python packaging file for setup tools.
+"""
+import setuptools
 
-from boom import __version__ as boom_version
-
-setup(
-    name='boom',
-    version=boom_version,
-    description=("""The Boom Boot Manager."""),
-    author='Bryn M. Reeves',
-    author_email='bmr@redhat.com',
-    url='https://github.com/snapshotmanager/boom',
-    license="GPLv2",
-    test_suite="tests",
-    scripts=['bin/boom'],
-    packages=['boom'],
-)
-
+setuptools.setup()
 
 # vim: set et ts=4 sw=4 :
