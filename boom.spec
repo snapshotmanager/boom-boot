@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.4
+Version:	1.5
 Release:	1%{?dist}
 Summary:	%{summary}
 
@@ -132,6 +132,9 @@ rm doc/conf.py
 
 
 %changelog
+* Thu May 4 2023 Bryn M. Reeves <bmr@redhat.com> = 1.5.1
+- Bump release
+
 * Thu May 19 2022 Bryn M. Reeves <bmr@redhat.com> = 1.4
 - Fix boom.spec ChangeLog date
 - Drop Grub2 integration scripts and defaults file
