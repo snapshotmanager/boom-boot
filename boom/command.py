@@ -1923,7 +1923,8 @@ def os_options_from_cmdline():
     options = ""
     vg_lv_name = None
     have_root = False
-    cmdline = open("/proc/cmdline").read().strip()
+    with open("/proc/cmdline") as proc_cmdline:
+        cmdline = proc_cmdline.read().strip()
     for word in cmdline.split():
         if word.startswith("root="):
             have_root = True
