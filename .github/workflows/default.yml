@@ -16,7 +16,7 @@ jobs:
           python3-pycodestyle
           python3-sphinx
           python3-coverage
-          python3-nose
+          python3-pytest
           python-unversioned-command
           python3-toml
           bandit
@@ -29,6 +29,6 @@ jobs:
       - name: Run bandit
         run: >
           bandit -c bandit.toml -r boom
-      - name: Run nosetests
+      - name: Run test suite
         run: >
-          nosetests -v --with-cover --cover-package=boom
+          pytest -v
