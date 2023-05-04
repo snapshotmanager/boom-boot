@@ -39,11 +39,6 @@ is also provided in the ``MAP_KEY`` member).
 """
 from __future__ import print_function
 
-from boom import *
-from boom.osprofile import *
-from boom.hostprofile import find_host_profiles
-from boom.stratis import *
-
 from os.path import basename, exists as path_exists, join as path_join
 from subprocess import Popen, PIPE
 from tempfile import mkstemp
@@ -51,6 +46,11 @@ from os import listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
 from stat import S_ISBLK
 from hashlib import sha1
 import logging
+
+from boom import *
+from boom.osprofile import *
+from boom.hostprofile import find_host_profiles
+from boom.stratis import *
 import re
 
 #: The path to the BLS boot entries directory relative to /boot

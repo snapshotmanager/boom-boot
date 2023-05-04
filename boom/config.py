@@ -20,13 +20,13 @@ the values of configuration keys defined in the boom configuration file.
 """
 from __future__ import print_function
 
-from boom import *
-
 from os.path import dirname
 
 from os import fdopen, rename, chmod, fdatasync
 from tempfile import mkstemp
 import logging
+
+from boom import *
 
 try:
     # Python2

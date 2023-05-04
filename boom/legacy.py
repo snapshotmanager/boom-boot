@@ -20,15 +20,15 @@ all entries from the legacy configuration file.
 """
 from __future__ import print_function
 
-from boom import *
-from boom.bootloader import *
-
 from subprocess import Popen, PIPE
 from os.path import dirname, exists, isabs, join as path_join
 from os import chmod, dup, fdatasync, fdopen, rename, unlink
 from tempfile import mkstemp
 import logging
 import re
+
+from boom import *
+from boom.bootloader import *
 
 #: Format strings use to construct begin/end markers
 BOOM_LEGACY_BEGIN_FMT = "#--- BOOM_%s_BEGIN ---"

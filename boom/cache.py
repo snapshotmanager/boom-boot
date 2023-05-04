@@ -17,9 +17,6 @@ images required to load boom-defined boot entries.
 """
 from __future__ import print_function
 
-from boom import *
-from boom.bootloader import *
-
 from hashlib import sha1
 from os import chmod, chown, fdatasync, listdir, stat, unlink
 from stat import S_ISREG, ST_MODE, ST_UID, ST_GID, ST_MTIME, filemode
@@ -31,6 +28,9 @@ from json import load as json_load, dump as json_dump
 from errno import ENOENT
 import shutil
 import logging
+
+from boom import *
+from boom.bootloader import *
 
 # Module logging configuration
 _log = logging.getLogger(__name__)

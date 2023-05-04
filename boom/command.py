@@ -26,6 +26,14 @@ reports using the ``boom.report`` module.
 """
 from __future__ import print_function
 
+from os import environ, uname, getcwd
+from os.path import basename, exists as path_exists, isabs, join, sep
+from argparse import ArgumentParser
+from stat import filemode
+import platform
+import logging
+import re
+
 from boom import *
 from boom.osprofile import *
 from boom.report import *
@@ -34,14 +42,6 @@ from boom.hostprofile import *
 from boom.legacy import *
 from boom.config import *
 from boom.cache import *
-
-from os import environ, uname, getcwd
-from os.path import basename, exists as path_exists, isabs, join, sep
-from argparse import ArgumentParser
-from stat import filemode
-import platform
-import logging
-import re
 
 #: The environment variable from which to take the location of the
 #: ``/boot`` file system.

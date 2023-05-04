@@ -29,9 +29,10 @@ mapper reports.
 """
 from __future__ import print_function
 
-from boom import find_minimum_sha_prefix, BOOM_DEBUG_REPORT
 import logging
 import sys
+
+from boom import find_minimum_sha_prefix, BOOM_DEBUG_REPORT
 
 _log = logging.getLogger(__name__)
 _log.set_debug_mask(BOOM_DEBUG_REPORT)

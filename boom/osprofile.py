@@ -34,13 +34,14 @@ are suitable for display use and are used by default by the
 """
 from __future__ import print_function
 
-from boom import *
 from hashlib import sha1
 from tempfile import mkstemp
 from os.path import basename, join as path_join, exists as path_exists
 from os import fdopen, rename, chmod, unlink, fdatasync
 import logging
 import re
+
+from boom import *
 
 #: Boom profiles directory name.
 BOOM_PROFILES = "profiles"

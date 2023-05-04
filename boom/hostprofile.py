@@ -31,13 +31,13 @@ property names) are identical to those used by the ``OsProfile`` class.
 """
 from __future__ import print_function
 
-from boom import *
-from boom.osprofile import *
-
 from hashlib import sha1
 from os.path import join as path_join
 import logging
 import string
+
+from boom import *
+from boom.osprofile import *
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
