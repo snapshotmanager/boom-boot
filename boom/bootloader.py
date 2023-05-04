@@ -407,7 +407,7 @@ class BootParams(object):
             string. The string returned is in the form of a call to the
             ``BootParams`` constructor.
 
-            :returns: a machine readable string represenatation of this
+            :returns: a machine readable string representation of this
                       ``BootParams`` object.
         """
         return self.__str(quote=True, prefix="BootParams(", suffix=")")
@@ -1198,7 +1198,7 @@ class BootEntry(object):
 
             Return a copy of this ``BootEntry``'s values as a list.
 
-            :returns: the current list of ``BotoEntry`` values.
+            :returns: the current list of ``BootEntry`` values.
             :rtype: list
         """
         values = list(self._entry_data.values())
@@ -1259,7 +1259,7 @@ class BootEntry(object):
         self._unwritten = True
 
     def __os_id_from_comment(self, comment):
-        """Retrive OsProfile from BootEntry comment.
+        """Retrieve OsProfile from BootEntry comment.
 
             Attempt to set this BootEntry's OsProfile using a comment
             string stored in the entry file. The comment must be of the
@@ -1300,7 +1300,7 @@ class BootEntry(object):
             Attempt to guess the correct ``OsProfile`` to use with
             this ``BootEntry`` by probing each loaded ``OsProfile``
             in turn until a profile recognises the entry. If no match
-            is found the entrie's ``OsProfile`` is set to ``None``.
+            is found the entry's ``OsProfile`` is set to ``None``.
 
             Probing is only used in the case that a loaded entry has
             no embedded OsIdentifier string. All entries written by
@@ -1527,7 +1527,7 @@ class BootEntry(object):
 
             A ``BootParams`` object may be supplied using the
             ``boot_params`` keyword argument. The object will be used to
-            provide values for subsitution using the patterns defined by
+            provide values for substitution using the patterns defined by
             the configured ``OsProfile``.
 
             If ``entry_file`` is specified the ``BootEntry`` will be
@@ -1832,7 +1832,7 @@ class BootEntry(object):
         return True
 
     def expanded(self):
-        """Return a string represenatation of this ``BootEntry``, with
+        """Return a string representation of this ``BootEntry``, with
             any bootloader environment variables expanded to their
             current values.
 

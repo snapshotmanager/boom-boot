@@ -1081,7 +1081,7 @@ class BootLoaderTestsCheckRoot(unittest.TestCase):
         Device types in the del_devs list are currently ignored.
 
         Tests using this base class require root privileges in order
-        to manipulate device nodes in the test sanbox. These tests
+        to manipulate device nodes in the test sandbox. These tests
         are automatically skipped if the suite is run as a normal
         user.
     """

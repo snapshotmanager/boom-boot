@@ -2071,7 +2071,7 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(r, 0)
 
     def test__edit_profile_cmd(self):
-        """Test the _edit_profile_cmd() hander with default args.
+        """Test the _edit_profile_cmd() handler with default args.
         """
         args = MockArgs()
         args.profile = "d4439b7"

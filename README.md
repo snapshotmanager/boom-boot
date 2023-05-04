@@ -325,7 +325,7 @@ BootEntry.
 #### boom cache command
 
 The `boom cache` command gives information about the paths and
-images stored in the boom boot iamge cache. The `boom cache list`
+images stored in the boom boot image cache. The `boom cache list`
 command gives information on cache entries in a tabular report
 format similar to other `list` commands.
 
@@ -484,7 +484,7 @@ Created profile with os_id d4439b7:
   Options: "root=%{root_device} ro %{root_opts}"
 ```
 
-The `--uname-pattern` `OsProfile` property is an otional but recommended
+The `--uname-pattern` `OsProfile` property is an optional but recommended
 pattern (regular expression) that should match the UTS release (`uname`)
 strings reported by the operating system.
 
@@ -673,7 +673,7 @@ boot entries:
 ```
 
 ## Python API
-Boom also supports programatic use via a Python API. The API is flexible
+Boom also supports programmatic use via a Python API. The API is flexible
 and allows greater customisation than is possible using the command line
 tool.
 

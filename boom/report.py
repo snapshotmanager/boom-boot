@@ -446,7 +446,7 @@ class BoomReport(object):
             Display a list of valid fields for this ``BoomReport``.
 
             :param fields: The list of fields to display
-            :param display_field_types: A boolean controling whether
+            :param display_field_types: A boolean controlling whether
                                         field types (str, SHA, num)
                                         are included in help output
         """
@@ -837,7 +837,7 @@ class BoomReport(object):
                 each sort key defines its own sort order.
 
                 :param row_a: The first row to compare
-                :param row_b: The seconf row to compare
+                :param row_b: The second row to compare
             """
             for cnt in range(0, row_a._report._keys_count):
                 sfa = row_a._sort_fields[cnt]

@@ -49,7 +49,7 @@ _STRATISD_SERVICE = "org.storage.stratis3"
 _STRATISD_PATH = "/org/storage/stratis3"
 #: The DBus name of the pool interface
 _POOL_IFACE = "org.storage.stratis3.pool.r0"
-#: The DBus timeout for stratisd in miliseconds
+#: The DBus timeout for stratisd in milliseconds
 _STRATISD_TIMEOUT = 120000
 
 #: The DBus ObjectManager interface implemented by stratisd

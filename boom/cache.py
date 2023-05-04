@@ -174,7 +174,7 @@ def _image_id_from_path(img_path):
 def drop_cache():
     """Discard the in-memory cache state. Calling this function has
         no effect on the persistent cache state but will free all
-        in-memory represenatations and clear the cache index.
+        in-memory representations and clear the cache index.
     """
     global _index, _paths, _images
     _index = {}
