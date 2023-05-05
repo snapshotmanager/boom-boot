@@ -52,14 +52,14 @@ __grub1_device = None
 
 def _get_grub1_device(force=False):
     """Determine the current grub1 root device and return it as a
-        string. This function will attempt to use a cached value
-        from a previous call (to avoid shelling out to Grub a
-        second time), unless the ``force`` argument is ``True``.
+    string. This function will attempt to use a cached value
+    from a previous call (to avoid shelling out to Grub a
+    second time), unless the ``force`` argument is ``True``.
 
-        If no usable Grub1 environment is detected the function
-        raises the ``BoomLegacyFormatError`` exception.
+    If no usable Grub1 environment is detected the function
+    raises the ``BoomLegacyFormatError`` exception.
 
-        :param force: force the cache to be updated.
+    :param force: force the cache to be updated.
     """
     # Grub1 device cache
     global __grub1_device
@@ -77,11 +77,11 @@ def _get_grub1_device(force=False):
     try:
         _log_debug("Calling grub1 shell with '%s'" % find_cmd)
         p = Popen(grub_cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        out = p.communicate(input=bytes(find_cmd.encode('utf8')))
+        out = p.communicate(input=bytes(find_cmd.encode("utf8")))
     except OSError:
         raise BoomLegacyFormatError("Could not execute grub1 shell.")
 
-    for line in out[0].decode('utf8').splitlines():
+    for line in out[0].decode("utf8").splitlines():
         if re.match(find_rgx, line):
             __grub1_device = line.lstrip().rstrip()
             _log_debug("Set grub1 device to '%s'" % __grub1_device)
@@ -90,58 +90,56 @@ def _get_grub1_device(force=False):
 
 class BoomLegacyFormatError(BoomError):
     """Boom exception indicating an invalid or corrupt boom legacy
-        boot configuration, for example, missing begin or end marks
-        in the legacy bootloader configuration file, or an unknown
-        or invalid legacy bootloader type.
+    boot configuration, for example, missing begin or end marks
+    in the legacy bootloader configuration file, or an unknown
+    or invalid legacy bootloader type.
     """
+
     pass
 
 
 def find_legacy_loader(loader, cfg_path):
     """Look up a legacy loader format in the table of available formats
-        and return a tuple containing the format name, decorator class
-        and the configuration file path. If ``cfg_path`` is set it will
-        override the default file location for the format.
+    and return a tuple containing the format name, decorator class
+    and the configuration file path. If ``cfg_path`` is set it will
+    override the default file location for the format.
 
-        :param loader: the legacy bootloader format to operate on
-        :param cfg_path: the path to the legacy bootloader configuration
-                         file. If ``cfg_path`` is None the default path
-                         for the specified loader will be used.
-        :raises BoomLegacyFormatError: if the legacy configuration file
-                                       contains invalid boom entries or
-                                       the specified legacy format is
-                                       unknown or invalid.
-        :returns: (name, decorator, path) tuple
+    :param loader: the legacy bootloader format to operate on
+    :param cfg_path: the path to the legacy bootloader configuration
+                     file. If ``cfg_path`` is None the default path
+                     for the specified loader will be used.
+    :raises BoomLegacyFormatError: if the legacy configuration file
+                                   contains invalid boom entries or
+                                   the specified legacy format is
+                                   unknown or invalid.
+    :returns: (name, decorator, path) tuple
     """
     if not loader:
-        raise BoomLegacyFormatError("Invalid legacy bootloader format: %s" %
-                                    loader)
+        raise BoomLegacyFormatError("Invalid legacy bootloader format: %s" % loader)
     if loader not in _loader_map:
-        raise BoomLegacyFormatError("Unknown legacy bootloader format: %s" %
-                                    loader)
+        raise BoomLegacyFormatError("Unknown legacy bootloader format: %s" % loader)
 
     (name, decorator, path) = _loader_map[loader]
     path = cfg_path or path
     return (name, decorator, path)
 
 
-def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
-                        cfg_path=None):
+def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None):
     """Synchronise boom's configuration with the specified legacy boot
-        loader.
+    loader.
 
-        For boot loaders that support only a single configuration file
-        with multiple boot entries, boom will generate a block of
-        configuration statements bounded by "BOOM_BEGIN"/"BOOM_END" on
-        a line by themselves and prefixed with the comment character
-        for that configuration format (e.g. '#').
+    For boot loaders that support only a single configuration file
+    with multiple boot entries, boom will generate a block of
+    configuration statements bounded by "BOOM_BEGIN"/"BOOM_END" on
+    a line by themselves and prefixed with the comment character
+    for that configuration format (e.g. '#').
 
-        :param selection: A ``Selection`` object specifying the match
-                          criteria for the operation.
-        :param loader: the legacy boot loader type to write
-        :param cfg_path: the path to the legacy bootloader configuration
-                         file. If ``cfg_path`` is None the default path
-                         for the specified loader will be used.
+    :param selection: A ``Selection`` object specifying the match
+                      criteria for the operation.
+    :param loader: the legacy boot loader type to write
+    :param cfg_path: the path to the legacy bootloader configuration
+                     file. If ``cfg_path`` is None the default path
+                     for the specified loader will be used.
     """
     (name, decorator, path) = find_legacy_loader(loader, cfg_path)
 
@@ -151,8 +149,9 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
     cfg_dir = dirname(path)
 
     if not exists(cfg_dir):
-        _log_error("Cannot write %s configuration: '%s' does not exist'" %
-                   (name, cfg_dir))
+        _log_error(
+            "Cannot write %s configuration: '%s' does not exist'" % (name, cfg_dir)
+        )
         return
 
     begin_tag = BOOM_LEGACY_BEGIN_FMT % name
@@ -195,49 +194,48 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1,
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
     except Exception as e:
-        _log_error("Error writing legacy configuration file %s: %s" %
-                   (path, e))
+        _log_error("Error writing legacy configuration file %s: %s" % (path, e))
         try:
             unlink(tmp_path)
         except Exception:
-            _log_error("Error unlinking temporary path %s" %
-                       tmp_path)
+            _log_error("Error unlinking temporary path %s" % tmp_path)
         raise e
 
 
 def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
     """Delete all boom managed entries from the specified legacy boot
-        loader configuration file.
+    loader configuration file.
 
-        If the specified ``loader`` is unknown or invalid the
-        BoomLegacyFormatError exception is raised.
+    If the specified ``loader`` is unknown or invalid the
+    BoomLegacyFormatError exception is raised.
 
-        This erases any lines from the file beginning with a valid
-        'BOOM_*_BEGIN' line and ending with a valid 'BOOM_*_END' line.
+    This erases any lines from the file beginning with a valid
+    'BOOM_*_BEGIN' line and ending with a valid 'BOOM_*_END' line.
 
-        If both marker lines are absent this function has no effect
-        and no error is raised: the file does not contain any existing
-        boom legacy configuration entries.
+    If both marker lines are absent this function has no effect
+    and no error is raised: the file does not contain any existing
+    boom legacy configuration entries.
 
-        If one of the two markers is missing this function will not
-        modify the file and a BoomLegacyFormatError exception is
-        raised internally and recorded in the log. Legacy configuration
-        cannot be written in this case as the file is in an inconsistent
-        state that boom cannot automatically correct.
+    If one of the two markers is missing this function will not
+    modify the file and a BoomLegacyFormatError exception is
+    raised internally and recorded in the log. Legacy configuration
+    cannot be written in this case as the file is in an inconsistent
+    state that boom cannot automatically correct.
 
-        If the configuration path is not absolute it is assumed to be
-        relative to the configured system '/boot' directory as returned
-        by ``boom.get_boot_path()``.
+    If the configuration path is not absolute it is assumed to be
+    relative to the configured system '/boot' directory as returned
+    by ``boom.get_boot_path()``.
 
-        :param loader: the legacy bootloader format to operate on
-        :param cfg_path: the path to the legacy bootloader configuration
-                         file. If ``cfg_path`` is None the default path
-                         for the specified loader will be used.
-        :returns: None
+    :param loader: the legacy bootloader format to operate on
+    :param cfg_path: the path to the legacy bootloader configuration
+                     file. If ``cfg_path`` is None the default path
+                     for the specified loader will be used.
+    :returns: None
     """
+
     def _legacy_format_error(err, fmt_data):
         """Helper function to clean up the temporary file and raise the
-            corresponding BoomLegacyFormatError exception.
+        corresponding BoomLegacyFormatError exception.
         """
         if type(fmt_data[0]) == int:
             fmt_data = ("line %d" % fmt_data[0], fmt_data[1])
@@ -256,8 +254,9 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
     cfg_dir = dirname(path)
 
     if not exists(cfg_dir):
-        _log_error("Cannot clear %s configuration: '%s' does not exist'" %
-                   (name, cfg_dir))
+        _log_error(
+            "Cannot clear %s configuration: '%s' does not exist'" % (name, cfg_dir)
+        )
         return
 
     begin_tag = BOOM_LEGACY_BEGIN_FMT % name
@@ -265,14 +264,12 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
 
     # Pre-set configuration error messages. Use a string format for
     # the line number so that 'EOF' can be passed for end-of-file.
-    err_dupe_begin = ("Duplicate Boom begin tag at %s in legacy " +
-                      "configuration file '%s'")
-    err_dupe_end = ("Duplicate Boom end tag at %s in legacy " +
-                    "configuration file '%s'")
-    err_no_begin = ("Missing Boom begin tag at %s in legacy " +
-                    "configuration file '%s'")
-    err_no_end = ("Missing Boom end tag at %s in legacy " +
-                  "configuration file '%s'")
+    err_dupe_begin = (
+        "Duplicate Boom begin tag at %s in legacy " + "configuration file '%s'"
+    )
+    err_dupe_end = "Duplicate Boom end tag at %s in legacy " + "configuration file '%s'"
+    err_no_begin = "Missing Boom begin tag at %s in legacy " + "configuration file '%s'"
+    err_no_end = "Missing Boom end tag at %s in legacy " + "configuration file '%s'"
 
     line_nr = 1
     found_boom = False
@@ -291,8 +288,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
                 for line in cfg_f:
                     if begin_tag in line:
                         if in_boom_cfg or found_boom:
-                            _legacy_format_error(err_dupe_begin,
-                                                 (line_nr, path))
+                            _legacy_format_error(err_dupe_begin, (line_nr, path))
                         in_boom_cfg = True
                         continue
                     if end_tag in line:
@@ -326,31 +322,29 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
     except Exception as e:
-        _log_error("Error writing legacy configuration file %s: %s" %
-                   (path, e))
+        _log_error("Error writing legacy configuration file %s: %s" % (path, e))
         try:
             unlink(tmp_path)
         except Exception:
-            _log_error("Error unlinking temporary path %s" %
-                       tmp_path)
+            _log_error("Error unlinking temporary path %s" % tmp_path)
         raise e
 
 
 class Grub1BootEntry(object):
     """Class transforming a Boom ``BootEntry`` into legacy Grub1
-        boot entry notation.
+    boot entry notation.
 
-        The Grub1BootEntry decorates the ``__str__`` method of the
-        BootEntry superclass by returning data formatted in Grub1
-        configuration notation rather than BLS.
+    The Grub1BootEntry decorates the ``__str__`` method of the
+    BootEntry superclass by returning data formatted in Grub1
+    configuration notation rather than BLS.
 
-        Currently this uses a simple fixed format string for the
-        Grub1 syntax. If additional legacy formats are required it
-        may be better to extend the generic BootEntry.__str()
-        formatter to be able to accept maps of alternate format
-        keys. This is somewhat complicated by aspects like the
-        grub1 boot device key (since this has no representation or
-        equivalent in BLS notation).
+    Currently this uses a simple fixed format string for the
+    Grub1 syntax. If additional legacy formats are required it
+    may be better to extend the generic BootEntry.__str()
+    formatter to be able to accept maps of alternate format
+    keys. This is somewhat complicated by aspects like the
+    grub1 boot device key (since this has no representation or
+    equivalent in BLS notation).
     """
 
     be = None
@@ -360,36 +354,42 @@ class Grub1BootEntry(object):
 
     def __str__(self):
         grub1_tab = " " * 8
-        grub1_fmt = ("title %s\n" + grub1_tab + "root %s\n" + grub1_tab +
-                     "kernel %s %s\n" + grub1_tab + "initrd %s")
+        grub1_fmt = (
+            "title %s\n"
+            + grub1_tab
+            + "root %s\n"
+            + grub1_tab
+            + "kernel %s %s\n"
+            + grub1_tab
+            + "initrd %s"
+        )
 
-        return grub1_fmt % (self.be.title, _get_grub1_device(),
-                            self.be.linux, self.be.options, self.be.initrd)
+        return grub1_fmt % (
+            self.be.title,
+            _get_grub1_device(),
+            self.be.linux,
+            self.be.options,
+            self.be.initrd,
+        )
 
 
 #: Map of legacy boot loader decorator classes and defaults.
 #: Each entry in _loader_map is a three tuple containing the
 #: format's name, decorator class and default configuration path.
-_loader_map = {
-    BOOM_LOADER_GRUB1: ("Grub1", Grub1BootEntry, BOOM_GRUB1_CFG_PATH)
-}
+_loader_map = {BOOM_LOADER_GRUB1: ("Grub1", Grub1BootEntry, BOOM_GRUB1_CFG_PATH)}
 
 __all__ = [
     # Exception class for errors in legacy format handling
-    'BoomLegacyFormatError',
-
+    "BoomLegacyFormatError",
     # Write legacy boot configuration
-    'write_legacy_loader',
-    'clear_legacy_loader',
-
+    "write_legacy_loader",
+    "clear_legacy_loader",
     # Lookup legacy boot loader formats
-    'find_legacy_loader',
-
+    "find_legacy_loader",
     # Legacy bootloader names
-    'BOOM_LOADER_GRUB1',
-
+    "BOOM_LOADER_GRUB1",
     # Legacy bootloader decorator classes
-    'Grub1BootEntry'
+    "Grub1BootEntry",
 ]
 
 # vim: set et ts=4 sw=4 :

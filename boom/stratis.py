@@ -59,61 +59,61 @@ _DBUS_OBJECT_MANAGER_IFACE = "org.freedesktop.DBus.ObjectManager"
 def pool_name_to_pool_uuid(pool_name):
     """Return the UUID of the pool named ``pool_name`` as a string.
 
-        :param pool_name: The name of the Stratis pool.
-        :returns: A string representation of the pool UUID value. The
-                  returned string contains the un-formatted character
-                  sequence that makes up the pool UUID.
+    :param pool_name: The name of the Stratis pool.
+    :returns: A string representation of the pool UUID value. The
+              returned string contains the un-formatted character
+              sequence that makes up the pool UUID.
 
-        :rtype: str
+    :rtype: str
     """
     bus = dbus.SystemBus()
-    _log_debug_stratis("Connecting to %s at %s via system bus" %
-                       (_STRATISD_SERVICE, _STRATISD_PATH))
-    proxy = bus.get_object(_STRATISD_SERVICE, _STRATISD_PATH,
-                           introspect=False)
+    _log_debug_stratis(
+        "Connecting to %s at %s via system bus" % (_STRATISD_SERVICE, _STRATISD_PATH)
+    )
+    proxy = bus.get_object(_STRATISD_SERVICE, _STRATISD_PATH, introspect=False)
     object_manager = dbus.Interface(proxy, _DBUS_OBJECT_MANAGER_IFACE)
     managed_objects = object_manager.GetManagedObjects(_STRATISD_TIMEOUT)
     try:
         props = next(
             obj_data[_POOL_IFACE]
             for _, obj_data in managed_objects.items()
-            if _POOL_IFACE in obj_data and
-            obj_data[_POOL_IFACE]["Name"] == pool_name
+            if _POOL_IFACE in obj_data and obj_data[_POOL_IFACE]["Name"] == pool_name
         )
     except StopIteration as e:
         raise IndexError("Stratis pool '%s' not found" % pool_name)
     pool_uuid = str(props["Uuid"])
-    _log_debug("Looked up pool_uuid=%s for Stratis pool %s" %
-               (format_pool_uuid(pool_uuid), pool_name))
+    _log_debug(
+        "Looked up pool_uuid=%s for Stratis pool %s"
+        % (format_pool_uuid(pool_uuid), pool_name)
+    )
     return pool_uuid
 
 
 def symlink_to_pool_uuid(link_path):
     """Return the UUID of the pool corresponding to the stratis file system
-       at ``link_path`` as a string.
+    at ``link_path`` as a string.
 
-       :param link_path: A symbolic link corresponding to a Stratis file
-                        system on the local system.
-       :returns: A string representation of the UUID value. The returned
-                 string contains the un-formatted character sequence that
-                 makes up the pool UUID.
-       :rtype: str
+    :param link_path: A symbolic link corresponding to a Stratis file
+                     system on the local system.
+    :returns: A string representation of the UUID value. The returned
+              string contains the un-formatted character sequence that
+              makes up the pool UUID.
+    :rtype: str
     """
     # Separate the "pool" and "fs" components from a Stratis file system
     # link path formatted as "/dev/stratis/pool/ps".
     (pool, fs) = normpath(link_path).split(path_sep)[-2:]
-    _log_debug_stratis("Looking up pool UUID for Stratis symlink '%s'" %
-                       link_path)
+    _log_debug_stratis("Looking up pool UUID for Stratis symlink '%s'" % link_path)
     return pool_name_to_pool_uuid(pool)
 
 
 def format_pool_uuid(pool_uuid):
     """Return the UUID ``pool_uuid`` formatted as a hyphen-separated
-        string.
+    string.
 
-        :param pool_uuid: The UUID value to format.
-        :returns: A hyphen-separated string representation of the UUID.
-        :rtype: str
+    :param pool_uuid: The UUID value to format.
+    :returns: A hyphen-separated string representation of the UUID.
+    :rtype: str
     """
     uuid = UUID(pool_uuid)
     return str(uuid)
@@ -131,8 +131,10 @@ def is_stratis_device_path(dev_path):
 
 
 __all__ = [
-    "symlink_to_pool_uuid", "pool_name_to_pool_uuid",
-    "format_pool_uuid", "is_stratis_device_path"
+    "symlink_to_pool_uuid",
+    "pool_name_to_pool_uuid",
+    "format_pool_uuid",
+    "is_stratis_device_path",
 ]
 
 # vim: set et ts=4 sw=4 :

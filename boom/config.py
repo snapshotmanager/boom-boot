@@ -37,8 +37,8 @@ except ImportError:
 
 
 class BoomConfigError(BoomError):
-    """Base class for boom configuration errors.
-    """
+    """Base class for boom configuration errors."""
+
     pass
 
 
@@ -73,12 +73,12 @@ _CFG_CACHE_PATH = "cache_path"
 
 def _read_boom_config(path=None):
     """Read boom persistent configuration values from the defined path
-        and return them as a ``BoomConfig`` object.
+    and return them as a ``BoomConfig`` object.
 
-        :param path: the configuration file to read, or None to read the
-                     currently configured config file path.
+    :param path: the configuration file to read, or None to read the
+                 currently configured config file path.
 
-        :rtype: BoomConfig
+    :rtype: BoomConfig
     """
     path = path or get_boom_config_path()
     _log_debug("reading boom configuration from '%s'" % path)
@@ -86,12 +86,11 @@ def _read_boom_config(path=None):
     try:
         cfg.read(path)
     except ParsingError as e:
-        _log_error("Failed to parse configuration file '%s': %s" %
-                   (path, e))
+        _log_error("Failed to parse configuration file '%s': %s" % (path, e))
 
     bc = BoomConfig()
 
-    trues = ['True', 'true', 'Yes', 'yes']
+    trues = ["True", "true", "Yes", "yes"]
 
     if not cfg.has_section(_CFG_SECT_GLOBAL):
         raise ValueError("Missing 'global' section in %s" % path)
@@ -111,8 +110,7 @@ def _read_boom_config(path=None):
             bc.legacy_enable = any([t for t in trues if t in enable])
 
         if cfg.has_option(_CFG_SECT_LEGACY, _CFG_LEGACY_FMT):
-            bc.legacy_format = cfg.get(_CFG_SECT_LEGACY,
-                                       _CFG_LEGACY_FMT)
+            bc.legacy_format = cfg.get(_CFG_SECT_LEGACY, _CFG_LEGACY_FMT)
 
         if cfg.has_option(_CFG_SECT_LEGACY, _CFG_LEGACY_SYNC):
             _log_debug("Found legacy.sync")
@@ -136,12 +134,12 @@ def _read_boom_config(path=None):
 
 def load_boom_config(path=None):
     """Load boom persistent configuration values from the defined path
-        and make the them the active configuration.
+    and make the them the active configuration.
 
-        :param path: the configuration file to read, or None to read the
-                     currently configured config file path
+    :param path: the configuration file to read, or None to read the
+                 currently configured config file path
 
-        :rtype: None
+    :rtype: None
     """
     bc = _read_boom_config(path=path)
     set_boom_config(bc)
@@ -150,8 +148,9 @@ def load_boom_config(path=None):
 
 def _sync_config(bc, cfg):
     """Sync the configuration values of ``BoomConfig`` object ``bc`` to
-        the ``ConfigParser`` ``cfg``.
+    the ``ConfigParser`` ``cfg``.
     """
+
     def yes_no(value):
         if value:
             return "yes"
@@ -174,7 +173,7 @@ def _sync_config(bc, cfg):
 
 def __make_config(bc):
     """Create a new ``ConfigParser`` corresponding to the ``BoomConfig``
-        object ``bc`` and return the result.
+    object ``bc`` and return the result.
     """
     cfg = ConfigParser()
     cfg.add_section("global")
@@ -186,12 +185,12 @@ def __make_config(bc):
 def write_boom_config(config=None, path=None):
     """Write boom configuration to disk.
 
-        :param config: the configuration values to write, or None to
-                       write the current configuration
-        :param path: the configuration file to read, or None to read the
-                     currently configured config file path
+    :param config: the configuration values to write, or None to
+                   write the current configuration
+    :param path: the configuration file to read, or None to read the
+                 currently configured config file path
 
-        :rtype: None
+    :rtype: None
     """
     path = path or get_boom_config_path()
     cfg_dir = dirname(path)
@@ -212,20 +211,17 @@ def write_boom_config(config=None, path=None):
         rename(tmp_path, path)
         chmod(path, BOOT_CONFIG_MODE)
     except Exception as e:
-        _log_error("Error writing configuration file %s: %s" %
-                   (path, e))
+        _log_error("Error writing configuration file %s: %s" % (path, e))
         try:
             unlink(tmp_path)
         except Exception:
-            _log_error("Error unlinking temporary path %s" %
-                       tmp_path)
+            _log_error("Error unlinking temporary path %s" % tmp_path)
         raise e
 
 
 __all__ = [
-    'BoomConfigError',
-
+    "BoomConfigError",
     # Configuration file handling
-    'load_boom_config',
-    'write_boom_config'
+    "load_boom_config",
+    "write_boom_config",
 ]
