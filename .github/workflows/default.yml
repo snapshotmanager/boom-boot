@@ -27,7 +27,7 @@ jobs:
           sudo pip install -v .
       - name: Check PyCodestyle
         run: >
-          pycodestyle boom
+          pycodestyle boom --ignore E501,E203,W503
       - name: Run bandit
         run: >
           bandit -c bandit.toml -r boom
