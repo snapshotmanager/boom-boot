@@ -19,10 +19,12 @@ jobs:
           python3-pytest
           python-unversioned-command
           python3-toml
+          python3-wheel
+          python3-pip
           bandit
       - name: Install Boom
         run: >
-          sudo python3 setup.py install
+          sudo pip install -v .
       - name: Check PyCodestyle
         run: >
           pycodestyle boom
