@@ -101,9 +101,11 @@ class MockArgs(object):
     linux = ""
     lvm_opts = ""
     machine_id = ""
+    mount = ""
     name = ""
     name_prefixes = False
     no_dev = False
+    no_fstab = False
     no_headings = False
     options = ""
     optional_keys = ""
