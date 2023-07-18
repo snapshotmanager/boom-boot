@@ -952,6 +952,7 @@ def create_entry(
     expand=False,
     allow_no_dev=False,
     images=I_NONE,
+    no_fstab=False,
 ):
     """Create new boot loader entry.
 
@@ -975,6 +976,7 @@ def create_entry(
     :param allow_no_dev: Accept a non-existent or invalid root dev.
     :param images: Whether to cache or backup boot images in the new
                    entry.
+    :param no_fstab: Disable parsing of the fstab for the new entry.
     :returns: a ``BootEntry`` object corresponding to the new entry.
     :rtype: ``BootEntry``
     :raises: ``ValueError`` if either required values are missing or
@@ -1005,6 +1007,9 @@ def create_entry(
 
     add_opts = add_opts.split() if add_opts else []
     del_opts = del_opts.split() if del_opts else []
+
+    if no_fstab:
+        add_opts.append("fstab=no")
 
     _log_debug_cmd("Effective add options: %s" % add_opts)
     _log_debug_cmd("Effective del options: %s" % del_opts)
@@ -1093,6 +1098,7 @@ def clone_entry(
     expand=False,
     allow_no_dev=False,
     images=I_NONE,
+    no_fstab=False,
 ):
     """Clone an existing boot loader entry.
 
@@ -1119,6 +1125,7 @@ def clone_entry(
     :param expand: Expand bootloader environment variables.
     :param allow_no_dev: Allow the block device to not exist.
     :returns: a ``BootEntry`` object corresponding to the new entry.
+    :param no_fstab: Disable parsing of the fstab for the new entry.
     :rtype: ``BootEntry``
     :raises: ``ValueError`` if either required values are missing or
              a duplicate entry exists, or``OsError`` if an error
@@ -1163,6 +1170,9 @@ def clone_entry(
 
     bp = BootParams.from_entry(be, expand=expand)
     (add_opts, del_opts) = _merge_add_del_opts(bp, add_opts, del_opts)
+
+    if no_fstab:
+        add_opts.append("fstab=no")
 
     bp.root_device = root_device if root_device else bp.root_device
     bp.lvm_root_lv = lvm_root_lv if lvm_root_lv else bp.lvm_root_lv
@@ -2555,6 +2565,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
             expand=cmd_args.expand_variables,
             allow_no_dev=no_dev,
             images=images,
+            no_fstab=cmd_args.no_fstab,
         )
 
     except BoomRootDeviceError as brde:
@@ -2689,6 +2700,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
             expand=cmd_args.expand_variables,
             allow_no_dev=cmd_args.no_dev,
             images=images,
+            no_fstab=cmd_args.no_fstab,
         )
 
     except ValueError as e:
@@ -3914,18 +3926,24 @@ def main(args):
         "--nameprefixes",
         help="Add a prefix to report field names",
         action="store_true",
-    ),
+    )
     parser.add_argument(
         "--no-headings",
         "--noheadings",
         action="store_true",
         help="Suppress output of report headings",
-    ),
+    )
     parser.add_argument(
         "--no-dev",
         "--nodev",
         action="store_true",
         help="Disable checks for a valid root device",
+    )
+    parser.add_argument(
+        "--no-fstab",
+        "--nofstab",
+        action="store_true",
+        help="Ignore mounts and swap devices defined in fstab",
     )
     parser.add_argument(
         "--optional-keys",
