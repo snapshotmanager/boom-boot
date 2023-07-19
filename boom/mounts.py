@@ -37,6 +37,9 @@ class BoomMountError(BoomError):
 #: Format for systemd command line mount units
 MOUNT_UNIT_FMT = "systemd.mount-extra=%s:%s:%s:%s"
 
+#: Format for systemd command line swap units
+SWAP_UNIT_FMT = "systemd.swap-extra=%s:%s"
+
 #: The blkid command
 _blkid = "blkid"
 
@@ -85,13 +88,38 @@ def parse_mount_units(mounts):
     """Parse a list of command line mount specifications.
 
     :param mounts: A list of boom command line mount specifications.
-    :retruns: A list of strings in systemd mount unit format.
+    :retruns: A list of strings in systemd swap unit format.
     """
     _log_info("parsing mount units")
     return [_parse_mount_unit(mnt) for mnt in mounts]
 
 
+def _parse_swap_unit(swap):
+    """Parse a boom command line swap specification into the format
+    required by the systemd boot syntax.
+
+    :param mount: The boom command line swap specification.
+    :returns: A string in systemd swap unit format.
+    """
+    if ":" in swap:
+        (what, options) = swap.split(":")
+    else:
+        what = swap
+        options = "defaults"
+    return SWAP_UNIT_FMT % (what, options)
+
+
+def parse_swap_units(swaps):
+    """Parse a list of command line swap specifications.
+
+    :param swaps: A list of boom command line swap specifications.
+    :returns: A list of strings in systemd mount unit format.
+    """
+    return [_parse_swap_unit(swap) for swap in swaps]
+
+
 __all__ = [
     "parse_mount_units",
+    "parse_swap_units",
     "BoomMountError",
 ]

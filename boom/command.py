@@ -42,7 +42,7 @@ from boom.hostprofile import *
 from boom.legacy import *
 from boom.config import *
 from boom.cache import *
-from boom.mounts import parse_mount_units
+from boom.mounts import *
 
 #: The environment variable from which to take the location of the
 #: ``/boot`` file system.
@@ -955,6 +955,7 @@ def create_entry(
     images=I_NONE,
     no_fstab=False,
     mounts=None,
+    swaps=None,
 ):
     """Create new boot loader entry.
 
@@ -981,6 +982,8 @@ def create_entry(
     :param no_fstab: Disable parsing of the fstab for the new entry.
     :param mounts: A list of colon separated command-line mount
                    specifications for the new entry.
+    :param swaps: A list of colon separated command-line swap
+                  specifications for the new entry.
     :returns: a ``BootEntry`` object corresponding to the new entry.
     :rtype: ``BootEntry``
     :raises: ``ValueError`` if either required values are missing or
@@ -1018,6 +1021,10 @@ def create_entry(
     if mounts:
         mount_units = parse_mount_units(mounts)
         add_opts.extend(mount_units)
+
+    if swaps:
+        swap_units = parse_swap_units(swaps)
+        add_opts.extend(swap_units)
 
     _log_debug_cmd("Effective add options: %s" % add_opts)
     _log_debug_cmd("Effective del options: %s" % del_opts)
@@ -1108,6 +1115,7 @@ def clone_entry(
     images=I_NONE,
     no_fstab=False,
     mounts=None,
+    swaps=None,
 ):
     """Clone an existing boot loader entry.
 
@@ -1190,6 +1198,10 @@ def clone_entry(
     if mounts:
         mount_units = parse_mount_units(mounts)
         add_opts.extend(mount_units)
+
+    if swaps:
+        swap_units = parse_swap_units(swaps)
+        add_opts.extend(swap_units)
 
     bp.root_device = root_device if root_device else bp.root_device
     bp.lvm_root_lv = lvm_root_lv if lvm_root_lv else bp.lvm_root_lv
@@ -2584,6 +2596,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
             images=images,
             no_fstab=cmd_args.no_fstab,
             mounts=cmd_args.mount,
+            swaps=cmd_args.swap,
         )
 
     except BoomRootDeviceError as brde:
@@ -2720,6 +2733,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
             images=images,
             no_fstab=cmd_args.no_fstab,
             mounts=cmd_args.mount,
+            swaps=cmd_args.swap,
         )
 
     except ValueError as e:
@@ -4056,6 +4070,12 @@ def main(args):
         help="A Boom OsProfile short name",
         metavar="OSSHORTNAME",
         type=str,
+    )
+    parser.add_argument(
+        "--swap",
+        metavar="SWAP",
+        action="append",
+        help="Swap device specification",
     )
     parser.add_argument(
         "-t",

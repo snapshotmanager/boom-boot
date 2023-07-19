@@ -121,6 +121,7 @@ class MockArgs(object):
     separator = ""
     short_name = ""
     sort = ""
+    swap = ""
     title = ""
     type = ""
     uname_pattern = ""
