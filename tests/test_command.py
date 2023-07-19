@@ -172,6 +172,7 @@ class CommandHelperTests(unittest.TestCase):
         import boom.command
         boom.command.show_legacy()
 
+    @unittest.skip("No machine_id available in CI")
     def test__get_machine_id(self):
         # FIXME: does not cover _DBUS_MACHINE_ID hosts or exceptions
         # reading /etc/machine-id.
