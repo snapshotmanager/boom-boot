@@ -89,6 +89,11 @@ Boom \(em linux boot manager
 .  IR opts ]
 .  RB [ --del-opts
 .  IR opts ]
+.  RB [ --no-fstab ]
+.  RB [ --mount
+.  IR mount ]
+.  RB [ --swap
+.  IR swap ]
 .  ad b
 ..
 .CMD_ENTRY_CREATE
@@ -137,6 +142,11 @@ Boom \(em linux boot manager
 .  IR opts ]
 .  RB [ --del-opts
 .  IR opts ]
+.  RB [ --no-fstab ]
+.  RB [ --mount
+.  IR mount ]
+.  RB [ --swap
+.  IR swap ]
 .  ad b
 ..
 .CMD_ENTRY_CLONE
@@ -736,6 +746,12 @@ An OS profile template used to generate LVM2 boot options.
 .br
 .
 .HP
+.BR -M | --mount
+.IR what:where:fstype:options
+.br
+Specify a command-line file system mount for the boot entry.
+.
+.HP
 .BR -n | --name
 .IR os_name
 .br
@@ -745,6 +761,11 @@ The name of a boom operating system profile.
 .BR --name-prefixes | --nameprefixes
 .br
 Add a prefix to report field output names.
+.
+.HP
+.BR --no-fstab
+.br
+Disable processing of /etc/fstab for the boot entry.
 .
 .HP
 .BR --no-headings | --noheadings
@@ -825,6 +846,12 @@ Report field separator
 .BR -s | --short-name | --shortname
 .IR short_name
 The short name of a boom operating system profile.
+.
+.HP
+.BR --swap
+.IR what:options
+.br
+Specify a command-line swap configuration for the boot entry.
 .
 .HP
 .BR -t | --title
