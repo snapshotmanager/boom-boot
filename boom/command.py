@@ -1133,6 +1133,8 @@ def clone_entry(
                   or ``False`` otherwise.
     :param expand: Expand bootloader environment variables.
     :param allow_no_dev: Allow the block device to not exist.
+    :param images: Whether to cache or backup boot images in the new
+                   entry.
     :returns: a ``BootEntry`` object corresponding to the new entry.
     :param no_fstab: Disable parsing of the fstab for the new entry.
     :param mounts: A list of colon separated command-line mount
