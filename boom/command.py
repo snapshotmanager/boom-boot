@@ -3770,14 +3770,14 @@ def main(args):
         metavar="COMMAND",
         type=str,
         action="store",
-        help="The command to run: create, delete, list, edit, " "clone, show",
+        help="The command to run: create, delete, list, edit, clone, show",
     )
     parser.add_argument(
         "identifier",
         metavar="ID",
         type=str,
         action="store",
-        help="An optional profile or boot identifier to " "operate on",
+        help="An optional profile or boot identifier to operate on",
         nargs="?",
         default=None,
     )
@@ -3830,7 +3830,7 @@ def main(args):
         "--btrfsopts",
         metavar="OPTS",
         type=str,
-        help="A template option string for BTRFS " "devices",
+        help="A template option string for BTRFS devices",
     )
     parser.add_argument(
         "-c",
@@ -3989,7 +3989,7 @@ def main(args):
         "--optional-keys",
         metavar="KEYS",
         type=str,
-        help="Optional keys allows by this operating system " "profile",
+        help="Optional keys allows by this operating system profile",
     )
     parser.add_argument(
         "-o",
@@ -4039,7 +4039,7 @@ def main(args):
         "--profile",
         metavar="OS_ID",
         type=str,
-        help="A boom operating system profile " "identifier",
+        help="A boom operating system profile identifier",
     )
     parser.add_argument(
         "-r",
@@ -4054,7 +4054,7 @@ def main(args):
         "--initramfs-pattern",
         "--initramfspattern",
         type=str,
-        help="A pattern for generating initramfs " "paths",
+        help="A pattern for generating initramfs paths",
         metavar="PATTERN",
     )
     parser.add_argument(
@@ -4098,7 +4098,7 @@ def main(args):
         "--version",
         metavar="VERSION",
         type=str,
-        help="The kernel version of a boom " "boot entry",
+        help="The kernel version of a boom boot entry",
     )
 
     if len(args) < 3:
