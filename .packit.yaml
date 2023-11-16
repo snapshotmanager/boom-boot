@@ -5,8 +5,11 @@ specfile_path: boom-boot.spec
 
 # add or remove files that should be synced
 files_to_sync:
-    - boom-boot.spec
-    - .packit.yaml
+  - boom-boot.spec
+  - .packit.yaml
+
+srpm_build_deps:
+  - python3-devel
 
 # format for upstream version tags
 upstream_tag_template: "{version}"
@@ -14,3 +17,10 @@ upstream_tag_template: "{version}"
 upstream_package_name: boom
 # downstream (Fedora) RPM package name
 downstream_package_name: boom-boot
+
+jobs:
+  - job: copr_build
+    trigger: commit
+    targets:
+      - fedora-stable
+      - fedora-development
