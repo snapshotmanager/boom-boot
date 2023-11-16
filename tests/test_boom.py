@@ -1,6 +1,6 @@
 # Copyright (C) 2017 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
 #
-# boom_tests.py - Boom module tests.
+# test_boom.py - Boom module tests.
 #
 # This file is part of the boom project.
 #

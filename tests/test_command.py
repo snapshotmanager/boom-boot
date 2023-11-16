@@ -1,6 +1,6 @@
 # Copyright (C) 2017 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
 #
-# command_tests.py - Boom command API tests.
+# test_command.py - Boom command API tests.
 #
 # This file is part of the boom project.
 #

@@ -1,6 +1,6 @@
 # Copyright (C) 2017 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
 #
-# osprofile_tests.py - Boom OS profile tests.
+# test_hostprofile.py - Boom OS profile tests.
 #
 # This file is part of the boom project.
 #

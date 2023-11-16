@@ -1,6 +1,6 @@
 # Copyright (C) 2017 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
 #
-# cache_tests.py - Boom cache API tests.
+# test_cache.py - Boom cache API tests.
 #
 # This file is part of the boom project.
 #

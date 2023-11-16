@@ -1,6 +1,6 @@
 # Copyright (C) 2017 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
 #
-# config_tests.py - Boom report API tests.
+# test_config.py - Boom report API tests.
 #
 # This file is part of the boom project.
 #
