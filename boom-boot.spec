@@ -2,34 +2,36 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.5
-Release:	1%{?dist}
+Version:	1.5.1
+Release:	4.20231116180027713828.main.20.gad7e78a%{?dist}
 Summary:	%{summary}
 
-License:	GPLv2
+License:	GPL-2.0-only
 URL:		https://github.com/snapshotmanager/boom
-#Source0:	https://github.com/snapshotmanager/boom/archive/%{version}.tar.gz
-Source0:	boom-%{version}.tar.gz
+Source0:	boom-1.5.1.tar.gz
 
 BuildArch:	noarch
 
-BuildRequires:  make
+BuildRequires:	make
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-devel
 %if 0%{?sphinx_docs}
-BuildRequires:  python3-dbus
+BuildRequires:	python3-dbus
 BuildRequires:	python3-sphinx
 %endif
+BuildRequires: make
 
 Requires: python3-boom = %{version}-%{release}
 Requires: %{name}-conf = %{version}-%{release}
 
+Obsoletes: boom-boot-grub2 <= 1.3
+# boom-grub2 was not an official name of subpackage in fedora, but was used upstream:
 Obsoletes: boom-grub2 <= 1.3
 
 %package -n python3-boom
 Summary: %{summary}
 %{?python_provide:%python_provide python3-boom}
-Requires: python3
+Requires: %{__python3}
 Recommends: (lvm2 or brtfs-progs)
 Recommends: %{name}-conf = %{version}-%{release}
 
@@ -70,8 +72,7 @@ include this support in both Red Hat Enterprise Linux 7 and Fedora).
 This package provides configuration files for boom.
 
 %prep
-%setup -q -n boom-%{version}
-# NOTE: Do not use backup extension - MANIFEST.in is picking them
+%autosetup -p1 -n boom-1.5.1
 
 %build
 %if 0%{?sphinx_docs}
@@ -93,6 +94,7 @@ install -d -m 700 ${RPM_BUILD_ROOT}/boot/boom/hosts
 install -d -m 700 ${RPM_BUILD_ROOT}/boot/loader/entries
 install -d -m 700 ${RPM_BUILD_ROOT}/boot/boom/cache
 install -m 644 examples/boom.conf ${RPM_BUILD_ROOT}/boot/boom
+#install -m 644 examples/profiles/*.profile ${RPM_BUILD_ROOT}/boot/boom/profiles
 
 mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man8
 mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man5
@@ -132,6 +134,29 @@ rm doc/conf.py
 
 
 %changelog
+* Thu Nov 16 2023 Bryn M. Reeves <bmr@redhat.com> - 1.5.1-4.20231116180027713828.main.20.gad7e78a
+- Update spec file for packit builds
+- doc: Add readthedocs configuration file (Bryn M. Reeves)
+- boom: concatenate strings in argument definitions (Bryn M. Reeves)
+- tests: skip test__get_machine_id (Bryn M. Reeves)
+- boom: use correct machine_id path in error string (Bryn M. Reeves)
+- docs: document --no-fstab, --mount, and --swap in boom.8 (Bryn M. Reeves)
+- boom: support command line swap unit syntax (Bryn M. Reeves)
+- boom: add missing param docstring to clone_entry() (Bryn M. Reeves)
+- boom: support command line mount unit syntax (Bryn M. Reeves)
+- Add --no-fstab command line argument (Bryn M. Reeves)
+- Ignore pycodestyle E501,E203,W503 (Bryn M. Reeves)
+- Convert GitHub workflow to "pip install" (Bryn M. Reeves)
+- Use black for formatting (Bryn M. Reeves)
+- boom: fix unclosed file warning for /proc/cmdline (Bryn M. Reeves)
+- tests: add coverage to CI test runs (Bryn M. Reeves)
+- Update CI environment to Fedora 38 (Bryn M. Reeves)
+- tests: switch from nose to pytest (Bryn M. Reeves)
+- Rename tests to comply with unittest expectations (Bryn M. Reeves)
+- Fix system vs. project import ordering (Bryn M. Reeves)
+- Fix typos across tree (Bryn M. Reeves)
+- Switch setuptools config to setup.cfg (Bryn M. Reeves)
+
 * Thu May 4 2023 Bryn M. Reeves <bmr@redhat.com> = 1.5.1
 - Bump release
 
