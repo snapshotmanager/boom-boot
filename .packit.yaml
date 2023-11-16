@@ -24,3 +24,7 @@ jobs:
     targets:
       - fedora-stable
       - fedora-development
+
+notifications:
+  pull_request:
+    successful_build: true
