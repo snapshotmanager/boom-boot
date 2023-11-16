@@ -20,7 +20,7 @@ downstream_package_name: boom-boot
 
 jobs:
   - job: copr_build
-    trigger: commit
+    trigger: pull_request
     targets:
       - fedora-stable
       - fedora-development
