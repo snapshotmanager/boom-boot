@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+import sys
+from os import makedirs, symlink
+from os.path import join
+
+PROC_CMDLINE = "/proc/cmdline"
+DEV_KMSG = "/dev/kmsg"
+
+ARG_FSTAB_NO = "fstab=no"
+ARG_MOUNT_EXTRA = "systemd.mount-extra"
+ARG_DEBUG = "debug"
+ARG_ROOT = "root"
+
+SYSTEM_UNIT_DIR = "/usr/lib/systemd/system/"
+REMOUNT_FS_UNIT = "systemd-remount-fs.service"
+LOCAL_FS_TARGET = "local-fs.target.wants"
+
+early_dir = "/tmp"
+
+_debug = False
+
+
+def _log(msg):
+    with open(DEV_KMSG, "w", encoding="utf8") as kmsg:
+        try:
+            kmsg.write(msg)
+            kmsg.flush()
+        except OSError:
+            pass
+
+
+def _log_debug(msg):
+    global _debug
+    if _debug:
+        _log(msg)
+
+
+def _log_error(msg):
+    _log(msg)
+
+
+def _get_proc_cmdline():
+    with open(PROC_CMDLINE, "r", encoding="utf8") as pc:
+        try:
+            cmdline = pc.readline()
+        except OSError as err:
+            _log_error(f"Failed to read {PROC_CMDLINE}: {err}")
+            return None
+    return cmdline
+
+
+def _arg_in_cmdline(cmdline, arg):
+    """
+    Test for the presence of ``arg`` in ``cmdline``, accounting for arguments
+    that do or do not take a value.
+    """
+    for word in cmdline.split():
+        if "=" in word and "=" not in arg:
+            (word, _) = word.split("=")
+        if arg == word:
+            return True
+    return False
+
+
+def _has_debug(cmdline):
+    """
+    Test for presence of debug kernel command line argument.
+    """
+    return _arg_in_cmdline(cmdline, ARG_DEBUG)
+
+
+def _has_fstab_no(cmdline):
+    """
+    Test for presence of fstab=no kernel command line argument.
+    """
+    return _arg_in_cmdline(cmdline, ARG_FSTAB_NO)
+
+
+def _has_mount_extra(cmdline):
+    """
+    Test for presence of systemd.mount-extra= kernel command line argument.
+    """
+    return _arg_in_cmdline(cmdline, ARG_MOUNT_EXTRA)
+
+
+def _has_root(cmdline):
+    """
+    Test for presence of root= kernel command line argument.
+    """
+    return _arg_in_cmdline(cmdline, ARG_ROOT)
+
+
+def _enable_remount_fs():
+    """
+    Enable the systemd-remount-fs.service unit for local-fs.target.wants
+    """
+    local_fs_target_dir = join(early_dir, LOCAL_FS_TARGET)
+    local_fs_target_path = join(local_fs_target_dir, REMOUNT_FS_UNIT)
+    remount_fs_unit_path = join(SYSTEM_UNIT_DIR, LOCAL_FS_TARGET)
+    _log_debug(f"Enabling {REMOUNT_FS_UNIT} in {local_fs_target_dir}")
+    try:
+        makedirs(local_fs_target_dir)
+    except OSError as err:
+        _log_error(f"Failed to create {local_fs_target_path}: {err}")
+        return
+    try:
+        symlink(remount_fs_unit_path, local_fs_target_path)
+    except OSError as err:
+        _log_error(f"Failed to create unit symlink {local_fs_target_path}: {err}")
+
+
+def main(args):
+    global _debug, early_dir
+    if len(args) > 1:
+        early_dir = args[1]
+
+    cmdline = _get_proc_cmdline()
+    _debug = _has_debug(cmdline)
+
+    if _has_root(cmdline) and _has_fstab_no(cmdline) and _has_mount_extra(cmdline):
+        _enable_remount_fs()
+
+
+if __name__ == "__main__":
+    main(sys.argv)

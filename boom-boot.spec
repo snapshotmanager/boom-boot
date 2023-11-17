@@ -1,9 +1,10 @@
 %global summary A set of libraries and tools for managing boot loader entries
 %global sphinx_docs 1
+%global _generator_dir /usr/lib/systemd/system-generators
 
 Name:		boom-boot
 Version:	1.5.1
-Release:	4.20231116180940293550.main.24.g1b2fd45%{?dist}
+Release:	4.20231117175234813485.bmr.add.snapshot.remount.fs.29.ga48ccf9%{?dist}
 Summary:	%{summary}
 
 License:	GPL-2.0-only
@@ -101,6 +102,9 @@ mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man5
 install -m 644 man/man8/boom.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
 install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 
+mkdir -p ${RPM_BUILD_ROOT}/%{_generator_dir}
+install -m 755 systemd/snapshot-remount-fs ${RPM_BUILD_ROOT}/%{_generator_dir}
+
 rm doc/Makefile
 rm doc/conf.py
 
@@ -112,6 +116,7 @@ rm doc/conf.py
 %license COPYING
 %doc README.md
 %{_bindir}/boom
+%{_generator_dir}/snapshot-remount-fs
 %doc %{_mandir}/man*/boom.*
 
 %files -n python3-boom
@@ -134,6 +139,37 @@ rm doc/conf.py
 
 
 %changelog
+* Fri Nov 17 2023 Bryn M. Reeves <bmr@redhat.com> - 1.5.1-4.20231117175234813485.bmr.add.snapshot.remount.fs.29.ga48ccf9
+- dist: add build notifications to .packit.yaml (Bryn M. Reeves)
+- dist: make packit copr_build job run on pull_request (Bryn M. Reeves)
+- dist: add jobs to .packit.yaml (Bryn M. Reeves)
+- dist: add .packit.yaml (Bryn M. Reeves)
+- dist: update spec file for packit builds (Bryn M. Reeves)
+- tests: fix filenames in unit test comments (Bryn M. Reeves)
+- tests: add missing test_mounts.py to git (Bryn M. Reeves)
+- dist: update boom-boot.spec from Fedora dist-git spec file (Bryn M. Reeves)
+- dist: rename boom.spec -> boom-boot.spec to match Fedora packaging (Bryn M. Reeves)
+- doc: Add readthedocs configuration file (Bryn M. Reeves)
+- boom: concatenate strings in argument definitions (Bryn M. Reeves)
+- tests: skip test__get_machine_id (Bryn M. Reeves)
+- boom: use correct machine_id path in error string (Bryn M. Reeves)
+- docs: document --no-fstab, --mount, and --swap in boom.8 (Bryn M. Reeves)
+- boom: support command line swap unit syntax (Bryn M. Reeves)
+- boom: add missing param docstring to clone_entry() (Bryn M. Reeves)
+- boom: support command line mount unit syntax (Bryn M. Reeves)
+- Add --no-fstab command line argument (Bryn M. Reeves)
+- Ignore pycodestyle E501,E203,W503 (Bryn M. Reeves)
+- Convert GitHub workflow to "pip install" (Bryn M. Reeves)
+- Use black for formatting (Bryn M. Reeves)
+- boom: fix unclosed file warning for /proc/cmdline (Bryn M. Reeves)
+- tests: add coverage to CI test runs (Bryn M. Reeves)
+- Update CI environment to Fedora 38 (Bryn M. Reeves)
+- tests: switch from nose to pytest (Bryn M. Reeves)
+- Rename tests to comply with unittest expectations (Bryn M. Reeves)
+- Fix system vs. project import ordering (Bryn M. Reeves)
+- Fix typos across tree (Bryn M. Reeves)
+- Switch setuptools config to setup.cfg (Bryn M. Reeves)
+
 * Thu Nov 16 2023 Bryn M. Reeves <bmr@redhat.com> - 1.5.1-4.20231116180940293550.main.24.g1b2fd45
 - Update spec file for packit builds
 - tests: fix filenames in unit test comments (Bryn M. Reeves)
