@@ -3,13 +3,13 @@
 %global _generator_dir /usr/lib/systemd/system-generators
 
 Name:		boom-boot
-Version:	1.5.1
-Release:	4.20231117175234813485.bmr.add.snapshot.remount.fs.29.ga48ccf9%{?dist}
+Version:	1.6.0
+Release:	1%{?dist}
 Summary:	%{summary}
 
 License:	GPL-2.0-only
 URL:		https://github.com/snapshotmanager/boom
-Source0:	boom-1.5.1.tar.gz
+Source0:	boom-1.6.0.tar.gz
 
 BuildArch:	noarch
 
@@ -73,7 +73,7 @@ include this support in both Red Hat Enterprise Linux 7 and Fedora).
 This package provides configuration files for boom.
 
 %prep
-%autosetup -p1 -n boom-1.5.1
+%autosetup -p1 -n boom-1.6.0
 
 %build
 %if 0%{?sphinx_docs}
@@ -139,6 +139,9 @@ rm doc/conf.py
 
 
 %changelog
+* Mon Nov 20 2023 Bryn M. Reeves <bmr@redhat.com> - 1.6.0
+- Bump release
+
 * Fri Nov 17 2023 Bryn M. Reeves <bmr@redhat.com> - 1.5.1-4.20231117175234813485.bmr.add.snapshot.remount.fs.29.ga48ccf9
 - dist: add build notifications to .packit.yaml (Bryn M. Reeves)
 - dist: make packit copr_build job run on pull_request (Bryn M. Reeves)
