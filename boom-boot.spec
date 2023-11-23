@@ -1,10 +1,9 @@
 %global summary A set of libraries and tools for managing boot loader entries
 %global sphinx_docs 1
-%global _generator_dir /usr/lib/systemd/system-generators
 
 Name:		boom-boot
 Version:	1.6.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{summary}
 
 License:	GPL-2.0-only
@@ -21,6 +20,7 @@ BuildRequires:	python3-dbus
 BuildRequires:	python3-sphinx
 %endif
 BuildRequires: make
+BuildRequires: systemd-rpm-macros
 
 Requires: python3-boom = %{version}-%{release}
 Requires: %{name}-conf = %{version}-%{release}
@@ -95,15 +95,14 @@ install -d -m 700 ${RPM_BUILD_ROOT}/boot/boom/hosts
 install -d -m 700 ${RPM_BUILD_ROOT}/boot/loader/entries
 install -d -m 700 ${RPM_BUILD_ROOT}/boot/boom/cache
 install -m 644 examples/boom.conf ${RPM_BUILD_ROOT}/boot/boom
-#install -m 644 examples/profiles/*.profile ${RPM_BUILD_ROOT}/boot/boom/profiles
 
 mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man8
 mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man5
 install -m 644 man/man8/boom.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
 install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 
-mkdir -p ${RPM_BUILD_ROOT}/%{_generator_dir}
-install -m 755 systemd/snapshot-remount-fs ${RPM_BUILD_ROOT}/%{_generator_dir}
+mkdir -p ${RPM_BUILD_ROOT}/%{_systemdgeneratordir}
+install -m 755 systemd/snapshot-remount-fs ${RPM_BUILD_ROOT}/%{_systemdgeneratordir}
 
 rm doc/Makefile
 rm doc/conf.py
@@ -116,7 +115,7 @@ rm doc/conf.py
 %license COPYING
 %doc README.md
 %{_bindir}/boom
-%{_generator_dir}/snapshot-remount-fs
+%{_systemdgeneratordir}/snapshot-remount-fs
 %doc %{_mandir}/man*/boom.*
 
 %files -n python3-boom
@@ -139,6 +138,9 @@ rm doc/conf.py
 
 
 %changelog
+* Thu Nov 23 2023 Bryn M. Reeves <bmr@redhat.com> - 1.6.0-2
+- Update spec file
+
 * Mon Nov 20 2023 Bryn M. Reeves <bmr@redhat.com> - 1.6.0
 - Bump release
 
