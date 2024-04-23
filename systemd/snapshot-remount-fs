@@ -56,7 +56,7 @@ def _arg_in_cmdline(cmdline, arg):
     """
     for word in cmdline.split():
         if "=" in word and "=" not in arg:
-            (word, _) = word.split("=")
+            (word, _) = word.split("=", maxsplit=1)
         if arg == word:
             return True
     return False
