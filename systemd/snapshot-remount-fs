@@ -96,7 +96,7 @@ def _enable_remount_fs():
     """
     local_fs_target_dir = join(early_dir, LOCAL_FS_TARGET)
     local_fs_target_path = join(local_fs_target_dir, REMOUNT_FS_UNIT)
-    remount_fs_unit_path = join(SYSTEM_UNIT_DIR, LOCAL_FS_TARGET)
+    remount_fs_unit_path = join(SYSTEM_UNIT_DIR, REMOUNT_FS_UNIT)
     _log_debug(f"Enabling {REMOUNT_FS_UNIT} in {local_fs_target_dir}")
     try:
         makedirs(local_fs_target_dir)
