@@ -603,74 +603,19 @@ Created entry with boot_id d12c177:
 ```
 ## Grub2 Integration
 
-Boom includes scripts to integrate with versions of `grub2` that support
-the BLS extension (including the builds of Grub shipped with Fedora and
-Red Hat Enterprise Linux).
-
-The scripts support optionally placing all boom-managed entries into a
-separate named submenu.
+Support for the [BootLoader Specification][0] is enabled by default in
+supported distributions beginning with Fedora 30 and Red Hat Enterprise Linux
+8. No special steps are required to enable BLS for boot configuration on these
+distributions.
 
 ### Submenu support
 
-To place all boom-managed boot entries into a separate submenu edit the
-file `/etc/default/boom` and set the `BOOM_USE_SUBMENU` variable to `yes`:
-
-```
-BOOM_USE_SUBMENU="yes"
-```
-
-To change the name of the submenu modify the `BOOM_SUBMENU_NAME` variable:
-
-```
-BOOM_SUBMENU_NAME="Snapshots"
-```
-
-After modifying the file run the `grub2-mkconfig` program to update the
-Grub boot loader configuration.
-
-If submenu support is enabled a new entry (named `Snapshots` in this
-example) will appear at the bottom of the main Grub2 menu:
-
-```
-      Red Hat Enterprise Linux Server (3.10.0-327.el7.x86_64) 7.2 (Maipo)
-      Red Hat Enterprise Linux Server (3.10.0-272.el7.x86_64) 7.2 (Maipo)
-      Snapshots
-
-
-
-
-
-
-
-
-
-
-
-      Use the ↑ and ↓ keys to change the selection.
-      Press 'e' to edit the selected item, or 'c' for a command prompt.
-```
-
-Hitting `enter` on the submenu item will display the available boom
-boot entries:
-
-```
-      RHEL7 Snapshot (3.10.0-327.el7.x86_64) 2017-10-10
-      RHEL7 Snapshot (3.10.0-327.el7.x86_64) 2017-10-01
-      RHEL7 Snapshot (3.10.0-272.el7.x86_64) 2017-09-20
-      RHEL7 Snapshot (3.10.0-272.el7.x86_64) 2017-08-13
-      Fedora 24 (4.11.12-100.fc24.x86_64)
-
-
-
-
-
-
-
-
-      Use the ↑ and ↓ keys to change the selection.
-      Press 'e' to edit the selected item, or 'c' for a command prompt.
-      Press Escape to return to the previous menu.
-```
+Previous versions of boom for distributions that included support for BLS but
+did not enable it by default allowed boom-managed boot entries to be placed
+into a separate Grub2 submenu. This is no longer possible with distributions
+that use BLS by default since there is no way to separately load the boom
+managed entries into a Grub2 submenu. Support for configuring this option was
+removed in boom-1.4.
 
 ## Python API
 Boom also supports programmatic use via a Python API. The API is flexible
