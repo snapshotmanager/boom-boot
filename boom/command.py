@@ -1149,7 +1149,7 @@ def clone_entry(
                    specifications for the new entry.
     :rtype: ``BootEntry``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate entry exists, or``OsError`` if an error
+             a duplicate entry exists, or ``OsError`` if an error
              occurs while writing the entry file.
     """
     if not selection.boot_id or selection.boot_id is None:
@@ -1640,7 +1640,7 @@ def create_profile(
     :returns: an ``OsProfile`` object for the new profile
     :rtype: ``OsProfile``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate profile exists, or``OsError`` if an error
+             a duplicate profile exists, or ``OsError`` if an error
              occurs while writing the profile file.
     """
 
@@ -1785,7 +1785,7 @@ def clone_profile(
     :returns: a new ``OsProfile`` object.
     :rtype: ``OsProfile``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate profile exists, or``OsError`` if an error
+             a duplicate profile exists, or ``OsError`` if an error
              occurs while writing the profile file.
     """
     if not selection.os_id:
@@ -1996,7 +1996,7 @@ def create_host(
     :returns: a ``HostProfile`` object for the new profile
     :rtype: ``HostProfile``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate profile exists, or``OsError`` if an error
+             a duplicate profile exists, or ``OsError`` if an error
              occurs while writing the profile file.
     """
 
@@ -2120,7 +2120,7 @@ def clone_host(
     :returns: a new ``HostProfile`` object.
     :rtype: ``HostProfile``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate profile exists, or``OsError`` if an error
+             a duplicate profile exists, or ``OsError`` if an error
              occurs while writing the profile file.
     """
     if not selection.host_id:
