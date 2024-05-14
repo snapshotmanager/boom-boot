@@ -2,13 +2,13 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.6.0
-Release:	2%{?dist}
+Version:	1.6.1
+Release:	1%{?dist}
 Summary:	%{summary}
 
 License:	GPL-2.0-only
 URL:		https://github.com/snapshotmanager/boom
-Source0:	boom-1.6.0.tar.gz
+Source0:	boom-%{version}.tar.gz
 
 BuildArch:	noarch
 
@@ -73,7 +73,7 @@ include this support in both Red Hat Enterprise Linux 7 and Fedora).
 This package provides configuration files for boom.
 
 %prep
-%autosetup -p1 -n boom-1.6.0
+%autosetup -p1 -n boom-%{version}
 
 %build
 %if 0%{?sphinx_docs}
@@ -138,6 +138,16 @@ rm doc/conf.py
 
 
 %changelog
+* Tue May 14 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.1-1
+- boom.bootloader: repair boom entries with mismatched boot_id
+- boom.bootloader: make BOOM_ENTRIES_PATTERN more strict
+- Revert "boom.cache: ignore foreign boot entries when reference counting"
+- command: fix docstring typo ('or``OsError``')
+- doc: update Grub2 docs to add removal of submenu support in 1.4
+- snapshot-remount-fs: use correct systemd unit path
+- snapshot-remount-fs: limit maxsplit when splitting kernel arguments
+- dist: Use systemd-rpm-macros for the path to the generator directory
+
 * Thu Nov 23 2023 Bryn M. Reeves <bmr@redhat.com> - 1.6.0-2
 - Update spec file
 
