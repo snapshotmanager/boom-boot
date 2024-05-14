@@ -60,7 +60,7 @@ ENTRIES_PATH = "loader/entries"
 BOOT_ENTRIES_FORMAT = "%s-%s-%s.conf"
 
 #: A regular expression matching the boom file name format.
-BOOT_ENTRIES_PATTERN = r"(\w*)-(\w{1,7})-([a-zA-Z0-9.\-_]*)"
+BOOT_ENTRIES_PATTERN = r"(\w*)-([0-9a-f]{7,})-.*\.conf"
 
 #: The file mode with which BLS entries should be created.
 BOOT_ENTRY_MODE = 0o644
