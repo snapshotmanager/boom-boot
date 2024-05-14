@@ -1494,7 +1494,7 @@ class BootEntry(object):
             if self.disp_boot_id != match.group(2):
                 _log_info("Entry file name does not match boot_id: %s" %
                           entry_basename)
-                self.read_only = True
+                self.update_entry(force=True)
 
         self._last_path = entry_file
         self._unwritten = False
@@ -2380,6 +2380,7 @@ class BootEntry(object):
         # Cache old entry path
         to_unlink = self._last_path
         self.write_entry(force=force, expand=expand)
+        _log_info("Rewrote entry %s as %s", self.disp_boot_id, self._entry_path)
         if self._entry_path != to_unlink:
             try:
                 unlink(to_unlink)
