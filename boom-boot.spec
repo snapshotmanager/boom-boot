@@ -8,7 +8,7 @@ Summary:	%{summary}
 
 License:	GPL-2.0-only
 URL:		https://github.com/snapshotmanager/boom
-Source0:	boom-%{version}.tar.gz
+Source0:	%{url}/archive/%{version}/boom-%{version}.tar.gz
 
 BuildArch:	noarch
 
@@ -140,6 +140,7 @@ rm doc/conf.py
 
 %changelog
 * Thu May 23 2024 Bryn M. Reeves <bmr@redhat.com>
+- Update snapm.spec source to use URL with name and version macros
 - boom: Change interpreter to /usr/bin/python3
 - dist: Use _smp_mflags make flags in snapm.spec docs build
 - dist: Fix use of python3_sitelib wildcard in snapm.spec
