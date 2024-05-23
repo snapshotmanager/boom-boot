@@ -77,7 +77,7 @@ This package provides configuration files for boom.
 
 %build
 %if 0%{?sphinx_docs}
-make -C doc html
+make %{?_smp_mflags} -C doc html
 rm doc/_build/html/.buildinfo
 mv doc/_build/html doc/html
 rm -r doc/_build
@@ -140,6 +140,7 @@ rm doc/conf.py
 
 %changelog
 * Thu May 23 2024 Bryn M. Reeves <bmr@redhat.com>
+- dist: Use _smp_mflags make flags in snapm.spec docs build
 - dist: Fix use of python3_sitelib wildcard in snapm.spec
 - dist: Fix SPDX license identifier in setup.cfg
 
