@@ -138,6 +138,9 @@ rm doc/conf.py
 
 
 %changelog
+* Thu May 23 2024 Bryn M. Reeves <bmr@redhat.com>
+- dist: Fix SPDX license identifier in setup.cfg
+
 * Tue May 14 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.1-1
 - boom.bootloader: repair boom entries with mismatched boot_id
 - boom.bootloader: make BOOM_ENTRIES_PATTERN more strict
