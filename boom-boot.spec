@@ -121,7 +121,8 @@ rm doc/conf.py
 %files -n python3-boom
 %license COPYING
 %doc README.md
-%{python3_sitelib}/*
+%{python3_sitelib}/boom/*
+%{python3_sitelib}/boom-*.egg-info/
 %doc doc
 %doc examples
 %doc tests
@@ -139,6 +140,7 @@ rm doc/conf.py
 
 %changelog
 * Thu May 23 2024 Bryn M. Reeves <bmr@redhat.com>
+- dist: Fix use of python3_sitelib wildcard in snapm.spec
 - dist: Fix SPDX license identifier in setup.cfg
 
 * Tue May 14 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.1-1
