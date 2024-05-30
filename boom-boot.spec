@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.6.1
+Version:	1.6.2
 Release:	1%{?dist}
 Summary:	%{summary}
 
@@ -141,7 +141,9 @@ rm doc/conf.py
 
 
 %changelog
-* Thu May 23 2024 Bryn M. Reeves <bmr@redhat.com>
+* Thu May 30 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.2-1
+- dist: require python3-dbus
+- dist: add dependency on systemd >= v254
 - Update snapm.spec source to use URL with name and version macros
 - boom: Change interpreter to /usr/bin/python3
 - dist: Use _smp_mflags make flags in snapm.spec docs build
