@@ -12,7 +12,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from os.path import join, abspath
+from os.path import join, abspath, exists
 from os import environ, getcwd, geteuid, getegid, makedirs
 from subprocess import Popen, PIPE
 import shutil
@@ -190,6 +190,8 @@ def get_root_lv():
         in LVM VG/LV notation.
     """
     lv = get_logical_volume()
+    if lv and not exists(lv):
+        return None
     return lv[5:] if lv else None
 
 
