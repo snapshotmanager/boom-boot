@@ -1017,6 +1017,10 @@ def create_entry(
 
     if no_fstab:
         add_opts.append("fstab=no")
+        # Ensure that root is mounted read-write
+        if "ro" not in del_opts:
+            del_opts.append("ro")
+            add_opts.append("rw")
 
     if mounts:
         mount_units = parse_mount_units(mounts)
