@@ -103,9 +103,6 @@ mkdir -p ${RPM_BUILD_ROOT}/%{_mandir}/man5
 install -m 644 man/man8/boom.8 ${RPM_BUILD_ROOT}/%{_mandir}/man8
 install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 
-mkdir -p ${RPM_BUILD_ROOT}/%{_systemdgeneratordir}
-install -m 755 systemd/snapshot-remount-fs ${RPM_BUILD_ROOT}/%{_systemdgeneratordir}
-
 rm doc/Makefile
 rm doc/conf.py
 
@@ -117,7 +114,6 @@ rm doc/conf.py
 %license COPYING
 %doc README.md
 %{_bindir}/boom
-%{_systemdgeneratordir}/snapshot-remount-fs
 %doc %{_mandir}/man*/boom.*
 
 %files -n python3-boom
@@ -141,6 +137,9 @@ rm doc/conf.py
 
 
 %changelog
+* Thu Jun 06 2024 Bryn M. Reeves <bmr@redhat.com>
+- drop snapshot-remount-fs generator
+
 * Thu May 30 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.2-1
 - dist: require python3-dbus
 - dist: add dependency on systemd >= v254
