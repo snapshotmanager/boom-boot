@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.6.2
+Version:	1.6.3
 Release:	1%{?dist}
 Summary:	%{summary}
 
@@ -137,8 +137,10 @@ rm doc/conf.py
 
 
 %changelog
-* Thu Jun 06 2024 Bryn M. Reeves <bmr@redhat.com>
-- drop snapshot-remount-fs generator
+* Tue Jun 18 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.3-1
+- boom: ensure root is mounted rw when --no-fstab is used
+- dist: drop snapshot-remount-fs generator
+- tests: check for device node presence in get_root_lv()
 
 * Thu May 30 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.2-1
 - dist: require python3-dbus
