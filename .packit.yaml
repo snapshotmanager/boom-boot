@@ -24,6 +24,9 @@ jobs:
     targets:
       - fedora-stable
       - fedora-development
+      - epel-9
+      - centos-stream-9
+      - centos-stream-10
 
 notifications:
   pull_request:
