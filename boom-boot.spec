@@ -7,7 +7,7 @@ Release:	1%{?dist}
 Summary:	%{summary}
 
 License:	GPL-2.0-only
-URL:		https://github.com/snapshotmanager/boom
+URL:		https://github.com/snapshotmanager/boom-boot
 Source0:	%{url}/archive/%{version}/boom-%{version}.tar.gz
 
 BuildArch:	noarch
