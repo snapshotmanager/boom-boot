@@ -244,7 +244,7 @@ class BoomConfig(object):
         boom.conf (INI) notation.
         """
         cstr = ""
-        cstr += "[defaults]\n"
+        cstr += "[global]\n"
         cstr += "boot_path = %s\n" % self.boot_path
         cstr += "boom_path = %s\n\n" % self.boom_path
 
