@@ -1,0 +1,30 @@
+[project]
+name = "boom_boot"
+version = "1.6.3"
+license = { file="COPYING" }
+authors = [
+  { name="Bryn M. Reeves", email="bmr@redhat.com" },
+]
+description = "The Boom Boot Manager"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+    "dbus-python >= 1.2.16",
+]
+
+[project.urls]
+Homepage = "https://github.com/snapshotmanager/boom-boot"
+Issues = "https://github.com/snapshotmanager/boom-boot/issues"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
