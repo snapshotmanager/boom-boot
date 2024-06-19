@@ -15,6 +15,8 @@ BuildArch:	noarch
 BuildRequires:	make
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-devel
+BuildRequires:  python3-pip
+BuildRequires:  python3-wheel
 %if 0%{?sphinx_docs}
 BuildRequires:	python3-dbus
 BuildRequires:	python3-sphinx
@@ -85,10 +87,18 @@ mv doc/_build/html doc/html
 rm -r doc/_build
 %endif
 
+%if 0%{?centos}
 %py3_build
+%else
+%pyproject_wheel
+%endif
 
 %install
+%if 0%{?centos}
 %py3_install
+%else
+%pyproject_install
+%endif
 
 # Make configuration directories
 # mode 0700 - in line with /boot/grub2 directory:
@@ -120,7 +130,11 @@ rm doc/conf.py
 %license COPYING
 %doc README.md
 %{python3_sitelib}/boom/*
-%{python3_sitelib}/boom-*.egg-info/
+%if 0%{?centos}
+%{python3_sitelib}/boom*.egg-info/
+%else
+%{python3_sitelib}/boom*.dist-info/
+%endif
 %doc doc
 %doc examples
 %doc tests
