@@ -4186,6 +4186,7 @@ def main(args):
 
         if not path_exists(get_boom_path()):
             _log_error("Configuration directory '%s' not found." % get_boom_path())
+            print("Run 'boom config create' to generate default configuration")
             return 1
 
         if not path_exists(get_boom_config_path()):
