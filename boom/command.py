@@ -2404,8 +2404,7 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
 
 
 def create_config():
-    """Create default boom configuration in /boot.
-    """
+    """Create default boom configuration in /boot."""
     bc = get_boom_config()
     _log_info("Creating default configuration in %s", bc.boot_path)
 
