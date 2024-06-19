@@ -3576,7 +3576,9 @@ def _clear_legacy_cmd(cmd_args, select, opts, identifier):
 
 
 def _show_legacy_cmd(cmd_args, select, opts, identifier):
-    # FIXME: args
+    """
+    Display legacy boot loader configuration.
+    """
     config = get_boom_config()
     show_legacy(selection=select, loader=config.legacy_format)
 
