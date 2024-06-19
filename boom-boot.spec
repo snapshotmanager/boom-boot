@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.6.3
+Version:	1.6.4
 Release:	1%{?dist}
 Summary:	%{summary}
 
@@ -151,6 +151,18 @@ rm doc/conf.py
 
 
 %changelog
+* Wed Jun 19 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.4-1
+- dist: add epel-9, centos-stream-9 and centos-stream-10 to Packit
+- doc: add 'boom config create' command to boom.8
+- tests: fix broken test for config file section name
+- boom: advise user to run 'boom config create' if no config found
+- boom: fix configuration file section name in BoomConfig.__str__()
+- boom: add 'boom config create' command
+- boom: add missing comment to _show_legacy_cmd()
+- dist: add license_file to setup.cfg
+- dist: update repository URL in boom-boot.spec
+- dist: add install dependency on dbus-python >= 1.2.16
+
 * Tue Jun 18 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.3-1
 - boom: ensure root is mounted rw when --no-fstab is used
 - dist: drop snapshot-remount-fs generator
