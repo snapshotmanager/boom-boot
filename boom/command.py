@@ -26,7 +26,7 @@ reports using the ``boom.report`` module.
 """
 from __future__ import print_function
 
-from os import environ, uname, getcwd
+from os import environ, uname, getcwd, makedirs
 from os.path import basename, exists as path_exists, isabs, join, sep
 from argparse import ArgumentParser
 from stat import filemode
@@ -2403,6 +2403,22 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
     [print(decorator(be)) for be in bes]
 
 
+def create_config():
+    """Create default boom configuration in /boot.
+    """
+    bc = get_boom_config()
+    _log_info("Creating default configuration in %s", bc.boot_path)
+
+    if path_exists(join(bc.boom_path, BOOM_CONFIG_FILE)):
+        raise BoomConfigError("Boom configuration already present in %s" % bc.boom_path)
+
+    makedirs(bc.boom_path, mode=0o755)
+    for subdir in ["cache", "hosts", "profiles"]:
+        makedirs(join(bc.boom_path, subdir), mode=0o700)
+    with open(join(bc.boom_path, BOOM_CONFIG_FILE), mode="w", encoding="utf8") as conf:
+        conf.write(str(bc))
+
+
 #
 # boom command line tool
 #
@@ -3583,6 +3599,13 @@ def _show_legacy_cmd(cmd_args, select, opts, identifier):
     show_legacy(selection=select, loader=config.legacy_format)
 
 
+def _create_config_cmd(cmd_args, select, opts, identifier):
+    """
+    Create default boom configuration in /boot.
+    """
+    create_config()
+
+
 CREATE_CMD = "create"
 DELETE_CMD = "delete"
 CLONE_CMD = "clone"
@@ -3598,6 +3621,7 @@ PROFILE_TYPE = "profile"
 HOST_TYPE = "host"
 CACHE_TYPE = "cache"
 LEGACY_TYPE = "legacy"
+CONFIG_TYPE = "config"
 
 _boom_entry_commands = [
     (CREATE_CMD, _create_cmd),
@@ -3634,12 +3658,17 @@ _boom_legacy_commands = [
     (SHOW_CMD, _show_legacy_cmd),
 ]
 
+_boom_config_commands = [
+    (CREATE_CMD, _create_config_cmd),
+]
+
 _boom_command_types = [
     (ENTRY_TYPE, _boom_entry_commands),
     (PROFILE_TYPE, _boom_profile_commands),
     (HOST_TYPE, _boom_host_commands),
     (CACHE_TYPE, _boom_cache_commands),
     (LEGACY_TYPE, _boom_legacy_commands),
+    (CONFIG_TYPE, _boom_config_commands),
 ]
 
 
@@ -4149,37 +4178,40 @@ def main(args):
     if cmd_args.config:
         set_boom_config_path(cmd_args.config)
 
-    try:
-        bc = load_boom_config()
-    except ValueError as e:
-        _log_error("Could not load boom configuration: %s" % e)
+    if cmd_type[0] != CONFIG_TYPE:
+        try:
+            bc = load_boom_config()
+        except ValueError as e:
+            _log_error("Could not load boom configuration: %s" % e)
 
-    if not path_exists(get_boom_path()):
-        _log_error("Configuration directory '%s' not found." % get_boom_path())
-        return 1
+        if not path_exists(get_boom_path()):
+            _log_error("Configuration directory '%s' not found." % get_boom_path())
+            return 1
 
-    if not path_exists(get_boom_config_path()):
-        _log_error("Configuration file '%s' not found." % get_boom_config_path())
-        return 1
+        if not path_exists(get_boom_config_path()):
+            _log_error("Configuration file '%s' not found." % get_boom_config_path())
+            return 1
 
-    if not path_exists(boom_profiles_path()):
-        _log_error(
-            "OS profile configuration path '%s' not found." % boom_profiles_path()
-        )
-        return 1
+        if not path_exists(boom_profiles_path()):
+            _log_error(
+                "OS profile configuration path '%s' not found." % boom_profiles_path()
+            )
+            return 1
 
-    if not path_exists(boom_host_profiles_path()):
-        _log_error(
-            "Host profile configuration path '%s' not found."
-            % boom_host_profiles_path()
-        )
-        return 1
+        if not path_exists(boom_host_profiles_path()):
+            _log_error(
+                "Host profile configuration path '%s' not found."
+                % boom_host_profiles_path()
+            )
+            return 1
 
-    if not path_exists(boom_entries_path()):
-        _log_error(
-            "Boot loader entries directory '%s' not found." % boom_entries_path()
-        )
-        return 1
+        if not path_exists(boom_entries_path()):
+            _log_error(
+                "Boot loader entries directory '%s' not found." % boom_entries_path()
+            )
+            return 1
+    else:
+        bc = get_boom_config()
 
     if cmd_type[0] == CACHE_TYPE and not bc.cache_enable:
         _log_error("Boot image cache disabled (config.cache_enable=False)")
