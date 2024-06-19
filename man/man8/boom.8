@@ -618,6 +618,17 @@ Boom \(em linux boot manager
 .CMD_CACHE_SHOW
 
 .
+.HP
+.B boom
+.de CMD_CONFIG_CREATE
+. ad l
+.BR config
+.BR \fBcreate
+. ad b
+..
+.CMD_CONFIG_CREATE
+
+.
 .PD
 .ad b
 .
@@ -1296,6 +1307,15 @@ Display matching cache entries on standard output.
 
 Entries matching selection criteria are printed in a compact multi-line
 format.
+.
+.HP
+.B boom
+.CMD_CONFIG_CREATE
+.br
+Create a default configuration in /boot.
+
+Set up /boot/boom if configuration files were not provided with the
+\fBboom\fP package.
 .
 .SH REPORT FIELDS
 .
