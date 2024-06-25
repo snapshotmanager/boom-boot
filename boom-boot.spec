@@ -91,14 +91,14 @@ mv doc/_build/html doc/html
 rm -r doc/_build
 %endif
 
-%if 0%{?centos}
+%if 0%{?centos} || 0%{?rhel}
 %py3_build
 %else
 %pyproject_wheel
 %endif
 
 %install
-%if 0%{?centos}
+%if 0%{?centos} || 0%{?rhel}
 %py3_install
 %else
 %pyproject_install
@@ -134,7 +134,7 @@ rm doc/conf.py
 %license COPYING
 %doc README.md
 %{python3_sitelib}/boom/*
-%if 0%{?centos}
+%if 0%{?centos} || 0%{?rhel}
 %{python3_sitelib}/boom*.egg-info/
 %else
 %{python3_sitelib}/boom*.dist-info/
