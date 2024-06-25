@@ -27,7 +27,11 @@ BuildRequires: systemd-rpm-macros
 Requires: python3-boom = %{version}-%{release}
 Requires: %{name}-conf = %{version}-%{release}
 Requires: python3-dbus
+%if 0%{?rhel} == 9
+Requires: systemd >= 252-18
+%else
 Requires: systemd >= 254
+%endif
 
 Obsoletes: boom-boot-grub2 <= 1.3
 # boom-grub2 was not an official name of subpackage in fedora, but was used upstream:
