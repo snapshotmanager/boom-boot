@@ -697,12 +697,12 @@ class Report:
         :param field_num: The number of this field (fields order)
         :param implicit: True if this field is implicit, else False
         """
-        # FIXME implicit fields
         for field in self._implicit_fields:
             if field.name == field_name:
                 return (self._implicit_fields.index(field), True)
         for field in self._fields:
-            if field.name == field_name:
+            objtype = self.__find_type(field.objtype)
+            if field.name == field_name or objtype.prefix + field.name == field_name:
                 return (self._fields.index(field), False)
         raise ValueError(f"No matching field name: {field_name}")
 
