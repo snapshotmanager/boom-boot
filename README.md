@@ -334,9 +334,9 @@ Detailed information on selected cache entries is provided by the
 
 ### Reporting commands
 
-The `boom entry list` and `boom host|profile list` commands generate
-a tabular report as output. To control the list of displayed fields
-use the `-o/--options FIELDS` argument:
+The `boom entry list` and `boom host|profile list`, and `boom cache
+list` commands generate a tabular report as output. To control the
+list of displayed fields use the `-o/--options FIELDS` argument:
 
 ```
 boom list -oboot_id,version
@@ -365,6 +365,14 @@ a559d3a 2.6.32-232.el6           98c3edb Red Hat Enterprise Linux Server 6 (Serv
 d85f2c3 3.10.1-1.el7             3fc389b Red Hat Enterprise Linux Server 7.2 (Maipo) /boot/vmlinuz-3.10.1-1.el7           /boot/initramfs-3.10.1-1.el7.img
 d85f2c3 3.10.1-1.el7             3fc389b Red Hat Enterprise Linux Server 7.2 (Maipo) /boot/vmlinuz-3.10.1-1.el7           /boot/initramfs-3.10.1-1.el7.img
 e19586b 7.7.7                    3fc389b Red Hat Enterprise Linux Server 7.2 (Maipo) /boot/vmlinuz-7.7.7                  /boot/initramfs-7.7.7.img
+```
+
+```
+boom list -o+title
+BootID  Version                  Name                     RootDevice                                    Title
+635ed15 6.8.9-300.fc40.x86_64    Fedora Linux             /dev/mapper/fedora-root                       Fedora Linux (6.8.9-300.fc40.x86_64) 40 (Server Edition)
+995b87e 6.8.9-300.fc40.x86_64    Fedora Linux             /dev/fedora/root-snapset_upgrade_1719340050_- Snapshot upgrade 2024-06-25 19:27:30 (6.8.9-300.fc40.x86_64)
+029c307 6.8.9-300.fc40.x86_64    Fedora Linux             /dev/fedora/root                              Revert upgrade 2024-06-25 19:27:30 (6.8.9-300.fc40.x86_64)
 ```
 
 To display the available fields for either report use the field
@@ -441,6 +449,20 @@ Host profiles Fields
   profilepath   - On-disk profile path [str]
   addopts       - Added Options [str]
   delopts       - Deleted Options [str]
+```
+
+`Cache` fields:
+```
+Cache entries Fields
+--------------------
+  imgid       - Image identifier [sha]
+  path        - Image path [str]
+  mode        - Path mode [str]
+  uid         - User ID [num]
+  gid         - Group ID [num]
+  ts          - Timestamp [num]
+  state       - State [str]
+  count       - Use Count [num]
 ```
 
 ### Getting help
