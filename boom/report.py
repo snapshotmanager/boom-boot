@@ -836,7 +836,8 @@ class Report:
                 )
         for field in self._fields:
             fields = self._fields
-            if field.name == key_name:
+            objtype = self.__find_type(field.objtype)
+            if field.name == key_name or objtype.prefix + field.name == key_name:
                 return self.__add_sort_key(
                     fields.index(field), sort_dir, False, type_only
                 )
