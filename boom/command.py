@@ -83,7 +83,7 @@ class ReportObj(object):
     of fields will attempt to access.
 
     This allows a single report to include fields from both a
-    ``BootEntry`` object and an attached ``OsProfile``.
+    ''``BootEntry`` object and an attached ``OsProfile``.
     """
 
     be = None
@@ -757,7 +757,7 @@ def __write_legacy():
 
 
 def _do_print_type(
-    report_fields, selected, output_fields=None, opts=None, sort_keys=None
+    report_fields, selected, output_fields=None, opts=None, sort_keys=None, title=None,
 ):
     """Print an object type report (entry, osprofile, hostprofile).
 
@@ -780,7 +780,7 @@ def _do_print_type(
     opts = opts if opts is not None else ReportOpts()
 
     br = Report(
-        _report_obj_types, report_fields, output_fields, opts, sort_keys,
+        _report_obj_types, report_fields, output_fields, opts, sort_keys, title,
     )
 
     for obj in selected:
@@ -1434,6 +1434,7 @@ def print_entries(
         output_fields=output_fields,
         opts=opts,
         sort_keys=sort_keys,
+        title="Entries",
     )
 
 
@@ -1953,6 +1954,7 @@ def print_profiles(
         output_fields=output_fields,
         opts=opts,
         sort_keys=sort_keys,
+        title="OsProfiles",
     )
 
 
@@ -2304,6 +2306,7 @@ def print_hosts(
         output_fields=output_fields,
         opts=opts,
         sort_keys=sort_keys,
+        title="HostProfiles",
     )
 
 
@@ -2336,6 +2339,7 @@ def _print_cache(
         output_fields=output_fields,
         opts=opts,
         sort_keys=sort_keys,
+        title="Cache",
     )
 
 

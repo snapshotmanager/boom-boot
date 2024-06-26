@@ -859,7 +859,7 @@ class Report:
                 raise err
 
     # pylint: disable=too-many-arguments
-    def __init__(self, types, fields, output_fields, opts, sort_keys):
+    def __init__(self, types, fields, output_fields, opts, sort_keys, title):
         """
         Initialise Report.
 
@@ -877,6 +877,7 @@ class Report:
 
         self._fields = fields
         self._types = types
+        self._title = title
 
         if opts.buffered:
             self._sort_required = True
