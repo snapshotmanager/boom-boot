@@ -180,6 +180,15 @@ Boom \(em linux boot manager
 .  IR initrd_path ]
 .  RB [ --btrfs-subvol
 .  IR subvol ]
+.  RB [ --nameprefixes ]
+.  RB [ --noheadings ]
+.  RB [ --options
+.  IR fields ]
+.  RB [ --sort
+.  IR fields ]
+.  RB [ --rows | --json ]
+.  RB [ --separator
+.  IR separator ]
 .  ad b
 ..
 .CMD_ENTRY_LIST
@@ -324,6 +333,15 @@ Boom \(em linux boot manager
 .  IR osshortname ]
 .  RB [ --os-version
 .  IR version ]
+.  RB [ --nameprefixes ]
+.  RB [ --noheadings ]
+.  RB [ --options
+.  IR fields ]
+.  RB [ --sort
+.  IR fields ]
+.  RB [ --rows | --json ]
+.  RB [ --separator
+.  IR separator ]
 .  ad b
 ..
 .CMD_PROFILE_LIST
@@ -480,6 +498,15 @@ Boom \(em linux boot manager
 .  IR btrfs_opts ]
 .  RB [ --os-options
 .  IR os_options ]
+.  RB [ --nameprefixes ]
+.  RB [ --noheadings ]
+.  RB [ --options
+.  IR fields ]
+.  RB [ --sort
+.  IR fields ]
+.  RB [ --rows | --json ]
+.  RB [ --separator
+.  IR separator ]
 .  ad b
 ..
 .CMD_HOST_LIST
@@ -597,6 +624,15 @@ Boom \(em linux boot manager
 .  RB [ --initrd
 .  IR initrd_path ]
 .  ad b
+.  RB [ --nameprefixes ]
+.  RB [ --noheadings ]
+.  RB [ --options
+.  IR fields ]
+.  RB [ --sort
+.  IR fields ]
+.  RB [ --rows | --json ]
+.  RB [ --separator
+.  IR separator ]
 ..
 .CMD_CACHE_LIST
 .
@@ -846,6 +882,11 @@ An OS profile template used to generate initial ramfs image paths.
 .BR --rows
 .br
 Output report columns as rows.
+.
+.HP
+.BR --json
+.br
+Output reports in JSON notation
 .
 .HP
 .BR --separator
