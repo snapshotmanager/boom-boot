@@ -534,7 +534,7 @@ class Report:
     Report()
 
     A class representing a configurable text report with multiple
-    caller-defined fields. An optional title may be provided and he
+    caller-defined fields. An optional title may be provided and the
     ``fields`` argument must contain a list of ``Field`` objects
     describing the required report.
 
@@ -689,7 +689,7 @@ class Report:
 
         Attempt to find the field named in ``field_name`` in this
         Report's tables of implicit and user-defined fields,
-        returning the a ``(field, implicit)`` tuple, where field
+        returning a ``(field, implicit)`` tuple, where field
         contains the requested ``FieldType``, and ``implicit``
         is a boolean indicating whether this field is implicit or
         not.
