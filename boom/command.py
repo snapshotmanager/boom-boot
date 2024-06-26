@@ -780,7 +780,7 @@ def _do_print_type(
     opts = opts if opts is not None else ReportOpts()
 
     br = Report(
-        _report_obj_types, report_fields, output_fields, opts, sort_keys, None
+        _report_obj_types, report_fields, output_fields, opts, sort_keys,
     )
 
     for obj in selected:

@@ -557,7 +557,6 @@ class Report:
     _implicit_types = _implicit_special_report_types
     _implicit_fields = _implicit_special_report_fields
 
-    private = None
     opts = None
 
     def __help_requested(self):
@@ -860,7 +859,7 @@ class Report:
                 raise err
 
     # pylint: disable=too-many-arguments
-    def __init__(self, types, fields, output_fields, opts, sort_keys, private):
+    def __init__(self, types, fields, output_fields, opts, sort_keys):
         """
         Initialise Report.
 
@@ -878,7 +877,6 @@ class Report:
 
         self._fields = fields
         self._types = types
-        self._private = private
 
         if opts.buffered:
             self._sort_required = True
