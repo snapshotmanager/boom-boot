@@ -941,9 +941,9 @@ class Report:
                         shas[num] = set()
                         props_map[num] = field.props
                     shas[num].add(field.report_string)
-        for num in shas:
+        for num, vals in shas.items():
             min_prefix = max(MIN_SHA_WIDTH, props_map[num].width)
-            props_map[num].width = find_minimum_sha_prefix(shas[num], min_prefix)
+            props_map[num].width = find_minimum_sha_prefix(vals, min_prefix)
 
     def __recalculate_fields(self):
         """
