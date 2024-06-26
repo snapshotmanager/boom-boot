@@ -30,6 +30,7 @@ mapper reports.
 import logging
 import sys
 import uuid
+import math
 
 
 from boom import find_minimum_sha_prefix, BOOM_DEBUG_REPORT
@@ -51,12 +52,13 @@ REP_STR = "str"
 REP_SHA = "sha"
 REP_TIME = "time"
 REP_UUID = "uuid"
+REP_SIZE = "size"
 REP_STR_LIST = "strlist"
 
-_dtypes = [REP_NUM, REP_STR, REP_SHA, REP_TIME, REP_UUID, REP_STR_LIST]
+_dtypes = [REP_NUM, REP_STR, REP_SHA, REP_TIME, REP_UUID, REP_SIZE, REP_STR_LIST]
 
 _left_align_dtypes = [REP_STR, REP_SHA, REP_TIME, REP_UUID, REP_STR_LIST]
-_right_align_dtypes = [REP_NUM]
+_right_align_dtypes = [REP_NUM, REP_SIZE]
 
 _DEFAULT_WIDTH = 8
 
@@ -75,6 +77,15 @@ MIN_SHA_WIDTH = 7
 
 string_types = (str,)
 num_types = (int, float)
+
+
+def size_fmt(value):
+    suffixes = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"]
+    magnitude = int(math.floor(math.log(value, 1024)))
+    val = value / math.pow(1024, magnitude)
+    if magnitude > 7:
+        return f"{val:.1f}YiB"
+    return f"{val:3.1f}{suffixes[magnitude]}"
 
 
 # pylint: disable=too-many-instance-attributes
@@ -394,6 +405,22 @@ class Field:
         else:
             raise TypeError("Value for report_uuid() must be a UUID type.")
         self.set_value(value, sort_value=value)
+
+    def report_size(self, value):
+        """
+        Report a size value for this Field object.
+
+        Set the value for this field to the supplied ``value``, converted
+        to a human readable string.
+
+        :param value: The size value to set in bytes.
+        :rtype: None
+        """
+        if isinstance(value, int):
+            value_str = size_fmt(value)
+        else:
+            raise TypeError("Value for report_size() must be an int type.")
+        self.set_value(value_str, sort_value=value)
 
     def report_str_list(self, value):
         """
@@ -1247,6 +1274,7 @@ __all__ = [
     "REP_SHA",
     "REP_TIME",
     "REP_UUID",
+    "REP_SIZE",
     "REP_STR_LIST",
     "ALIGN_LEFT",
     "ALIGN_RIGHT",

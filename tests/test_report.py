@@ -33,6 +33,7 @@ from boom.report import (
     REP_SHA,
     REP_TIME,
     REP_UUID,
+    REP_SIZE,
     REP_STR_LIST,
     ALIGN_LEFT,
     ALIGN_RIGHT,
@@ -49,6 +50,7 @@ _report_objs = [
         "ffffffffffffffffffffffffffffffffffffffff",
         "2023-09-05 14:40:53",
         uuid.UUID("00000000-0000-0000-0000-000000000000"),
+        1024,
         ["foo", "bar", "baz"],
     ),
     (
@@ -57,6 +59,7 @@ _report_objs = [
         "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
         "1978-01-10 09:13:12",
         uuid.UUID("1d133bcc-6137-5267-b870-e469f7188dbe"),
+        1024**2,
         ["one", "two", "three"],
     ),
     (
@@ -65,6 +68,7 @@ _report_objs = [
         "1111111111111111111111111111111111111111",
         "2022-08-01 16:43:32",
         uuid.UUID("3576355e-e4d7-5a57-9f24-b3f4e0e326ef"),
+        1024**3,
         ["baz", "quux"],
     ),
     (
@@ -73,6 +77,7 @@ _report_objs = [
         "2222222222222222222222222222222222222222",
         "2020-01-01 23:32:08",
         uuid.UUID("046e4f15-1ddd-5724-b032-878248a71d4b"),
+        1024**4,
         ["string", "list"],
     ),
 ]
@@ -82,7 +87,8 @@ PR_STR = 2
 PR_SHA = 4
 PR_TIME = 8
 PR_UUID = 16
-PR_STR_LIST = 32
+PR_SIZE = 32
+PR_STR_LIST = 64
 
 _test_obj_types = [
     ReportObjType(PR_NUM, "Num", "num_", lambda o: o[0]),
@@ -90,7 +96,8 @@ _test_obj_types = [
     ReportObjType(PR_SHA, "Sha", "sha_", lambda o: o[2]),
     ReportObjType(PR_TIME, "Time", "time_", lambda o: o[3]),
     ReportObjType(PR_UUID, "Uuid", "uuid_", lambda o: o[4]),
-    ReportObjType(PR_STR_LIST, "StrList", "strlist_", lambda o: o[5]),
+    ReportObjType(PR_SIZE, "Size", "size_", lambda o: o[5]),
+    ReportObjType(PR_STR_LIST, "StrList", "strlist_", lambda o: o[6]),
 ]
 
 
@@ -122,6 +129,14 @@ class ReportTests(unittest.TestCase):
     def test_FieldType_dtype_TIME(self):
         pf = FieldType(PR_TIME, "none", "None", "Nothing", 0, REP_TIME, lambda x: x)
         self.assertEqual(pf.dtype, REP_TIME)
+
+    def test_FieldType_dtype_UUID(self):
+        pf = FieldType(PR_UUID, "none", "None", "Nothing", 0, REP_UUID, lambda x: x)
+        self.assertEqual(pf.dtype, REP_UUID)
+
+    def test_FieldType_dtype_SIZE(self):
+        pf = FieldType(PR_SIZE, "none", "None", "Nothing", 0, REP_SIZE, lambda x: x)
+        self.assertEqual(pf.dtype, REP_SIZE)
 
     def test_FieldType_dtype_STR_LIST(self):
         pf = FieldType(
@@ -612,6 +627,15 @@ class ReportTests(unittest.TestCase):
             REP_UUID,
             lambda f, d: f.report_uuid(d),
         )
+        pf_size = FieldType(
+            PR_SIZE,
+            "size",
+            "Size",
+            "Nothing",
+            8,
+            REP_SIZE,
+            lambda f, d: f.report_size(d),
+        )
         pf_str_list = FieldType(
             PR_STR_LIST,
             "strlist",
@@ -626,17 +650,17 @@ class ReportTests(unittest.TestCase):
         opts = ReportOpts(report_file=output)
 
         xoutput = (
-            "Name     Number   Sha      Time                Uuid                                 StrList        \n"
-            "foo             1 ffffffff 2023-09-05 14:40:53 00000000-0000-0000-0000-000000000000 bar, baz, foo  \n"
-            "bar             2 FFFFFFFF 1978-01-10 09:13:12 1d133bcc-6137-5267-b870-e469f7188dbe one, three, two\n"
-            "baz             3 11111111 2022-08-01 16:43:32 3576355e-e4d7-5a57-9f24-b3f4e0e326ef baz, quux      \n"
-            "qux             4 22222222 2020-01-01 23:32:08 046e4f15-1ddd-5724-b032-878248a71d4b list, string   \n"
+            "Name     Number   Sha      Time                Uuid                                 Size     StrList        \n"
+            "foo             1 ffffffff 2023-09-05 14:40:53 00000000-0000-0000-0000-000000000000   1.0KiB bar, baz, foo  \n"
+            "bar             2 FFFFFFFF 1978-01-10 09:13:12 1d133bcc-6137-5267-b870-e469f7188dbe   1.0MiB one, three, two\n"
+            "baz             3 11111111 2022-08-01 16:43:32 3576355e-e4d7-5a57-9f24-b3f4e0e326ef   1.0GiB baz, quux      \n"
+            "qux             4 22222222 2020-01-01 23:32:08 046e4f15-1ddd-5724-b032-878248a71d4b   1.0TiB list, string   \n"
         )
 
         pr = Report(
             _test_obj_types,
-            [pf_name, pf_num, pf_sha, pf_time, pf_uuid, pf_str_list],
-            "name,number,sha,time,uuid,strlist",
+            [pf_name, pf_num, pf_sha, pf_time, pf_uuid, pf_size, pf_str_list],
+            "name,number,sha,time,uuid,size,strlist",
             opts,
             None,
             None,
