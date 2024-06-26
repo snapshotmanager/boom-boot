@@ -723,6 +723,14 @@ class Report:
         :param field_name: A string identifying the field
         :param type_only: True if this call should only update types
         """
+        if "_" in field_name and field_name.split("_", maxsplit=1)[1] == "all":
+            prefix = field_name.split("_", maxsplit=1)[0]
+            for field in self._fields:
+                objtype = self.__find_type(field.objtype)
+                if objtype.prefix[:-1] == prefix:
+                    self.__field_match(prefix + "_" + field.name, type_only)
+            return None
+
         try:
             (f_idx, implicit) = self.__get_field(field_name)
             if type_only:
@@ -733,8 +741,6 @@ class Report:
                 return None
             return self.__add_field(f_idx, implicit)
         except ValueError as err:
-            # FIXME handle '$PREFIX_all'
-            # re-raise 'e' if it fails.
             _log_error("Error adding field %s", field_name)
             raise err
         return None
