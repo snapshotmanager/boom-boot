@@ -31,6 +31,7 @@ import logging
 import sys
 import uuid
 import math
+import json
 
 
 from boom import find_minimum_sha_prefix, BOOM_DEBUG_REPORT
@@ -102,6 +103,7 @@ class ReportOpts:
     field_name_prefix = None
     unquoted = True
     aligned = True
+    json = False
     columns_as_rows = False
     report_file = None
 
@@ -115,6 +117,7 @@ class ReportOpts:
         field_name_prefix="",
         unquoted=True,
         aligned=True,
+        json=False,
         columns_as_rows=False,
         report_file=sys.stdout,
     ):
@@ -139,6 +142,7 @@ class ReportOpts:
         self.field_name_prefix = field_name_prefix
         self.unquoted = unquoted
         self.aligned = aligned
+        self.json = False
         self.columns_as_rows = columns_as_rows
         self.report_file = report_file
 
@@ -151,6 +155,7 @@ class ReportOpts:
             f"field_name_prefix={self.field_name_prefix}\n"
             f"unquoted={self.unquoted}\n"
             f"aligned={self.aligned}\n"
+            f"json={self.json}\n"
             f"columns_as_rows={self.columns_as_rows}\n"
             f"report_file={self.report_file}"
         )
@@ -167,6 +172,7 @@ class ReportOpts:
                 self.field_name_prefix == other.field_name_prefix,
                 self.unquoted == other.unquoted,
                 self.aligned == other.aligned,
+                self.json == other.json,
                 self.columns_as_rows == other.columns_as_rows,
                 self.report_file == other.report_file,
             ]
@@ -1185,6 +1191,34 @@ class Report:
         suffix = quote
         return prefix + repstr + suffix
 
+    def _output_field_json(self, field):
+        """
+        Output field data as a JSON dictionary element.
+
+        :field: The field to be output
+        :returns: A ``(key, value)`` tuple for this field
+        :rtype: Tuple
+        """
+        fields = self._fields
+        obj_type = field.props.objtype
+        field_name = obj_type.prefix + fields[field.props.field_num].name
+        field_dtype = fields[field.props.field_num].dtype
+        if field_dtype == REP_NUM:
+            value = field.sort_value
+        elif field_dtype == REP_STR:
+            if field.report_string == "yes":
+                value = True
+            elif field.report_string == "no":
+                value = False
+            else:
+                value = field.report_string
+        elif field_dtype == REP_STR_LIST:
+            value = field.report_string.split(", ")
+        else:
+            value = field.report_string
+
+        return (field_name, value)
+
     def _output_as_rows(self):
         """
         Output this report in column format.
@@ -1241,6 +1275,25 @@ class Report:
                 line += self._output_field(field)
             self.opts.report_file.write(line + "\n")
 
+    def _output_as_json(self):
+        """
+        Output this report in JSON format.
+
+        Output the data contained in this ``Report`` in JSON notation.
+        Column names are used as the keys for the JSON report.
+        :returns: None
+        """
+        rows = {f"{self._title}": []}
+        for row in self._rows:
+            row_vals = {}
+            for field in row._fields:
+                if field.props.hidden:
+                    continue
+                (key, value) = self._output_field_json(field)
+                row_vals[key] = value
+            rows[f"{self._title}"].append(row_vals)
+        self.opts.report_file.write(json.dumps(rows, indent=4) + "\n")
+
     def report_output(self):
         """
         Output report data.
@@ -1261,6 +1314,8 @@ class Report:
             self.__recalculate_fields()
         if self._sort_required:
             self._sort_rows()
+        if self.opts.json:
+            return self._output_as_json()
         if self.opts.columns_as_rows:
             return self._output_as_rows()
         return self._output_as_columns()
