@@ -963,8 +963,7 @@ class Report:
                 if self._fields[field.props.field_num].dtype == REP_SHA:
                     continue
                 field_len = len(field.report_string)
-                if field_len > field.props.width:
-                    field.props.width = field_len
+                field.props.width = max(field_len, field.props.width)
 
     def __report_headings(self):
         """
