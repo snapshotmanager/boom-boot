@@ -465,6 +465,78 @@ Cache entries Fields
   count       - Use Count [num]
 ```
 
+#### JSON report output
+
+The reporting commands can also produce output in JSON notation. The
+output is an array of JSON objects mapping field names to values. The
+full field name including the type prefix is used to ensure keys are
+unambiguous.
+
+```
+# boom list --json
+{
+    "Entries": [
+        {
+            "entry_bootid": "635ed15b411495cffa0c1eece74d3756278f484a",
+            "param_version": "6.8.9-300.fc40.x86_64",
+            "profile_osname": "Fedora Linux",
+            "param_rootdev": "/dev/mapper/fedora-root"
+        },
+        {
+            "entry_bootid": "995b87eac66fa6b4507e4c5dbd8a30e196b13e2c",
+            "param_version": "6.8.9-300.fc40.x86_64",
+            "profile_osname": "Fedora Linux",
+            "param_rootdev": "/dev/fedora/root-snapset_upgrade_1719340050_-"
+        },
+        {
+            "entry_bootid": "029c3078f83df79bfc2240223c6f79c648b2fce3",
+            "param_version": "6.8.9-300.fc40.x86_64",
+            "profile_osname": "Fedora Linux",
+            "param_rootdev": "/dev/fedora/root"
+        }
+    ]
+}
+```
+
+To include all fields for a given prefix use the special field name
+`all`:
+
+```
+# boom list --json -o+entry_all,param_all,profile_all
+{
+    "Entries": [
+        {
+            "entry_bootid": "635ed15b411495cffa0c1eece74d3756278f484a",
+            "param_version": "6.8.9-300.fc40.x86_64",
+            "profile_osname": "Fedora Linux",
+            "param_rootdev": "/dev/mapper/fedora-root",
+            "entry_title": "Fedora Linux (6.8.9-300.fc40.x86_64) 40 (Server Edition)",
+            "entry_options": "root=/dev/mapper/fedora-root ro rd.lvm.lv=fedora/root rhgb quiet ",
+            "entry_kernel": "/vmlinuz-6.8.9-300.fc40.x86_64",
+            "entry_initramfs": "/initramfs-6.8.9-300.fc40.x86_64.img",
+            "entry_machineid": "5d1e621b0c1349aea3bd47e4bb619024",
+            "entry_entrypath": "/boot/loader/entries/5d1e621b0c1349aea3bd47e4bb619024-6.8.9-300.fc40.x86_64.conf",
+            "entry_entryfile": "5d1e621b0c1349aea3bd47e4bb619024-6.8.9-300.fc40.x86_64.conf",
+            "entry_readonly": true,
+            "param_rootlv": "fedora/root",
+            "param_subvolpath": "",
+            "param_subvolid": -1,
+            "profile_osid": "5ea08f4d8c4d6fbdfdb2c0b79829e7ff4dfce7d4",
+            "profile_osshortname": "fedora",
+            "profile_osversion": "40 (Server Edition)",
+            "profile_osversion_id": "40",
+            "profile_unamepattern": "fc40",
+            "profile_kernelpattern": "/vmlinuz-%{version}",
+            "profile_initrdpattern": "/initramfs-%{version}.img",
+            "profile_lvm2opts": "rd.lvm.lv=%{lvm_root_lv}",
+            "profile_btrfsopts": "rootflags=%{btrfs_subvolume}",
+            "profile_options": "root=%{root_device} ro %{root_opts} rhgb quiet",
+            "profile_profilepath": "/boot/boom/profiles/5ea08f4d8c4d6fbdfdb2c0b79829e7ff4dfce7d4-fedora40.profile"
+        }
+    ]
+}
+```
+
 ### Getting help
 
 Help is available for the `boom` command and each command line option.
