@@ -672,6 +672,146 @@ class ReportTests(unittest.TestCase):
         print(output.getvalue())
         self.assertEqual(output.getvalue(), xoutput)
 
+    def test_FieldType_all_types_report_json(self):
+        pf_name = FieldType(
+            PR_STR,
+            "name",
+            "Name",
+            "Nothing",
+            8,
+            REP_STR,
+            lambda f, d: f.report_str(d),
+        )
+        pf_num = FieldType(
+            PR_NUM,
+            "number",
+            "Number",
+            "Nothing",
+            8,
+            REP_NUM,
+            lambda f, d: f.report_num(d),
+        )
+        pf_sha = FieldType(
+            PR_SHA,
+            "sha",
+            "Sha",
+            "Nothing",
+            8,
+            REP_SHA,
+            lambda f, d: f.report_sha(d),
+        )
+        pf_time = FieldType(
+            PR_TIME,
+            "time",
+            "Time",
+            "Nothing",
+            8,
+            REP_TIME,
+            lambda f, d: f.report_time(d),
+        )
+        pf_uuid = FieldType(
+            PR_UUID,
+            "uuid",
+            "Uuid",
+            "Nothing",
+            8,
+            REP_UUID,
+            lambda f, d: f.report_uuid(d),
+        )
+        pf_size = FieldType(
+            PR_SIZE,
+            "size",
+            "Size",
+            "Nothing",
+            8,
+            REP_SIZE,
+            lambda f, d: f.report_size(d),
+        )
+        pf_str_list = FieldType(
+            PR_STR_LIST,
+            "strlist",
+            "StrList",
+            "Nothing",
+            8,
+            REP_STR_LIST,
+            lambda f, d: f.report_str_list(d),
+        )
+
+        output = StringIO()
+        opts = ReportOpts(json=True, report_file=output)
+
+        xoutput = (
+            '{\n'
+            '    "Test": [\n'
+            '        {\n'
+            '            "str_name": "foo",\n'
+            '            "num_number": 1,\n'
+            '            "sha_sha": "ffffffffffffffffffffffffffffffffffffffff",\n'
+            '            "time_time": "2023-09-05 14:40:53",\n'
+            '            "uuid_uuid": "00000000-0000-0000-0000-000000000000",\n'
+            '            "size_size": "1.0KiB",\n'
+            '            "strlist_strlist": [\n'
+            '                "bar",\n'
+            '                "baz",\n'
+            '                "foo"\n'
+            '            ]\n'
+            '        },\n'
+            '        {\n'
+            '            "str_name": "bar",\n'
+            '            "num_number": 2,\n'
+            '            "sha_sha": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",\n'
+            '            "time_time": "1978-01-10 09:13:12",\n'
+            '            "uuid_uuid": "1d133bcc-6137-5267-b870-e469f7188dbe",\n'
+            '            "size_size": "1.0MiB",\n'
+            '            "strlist_strlist": [\n'
+            '                "one",\n'
+            '                "three",\n'
+            '                "two"\n'
+            '            ]\n'
+            '        },\n'
+            '        {\n'
+            '            "str_name": "baz",\n'
+            '            "num_number": 3,\n'
+            '            "sha_sha": "1111111111111111111111111111111111111111",\n'
+            '            "time_time": "2022-08-01 16:43:32",\n'
+            '            "uuid_uuid": "3576355e-e4d7-5a57-9f24-b3f4e0e326ef",\n'
+            '            "size_size": "1.0GiB",\n'
+            '            "strlist_strlist": [\n'
+            '                "baz",\n'
+            '                "quux"\n'
+            '            ]\n'
+            '        },\n'
+            '        {\n'
+            '            "str_name": "qux",\n'
+            '            "num_number": 4,\n'
+            '            "sha_sha": "2222222222222222222222222222222222222222",\n'
+            '            "time_time": "2020-01-01 23:32:08",\n'
+            '            "uuid_uuid": "046e4f15-1ddd-5724-b032-878248a71d4b",\n'
+            '            "size_size": "1.0TiB",\n'
+            '            "strlist_strlist": [\n'
+            '                "list",\n'
+            '                "string"\n'
+            '            ]\n'
+            '        }\n'
+            '    ]\n'
+            '}\n'
+        )
+
+        pr = Report(
+            _test_obj_types,
+            [pf_name, pf_num, pf_sha, pf_time, pf_uuid, pf_size, pf_str_list],
+            "name,number,sha,time,uuid,size,strlist",
+            opts,
+            None,
+            "Test",
+        )
+
+        for obj in _report_objs:
+            pr.report_object(obj)
+        pr.report_output()
+        print(output.getvalue())
+        self.assertEqual(output.getvalue(), xoutput)
+
     def test_FieldType_with_help(self):
         pf_name = FieldType(
             PR_STR,
