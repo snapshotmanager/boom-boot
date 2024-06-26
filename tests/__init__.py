@@ -96,6 +96,7 @@ class MockArgs(object):
     identifier = ""
     initramfs_pattern = ""
     initrd = ""
+    json = False
     kernel_pattern = ""
     label = ""
     linux = ""
