@@ -960,7 +960,7 @@ class CommandTests(unittest.TestCase):
     def test_print_entries_no_matching(self):
         xoutput = r"BootID.*Version.*Name.*RootDevice"
         output = StringIO()
-        opts = BoomReportOpts(report_file=output)
+        opts = ReportOpts(report_file=output)
         print_entries(selection=Selection(boot_id="thereisnoboot"), opts=opts)
         self.assertTrue(re.match(xoutput, output.getvalue()))
 
@@ -972,7 +972,7 @@ class CommandTests(unittest.TestCase):
                    r"debfd7f.*4.11.12-100.fc24.x86_64.*Fedora.*"
                    r"/dev/vg00/lvol0-snapshot"]
         output = StringIO()
-        opts = BoomReportOpts(report_file=output)
+        opts = ReportOpts(report_file=output)
         print_entries(selection=Selection(boot_id="debfd7f"), opts=opts)
         for pair in zip(xoutput, output.getvalue().splitlines()):
             self.assertTrue(re.match(pair[0], pair[1]))
