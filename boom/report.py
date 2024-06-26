@@ -142,7 +142,7 @@ class ReportOpts:
         self.field_name_prefix = field_name_prefix
         self.unquoted = unquoted
         self.aligned = aligned
-        self.json = False
+        self.json = json
         self.columns_as_rows = columns_as_rows
         self.report_file = report_file
 
