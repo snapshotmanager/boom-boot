@@ -31,7 +31,7 @@ import logging
 import sys
 import uuid
 import math
-import json
+from json import dumps
 
 
 from boom import find_minimum_sha_prefix, BOOM_DEBUG_REPORT
@@ -1299,7 +1299,7 @@ class Report:
                 (key, value) = self._output_field_json(field)
                 row_vals[key] = value
             rows[f"{self._title}"].append(row_vals)
-        self.opts.report_file.write(json.dumps(rows, indent=4) + "\n")
+        self.opts.report_file.write(dumps(rows, indent=4) + "\n")
 
     def report_output(self):
         """
