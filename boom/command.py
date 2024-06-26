@@ -3726,6 +3726,9 @@ def _report_opts_from_args(cmd_args):
     if not cmd_args:
         return opts
 
+    if cmd_args.json:
+        opts.json = True
+
     if cmd_args.rows:
         opts.columns_as_rows = True
 
@@ -4095,7 +4098,11 @@ def main(args):
         help="A pattern for generating initramfs paths",
         metavar="PATTERN",
     )
-    parser.add_argument(
+    format_group = parser.add_mutually_exclusive_group()
+    format_group.add_argument(
+        "--json", action="store_true", help="Output report as JSON"
+    )
+    format_group.add_argument(
         "--rows", action="store_true", help="Output report columnes as rows"
     )
     parser.add_argument(
