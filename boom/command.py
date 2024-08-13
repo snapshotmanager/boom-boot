@@ -880,24 +880,6 @@ I_BACKUP = "backup"
 #
 
 
-def _find_backup_name(img_path):
-    """Generate a new, unique backup pathname."""
-    img_backup = ("%s.boom" % img_path)[1:] + "%d"
-
-    def _backup_img(backup_nr):
-        return sep + img_backup % backup_nr
-
-    def _backup_path(backup_nr):
-        return join(get_boot_path(), img_backup[1:] % backup_nr)
-
-    backup_nr = 0
-    while path_exists(_backup_path(backup_nr)):
-        if find_cache_paths(Selection(path=_backup_img(backup_nr))):
-            break
-        backup_nr += 1
-    return sep + img_backup % backup_nr
-
-
 def _cache_image(img_path, backup):
     """Cache the image found at ``img_path`` and optionally create
     a backup copy.
@@ -909,16 +891,13 @@ def _cache_image(img_path, backup):
                 return img_path
     try:
         if backup:
-            img_backup = _find_backup_name(img_path)
-            _log_debug("backing up '%s' as '%s'" % (img_path, img_backup))
-            ce = backup_path(img_path, img_backup)
-            return img_backup
+            ce = backup_path(img_path)
         else:
             ce = cache_path(img_path)
     except (OSError, ValueError) as e:
         _log_error("Could not cache path %s: %s" % (img_path, e))
         raise e
-    return img_path
+    return ce.path
 
 
 def _find_one_entry(select):

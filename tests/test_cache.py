@@ -335,7 +335,7 @@ class CacheTests(unittest.TestCase):
         img_path = join("/", img_name)
         backup_img = img_path + ".boom0"
 
-        backup_path(img_path, backup_img)
+        backup_path(img_path)
 
         # Assert backup is in cache
         ces = find_cache_paths(Selection(path=backup_img))

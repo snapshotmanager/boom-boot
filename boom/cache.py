@@ -336,7 +336,20 @@ def _insert_path(path, img_id, mode, uid, gid, attrs):
         _index[path] = [img_id]
 
 
-def _cache_path(img_path, update=True, backup=None):
+def _find_backup_name(img_path):
+    """Generate a new, unique backup pathname."""
+    img_backup = ("%s.boom" % img_path)[1:] + "%d"
+
+    def _backup_path(backup_nr):
+        return path_join(get_boot_path(), img_backup % backup_nr)
+
+    backup_nr = 0
+    while path_exists(_backup_path(backup_nr)):
+        backup_nr += 1
+    return path_sep + img_backup % backup_nr
+
+
+def _cache_path(img_path, update=True, backup=False):
     """Add an image to the boom boot image cache.
 
     :param img_path: The path to the on-disk boot image relative to
@@ -363,13 +376,12 @@ def _cache_path(img_path, update=True, backup=None):
     cache_path = _image_id_to_cache_path(img_id)
     image_ts = st[ST_MTIME]
 
-    img_path = backup or img_path
+    if backup:
+        if img_id in _images:
+            return find_cache_images(Selection(img_id=img_id))[0]
 
-    # Already present?
-    if img_path in _paths:
-        _log_info("Path '%s' already cached." % img_path)
-        if not update:
-            return
+        img_path = _find_backup_name(img_path)
+        _log_debug_cache("Backing up path '%s' as '%s'" % (boot_path, img_path))
 
     if img_path in _paths and img_id in _index[img_path]:
         _log_info(
@@ -406,7 +418,7 @@ def cache_path(img_path, update=True):
     return _cache_path(img_path, update=update)
 
 
-def backup_path(img_path, backup_path):
+def backup_path(img_path):
     """Back up an image to the boom boot image cache.
 
     :param img_path: The path to the on-disk boot image relative to
@@ -414,8 +426,7 @@ def backup_path(img_path, backup_path):
     :param backup_path: The path where the backup image will be created.
     :returns: None
     """
-    _log_debug_cache("Backing up path '%s' as '%s'" % (img_path, backup_path))
-    ce = _cache_path(img_path, backup=backup_path)
+    ce = _cache_path(img_path, backup=True)
     ce.restore()
     return ce
 
