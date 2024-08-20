@@ -124,6 +124,7 @@ class MockArgs(object):
     sort = ""
     swap = ""
     title = ""
+    update = False
     type = ""
     uname_pattern = ""
     verbose = 0

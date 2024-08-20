@@ -880,7 +880,7 @@ I_BACKUP = "backup"
 #
 
 
-def _cache_image(img_path, backup):
+def _cache_image(img_path, backup, update=False):
     """Cache the image found at ``img_path`` and optionally create
     a backup copy.
     """
@@ -891,9 +891,9 @@ def _cache_image(img_path, backup):
                 return img_path
     try:
         if backup:
-            ce = backup_path(img_path)
+            ce = backup_path(img_path, update=update)
         else:
-            ce = cache_path(img_path)
+            ce = cache_path(img_path, update=update)
     except (OSError, ValueError) as e:
         _log_error("Could not cache path %s" % img_path)
         raise e
@@ -932,6 +932,7 @@ def create_entry(
     expand=False,
     allow_no_dev=False,
     images=I_NONE,
+    update=False,
     no_fstab=False,
     mounts=None,
     swaps=None,
@@ -1032,8 +1033,8 @@ def create_entry(
     )
 
     if images in (I_BACKUP, I_CACHE):
-        be.initrd = _cache_image(be.initrd, images == I_BACKUP)
-        be.linux = _cache_image(be.linux, images == I_BACKUP)
+        be.initrd = _cache_image(be.initrd, images == I_BACKUP, update=update)
+        be.linux = _cache_image(be.linux, images == I_BACKUP, update=update)
 
     if find_entries(Selection(boot_id=be.boot_id)):
         raise ValueError("Entry already exists (boot_id=%s)." % be.disp_boot_id)
@@ -2596,6 +2597,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
             expand=cmd_args.expand_variables,
             allow_no_dev=no_dev,
             images=images,
+            update=cmd_args.update,
             no_fstab=cmd_args.no_fstab,
             mounts=cmd_args.mount,
             swaps=cmd_args.swap,
@@ -4115,6 +4117,11 @@ def main(args):
         help="A Boom OsProfile uname pattern",
         metavar="PATTERN",
         type=str,
+    )
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        help="Update cached images when creating backups",
     )
     parser.add_argument("-V", "--verbose", help="Enable verbose output", action="count")
     parser.add_argument(
