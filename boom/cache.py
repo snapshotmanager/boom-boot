@@ -376,6 +376,11 @@ def _cache_path(img_path, update=True, backup=False):
     cache_path = _image_id_to_cache_path(img_id)
     image_ts = st[ST_MTIME]
 
+    if not update and backup:
+        ces = find_cache_images(Selection(orig_path=img_path))
+        if ces:
+            return ces[0]
+
     if backup:
         if img_id in _images:
             return find_cache_images(Selection(img_id=img_id))[0]
@@ -407,7 +412,7 @@ def _cache_path(img_path, update=True, backup=False):
     return this_entry()
 
 
-def cache_path(img_path, update=True):
+def cache_path(img_path, update=False):
     """Add an image to the boom boot image cache.
 
     :param img_path: The path to the on-disk boot image relative to
@@ -418,7 +423,7 @@ def cache_path(img_path, update=True):
     return _cache_path(img_path, update=update)
 
 
-def backup_path(img_path):
+def backup_path(img_path, update=False):
     """Back up an image to the boom boot image cache.
 
     :param img_path: The path to the on-disk boot image relative to
@@ -426,7 +431,7 @@ def backup_path(img_path):
     :param backup_path: The path where the backup image will be created.
     :returns: None
     """
-    ce = _cache_path(img_path, backup=True)
+    ce = _cache_path(img_path, update=update, backup=True)
     ce.restore()
     return ce
 
@@ -515,6 +520,14 @@ class CacheEntry(object):
 
     #: The image path for this CacheEntry
     path = None
+
+    @property
+    def orig_path(self):
+        if "boom" in self.path:
+            orig_path, ext = self.path.rsplit(".", maxsplit=1)
+            if ext.startswith("boom") and ext[4:].isdigit():
+                return orig_path
+        return self.path
 
     @property
     def img_id(self):
@@ -685,6 +698,8 @@ def select_cache_entry(s, ce):
     if s.initrd and s.initrd != ce.path:
         return False
     if s.path and s.path != ce.path:
+        return False
+    if s.orig_path and s.orig_path != ce.orig_path:
         return False
     if s.timestamp and s.timestamp != ce.timestamp:
         return False

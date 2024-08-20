@@ -895,7 +895,7 @@ def _cache_image(img_path, backup):
         else:
             ce = cache_path(img_path)
     except (OSError, ValueError) as e:
-        _log_error("Could not cache path %s: %s" % (img_path, e))
+        _log_error("Could not cache path %s" % img_path)
         raise e
     return ce.path
 

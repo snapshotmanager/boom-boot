@@ -581,6 +581,7 @@ class Selection(object):
 
     # Cache fields
     path = None
+    orig_path = None
     img_id = None
 
     #: Selection criteria applying to BootEntry objects
@@ -632,7 +633,15 @@ class Selection(object):
     ]
 
     #: Cache selection supports a subset of entry_attrs
-    cache_attrs = ["version", "linux", "initrd", "path", "timestamp", "img_id"]
+    cache_attrs = [
+        "version",
+        "linux",
+        "initrd",
+        "path",
+        "orig_path",
+        "timestamp",
+        "img_id",
+    ]
 
     all_attrs = entry_attrs + params_attrs + profile_attrs + host_attrs + cache_attrs
 
@@ -693,6 +702,7 @@ class Selection(object):
         host_add_opts=None,
         host_del_opts=None,
         path=None,
+        orig_path=None,
         timestamp=None,
         img_id=None,
     ):
@@ -729,6 +739,7 @@ class Selection(object):
         :param host_add_opts: Host add options to match
         :param host_del_opts: Host del options to match
         :param path: An cache image path to match
+        :param orig_path: A cache origin path to match
         :param timestamp: A cache entry timestamp to match
         :param img_id: A cache image identifier to match
         :returns: A new Selection instance
@@ -762,6 +773,7 @@ class Selection(object):
         self.host_add_opts = host_add_opts
         self.host_del_opts = host_del_opts
         self.path = path
+        self.orig_path = orig_path
         self.timestamp = timestamp
         self.img_id = img_id
 
