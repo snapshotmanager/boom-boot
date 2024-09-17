@@ -89,6 +89,7 @@ Boom \(em linux boot manager
 .  IR opts ]
 .  RB [ --del-opts
 .  IR opts ]
+.  RB [ --backup ]
 .  RB [ --no-fstab ]
 .  RB [ --mount
 .  IR mount ]
@@ -142,6 +143,7 @@ Boom \(em linux boot manager
 .  IR opts ]
 .  RB [ --del-opts
 .  IR opts ]
+.  RB [ --backup ]
 .  RB [ --no-fstab ]
 .  RB [ --mount
 .  IR mount ]
@@ -701,6 +703,11 @@ Specify additional boot options for this entry.
 Specify boot options to exclude from this entry.
 .
 .HP
+.BR --backup
+.br
+Back up boot images used for this entry.
+.
+.HP
 .BR -b | --boot-id | --bootid
 .IR boot_id
 .br
@@ -1010,6 +1017,12 @@ templates may be specified with \fB--add-opts\fP. Options may also be
 removed from the entry using \fB--del-opts\fP (for example to disable
 graphical boot or the "quiet" flag for a particular entry).
 
+If \fB--backup\fP is given a backup is made of the boot images (vmlinuz
+and initramfs) used by the boot entry and the new entry will use the
+backup paths instead of the original image paths. By default if an
+existing backup image is present it will be re-used instead of using the
+latest matching image found in the boot directory.
+
 The newly created entry and its boot identifier are printed to the
 terminal on success:
 .br
@@ -1056,6 +1069,12 @@ Clone an existing boot entry and modify its configuration.
 The entry to clone must be specified by its \fBboot identifier\fP.
 Any remaining command line arguments are taken to be modifications
 to the original entry.
+
+If \fB--backup\fP is given a backup is made of the boot images (vmlinuz
+and initramfs) used by the boot entry and the new entry will use the
+backup paths instead of the original image paths. By default if an
+existing backup image is present it will be re-used instead of using the
+latest matching image found in the boot directory.
 
 On success the new entry and its boot identifier are printed to the
 terminal.
