@@ -90,6 +90,7 @@ Boom \(em linux boot manager
 .  RB [ --del-opts
 .  IR opts ]
 .  RB [ --backup ]
+.  RB [ --update ]
 .  RB [ --no-fstab ]
 .  RB [ --mount
 .  IR mount ]
@@ -144,6 +145,7 @@ Boom \(em linux boot manager
 .  RB [ --del-opts
 .  IR opts ]
 .  RB [ --backup ]
+.  RB [ --update ]
 .  RB [ --no-fstab ]
 .  RB [ --mount
 .  IR mount ]
@@ -925,6 +927,12 @@ The title for a new boot entry.
 An uname pattern to match for an operating system profile.
 .
 .HP
+.BR --update
+.br
+When used with \fB--backup\fP update the backup image to the current
+version found in the boot directory.
+.
+.HP
 .BR -V | --verbose
 .br
 Increase verbosity level. Specify multiple times, or set additional
@@ -1021,7 +1029,8 @@ If \fB--backup\fP is given a backup is made of the boot images (vmlinuz
 and initramfs) used by the boot entry and the new entry will use the
 backup paths instead of the original image paths. By default if an
 existing backup image is present it will be re-used instead of using the
-latest matching image found in the boot directory.
+latest matching image found in the boot directory. This behaviour can be
+overridden by using the \fB--update\fP option.
 
 The newly created entry and its boot identifier are printed to the
 terminal on success:
@@ -1074,7 +1083,9 @@ If \fB--backup\fP is given a backup is made of the boot images (vmlinuz
 and initramfs) used by the boot entry and the new entry will use the
 backup paths instead of the original image paths. By default if an
 existing backup image is present it will be re-used instead of using the
-latest matching image found in the boot directory.
+latest matching image found in the boot directory. This behaviour can be
+overridden by using the \fB--update\fP option.
+
 
 On success the new entry and its boot identifier are printed to the
 terminal.
