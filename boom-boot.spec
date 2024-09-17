@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.6.4
+Version:	1.6.5
 Release:	1%{?dist}
 Summary:	%{summary}
 
@@ -155,6 +155,37 @@ rm doc/conf.py
 
 
 %changelog
+* Tue Sep 17 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.5-1
+- doc: add --update to boom.8
+- doc: add --backup to boom.8
+- boom: add --update to enable updating of backup images
+- boom.cache: default to re-using cached images
+- boom: fix --backup of modified images
+- tests: add json to MockArgs
+- doc: add --json and JSON examples to README.md
+- doc: update README.md
+- doc: add report options to list commands and document --json
+- boom: add --json support to list commands
+- tests: add JSON report output test
+- report: merge comparisons in Report.{__get_field,__key_match}()
+- report: replace open coded comparison with max() in  __recalculate_fields()
+- report: use .items() to iterate over SHAs in  __recalculate_sha_width()
+- snapm.report: only import dumps from json
+- report: fix setting of ReportOpts.json in ReportOpts()
+- report: allow sort keys to use optional prefix
+- report: handle $PREFIX_all when parsing field list
+- report: add support for JSON output
+- report: add title argument to Report()
+- report: remove unused 'private' Report argument
+- report: fix field prefix handling and drop hardcoded prefix
+- report: fix comment typos
+- report: add REP_SIZE field type for human readable size strings
+- tests: fix up tests for boom.report renames
+- report: sync boom.report with snapm and drop Boom prefix
+- dist: make setup.cfg package name consistent with pyproject.toml
+- dist: extend CentOS %py3_build/%py3_install conditionals to RHEL
+- dist: Require correct systemd version on RHEL9
+
 * Wed Jun 19 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.4-1
 - dist: add epel-9, centos-stream-9 and centos-stream-10 to Packit
 - doc: add 'boom config create' command to boom.8

@@ -1,6 +1,6 @@
 [project]
 name = "boom_boot"
-version = "1.6.4"
+version = "1.6.5"
 license = { file="COPYING" }
 authors = [
   { name="Bryn M. Reeves", email="bmr@redhat.com" },
