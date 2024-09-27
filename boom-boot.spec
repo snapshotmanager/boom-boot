@@ -8,7 +8,7 @@ Summary:	%{summary}
 
 License:	GPL-2.0-only
 URL:		https://github.com/snapshotmanager/boom-boot
-Source0:	%{url}/archive/%{version}/boom-%{version}.tar.gz
+Source0:	%{url}/archive/%{version}/%{name}-%{version}.tar.gz
 
 BuildArch:	noarch
 
@@ -81,7 +81,7 @@ include this support in both Red Hat Enterprise Linux 7 and Fedora).
 This package provides configuration files for boom.
 
 %prep
-%autosetup -p1 -n boom-%{version}
+%autosetup -p1 -n %{name}-%{version}
 
 %build
 %if 0%{?sphinx_docs}
