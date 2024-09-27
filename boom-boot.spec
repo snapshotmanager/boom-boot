@@ -3,7 +3,7 @@
 
 Name:		boom-boot
 Version:	1.6.5
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	%{summary}
 
 License:	GPL-2.0-only
@@ -154,6 +154,10 @@ rm doc/conf.py
 
 
 %changelog
+* Fri Sep 27 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.5-2
+- dist: drop unused systemd-rpm-macros BuildRequires
+- dist: fix Source URL and autosetup invocation
+
 * Tue Sep 17 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.5-1
 - doc: add --update to boom.8
 - doc: add --backup to boom.8
