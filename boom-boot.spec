@@ -22,7 +22,6 @@ BuildRequires:	python3-dbus
 BuildRequires:	python3-sphinx
 %endif
 BuildRequires: make
-BuildRequires: systemd-rpm-macros
 
 Requires: python3-boom = %{version}-%{release}
 Requires: %{name}-conf = %{version}-%{release}
