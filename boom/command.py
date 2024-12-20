@@ -1495,13 +1495,13 @@ def _uname_heuristic(name, version_id):
     """Attempt to guess a uname pattern for a given OS name and
     version_id value.
 
-    This is currently supported for Red Hat Enterprise Linux and
-    Fedora since both distributions provide a fixed string in the
-    UTS release string that can be used to match candidate kernel
-    versions against.
+    This is currently supported for Red Hat Enterprise Linux,
+    CentOS Stream and Fedora since all distributions provide a
+    fixed string in the UTS release string that can be used to
+    match candidate kernel versions against.
 
-    :returns: ``True`` if uname pattern heuristics should be used
-              for this OS or ``False`` otherwise.
+    :returns: A ``uname_pattern`` string if a match is found for
+              the running system or ``None`` otherwise.
     """
     el_uname = "el"
     fc_uname = "fc"
@@ -1509,6 +1509,7 @@ def _uname_heuristic(name, version_id):
         "Red Hat Enterprise Linux": el_uname,
         "Red Hat Enterprise Linux Server": el_uname,
         "Red Hat Enterprise Linux Workstation": el_uname,
+        "CentOS Stream": el_uname,
         "Fedora Linux": fc_uname,
         "Fedora": fc_uname,
     }
