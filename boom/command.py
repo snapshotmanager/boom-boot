@@ -1573,7 +1573,9 @@ def _os_profile_from_file(os_release, uname_pattern, profile_data=None):
         osp.uname_pattern = _uname_heuristic(osp.os_name, osp.os_version_id)
 
     if not osp.uname_pattern:
+        osp.delete_profile()
         raise ValueError("Could not determine uname pattern for '%s'" % osp.os_name)
+
     if not osp.optional_keys:
         osp.optional_keys = _default_optional_keys(osp)
 
