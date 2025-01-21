@@ -989,7 +989,7 @@ class Report:
             line += heading
             if props.index(field_props) != (len(props) - 1):
                 line += self.opts.separator
-        self.opts.report_file.write(line + "\n")
+        self.opts.report_file.write(line.strip() + "\n")
 
     def __row_key_fn(self):
         """
@@ -1253,7 +1253,7 @@ class Report:
                 line += self.opts.separator
                 row._fields = row._fields[1:]
 
-            self.opts.report_file.write(line + "\n")
+            self.opts.report_file.write(line.strip() + "\n")
 
     def _output_as_columns(self):
         """
@@ -1279,7 +1279,7 @@ class Report:
                 else:
                     do_field_delim = True
                 line += self._output_field(field)
-            self.opts.report_file.write(line + "\n")
+            self.opts.report_file.write(line.strip() + "\n")
 
     def _output_as_json(self):
         """
