@@ -18,8 +18,6 @@ import uuid
 from io import StringIO
 
 log = logging.getLogger()
-log.level = logging.DEBUG
-log.addHandler(logging.FileHandler("test.log"))
 
 import boom
 BOOT_ROOT_TEST = abspath("./tests")

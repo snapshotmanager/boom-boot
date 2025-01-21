@@ -25,8 +25,6 @@ except:
     from configparser import ConfigParser, ParsingError
 
 log = logging.getLogger()
-log.level = logging.DEBUG
-log.addHandler(logging.FileHandler("test.log"))
 
 # Test suite paths
 from tests import *

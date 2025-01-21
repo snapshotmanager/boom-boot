@@ -19,8 +19,6 @@ from os.path import abspath, exists, join
 import shutil
 
 log = logging.getLogger()
-log.level = logging.DEBUG
-log.addHandler(logging.FileHandler("test.log"))
 
 from boom.osprofile import *
 from boom.hostprofile import *

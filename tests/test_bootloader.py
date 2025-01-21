@@ -35,8 +35,6 @@ from boom import Selection
 boom.set_boot_path(BOOT_ROOT_TEST)
 
 log = logging.getLogger()
-log.level = logging.DEBUG
-log.addHandler(logging.FileHandler("test.log"))
 
 _test_osp = None
 

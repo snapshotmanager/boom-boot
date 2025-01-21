@@ -15,10 +15,21 @@
 from os.path import join, abspath, exists
 from os import environ, getcwd, geteuid, getegid, makedirs
 from subprocess import Popen, PIPE
+import logging
 import shutil
 import errno
 
 import boom
+
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
+file_handler = logging.FileHandler("test.log")
+file_handler.setFormatter(formatter)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+log.addHandler(file_handler)
+log.addHandler(console_handler)
 
 # Root of the testing directory
 BOOT_ROOT_TEST = abspath("./tests")

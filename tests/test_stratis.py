@@ -25,15 +25,14 @@ from tests import *
 import boom
 from boom.stratis import *
 
+
+log = logging.getLogger()
+
 # Override default BOOM_ROOT and BOOT_ROOT
 # NOTE: with test fixtures that use the sandbox, this path is further
 # overridden by the class setUp() method to point to the appropriate
 # sandbox location.
 boom.set_boot_path(BOOT_ROOT_TEST)
-
-log = logging.getLogger()
-log.level = logging.DEBUG
-log.addHandler(logging.FileHandler("test.log"))
 
 
 class StratisTests(unittest.TestCase):

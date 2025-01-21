@@ -21,8 +21,6 @@ from os.path import abspath
 from tests import *
 
 log = logging.getLogger()
-log.level = logging.DEBUG
-log.addHandler(logging.FileHandler("test.log"))
 
 BOOT_ROOT_TEST = abspath("./tests")
 # Override default BOOT_ROOT.

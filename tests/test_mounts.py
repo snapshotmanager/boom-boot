@@ -27,8 +27,6 @@ except:
     from io import StringIO
 
 log = logging.getLogger()
-log.level = logging.DEBUG
-log.addHandler(logging.FileHandler("test.log"))
 
 from boom import *
 from boom.mounts import *
