@@ -237,7 +237,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         """Helper function to clean up the temporary file and raise the
         corresponding BoomLegacyFormatError exception.
         """
-        if type(fmt_data[0]) == int:
+        if fmt_data[0] is int:
             fmt_data = ("line %d" % fmt_data[0], fmt_data[1])
 
         try:
