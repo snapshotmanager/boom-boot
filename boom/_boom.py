@@ -398,7 +398,7 @@ def set_boot_path(boot_path):
         raise ValueError("Path '%s' does not exist" % boot_path)
 
     __config.boot_path = boot_path
-    _log_debug("Set boot path to: %s" % boot_path)
+    _log_debug("Set boot path to: %s", boot_path)
     __config.boom_path = path_join(boot_path, DEFAULT_BOOM_DIR)
 
     # If a boom/ directory exists at the boot path, automatically set
@@ -439,7 +439,7 @@ def set_boom_path(boom_path):
             ": %s" % path_join(boom_path, "profiles")
         )
 
-    _log_debug("Set boom path to: %s" % boom_path)
+    _log_debug("Set boom path to: %s", boom_path)
     __config.boom_path = boom_path
     set_boom_config_path(__config.boom_path)
 
@@ -473,7 +473,7 @@ def set_cache_path(cache_path):
         cache_path = path_join(__config.cache_path, cache_path)
 
     __config.cache_path = cache_path
-    _log_debug("Set cache path to: %s" % cache_path)
+    _log_debug("Set cache path to: %s", cache_path)
 
 
 def get_boom_config_path():
@@ -496,7 +496,7 @@ def set_boom_config_path(path):
     if not path_exists(path):
         raise IOError(ENOENT, "File not found: '%s'" % path)
     __boom_config_path = path
-    _log_debug("set boom_config_path to '%s'" % path)
+    _log_debug("set boom_config_path to '%s'", path)
 
 
 def parse_btrfs_subvol(subvol):
@@ -818,7 +818,7 @@ class Selection(object):
             host_id=args.host_id,
         )
 
-        _log_debug("Initialised %s from arguments" % repr(s))
+        _log_debug("Initialised %s from arguments", repr(s))
         return s
 
     def __attr_has_value(self, attr):
@@ -1029,7 +1029,7 @@ def load_profiles_for_class(profile_class, profile_type, profiles_path, profile_
     :returns: None
     """
     profile_files = listdir(profiles_path)
-    _log_debug("Loading %s profiles from %s" % (profile_type, profiles_path))
+    _log_debug("Loading %s profiles from %s", profile_type, profiles_path)
     for pf in profile_files:
         if not pf.endswith(".%s" % profile_ext):
             continue
@@ -1038,7 +1038,7 @@ def load_profiles_for_class(profile_class, profile_type, profiles_path, profile_
             profile_class(profile_file=pf_path)
         except Exception as e:
             _log_warn(
-                "Failed to load %s from '%s': %s" % (profile_class.__name__, pf_path, e)
+                "Failed to load %s from '%s': %s", profile_class.__name__, pf_path, e
             )
             if get_debug_mask():
                 raise e

@@ -294,7 +294,7 @@ def _grub2_get_env(name):
         p = Popen(grub_cmd, stdin=None, stdout=PIPE, stderr=PIPE)
         out = p.communicate()[0]
     except OSError as e:
-        _log_error("Could not obtain grub2 environment: %s" % e)
+        _log_error("Could not obtain grub2 environment: %s", e)
         return ""
 
     for line in out.decode("utf8").splitlines():
@@ -512,7 +512,7 @@ class BootParams(object):
         self.add_opts = add_opts or []
         self.del_opts = del_opts or []
 
-        _log_debug_entry("Initialised %s" % repr(self))
+        _log_debug_entry("Initialised %s", repr(self))
 
     # We have to use explicit properties for BootParam attributes since
     # we need to track modifications to the BootParams values to allow
@@ -672,9 +672,9 @@ class BootParams(object):
             return None
 
         _log_debug_entry(
-            "Matching options regex list with %d entries" % len(opts_regexes)
+            "Matching options regex list with %d entries", len(opts_regexes)
         )
-        _log_debug_entry("Options regex list: %s" % str(opts_regexes))
+        _log_debug_entry("Options regex list: %s", str(opts_regexes))
 
         for rgx_word in opts_regexes:
             (name, exp) = rgx_word
@@ -684,23 +684,25 @@ class BootParams(object):
                 if match:
                     if len(match.groups()):
                         value = match.group(1)
-                        _log_debug_entry("Matching: '%s' (%s)" % (value, name))
+                        _log_debug_entry("Matching: '%s' (%s)", value, name)
                     if name == "lvm_root_lv":
                         if not _match_root_lv(bp.root_device, value):
                             continue
                         _log_debug_entry(
-                            "Matched root_device=%s to %s=%s"
-                            % (bp.root_device, name, value)
+                            "Matched root_device=%s to %s=%s",
+                            bp.root_device,
+                            name,
+                            value,
                         )
                     matches[word] = True
                     if name:
-                        _log_debug_entry("Matched %s=%s" % (name, value))
+                        _log_debug_entry("Matched %s=%s", name, value)
                         setattr(bp, name, value)
 
             # The root_device key is handled specially since it is required
             # for a valid BootEntry.
             if name == "root_device" and not value:
-                _log_warn("No root_device for entry at %s" % be._last_path)
+                _log_warn("No root_device for entry at %s", be._last_path)
                 setattr(bp, name, "")
 
         def is_add(opt):
@@ -726,7 +728,7 @@ class BootParams(object):
             if opt not in matches.keys():
                 if opt not in be._osp.options.split():
                     if not opt_in_expansion(opt):
-                        _log_debug_entry("Found add_opt: %s" % opt)
+                        _log_debug_entry("Found add_opt: %s", opt)
                         return True
             return False
 
@@ -754,7 +756,7 @@ class BootParams(object):
             opt_name = opt.split("=")[0]
             matched_opts = [k.split("=")[0] for k in matches.keys()]
             if opt_name not in matched_opts and opt_name not in ignore_bp:
-                _log_debug_entry("Found del_opt: %s" % opt)
+                _log_debug_entry("Found del_opt: %s", opt)
                 return True
             return False
 
@@ -766,7 +768,7 @@ class BootParams(object):
         # Compile list of deleted template options
         bp.del_opts = [o for o in [r[1] for r in opts_regexes] if is_del(o)]
 
-        _log_debug_entry("Parsed %s" % repr(bp))
+        _log_debug_entry("Parsed %s", repr(bp))
 
         return bp
 
@@ -822,7 +824,7 @@ def load_entries(machine_id=None):
 
     drop_entries()
 
-    _log_debug("Loading boot entries from '%s'" % entries_path)
+    _log_debug("Loading boot entries from '%s'", entries_path)
     for entry in listdir(entries_path):
         if not entry.endswith(".conf"):
             continue
@@ -833,11 +835,11 @@ def load_entries(machine_id=None):
         try:
             _add_entry(BootEntry(entry_file=entry_path))
         except Exception as e:
-            _log_info("Could not load BootEntry '%s': %s" % (entry_path, e))
+            _log_info("Could not load BootEntry '%s': %s", entry_path, e)
             if get_debug_mask():
                 raise e
 
-    _log_debug("Loaded %d entries" % len(_entries))
+    _log_debug("Loaded %d entries", len(_entries))
 
 
 def write_entries():
@@ -851,9 +853,7 @@ def write_entries():
         try:
             be.write_entry()
         except Exception as e:
-            _log_warn(
-                "Could not write BootEntry(boot_id='%s'): %s" % (be.disp_boot_id, e)
-            )
+            _log_warn("Could not write BootEntry(boot_id='%s'): %s", be.disp_boot_id, e)
 
 
 def min_boot_id_width():
@@ -960,13 +960,13 @@ def find_entries(selection=None):
 
     selection.check_valid_selection(entry=True, params=True, profile=True)
 
-    _log_debug_entry("Finding entries for %s" % repr(selection))
+    _log_debug_entry("Finding entries for %s", repr(selection))
 
     for be in _entries:
         if select_entry(selection, be):
             matches.append(be)
 
-    _log_debug_entry("Found %d entries" % len(matches))
+    _log_debug_entry("Found %d entries", len(matches))
     return matches
 
 
@@ -1317,7 +1317,7 @@ class BootEntry(object):
             # the comment list.
             if not self._osp and osp:
                 self._osp = osp
-                _log_debug_entry("Parsed os_id='%s' from comment" % osp.disp_os_id)
+                _log_debug_entry("Parsed os_id='%s' from comment", osp.disp_os_id)
             else:
                 outlines += line + "\n"
         return outlines
@@ -1409,8 +1409,7 @@ class BootEntry(object):
             self._entry_data[BOOM_ENTRY_VERSION] = self.bp.version
         else:
             _log_debug_entry(
-                "Initialising BootParams() from "
-                "BootEntry(boot_id='%s')" % self.boot_id
+                "Initialising BootParams() from BootEntry(boot_id='%s')", self.boot_id
             )
             # Attempt to recover BootParams from entry data
             self._bp = BootParams.from_entry(self)
@@ -1490,7 +1489,7 @@ class BootEntry(object):
         comment = ""
 
         entry_basename = basename(entry_file)
-        _log_debug("Loading BootEntry from '%s'" % entry_basename)
+        _log_debug("Loading BootEntry from '%s'", entry_basename)
         self._last_path = entry_file
 
         with open(entry_file, "r") as ef:
@@ -1536,11 +1535,11 @@ class BootEntry(object):
 
         match = re.match(BOOT_ENTRIES_PATTERN, entry_basename)
         if not match or len(match.groups()) <= 1:
-            _log_info("Marking unknown boot entry as read-only: %s" % entry_basename)
+            _log_info("Marking unknown boot entry as read-only: %s", entry_basename)
             self.read_only = True
         else:
             if self.disp_boot_id != match.group(2):
-                _log_info("Entry file name does not match boot_id: %s" % entry_basename)
+                _log_info("Entry file name does not match boot_id: %s", entry_basename)
                 self.update_entry(force=True)
 
         self._unwritten = False
@@ -1932,7 +1931,7 @@ class BootEntry(object):
             self._dirty()
         if not self.__boot_id or self._unwritten:
             self.__boot_id = self.__generate_boot_id()
-            _log_debug_entry("Generated new boot_id='%s'" % self.__boot_id)
+            _log_debug_entry("Generated new boot_id='%s'", self.__boot_id)
         return self.__boot_id
 
     @property
@@ -2412,11 +2411,11 @@ class BootEntry(object):
             rename(tmp_path, entry_path)
             chmod(entry_path, BOOT_ENTRY_MODE)
         except Exception as e:
-            _log_error("Error writing entry file %s: %s" % (entry_path, e))
+            _log_error("Error writing entry file %s: %s", entry_path, e)
             try:
                 unlink(tmp_path)
             except Exception:
-                _log_error("Error unlinking temporary path %s" % tmp_path)
+                _log_error("Error unlinking temporary path %s", tmp_path)
             raise e
 
         self._last_path = entry_path
@@ -2463,7 +2462,7 @@ class BootEntry(object):
             try:
                 unlink(to_unlink)
             except Exception as e:
-                _log_error("Error unlinking entry file %s: %s" % (to_unlink, e))
+                _log_error("Error unlinking entry file %s: %s", to_unlink, e)
 
     def delete_entry(self):
         """Remove on-disk BootEntry file.
@@ -2487,7 +2486,7 @@ class BootEntry(object):
         try:
             unlink(self._entry_path)
         except Exception as e:
-            _log_error("Error removing entry file %s: %s" % (self._entry_path, e))
+            _log_error("Error removing entry file %s: %s", self._entry_path, e)
             raise
 
         if not self._unwritten:

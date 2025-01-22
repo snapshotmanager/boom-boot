@@ -707,7 +707,7 @@ def _get_machine_id():
         try:
             machine_id = f.read().strip()
         except Exception as e:
-            _log_error("Could not read machine-id from '%s': %s" % (path, e))
+            _log_error("Could not read machine-id from '%s': %s", path, e)
             machine_id = None
     return machine_id
 
@@ -837,10 +837,10 @@ def _merge_add_del_opts(bp, add_opts, del_opts):
                     all_opts.append(opt)
         return [o for o in all_opts if o not in r_opts]
 
-    _log_debug_cmd("Add opts: %s" % add_opts)
-    _log_debug_cmd("Del opts: %s" % del_opts)
-    _log_debug_cmd("Original add_opts: %s" % bp.add_opts)
-    _log_debug_cmd("Original del_opts: %s" % bp.del_opts)
+    _log_debug_cmd("Add opts: %s", add_opts)
+    _log_debug_cmd("Del opts: %s", del_opts)
+    _log_debug_cmd("Original add_opts: %s", bp.add_opts)
+    _log_debug_cmd("Original del_opts: %s", bp.del_opts)
 
     r_del_opts = []
     r_add_opts = []
@@ -867,8 +867,8 @@ def _merge_add_del_opts(bp, add_opts, del_opts):
     add_opts = _merge_opts(bp.add_opts, add_opts, r_add_opts)
     del_opts = _merge_opts(bp.del_opts, del_opts, r_del_opts)
 
-    _log_debug_cmd("Effective add options: %s" % add_opts)
-    _log_debug_cmd("Effective del options: %s" % del_opts)
+    _log_debug_cmd("Effective add options: %s", add_opts)
+    _log_debug_cmd("Effective del options: %s", del_opts)
 
     return (add_opts, del_opts)
 
@@ -905,7 +905,7 @@ def _cache_image(img_path, backup, update=False):
         else:
             ce = cache_path(img_path, update=update)
     except (OSError, ValueError) as e:
-        _log_error("Could not cache path %s" % img_path)
+        _log_error("Could not cache path %s", img_path)
         raise e
     return ce.path
 
@@ -1020,8 +1020,8 @@ def create_entry(
         swap_units = parse_swap_units(swaps)
         add_opts.extend(swap_units)
 
-    _log_debug_cmd("Effective add options: %s" % add_opts)
-    _log_debug_cmd("Effective del options: %s" % del_opts)
+    _log_debug_cmd("Effective add options: %s", add_opts)
+    _log_debug_cmd("Effective del options: %s", del_opts)
 
     bp = BootParams(
         version,
@@ -1176,7 +1176,7 @@ def clone_entry(
 
     be = _find_one_entry(selection)
 
-    _log_debug("Cloning entry with boot_id='%s'" % be.disp_boot_id)
+    _log_debug("Cloning entry with boot_id='%s'", be.disp_boot_id)
 
     title = title if title else be.title
     version = version if version else be.version
@@ -1324,7 +1324,7 @@ def edit_entry(
 
     be = _find_one_entry(selection)
 
-    _log_debug("Editing entry with boot_id='%s'" % be.disp_boot_id)
+    _log_debug("Editing entry with boot_id='%s'", be.disp_boot_id)
 
     # Use a matching HostProfile is one exists, or the command line
     # OsProfile argument if set.
@@ -1468,7 +1468,7 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
     osp = osps[0] if osps else None
 
     if osp:
-        _log_debug("Found OsProfile: %s" % osp.os_id)
+        _log_debug("Found OsProfile: %s", osp.os_id)
 
     # Attempt to match a host profile to the running host
     label = cmd_args.label or ""
@@ -1482,19 +1482,20 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
         _log_error("Ambiguous host profile selection")
         return None
     elif len(hps) == 1:
-        _log_debug("Found HostProfile: %s" % hps[0].host_id)
+        _log_debug("Found HostProfile: %s", hps[0].host_id)
         if (hp and osp) and not osp.os_id.startswith(hp.os_id):
             _log_error(
                 "Active host profile (host_id=%s, os_id=%s) "
-                "conflicts with --profile=%s"
-                % (hp.disp_host_id, hp.disp_os_id, osp.disp_os_id)
+                "conflicts with --profile=%s",
+                hp.disp_host_id,
+                hp.disp_os_id,
+                osp.disp_os_id,
             )
             return None
     elif not osp and not hps:
         if not optional:
             _log_error(
-                "%s requires --profile or a matching OsProfile "
-                "or HostProfile" % command
+                "%s requires --profile or a matching OsProfile or HostProfile", command
             )
         return None
 
@@ -4191,33 +4192,33 @@ def main(args):
         try:
             bc = load_boom_config()
         except ValueError as e:
-            _log_error("Could not load boom configuration: %s" % e)
+            _log_error("Could not load boom configuration: %s", e)
 
         if not path_exists(get_boom_path()):
-            _log_error("Configuration directory '%s' not found." % get_boom_path())
+            _log_error("Configuration directory '%s' not found.", get_boom_path())
             print("Run 'boom config create' to generate default configuration")
             return 1
 
         if not path_exists(get_boom_config_path()):
-            _log_error("Configuration file '%s' not found." % get_boom_config_path())
+            _log_error("Configuration file '%s' not found.", get_boom_config_path())
             return 1
 
         if not path_exists(boom_profiles_path()):
             _log_error(
-                "OS profile configuration path '%s' not found." % boom_profiles_path()
+                "OS profile configuration path '%s' not found.", boom_profiles_path()
             )
             return 1
 
         if not path_exists(boom_host_profiles_path()):
             _log_error(
-                "Host profile configuration path '%s' not found."
-                % boom_host_profiles_path()
+                "Host profile configuration path '%s' not found.",
+                boom_host_profiles_path(),
             )
             return 1
 
         if not path_exists(boom_entries_path()):
             _log_error(
-                "Boot loader entries directory '%s' not found." % boom_entries_path()
+                "Boot loader entries directory '%s' not found.", boom_entries_path()
             )
             return 1
     else:
@@ -4277,13 +4278,13 @@ def main(args):
         try:
             status = command[1](cmd_args, select, opts, identifier)
         except Exception as e:
-            _log_error("Command failed: %s" % e)
+            _log_error("Command failed: %s", e)
 
     if bc.cache_enable and bc.cache_auto_clean:
         try:
             clean_cache()
         except Exception as e:
-            _log_error("Could not clean boot image cache: %s" % e)
+            _log_error("Could not clean boot image cache: %s", e)
 
     shutdown_logging()
     return status

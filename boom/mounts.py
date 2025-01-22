@@ -47,7 +47,7 @@ _blkid = "blkid"
 def _detect_fstype(dev):
     """Detect the file system type corresponding to device ``dev``."""
     p = run([_blkid, dev], stdin=DEVNULL, stdout=PIPE, stderr=PIPE, check=True)
-    _log_info("parsing mount blkid out: %s" % p.stdout)
+    _log_info("parsing mount blkid out: %s", p.stdout)
     for tag in p.stdout.decode("utf8").split():
         if "=" in tag:
             if tag.startswith("TYPE="):
@@ -63,7 +63,7 @@ def _parse_mount_unit(mount):
     :param mount: The boom command line mount specification.
     :returns: A string in systemd mount unit format.
     """
-    _log_info("parsing mount unit: %s" % mount)
+    _log_info("parsing mount unit: %s", mount)
     parts = mount.split(":")
     if len(parts) < 2:
         raise BoomMountError("Invalid mount specification: '%s'" % mount)

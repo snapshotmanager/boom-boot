@@ -215,7 +215,7 @@ def load_host_profiles():
     load_profiles_for_class(HostProfile, "Host", profiles_path, "host")
 
     _host_profiles_loaded = True
-    _log_debug("Loaded %d host profiles" % len(_host_profiles))
+    _log_debug("Loaded %d host profiles", len(_host_profiles))
 
 
 def write_host_profiles(force=False):
@@ -227,14 +227,15 @@ def write_host_profiles(force=False):
     :rtype: None
     """
     global _host_profiles
-    _log_debug("Writing host profiles to %s" % boom_host_profiles_path())
+    _log_debug("Writing host profiles to %s", boom_host_profiles_path())
     for hp in _host_profiles:
         try:
             hp.write_profile(force)
         except Exception as e:
             _log_warn(
-                "Failed to write HostProfile(machine_id='%s'): %s"
-                % (hp.disp_machine_id, e)
+                "Failed to write HostProfile(machine_id='%s'): %s",
+                hp.disp_machine_id,
+                e,
             )
 
 
@@ -344,11 +345,11 @@ def find_host_profiles(selection=None, match_fn=select_host_profile):
 
     matches = []
 
-    _log_debug_profile("Finding host profiles for %s" % repr(selection))
+    _log_debug_profile("Finding host profiles for %s", repr(selection))
     for hp in _host_profiles:
         if match_fn(selection, hp):
             matches.append(hp)
-    _log_debug_profile("Found %d host profiles" % len(matches))
+    _log_debug_profile("Found %d host profiles", len(matches))
     matches.sort(key=lambda h: h.host_name)
 
     return matches
@@ -393,8 +394,10 @@ def match_host_profile(entry):
 
     _log_debug(
         "Attempting to match profile for BootEntry(title='%s', "
-        "version='%s') with machine_id='%s'"
-        % (entry.title, entry.version, entry.machine_id)
+        "version='%s') with machine_id='%s'",
+        entry.title,
+        entry.version,
+        entry.machine_id,
     )
 
     # Attempt to match by uname pattern
@@ -402,8 +405,11 @@ def match_host_profile(entry):
         if hp.machine_id == entry.machine_id:
             _log_debug(
                 "Matched BootEntry(version='%s', boot_id='%s') "
-                "to HostProfile(name='%s', machine_id='%s')"
-                % (entry.version, entry.disp_boot_id, hp.host_name, hp.machine_id)
+                "to HostProfile(name='%s', machine_id='%s')",
+                entry.version,
+                entry.disp_boot_id,
+                hp.host_name,
+                hp.machine_id,
             )
             return hp
 

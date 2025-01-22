@@ -81,12 +81,12 @@ def _read_boom_config(path=None):
     :rtype: BoomConfig
     """
     path = path or get_boom_config_path()
-    _log_debug("reading boom configuration from '%s'" % path)
+    _log_debug("reading boom configuration from '%s'", path)
     cfg = ConfigParser()
     try:
         cfg.read(path)
     except ParsingError as e:
-        _log_error("Failed to parse configuration file '%s': %s" % (path, e))
+        _log_error("Failed to parse configuration file '%s': %s", path, e)
 
     bc = BoomConfig()
 
@@ -127,7 +127,7 @@ def _read_boom_config(path=None):
             _log_debug("Found cache.cache_path")
             bc.cache_path = cfg.get(_CFG_SECT_CACHE, _CFG_CACHE_PATH)
 
-    _log_debug("read configuration: %s" % repr(bc))
+    _log_debug("read configuration: %s", repr(bc))
     bc._cfg = cfg
     return bc
 
@@ -211,11 +211,11 @@ def write_boom_config(config=None, path=None):
         rename(tmp_path, path)
         chmod(path, BOOT_CONFIG_MODE)
     except Exception as e:
-        _log_error("Error writing configuration file %s: %s" % (path, e))
+        _log_error("Error writing configuration file %s: %s", path, e)
         try:
             unlink(tmp_path)
         except Exception:
-            _log_error("Error unlinking temporary path %s" % tmp_path)
+            _log_error("Error unlinking temporary path %s", tmp_path)
         raise e
 
 

@@ -68,7 +68,7 @@ def pool_name_to_pool_uuid(pool_name):
     """
     bus = dbus.SystemBus()
     _log_debug_stratis(
-        "Connecting to %s at %s via system bus" % (_STRATISD_SERVICE, _STRATISD_PATH)
+        "Connecting to %s at %s via system bus", (_STRATISD_SERVICE, _STRATISD_PATH)
     )
     proxy = bus.get_object(_STRATISD_SERVICE, _STRATISD_PATH, introspect=False)
     object_manager = dbus.Interface(proxy, _DBUS_OBJECT_MANAGER_IFACE)
@@ -83,8 +83,9 @@ def pool_name_to_pool_uuid(pool_name):
         raise IndexError("Stratis pool '%s' not found" % pool_name)
     pool_uuid = str(props["Uuid"])
     _log_debug(
-        "Looked up pool_uuid=%s for Stratis pool %s"
-        % (format_pool_uuid(pool_uuid), pool_name)
+        "Looked up pool_uuid=%s for Stratis pool %s",
+        format_pool_uuid(pool_uuid),
+        pool_name,
     )
     return pool_uuid
 

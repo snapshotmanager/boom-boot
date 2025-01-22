@@ -75,7 +75,7 @@ def _get_grub1_device(force=False):
     find_rgx = r" \(hd\d+,\d+\)"
 
     try:
-        _log_debug("Calling grub1 shell with '%s'" % find_cmd)
+        _log_debug("Calling grub1 shell with '%s'", find_cmd)
         p = Popen(grub_cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         out = p.communicate(input=bytes(find_cmd.encode("utf8")))
     except OSError:
@@ -84,7 +84,7 @@ def _get_grub1_device(force=False):
     for line in out[0].decode("utf8").splitlines():
         if re.match(find_rgx, line):
             __grub1_device = line.lstrip().rstrip()
-            _log_debug("Set grub1 device to '%s'" % __grub1_device)
+            _log_debug("Set grub1 device to '%s'", __grub1_device)
             return __grub1_device
 
 
@@ -149,9 +149,7 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
     cfg_dir = dirname(path)
 
     if not exists(cfg_dir):
-        _log_error(
-            "Cannot write %s configuration: '%s' does not exist'" % (name, cfg_dir)
-        )
+        _log_error("Cannot write %s configuration: '%s' does not exist'", name, cfg_dir)
         return
 
     begin_tag = BOOM_LEGACY_BEGIN_FMT % name
@@ -182,11 +180,11 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
                 tmp_f.write(str(dbe) + "\n")
             tmp_f.write(end_tag + "\n")
     except BoomLegacyFormatError as e:
-        _log_error("Error formatting %s configuration: %s" % (name, e))
+        _log_error("Error formatting %s configuration: %s", name, e)
         try:
             unlink(tmp_path)
         except OSError:
-            _log_error("Error unlinking temporary file '%s'" % tmp_path)
+            _log_error("Error unlinking temporary file '%s'", tmp_path)
         return
 
     try:
@@ -194,11 +192,11 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
     except Exception as e:
-        _log_error("Error writing legacy configuration file %s: %s" % (path, e))
+        _log_error("Error writing legacy configuration file %s: %s", path, e)
         try:
             unlink(tmp_path)
         except Exception:
-            _log_error("Error unlinking temporary path %s" % tmp_path)
+            _log_error("Error unlinking temporary path %s", tmp_path)
         raise e
 
 
@@ -243,7 +241,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         try:
             unlink(tmp_path)
         except OSError as e:
-            _log_error("Could not unlink '%s': %s" % (tmp_path, e))
+            _log_error("Could not unlink '%s': %s", tmp_path, e)
         raise BoomLegacyFormatError(err % fmt_data)
 
     (name, decorator, path) = find_legacy_loader(loader, cfg_path)
@@ -254,9 +252,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
     cfg_dir = dirname(path)
 
     if not exists(cfg_dir):
-        _log_error(
-            "Cannot clear %s configuration: '%s' does not exist'" % (name, cfg_dir)
-        )
+        _log_error("Cannot clear %s configuration: '%s' does not exist'", name, cfg_dir)
         return
 
     begin_tag = BOOM_LEGACY_BEGIN_FMT % name
@@ -303,7 +299,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
                         tmp_f.write(line)
                     line_nr += 1
     except BoomLegacyFormatError as e:
-        _log_error("Error parsing %s configuration: %s" % (name, e))
+        _log_error("Error parsing %s configuration: %s", name, e)
         found_boom = False
 
     if in_boom_cfg and not found_boom:
@@ -314,7 +310,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         try:
             unlink(tmp_path)
         except OSError as e:
-            _log_error("Could not unlink '%s': %s" % (tmp_path, e))
+            _log_error("Could not unlink '%s': %s", tmp_path, e)
         return
 
     try:
@@ -322,11 +318,11 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
     except Exception as e:
-        _log_error("Error writing legacy configuration file %s: %s" % (path, e))
+        _log_error("Error writing legacy configuration file %s: %s", path, e)
         try:
             unlink(tmp_path)
         except Exception:
-            _log_error("Error unlinking temporary path %s" % tmp_path)
+            _log_error("Error unlinking temporary path %s", tmp_path)
         raise e
 
 

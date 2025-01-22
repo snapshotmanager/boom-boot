@@ -207,7 +207,7 @@ def load_cache(verify=True, digests=False):
 
     index_path = path_join(cache_path, _CACHE_INDEX)
 
-    _log_debug("Loading cache entries from '%s'" % index_path)
+    _log_debug("Loading cache entries from '%s'", index_path)
 
     # Get the set of known image_id values
     ids = _load_image_ids(cache_path)
@@ -228,26 +228,26 @@ def load_cache(verify=True, digests=False):
         for image_id in index[path]:
             if image_id not in ids:
                 _log_warn(
-                    "Image identifier '%s' not found in cache"
-                    " for path %s" % (image_id, path)
+                    "Image identifier '%s' not found in cache for path %s",
+                    image_id,
+                    path,
                 )
                 # mark as broken
 
     paths = cachedata["paths"]
     for path in paths.keys():
         if path not in index:
-            _log_warn("No image for path '%s' found in cache" % path)
+            _log_warn("No image for path '%s' found in cache", path)
             # mark as broken
 
     images = cachedata["images"]
     for image_id in images.keys():
         if image_id not in ids:
-            _log_warn("Found unknown image_id '%s'" % image_id)
+            _log_warn("Found unknown image_id '%s'", image_id)
             # clean up?
 
     _log_debug(
-        "Loaded %d cache paths and %d images"
-        % (len(paths), len(sum(index.values(), [])))
+        "Loaded %d cache paths and %d images", len(paths), len(sum(index.values(), []))
     )
 
     _index = index
@@ -284,7 +284,7 @@ def _insert(boot_path, cache_path):
         # FIXME: implement hard link support with fall-back to copy.
         _insert_copy(boot_path, cache_path)
     except Exception as e:
-        _log_error("Error copying '%s' to cache: %s" % (boot_path, e))
+        _log_error("Error copying '%s' to cache: %s", boot_path, e)
         raise e
 
 
@@ -314,7 +314,7 @@ def _remove(cache_path):
     try:
         _remove_copy(cache_path)
     except Exception as e:
-        _log_error("Error removing cache image '%s': %s" % (cache_path, e))
+        _log_error("Error removing cache image '%s': %s", cache_path, e)
         raise e
 
 
@@ -369,7 +369,7 @@ def _cache_path(img_path, update=True, backup=False):
     st = stat(boot_path)
 
     if not S_ISREG(st[ST_MODE]):
-        _log_error("Image at path '%s' is not a regular file." % img_path)
+        _log_error("Image at path '%s' is not a regular file.", img_path)
         raise ValueError("'%s' is not a regular file" % img_path)
 
     img_id = _image_id_from_path(boot_path)
@@ -386,15 +386,14 @@ def _cache_path(img_path, update=True, backup=False):
             return find_cache_images(Selection(img_id=img_id))[0]
 
         img_path = _find_backup_name(img_path)
-        _log_debug_cache("Backing up path '%s' as '%s'" % (boot_path, img_path))
+        _log_debug_cache("Backing up path '%s' as '%s'", boot_path, img_path)
 
     if img_path in _paths and img_id in _index[img_path]:
         _log_info(
-            "Image with img_id=%s already cached for path '%s'"
-            % (img_id[0:6], img_path)
+            "Image with img_id=%s already cached for path '%s'", img_id[0:6], img_path
         )
         return this_entry()
-    _log_info("Adding new image with img_id=%s for path '%s'" % (img_id[0:6], img_path))
+    _log_info("Adding new image with img_id=%s for path '%s'", img_id[0:6], img_path)
 
     path_mode = st[ST_MODE]
     path_uid = st[ST_UID]
@@ -419,7 +418,7 @@ def cache_path(img_path, update=False):
                      the configured /boot directory.
     :returns: None
     """
-    _log_debug_cache("Caching path '%s'" % img_path)
+    _log_debug_cache("Caching path '%s'", img_path)
     return _cache_path(img_path, update=update)
 
 
@@ -458,13 +457,11 @@ def uncache_path(img_path, force=False):
     count = ce.count
 
     if count and not force:
-        _log_info(
-            "Retaining cache path '%s' used by %d boot entries" % (img_path, count)
-        )
+        _log_info("Retaining cache path '%s' used by %d boot entries", img_path, count)
         return
 
     if count:
-        _log_warn("Uncaching path '%s' used by %d boot entries" % (img_path, count))
+        _log_warn("Uncaching path '%s' used by %d boot entries", img_path, count)
 
     # Remove entry from the path index and metadata
     images = _index.pop(img_path)
@@ -497,7 +494,7 @@ def clean_cache():
             nr_unused += 1
             ce.uncache()
     if nr_unused:
-        _log_info("Removed %d unused cache entries" % nr_unused)
+        _log_info("Removed %d unused cache entries", nr_unused)
 
 
 #: Boom restored dot file pattern
@@ -731,7 +728,7 @@ def _find_cache_entries(selection=None, images=False):
 
     selection.check_valid_selection(cache=True)
 
-    _log_debug_cache("Finding cache entries for %s" % repr(selection))
+    _log_debug_cache("Finding cache entries for %s", repr(selection))
 
     for path in _index:
 
@@ -771,7 +768,7 @@ def find_cache_paths(selection=None):
     :returns: A list of matching ``CacheEntry`` objects.
     """
     matches = _find_cache_entries(selection=selection, images=False)
-    _log_debug_cache("Found %d cached paths" % len(matches))
+    _log_debug_cache("Found %d cached paths", len(matches))
     return matches
 
 
@@ -787,7 +784,7 @@ def find_cache_images(selection=None):
     :returns: A list of matching ``CacheEntry`` objects.
     """
     matches = _find_cache_entries(selection=selection, images=True)
-    _log_debug_cache("Found %d cached images" % len(matches))
+    _log_debug_cache("Found %d cached images", len(matches))
     return matches
 
 

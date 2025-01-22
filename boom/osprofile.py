@@ -238,7 +238,7 @@ def drop_profiles():
     )
     _profiles_by_id[_null_profile.os_id] = _null_profile
     if nr_profiles:
-        _log_info("Dropped %d profiles" % nr_profiles)
+        _log_info("Dropped %d profiles", nr_profiles)
     _profiles_loaded = False
 
 
@@ -259,7 +259,7 @@ def load_profiles():
     global _profiles_loaded
     drop_profiles()
     load_profiles_for_class(OsProfile, "Os", boom_profiles_path(), "profile")
-    _log_debug("Loaded %d profiles" % (len(_profiles) - 1))
+    _log_debug("Loaded %d profiles", len(_profiles) - 1)
     _profiles_loaded = True
 
 
@@ -272,14 +272,14 @@ def write_profiles(force=False):
     :rtype: None
     """
     global _profiles
-    _log_debug("Writing profiles to %s" % boom_profiles_path())
+    _log_debug("Writing profiles to %s", boom_profiles_path())
     for osp in _profiles:
         if _is_null_profile(osp):
             continue
         try:
             osp.write_profile(force)
         except Exception as e:
-            _log_warn("Failed to write OsProfile(os_id='%s'): %s" % (osp.disp_os_id, e))
+            _log_warn("Failed to write OsProfile(os_id='%s'): %s", osp.disp_os_id, e)
 
 
 def min_os_id_width():
@@ -366,11 +366,11 @@ def find_profiles(selection=None, match_fn=select_profile):
 
     matches = []
 
-    _log_debug_profile("Finding profiles for %s" % repr(selection))
+    _log_debug_profile("Finding profiles for %s", repr(selection))
     for osp in _profiles:
         if match_fn(selection, osp):
             matches.append(osp)
-    _log_debug_profile("Found %d profiles" % len(matches))
+    _log_debug_profile("Found %d profiles", len(matches))
     matches.sort(key=lambda o: (o.os_name, o.os_version))
 
     return matches
@@ -415,7 +415,9 @@ def match_os_profile(entry):
     # matched to the entry.
     _log_debug(
         "Attempting to match profile for BootEntry(title='%s', "
-        "version='%s') with unknown os_id" % (entry.title, entry.version)
+        "version='%s') with unknown os_id",
+        entry.title,
+        entry.version,
     )
 
     # Attempt to match by uname pattern
@@ -425,8 +427,11 @@ def match_os_profile(entry):
         if osp.match_uname_version(entry.version):
             _log_debug(
                 "Matched BootEntry(version='%s', boot_id='%s') "
-                "to OsProfile(name='%s', os_id='%s')"
-                % (entry.version, entry.disp_boot_id, osp.os_name, osp.disp_os_id)
+                "to OsProfile(name='%s', os_id='%s')",
+                entry.version,
+                entry.disp_boot_id,
+                osp.os_name,
+                osp.disp_os_id,
             )
             return osp
 
@@ -437,12 +442,15 @@ def match_os_profile(entry):
         if osp.match_options(entry):
             _log_debug(
                 "Matched BootEntry(version='%s', boot_id='%s') "
-                "to OsProfile(name='%s', os_id='%s')"
-                % (entry.version, entry.disp_boot_id, osp.os_name, osp.disp_os_id)
+                "to OsProfile(name='%s', os_id='%s')",
+                entry.version,
+                entry.disp_boot_id,
+                osp.os_name,
+                osp.disp_os_id,
             )
             return osp
 
-    _log_debug_profile("No matching profile found for boot_id=%s" % entry.boot_id)
+    _log_debug_profile("No matching profile found for boot_id=%s", entry.boot_id)
 
     # Assign the Null profile to this BootEntry: we cannot determine a
     # valid OsProfile to associate with it, so it cannot be modified or
@@ -676,7 +684,7 @@ class BoomProfile(object):
         comment = ""
         ptype = self.__class__.__name__
 
-        _log_debug("Loading %s from '%s'" % (ptype, basename(profile_file)))
+        _log_debug("Loading %s from '%s'", ptype, basename(profile_file))
         with open(profile_file, "r") as pf:
             for line in pf:
                 if blank_or_comment(line):
@@ -728,7 +736,7 @@ class BoomProfile(object):
         :rtype: bool
         """
         _log_debug_profile(
-            "Matching uname pattern '%s' to '%s'" % (self.uname_pattern, version)
+            "Matching uname pattern '%s' to '%s'", self.uname_pattern, version
         )
         if self.uname_pattern and version:
             if re.search(self.uname_pattern, version):
@@ -757,7 +765,7 @@ class BoomProfile(object):
 
         opts_regex_words = self.make_format_regexes(self.options)
         _log_debug_profile(
-            "Matching options regex list with %d entries" % len(opts_regex_words)
+            "Matching options regex list with %d entries", len(opts_regex_words)
         )
 
         format_opts = []
@@ -808,7 +816,7 @@ class BoomProfile(object):
         if not fmt:
             return regex_words
 
-        _log_debug_profile("Making format regex list for '%s'" % fmt)
+        _log_debug_profile("Making format regex list for '%s'", fmt)
 
         # Keys captured by single regex
         key_regex = {
@@ -1163,7 +1171,7 @@ class BoomProfile(object):
         profile_path = self._profile_path()
 
         _log_debug(
-            "Writing %s(id='%s') to '%s'" % (ptype, profile_id, basename(profile_path))
+            "Writing %s(id='%s') to '%s'", ptype, profile_id, basename(profile_path)
         )
 
         # List of key names for this profile type
@@ -1181,14 +1189,14 @@ class BoomProfile(object):
             rename(tmp_path, profile_path)
             chmod(profile_path, mode)
         except Exception as e:
-            _log_error("Error writing profile file '%s': %s" % (profile_path, e))
+            _log_error("Error writing profile file '%s': %s", profile_path, e)
             try:
                 unlink(tmp_path)
             except Exception:
-                _log_error("Error unlinking temporary path %s" % tmp_path)
+                _log_error("Error unlinking temporary path %s", tmp_path)
             raise e
 
-        _log_debug("Wrote %s (id=%s)'" % (ptype, profile_id))
+        _log_debug("Wrote %s (id=%s)'", ptype, profile_id)
 
     def write_profile(self, force=False):
         """Write out profile data to disk.
@@ -1227,17 +1235,16 @@ class BoomProfile(object):
         profile_path = self._profile_path()
 
         _log_debug(
-            "Deleting %s(id='%s') from '%s'"
-            % (ptype, profile_id, basename(profile_path))
+            "Deleting %s(id='%s') from '%s'", ptype, profile_id, basename(profile_path)
         )
 
         if not path_exists(profile_path):
             return
         try:
             unlink(profile_path)
-            _log_debug("Deleted %s(id='%s')" % (ptype, profile_id))
+            _log_debug("Deleted %s(id='%s')", ptype, profile_id)
         except Exception as e:
-            _log_error("Error removing %s file '%s': %s" % (ptype, profile_path, e))
+            _log_error("Error removing %s file '%s': %s", ptype, profile_path, e)
 
     def delete_profile(self):
         """Delete on-disk data for this profile.
@@ -1369,7 +1376,7 @@ class OsProfile(BoomProfile):
         """
         err_str = "Invalid profile data (missing %s)"
 
-        _log_debug_profile("Initialising OsProfile from profile_data=%s" % profile_data)
+        _log_debug_profile("Initialising OsProfile from profile_data=%s", profile_data)
 
         # Set profile defaults
         for key in _DEFAULT_KEYS:
@@ -1427,7 +1434,7 @@ class OsProfile(BoomProfile):
         comment = ""
         ptype = self.__class__.__name__
 
-        _log_debug("Loading %s from '%s'" % (ptype, basename(profile_file)))
+        _log_debug("Loading %s from '%s'", ptype, basename(profile_file))
         with open(profile_file, "r") as pf:
             for line in pf:
                 if blank_or_comment(line):
