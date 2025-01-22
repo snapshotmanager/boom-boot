@@ -39,6 +39,12 @@ log = logging.getLogger()
 _test_osp = None
 
 class BootParamsTests(unittest.TestCase):
+    def setUp(self):
+        log.debug("Preparing %s", self._testMethodName)
+
+    def tearDown(self):
+        log.debug("Tearing down %s", self._testMethodName)
+
     def test_BootParams_no_version_raises(self):
         with self.assertRaises(ValueError) as cm:
             # A version string is required
@@ -180,6 +186,7 @@ class BootEntryBasicTests(unittest.TestCase):
     boom_path = join(BOOT_ROOT_TEST, "boom")
 
     def setUp(self):
+        log.debug("Preparing %s", self._testMethodName)
         reset_sandbox()
 
         # Sandbox paths
@@ -201,6 +208,7 @@ class BootEntryBasicTests(unittest.TestCase):
         load_host_profiles()
 
     def tearDown(self):
+        log.debug("Tearing down %s", self._testMethodName)
         # Drop any in-memory entries and profiles modified by tests
         drop_entries()
         drop_profiles()
@@ -366,6 +374,8 @@ class BootEntryTests(unittest.TestCase):
             Defines standard OsProfile, BootParams, and BootEntry
             objects for use in these tests.
         """
+        log.debug("Preparing %s", self._testMethodName)
+
         reset_sandbox()
 
         # Sandbox paths
@@ -415,6 +425,8 @@ class BootEntryTests(unittest.TestCase):
         """Tear down the standard test profiles and entries used by the
             BootEntryTests class.
         """
+        log.debug("Tearing down %s", self._testMethodName)
+
         # Drop any in-memory entries and profiles modified by tests
         drop_entries()
         drop_profiles()
@@ -961,6 +973,12 @@ class BootEntryTests(unittest.TestCase):
         self.assertEqual(xstr, be.expanded())
 
 class BootLoaderBasicTests(unittest.TestCase):
+    def setUp(self):
+        log.debug("Preparing %s", self._testMethodName)
+
+    def tearDown(self):
+        log.debug("Tearing down %s", self._testMethodName)
+
     def test_import(self):
         import boom.bootloader
 
@@ -983,6 +1001,8 @@ class BootLoaderTests(unittest.TestCase):
             Defines standard OsProfile, BootParams, and BootEntry
             objects for use in these tests.
         """
+        log.debug("Preparing %s", self._testMethodName)
+
         reset_sandbox()
 
         # Sandbox paths
@@ -1007,6 +1027,8 @@ class BootLoaderTests(unittest.TestCase):
             Tear down the standard test profiles and entries used by the
             BootEntryTests class.
         """
+        log.debug("Tearing down %s", self._testMethodName)
+
         # Drop any in-memory entries and profiles modified by tests
         drop_entries()
         drop_profiles()
@@ -1088,6 +1110,7 @@ class BootLoaderTestsCheckRoot(unittest.TestCase):
     del_devs = []
 
     def setUp(self):
+        log.debug("Preparing %s", self._testMethodName)
         reset_sandbox()
         dev_path = join(SANDBOX_PATH, "dev")
         makedirs(dev_path)
@@ -1106,6 +1129,8 @@ class BootLoaderTestsCheckRoot(unittest.TestCase):
                     raise
 
     def tearDown(self):
+        log.debug("Tearing down %s", self._testMethodName)
+
         rm_sandbox()
 
 

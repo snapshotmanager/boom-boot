@@ -86,6 +86,8 @@ class HostProfileTests(unittest.TestCase):
     loader_path = join(BOOT_ROOT_TEST, "loader")
 
     def setUp(self):
+        log.debug("Preparing %s", self._testMethodName)
+
         reset_sandbox()
 
         # Sandbox paths
@@ -103,6 +105,8 @@ class HostProfileTests(unittest.TestCase):
         drop_profiles()
 
     def tearDown(self):
+        log.debug("Tearing down %s", self._testMethodName)
+
         drop_host_profiles()
         drop_profiles()
         rm_sandbox()

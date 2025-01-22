@@ -42,6 +42,12 @@ class MountsHelperTests(unittest.TestCase):
         not modify on-disk state and do not use a unique test
         fixture.
     """
+    def setUp(self):
+        log.debug("Preparing %s", self._testMethodName)
+
+    def tearDown(self):
+        log.debug("Tearing down %s", self._testMethodName)
+
     def test_parse_mount_units(self):
         mount_list = ["/dev/test/var:/var:xfs:defaults"]
         xmount_str = "systemd.mount-extra=/dev/test/var:/var:xfs:defaults"

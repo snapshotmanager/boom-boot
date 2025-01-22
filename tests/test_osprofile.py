@@ -36,6 +36,8 @@ class OsProfileTests(unittest.TestCase):
     boom_path = join(BOOT_ROOT_TEST, "boom")
 
     def setUp(self):
+        log.debug("Preparing %s", self._testMethodName)
+
         reset_sandbox()
 
         # Sandbox paths
@@ -50,6 +52,8 @@ class OsProfileTests(unittest.TestCase):
         drop_profiles()
 
     def tearDown(self):
+        log.debug("Tearing down %s", self._testMethodName)
+
         drop_profiles()
         rm_sandbox()
         reset_boom_paths()

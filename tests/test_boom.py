@@ -28,6 +28,12 @@ boom.set_boot_path(BOOT_ROOT_TEST)
 
 
 class BoomTests(unittest.TestCase):
+    def setUp(self):
+        log.debug("Preparing %s", self._testMethodName)
+
+    def tearDown(self):
+        log.debug("Tearing down %s", self._testMethodName)
+
     # Module tests
     def test_import(self):
         import boom
@@ -233,12 +239,10 @@ class BoomTests(unittest.TestCase):
 
 class BoomPathTests(unittest.TestCase):
     def setUp(self):
-        # Set up required test paths
-        pass
+        log.debug("Preparing %s", self._testMethodName)
 
     def tearDown(self):
-        # Clean up test sandbox
-        pass
+        log.debug("Tearing down %s", self._testMethodName)
 
     def test_set_boot_path(self):
         boom.set_boot_path(BOOT_ROOT_TEST)

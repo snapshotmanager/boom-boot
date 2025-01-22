@@ -39,6 +39,12 @@ class StratisTests(unittest.TestCase):
     """Tests for the BootEntry class that do not depend on external
         test data.
     """
+    def setUp(self):
+        log.debug("Preparing %s", self._testMethodName)
+
+    def tearDown(self):
+        log.debug("Tearing down %s", self._testMethodName)
+
     # Stratis module tests
 
     def test_is_stratis_device_path_badpath(self):
