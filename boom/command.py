@@ -757,7 +757,12 @@ def __write_legacy():
 
 
 def _do_print_type(
-    report_fields, selected, output_fields=None, opts=None, sort_keys=None, title=None,
+    report_fields,
+    selected,
+    output_fields=None,
+    opts=None,
+    sort_keys=None,
+    title=None,
 ):
     """Print an object type report (entry, osprofile, hostprofile).
 
@@ -780,7 +785,12 @@ def _do_print_type(
     opts = opts if opts is not None else ReportOpts()
 
     br = Report(
-        _report_obj_types, report_fields, output_fields, opts, sort_keys, title,
+        _report_obj_types,
+        report_fields,
+        output_fields,
+        opts,
+        sort_keys,
+        title,
     )
 
     for obj in selected:
