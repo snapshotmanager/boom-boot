@@ -31,13 +31,12 @@ jobs:
       - name: Run bandit
         run: >
           bandit -c bandit.toml -r boom
-      - name: Run test suite
+      - name: Run test suite with coverage
         run: >
-          pytest -v
-      - name: Run coverage on test suite
+          coverage run /usr/bin/pytest -v --log-level=debug
+      - name: Report coverage
         run: |
-          coverage run -m unittest discover
-          coverage report
+          coverage report -m --include "./boom/*"
   python-basic-tests-ubuntu:
     runs-on: ubuntu-latest
     steps:
@@ -63,11 +62,10 @@ jobs:
       - name: Run bandit
         run: >
           bandit --skip B303,B404,B603 -r boom
-      - name: Run test suite
+      - name: Run test suite with coverage
         run: >
-          sudo pytest-3 -v
-      - name: Run coverage on test suite
+          sudo python3-coverage run /usr/bin/pytest-3 -v --log-level=debug
+      - name: Report coverage
         run: |
-          sudo python3-coverage run -m unittest discover
-          python3-coverage report
+          sudo python3-coverage report -m --include "./boom/*"
 
