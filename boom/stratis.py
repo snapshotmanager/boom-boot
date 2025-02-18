@@ -1,16 +1,10 @@
-# Copyright (C) 2021 Red Hat, Inc., Bryn M. Reeves <bmr@redhat.com>
+# Copyright Red Hat
 #
-# stratis.py - Boom Stratis storage integration
+# boom/stratis.py - Boom Stratis storage integration
 #
 # This file is part of the boom project.
 #
-# This copyrighted material is made available to anyone wishing to use,
-# modify, copy, or redistribute it subject to the terms and conditions
-# of the GNU General Public License v.2.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software Foundation,
-# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+# SPDX-License-Identifier: GPL-2.0-only
 """The ``boom.stratis`` module contains functions and constants
 needed to obtain information from a running ``stratisd`` daemon
 about the Stratis storage pools and file systems present on the
