@@ -178,19 +178,8 @@ def key_to_bls_name(key):
     return KEY_MAP[key]
 
 
-def __make_map_key(key_map):
-    """Compatibility function to generate a reverse dictionary on
-    Python 2.6 which does not support dictionary comprehension
-    notation.
-    """
-    map_key = {}
-    for k, v in key_map.items():
-        map_key[v] = k
-    return map_key
-
-
 #: Map BLS entry keys to Boom names
-MAP_KEY = __make_map_key(KEY_MAP)
+MAP_KEY = {v: k for k, v in KEY_MAP.items()}
 
 #: Grub2 environment variable expansion character
 GRUB2_EXPAND_ENV = "$"
