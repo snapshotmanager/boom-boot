@@ -17,6 +17,7 @@ BuildRequires:	python3-setuptools
 BuildRequires:	python3-devel
 BuildRequires:  python3-pip
 BuildRequires:  python3-wheel
+BuildRequires:  python3-pytest
 %if 0%{?sphinx_docs}
 BuildRequires:	python3-dbus
 BuildRequires:	python3-sphinx
@@ -119,9 +120,8 @@ install -m 644 man/man5/boom.5 ${RPM_BUILD_ROOT}/%{_mandir}/man5
 rm doc/Makefile
 rm doc/conf.py
 
-# Test suite currently does not operate in rpmbuild environment
-#%%check
-#%%{__python3} setup.py test
+%check
+pytest-3 --log-level=debug -v
 
 %files
 %license COPYING
