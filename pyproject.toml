@@ -1,7 +1,7 @@
 [project]
 name = "boom_boot"
 version = "1.6.5"
-license = { file="COPYING" }
+license = { text="GPL-2.0-only" }
 authors = [
   { name="Bryn M. Reeves", email="bmr@redhat.com" },
 ]
@@ -12,7 +12,6 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: Implementation :: CPython",
@@ -26,5 +25,8 @@ Homepage = "https://github.com/snapshotmanager/boom-boot"
 Issues = "https://github.com/snapshotmanager/boom-boot/issues"
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = [
+    "wheel",
+    "setuptools>=61.0"
+]
 build-backend = "setuptools.build_meta"
