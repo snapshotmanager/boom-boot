@@ -65,6 +65,7 @@ _CFG_LEGACY_FMT = "format"
 _CFG_LEGACY_SYNC = "sync"
 _CFG_SECT_CACHE = "cache"
 _CFG_CACHE_ENABLE = "enable"
+_CFG_CACHE_AUTOCLEAN = "auto_clean"
 _CFG_CACHE_PATH = "cache_path"
 
 
@@ -172,6 +173,12 @@ def _sync_config(bc, cfg):
         cfg.set(_CFG_SECT_LEGACY, _CFG_LEGACY_FMT, bc.legacy_format)
     if attr_has_value(bc, "legacy_sync"):
         cfg.set(_CFG_SECT_LEGACY, _CFG_LEGACY_SYNC, yes_no(bc.legacy_sync))
+    if attr_has_value(bc, "cache_enable"):
+        cfg.set(_CFG_SECT_CACHE, _CFG_CACHE_ENABLE, yes_no(bc.cache_enable))
+    if attr_has_value(bc, "cache_auto_clean"):
+        cfg.set(_CFG_SECT_CACHE, _CFG_CACHE_AUTOCLEAN, yes_no(bc.cache_auto_clean))
+    if attr_has_value(bc, "cache_path"):
+        cfg.set(_CFG_SECT_CACHE, _CFG_CACHE_PATH, bc.cache_path)
 
 
 def __make_config(bc):

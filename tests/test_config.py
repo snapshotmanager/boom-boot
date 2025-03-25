@@ -47,6 +47,7 @@ class ConfigBasicTests(unittest.TestCase):
 
         cfg.add_section("global")
         cfg.add_section("legacy")
+        cfg.add_section("cache")
 
         boot_path = "/boot"
         boom_path = "/boot/boom"
