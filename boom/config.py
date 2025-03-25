@@ -57,6 +57,9 @@ _CFG_SECT_GLOBAL = "global"
 _CFG_SECT_LEGACY = "legacy"
 _CFG_BOOT_ROOT = "boot_root"
 _CFG_BOOM_ROOT = "boom_root"
+# *_path synonyms for backwards compatibility
+_CFG_BOOT_PATH = "boot_path"
+_CFG_BOOM_PATH = "boom_path"
 _CFG_LEGACY_ENABLE = "enable"
 _CFG_LEGACY_FMT = "format"
 _CFG_LEGACY_SYNC = "sync"
@@ -91,11 +94,17 @@ def _read_boom_config(path=None):
 
     if cfg.has_section(_CFG_SECT_GLOBAL):
         if cfg.has_option(_CFG_SECT_GLOBAL, _CFG_BOOT_ROOT):
-            _log_debug("Found global.boot_path")
+            _log_debug("Found global.boot_root")
             bc.boot_path = cfg.get(_CFG_SECT_GLOBAL, _CFG_BOOT_ROOT)
+        if cfg.has_option(_CFG_SECT_GLOBAL, _CFG_BOOT_PATH):
+            _log_debug("Found global.boot_path: redirecting to global.boot_root")
+            bc.boot_path = cfg.get(_CFG_SECT_GLOBAL, _CFG_BOOT_PATH)
         if cfg.has_option(_CFG_SECT_GLOBAL, _CFG_BOOM_ROOT):
-            _log_debug("Found global.boom_path")
+            _log_debug("Found global.boom_root")
             bc.boom_path = cfg.get(_CFG_SECT_GLOBAL, _CFG_BOOM_ROOT)
+        if cfg.has_option(_CFG_SECT_GLOBAL, _CFG_BOOM_PATH):
+            _log_debug("Found global.boom_path: redirecting to global.boom_root")
+            bc.boom_path = cfg.get(_CFG_SECT_GLOBAL, _CFG_BOOM_PATH)
 
     if cfg.has_section(_CFG_SECT_LEGACY):
         if cfg.has_option(_CFG_SECT_LEGACY, _CFG_LEGACY_ENABLE):
