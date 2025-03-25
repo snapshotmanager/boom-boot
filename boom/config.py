@@ -188,6 +188,7 @@ def __make_config(bc):
     cfg = ConfigParser()
     cfg.add_section("global")
     cfg.add_section("legacy")
+    cfg.add_section("cache")
     _sync_config(bc, cfg)
     return bc
 
