@@ -190,6 +190,7 @@ def __make_config(bc):
     cfg.add_section("legacy")
     cfg.add_section("cache")
     _sync_config(bc, cfg)
+    bc._cfg = cfg
     return bc
 
 
@@ -209,8 +210,8 @@ def write_boom_config(config=None, path=None):
 
     config = config or get_boom_config()
 
-    if not config._cfg:
-        config._cfg = __make_config(config)
+    if not hasattr("config", "_cfg") or not config._cfg:
+        __make_config(config)
     else:
         _sync_config(config, config._cfg)
 

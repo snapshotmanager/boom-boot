@@ -2406,8 +2406,7 @@ def create_config():
     makedirs(bc.boom_path, mode=0o755)
     for subdir in ["cache", "hosts", "profiles"]:
         makedirs(join(bc.boom_path, subdir), mode=0o700)
-    with open(join(bc.boom_path, BOOM_CONFIG_FILE), mode="w", encoding="utf8") as conf:
-        conf.write(str(bc))
+    write_boom_config(config=bc)
 
 
 #

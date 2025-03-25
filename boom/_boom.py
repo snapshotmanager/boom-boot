@@ -1041,6 +1041,7 @@ __all__ = [
     # boom module constants
     "DEFAULT_BOOT_PATH",
     "DEFAULT_BOOM_PATH",
+    "BOOT_CONFIG_MODE",
     "BOOM_CONFIG_FILE",
     # Profile format keys
     "FMT_VERSION",
