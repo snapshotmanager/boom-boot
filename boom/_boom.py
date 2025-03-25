@@ -237,8 +237,8 @@ class BoomConfig(object):
         """
         cstr = ""
         cstr += "[global]\n"
-        cstr += "boot_path = %s\n" % self.boot_path
-        cstr += "boom_path = %s\n\n" % self.boom_path
+        cstr += "boot_root = %s\n" % self.boot_path
+        cstr += "boom_root = %s\n\n" % self.boom_path
 
         cstr += "[legacy]\n"
         cstr += "enable = %s\n" % self.legacy_enable
