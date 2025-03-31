@@ -154,7 +154,7 @@ pytest-3 --log-level=debug -v
 
 
 %changelog
-* Mon Mar 31 2025 Bryn M. Reeves <bmr@redhat.com> - 1.6.5-1
+* Mon Mar 31 2025 Bryn M. Reeves <bmr@redhat.com> - 1.6.6-1
 - tests: drop remaining Python2 compat handling
 - boom.config: drop Python2 compat handling for ConfigParser
 - dist: update example boom.conf
