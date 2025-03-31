@@ -2,8 +2,8 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.6.5
-Release:	2%{?dist}
+Version:	1.6.6
+Release:	1%{?dist}
 Summary:	%{summary}
 
 License:	GPL-2.0-only
@@ -154,6 +154,35 @@ pytest-3 --log-level=debug -v
 
 
 %changelog
+* Mon Mar 31 2025 Bryn M. Reeves <bmr@redhat.com> - 1.6.5-1
+- tests: drop remaining Python2 compat handling
+- boom.config: drop Python2 compat handling for ConfigParser
+- dist: update example boom.conf
+- boom: use correct option names in BoomConfig.__str__()
+- boom: use write_boom_config() in boom.command.create_config()
+- config: add missing [cache] section to boom.config.__make_config()
+- config: add missing [cache] section handling to boom.config._sync_config()
+- config: treat {boom,boot}_root and {boom,boot}_path as synonyms
+- dist: enable check in boom-boot.spec
+- dist: replace license classifier with SPDX expressions
+- boom: replace __make_map_key() function with dictionary comprehension
+- dist: clean up copyright statements and convert to SPDX license headers
+- dist: update GPLv2 text in COPYING
+- boom: use lazy printf formatting when logging
+- boom: fix report argument formatting
+- tests: drop separate coverage runs and split out reporting step
+- tests: switch Fedora tests to fedora:latest
+- tests: bracket test cases with log messages
+- tests: fix duplicate log handlers in test suite
+- report: strip trailing whitespace from report output
+- legacy: use 'is' instead of explicit type comparison
+- boom: clean up new OsProfile if setting uname_pattern fails
+- boom: add CentOS Stream to uname heuristics table
+- boom: fix license headers across tree
+- dist: update spec file changelog and release
+- dist: drop unused systemd-rpm-macros BuildRequires
+- dist: fix Source URL and autosetup invocation
+
 * Fri Sep 27 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.5-2
 - dist: drop unused systemd-rpm-macros BuildRequires
 - dist: fix Source URL and autosetup invocation
@@ -186,7 +215,7 @@ pytest-3 --log-level=debug -v
 - tests: fix up tests for boom.report renames
 - report: sync boom.report with snapm and drop Boom prefix
 - dist: make setup.cfg package name consistent with pyproject.toml
-- dist: extend CentOS %py3_build/%py3_install conditionals to RHEL
+- dist: extend CentOS py3_build/py3_install conditionals to RHEL
 - dist: Require correct systemd version on RHEL9
 
 * Wed Jun 19 2024 Bryn M. Reeves <bmr@redhat.com> - 1.6.4-1

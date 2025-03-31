@@ -29,6 +29,5 @@ from __future__ import print_function
 from ._boom import *
 from ._boom import __all__
 
-__version__ = "1.6.5"
-
-# vim: set et ts=4 sw=4 :
+__version__ = "1.6.6"
+# vimself.: set et ts=4 sw=4 :
