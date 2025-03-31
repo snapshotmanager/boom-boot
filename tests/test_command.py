@@ -10,15 +10,10 @@ import logging
 from sys import stdout
 from os import listdir, makedirs
 from os.path import abspath, basename, dirname, exists, join
+from io import StringIO
 from glob import glob
 import shutil
 import re
-
-# Python3 moves StringIO to io
-try:
-    from StringIO import StringIO
-except:
-    from io import StringIO
 
 log = logging.getLogger()
 
