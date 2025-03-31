@@ -1,13 +1,13 @@
 [project]
 name = "boom_boot"
 version = "1.6.6"
-license = { text="GPL-2.0-only" }
 authors = [
   { name="Bryn M. Reeves", email="bmr@redhat.com" },
 ]
 description = "The Boom Boot Manager"
 readme = "README.md"
 requires-python = ">=3.6"
+dynamic = ["license"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
