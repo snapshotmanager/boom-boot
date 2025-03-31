@@ -7,16 +7,11 @@
 # SPDX-License-Identifier: GPL-2.0-only
 import unittest
 import logging
+from configparser import ConfigParser, ParsingError
 from os.path import abspath, join
 from sys import stdout
 import shutil
 
-try:
-    # Python2
-    from ConfigParser import SafeConfigParser as ConfigParser, ParsingError
-except:
-    # Python3
-    from configparser import ConfigParser, ParsingError
 
 log = logging.getLogger()
 

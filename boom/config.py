@@ -17,17 +17,11 @@ from __future__ import print_function
 from os.path import dirname
 
 from os import fdopen, rename, chmod, fdatasync
+from configparser import ConfigParser, ParsingError
 from tempfile import mkstemp
 import logging
 
 from boom import *
-
-try:
-    # Python2
-    from ConfigParser import SafeConfigParser as ConfigParser, ParsingError
-except ImportError:
-    # Python3
-    from configparser import ConfigParser, ParsingError
 
 
 class BoomConfigError(BoomError):
