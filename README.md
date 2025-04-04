@@ -767,7 +767,7 @@ and [Read the Docs][6].
 
 Installation and user documentation will be added in a future update.
 
- [0]: https://systemd.io/BOOT_LOADER_SPECIFICATION
+ [0]: https://uapi-group.org/specifications/specs/boot_loader_specification/
  [1]: https://github.com/snapshotmanager/snapshot-boot-docs
  [2]: https://github.com/snapshotmanager/boom/issues
  [3]: https://www.redhat.com/mailman/listinfo/dm-devel
