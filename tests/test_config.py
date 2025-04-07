@@ -118,8 +118,8 @@ class BadConfigTests(ConfigTests):
     # The set of configuration files to use for this test class
     conf_path = join(BOOT_ROOT_TEST, "boom_configs/badconfig/boot")
 
-    def test_load_boom_config_default(self):
-        """Test the `load_boom_config()` function with the default
+    def test_load_boom_config_invalid_raises(self):
+        """Test the `load_boom_config()` function with an invalid
             configuration file.
         """
         with self.assertRaises(ValueError) as cm:
