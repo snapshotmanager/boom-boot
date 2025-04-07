@@ -518,19 +518,6 @@ class Report:
 
     """
 
-    report_types = 0
-    keys_count = 0
-
-    _fields = None
-    _types = None
-    _data = None
-    _rows = None
-    _field_properties = None
-    _header_written = False
-    _field_calc_needed = True
-    _sort_required = False
-    _already_reported = False
-
     # Implicit field support
     _implicit_types = _implicit_special_report_types
     _implicit_fields = _implicit_special_report_fields
@@ -860,6 +847,16 @@ class Report:
         :returns: A new report object.
         :rtype: ``Report``.
         """
+        self.report_types = 0
+        self.keys_count = 0
+
+        self._data = None
+        self._rows = None
+        self._field_properties = None
+        self._header_written = False
+        self._field_calc_needed = True
+        self._sort_required = False
+        self._already_reported = False
 
         self._fields = fields
         self._types = types
