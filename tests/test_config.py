@@ -63,7 +63,7 @@ class ConfigBasicTests(unittest.TestCase):
         self.assertEqual(cfg.get("global", "boom_root"), boom_path)
 
 
-class ConfigTests(unittest.TestCase):
+class ConfigTestsBase(unittest.TestCase):
     # The set of configuration files to use for this test class
     conf_path = join(BOOT_ROOT_TEST, "boom_configs/default/boot")
 
@@ -91,6 +91,8 @@ class ConfigTests(unittest.TestCase):
         rm_sandbox()
         reset_boom_paths()
 
+
+class ConfigTests(ConfigTestsBase):
     def test_get_boom_config_path(self):
         """Test that the correct boom.conf path is returned from a call
             to the `get_boom_config_path()` function.
@@ -114,7 +116,7 @@ class ConfigTests(unittest.TestCase):
         """
         load_boom_config()
 
-class BadConfigTests(ConfigTests):
+class BadConfigTests(ConfigTestsBase):
     # The set of configuration files to use for this test class
     conf_path = join(BOOT_ROOT_TEST, "boom_configs/badconfig/boot")
 
