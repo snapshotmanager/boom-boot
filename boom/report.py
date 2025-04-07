@@ -90,17 +90,6 @@ class ReportOpts:
     Options controlling the formatting and output of a report.
     """
 
-    columns = 0
-    headings = True
-    buffered = True
-    separator = None
-    field_name_prefix = None
-    unquoted = True
-    aligned = True
-    json = False
-    columns_as_rows = False
-    report_file = None
-
     # pylint: disable=too-many-arguments
     def __init__(
         self,
