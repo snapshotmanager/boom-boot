@@ -209,15 +209,6 @@ class FieldType:
     available in a ``Report`` instance.
     """
 
-    objtype = -1
-    name = None
-    head = None
-    desc = None
-    width = _DEFAULT_WIDTH
-    align = None
-    dtype = None
-    report_fn = None
-
     # pylint: disable=too-many-arguments
     def __init__(self, objtype, name, head, desc, width, dtype, report_fn, align=None):
         """
