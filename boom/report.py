@@ -288,23 +288,38 @@ class FieldProperties:
     Properties of a field instance.
     """
 
-    field_num = None
-    # sort_posn
-    initial_width = 0
-    width = 0
-    objtype = None
-    dtype = None
-    align = None
-    #
-    # Field flags
-    #
-    hidden = False
-    implicit = False
-    sort_key = False
-    sort_dir = None
-    compact_one = False  # used for implicit fields
-    compacted = False
-    sort_posn = None
+    def __init__(
+        self,
+        field_num=None,
+        initial_width=0,
+        width=0,
+        objtype=None,
+        dtype=None,
+        align=None,
+        hidden=False,
+        implicit=False,
+        sort_key=False,
+        sort_dir=None,
+        compact_one=False,
+        compacted=False,
+        sort_posn=None,
+    ):
+        self.field_num = field_num
+        self.initial_width = initial_width
+        self.width = width
+        self.objtype = objtype
+        self.dtype = dtype
+        self.align = align
+        #
+        # Field flags
+        #
+        self.hidden = hidden
+        self.implicit = implicit
+        self.sort_key = sort_key
+        self.sort_dir = sort_dir
+        self.compact_one = compact_one  # used for implicit fields
+        self.compacted = compacted
+        self.sort_posn = sort_posn
 
 
 class Field:
@@ -656,14 +671,15 @@ class Report:
         :param field_num: The number of this field (fields order)
         :param implicit: True if this field is implicit, else False
         """
-        field_props = FieldProperties()
-        field_props.field_num = field_num
-        field_props.width = field_props.initial_width = self._fields[field_num].width
-        field_props.implicit = implicit
-        field_props.objtype = self.__find_type(self._fields[field_num].objtype)
-        field_props.dtype = self._fields[field_num].dtype
-        field_props.align = self._fields[field_num].align
-        return field_props
+        return FieldProperties(
+            field_num=field_num,
+            width=self._fields[field_num].width,
+            initial_width=self._fields[field_num].width,
+            implicit=implicit,
+            objtype=self.__find_type(self._fields[field_num].objtype),
+            dtype=self._fields[field_num].dtype,
+            align=self._fields[field_num].align,
+        )
 
     def __add_field(self, field_num, implicit):
         """
