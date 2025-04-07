@@ -51,13 +51,13 @@ class CacheHelperTests(unittest.TestCase):
     def setUp(self):
         """Set up a test fixture for the CacheHelperTests class.
         """
-        log.debug("Preparing %s", self._testMethodName)
+        log.info("Preparing %s", self._testMethodName)
 
         set_boom_config(config)
         set_boot_path(BOOT_ROOT_TEST)
 
     def tearDown(self):
-        log.debug("Tearing down %s", self._testMethodName)
+        log.info("Tearing down %s", self._testMethodName)
 
         # Drop any in-memory entries and profiles modified by tests
         drop_entries()
@@ -118,7 +118,7 @@ class CacheTests(unittest.TestCase):
 
             Defines standard objects for use in these tests.
         """
-        log.debug("Preparing %s", self._testMethodName)
+        log.info("Preparing %s", self._testMethodName)
 
         reset_sandbox()
 
@@ -163,7 +163,7 @@ class CacheTests(unittest.TestCase):
         load_cache()
 
     def tearDown(self):
-        log.debug("Tearing down %s", self._testMethodName)
+        log.info("Tearing down %s", self._testMethodName)
 
         # Drop any in-memory entries and profiles modified by tests
         drop_entries()

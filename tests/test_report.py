@@ -95,10 +95,10 @@ _test_obj_types = [
 
 class ReportTests(unittest.TestCase):
     def setUp(self):
-        log.debug("Preparing %s", self._testMethodName)
+        log.info("Preparing %s", self._testMethodName)
 
     def tearDown(self):
-        log.debug("Tearing down %s", self._testMethodName)
+        log.info("Tearing down %s", self._testMethodName)
 
     def test_FieldType_no_type(self):
         with self.assertRaises(ValueError):

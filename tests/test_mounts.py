@@ -32,10 +32,10 @@ class MountsHelperTests(unittest.TestCase):
         fixture.
     """
     def setUp(self):
-        log.debug("Preparing %s", self._testMethodName)
+        log.info("Preparing %s", self._testMethodName)
 
     def tearDown(self):
-        log.debug("Tearing down %s", self._testMethodName)
+        log.info("Tearing down %s", self._testMethodName)
 
     def test_parse_mount_units(self):
         mount_list = ["/dev/test/var:/var:xfs:defaults"]

@@ -28,10 +28,10 @@ class ConfigBasicTests(unittest.TestCase):
     """
 
     def setUp(self):
-        log.debug("Preparing %s", self._testMethodName)
+        log.info("Preparing %s", self._testMethodName)
 
     def tearDown(self):
-        log.debug("Tearing down %s", self._testMethodName)
+        log.info("Tearing down %s", self._testMethodName)
 
     def test_sync_config(self):
         """Test that the internal _sync_config() helper works.
@@ -76,7 +76,7 @@ class ConfigTestsBase(unittest.TestCase):
     def setUp(self):
         """Set up a test fixture for the ConfigTests class.
         """
-        log.debug("Preparing %s", self._testMethodName)
+        log.info("Preparing %s", self._testMethodName)
 
         reset_sandbox()
 
@@ -86,7 +86,7 @@ class ConfigTestsBase(unittest.TestCase):
         set_boot_path(self.boot_path)
 
     def tearDown(self):
-        log.debug("Tearing down %s", self._testMethodName)
+        log.info("Tearing down %s", self._testMethodName)
 
         rm_sandbox()
         reset_boom_paths()

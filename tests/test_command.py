@@ -42,10 +42,10 @@ debug_masks = ['profile', 'entry', 'report', 'command', 'all']
 
 class CommandHelperTests(unittest.TestCase):
     def setUp(self):
-        log.debug("Preparing %s", self._testMethodName)
+        log.info("Preparing %s", self._testMethodName)
 
     def tearDown(self):
-        log.debug("Tearing down %s", self._testMethodName)
+        log.info("Tearing down %s", self._testMethodName)
 
     """Test internal boom.command helpers: methods in this part of the
         test suite import boom.command directly in order to access the
@@ -282,7 +282,7 @@ class CommandTests(unittest.TestCase):
 
             Defines standard objects for use in these tests.
         """
-        log.debug("Preparing %s", self._testMethodName)
+        log.info("Preparing %s", self._testMethodName)
 
         reset_sandbox()
 
@@ -326,7 +326,7 @@ class CommandTests(unittest.TestCase):
         load_host_profiles()
 
     def tearDown(self):
-        log.debug("Tearing down %s", self._testMethodName)
+        log.info("Tearing down %s", self._testMethodName)
 
         # Drop any in-memory entries and profiles modified by tests
         drop_entries()
