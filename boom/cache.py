@@ -4,7 +4,7 @@
 #
 # This file is part of the boom project.
 #
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: Apache-2.0
 """The ``boom.cache`` module defines classes, constants and functions
 for maintaining an on-disk cache of kernel, initramfs and auxiliary
 images required to load boom-defined boot entries.

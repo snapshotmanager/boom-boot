@@ -4,7 +4,7 @@
 #
 # This file is part of the boom project.
 #
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: Apache-2.0
 """The boom reporting module contains a set of classes for creating
 simple text based tabular reports for a user-defined set of object
 types and fields. No restrictions are placed on the types of object

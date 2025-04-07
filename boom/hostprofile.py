@@ -4,7 +4,7 @@
 #
 # This file is part of the boom project.
 #
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: Apache-2.0
 """The ``boom.hostprofile``  module defines the `HostProfile` class that
 represents a host system profile. A `HostProfile` defines the identity
 of a host and includes template values that override the corresponding

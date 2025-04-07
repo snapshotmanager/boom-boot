@@ -52,6 +52,7 @@ before.
          * [Object API](#object-api)
       * [Patches and pull requests](#patches-and-pull-requests)
       * [Documentation](#documentation)
+      * [License](#license)
 
 Boom aims to be a simple and extensible, and to be able to create boot
 configurations for a wide range of Linux system configurations and boot
@@ -766,6 +767,13 @@ API [documentation][4] is automatically generated using [Sphinx][5]
 and [Read the Docs][6].
 
 Installation and user documentation will be added in a future update.
+
+## License
+
+The boom-boot project is licensed under the Apache license, version 2.0
+(Apache-2.0):
+
+  https://www.apache.org/licenses/LICENSE-2.0
 
  [0]: https://uapi-group.org/specifications/specs/boot_loader_specification/
  [1]: https://github.com/snapshotmanager/snapshot-boot-docs

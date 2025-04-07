@@ -6,7 +6,7 @@ Version:	1.6.6
 Release:	1%{?dist}
 Summary:	%{summary}
 
-License:	GPL-2.0-only
+License:	Apache-2.0
 URL:		https://github.com/snapshotmanager/boom-boot
 Source0:	%{url}/archive/%{version}/%{name}-%{version}.tar.gz
 
@@ -124,13 +124,13 @@ rm doc/conf.py
 pytest-3 --log-level=debug -v
 
 %files
-%license COPYING
+%license LICENSE
 %doc README.md
 %{_bindir}/boom
 %doc %{_mandir}/man*/boom.*
 
 %files -n python3-boom
-%license COPYING
+%license LICENSE
 %doc README.md
 %{python3_sitelib}/boom/*
 %if 0%{?centos} || 0%{?rhel}
@@ -143,7 +143,7 @@ pytest-3 --log-level=debug -v
 %doc tests
 
 %files conf
-%license COPYING
+%license LICENSE
 %doc README.md
 %dir /boot/boom
 %config(noreplace) /boot/boom/boom.conf

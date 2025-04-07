@@ -4,7 +4,7 @@
 #
 # This file is part of the boom project.
 #
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: Apache-2.0
 """The ``boom.bootloader`` module defines classes for working with
 on-disk boot loader entries: the ``BootEntry`` class represents an
 individual boot loader entry, and the ``BootParams`` class

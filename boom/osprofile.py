@@ -4,7 +4,7 @@
 #
 # This file is part of the boom project.
 #
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: Apache-2.0
 """The ``boom.osprofile``  module defines the `OsProfile` class that
 represents an operating system profile. An `OsProfile` defines the
 identity of a profile and includes template values used to generate boot

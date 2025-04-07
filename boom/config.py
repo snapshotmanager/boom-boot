@@ -4,7 +4,7 @@
 #
 # This file is part of the boom project.
 #
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: Apache-2.0
 """The ``boom.config`` module defines classes, constants and functions
 for reading and writing persistent (on-disk) configuration for the boom
 library and tools.

@@ -4,7 +4,7 @@
 #
 # This file is part of the boom project.
 #
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: Apache-2.0
 """This module provides classes and functions for creating, displaying,
 and manipulating boot loader entries complying with the Boot Loader
 Specification.

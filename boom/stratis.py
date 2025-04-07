@@ -4,7 +4,7 @@
 #
 # This file is part of the boom project.
 #
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: Apache-2.0
 """The ``boom.stratis`` module contains functions and constants
 needed to obtain information from a running ``stratisd`` daemon
 about the Stratis storage pools and file systems present on the

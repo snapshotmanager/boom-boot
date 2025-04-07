@@ -4,7 +4,7 @@
 #
 # This file is part of the boom project.
 #
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: Apache-2.0
 from os.path import join, abspath, exists
 from os import environ, getcwd, geteuid, getegid, makedirs
 from subprocess import Popen, PIPE

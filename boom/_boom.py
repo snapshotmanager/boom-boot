@@ -2,7 +2,7 @@
 #
 # boom/_boom.py - Boom package initialisation
 #
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: Apache-2.0
 """This module provides the declarations, classes, and functions exposed
 in the main ``boom`` module. Users of boom should not import this module
 directly: it will be imported automatically with the top level module.
