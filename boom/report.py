@@ -175,11 +175,6 @@ class ReportObjType:
     type the ``data_fn`` member may be simply ``lambda x: x``.
     """
 
-    objtype = -1
-    desc = ""
-    prefix = ""
-    data_fn = None
-
     def __init__(self, objtype, desc, prefix, data_fn):
         """
         Initialise ReportObjType.
