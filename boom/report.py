@@ -306,14 +306,6 @@ class Field:
     """
 
     #: reference to the containing Report
-    report = None
-    #: reference to the FieldProperties describing this field
-    props = None
-    #: The formatted string to be reported for this field.
-    report_string = None
-    #: The raw value of this field. Used for sorting.
-    sort_value = None
-
     def __init__(self, report, props):
         """
         Initialise a new Field object.
@@ -326,6 +318,8 @@ class Field:
         """
         self.report = report
         self.props = props
+        self.report_string = ""
+        self.sort_value = None
 
     def report_str(self, value):
         """
