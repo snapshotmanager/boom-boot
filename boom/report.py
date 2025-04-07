@@ -448,16 +448,10 @@ class Row:
     A class representing a single data row making up a report.
     """
 
-    #: the report that this Row belongs to
-    report = None
-    #: the list of report fields in display order
-    _fields = None
-    #: fields in sort order
-    sort_fields = None
-
     def __init__(self, report):
         self.report = report
         self._fields = []
+        self.sort_fields = None
 
     def add_field(self, field):
         """
