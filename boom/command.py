@@ -963,6 +963,8 @@ def create_entry(
     :param allow_no_dev: Accept a non-existent or invalid root dev.
     :param images: Whether to cache or backup boot images in the new
                    entry.
+    :param update: Whether to update or re-use an existing cached
+                   boot image.
     :param no_fstab: Disable parsing of the fstab for the new entry.
     :param mounts: A list of colon separated command-line mount
                    specifications for the new entry.
