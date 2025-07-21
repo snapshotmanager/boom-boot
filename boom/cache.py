@@ -136,7 +136,7 @@ def _image_id_to_cache_path(img_id):
     :returns: The cache path for the image found at ``img_path``.
     :rtype: str
     """
-    return path_join(get_cache_path(), "%s%s" % (img_id, _IMAGE_EXT))
+    return path_join(get_cache_path(), f"{img_id}{_IMAGE_EXT}")
 
 
 def _image_id_from_file(img_file):
@@ -285,9 +285,9 @@ def _insert(boot_path, cache_path):
 def _remove_boot(boot_path):
     """Remove a boom restored boot image from /boot."""
     boot_dir = dirname(boot_path)
-    dot_path = _RESTORED_DOT_PATTERN % basename(boot_path)
+    dot_path = f".{basename(boot_path)}.boomrestored"
     if not path_exists(path_join(boot_dir, dot_path)):
-        raise ValueError("'%s' is not boom managed" % boot_path)
+        raise ValueError(f"'{boot_path}' is not boom managed")
     unlink(boot_path)
     unlink(path_join(boot_dir, dot_path))
 
@@ -304,7 +304,7 @@ def _remove(cache_path):
     :returns: None
     """
     if not cache_path.startswith(get_cache_path()):
-        raise ValueError("'%s' is not a boom cache path" % cache_path)
+        raise ValueError(f"'{cache_path}' is not a boom cache path")
     try:
         _remove_copy(cache_path)
     except Exception as e:
@@ -332,15 +332,16 @@ def _insert_path(path, img_id, mode, uid, gid, attrs):
 
 def _find_backup_name(img_path):
     """Generate a new, unique backup pathname."""
-    img_backup = ("%s.boom" % img_path)[1:] + "%d"
+    # Trim the leading path separator
+    img_backup = f"{img_path[1:]}.boom"
 
     def _backup_path(backup_nr):
-        return path_join(get_boot_path(), img_backup % backup_nr)
+        return path_join(get_boot_path(), img_backup + f"{backup_nr}")
 
     backup_nr = 0
     while path_exists(_backup_path(backup_nr)):
         backup_nr += 1
-    return path_sep + img_backup % backup_nr
+    return path_sep + img_backup + f"{backup_nr}"
 
 
 def _cache_path(img_path, update=True, backup=False):
@@ -364,7 +365,7 @@ def _cache_path(img_path, update=True, backup=False):
 
     if not S_ISREG(st[ST_MODE]):
         _log_error("Image at path '%s' is not a regular file.", img_path)
-        raise ValueError("'%s' is not a regular file" % img_path)
+        raise ValueError(f"'{img_path}' is not a regular file")
 
     img_id = _image_id_from_path(boot_path)
     cache_path = _image_id_to_cache_path(img_id)
@@ -441,7 +442,7 @@ def uncache_path(img_path, force=False):
     global _index, _paths, _images
 
     if img_path not in _paths:
-        raise ValueError("Path '%s' is not cached." % img_path)
+        raise ValueError(f"Path '{img_path}' is not cached.")
 
     boot_path = _image_path_to_boot(img_path)
     img_id = _index[img_path][0]
@@ -491,10 +492,6 @@ def clean_cache():
         _log_info("Removed %d unused cache entries", nr_unused)
 
 
-#: Boom restored dot file pattern
-_RESTORED_DOT_PATTERN = ".%s.boomrestored"
-
-
 def _is_restored(boot_path):
     """Return ``True`` if ``boot_path`` was restored by boom, or
     ``False`` otherwise.
@@ -502,7 +499,7 @@ def _is_restored(boot_path):
     :param boot_path: The absolute path to a boot image.
     """
     boot_dir = dirname(boot_path)
-    dot_path = _RESTORED_DOT_PATTERN % basename(boot_path)
+    dot_path = f".{basename(boot_path)}.boomrestored"
     return path_exists(path_join(boot_dir, dot_path))
 
 
@@ -593,24 +590,21 @@ class CacheEntry(object):
         self.images = images
 
     def __str__(self):
-        fmt = "Path: %s\nImage ID: %s\nMode: %s\nUid: %d Gid: %d\nTs: %d"
-        return fmt % (
-            self.path,
-            self.disp_img_id,
-            filemode(self.mode),
-            self.uid,
-            self.gid,
-            self.timestamp,
+        return (
+            f"Path: {self.path}\n"
+            f"Image ID: {self.disp_img_id}\n"
+            f"Mode: {filemode(self.mode)}\n"
+            f"Uid: {self.uid}\n"
+            f"Gid: {self.gid}\n"
+            f"Ts: {self.timestamp}"
         )
 
     def __repr__(self):
         shas = set([img_id for (img_id, ts) in self.images])
         width = find_minimum_sha_prefix(shas, 7)
-        rep = '"%s", %s, %s' % (
-            self.path,
-            self._pathdata,
-            # FIXME: properly generate minimum abrevs
-            [(img_id[0 : width - 1], ts) for (img_id, ts) in self.images],
+        rep = (
+            f'"{self.path}", {self._pathdata}, '
+            f"{[(img_id[0 : width - 1], ts) for (img_id, ts) in self.images]}"
         )
         return "CacheEntry(" + rep + ")"
 
@@ -624,13 +618,13 @@ class CacheEntry(object):
             write_cache()
         boot_path = _image_path_to_boot(self.path)
         cache_path = _image_id_to_cache_path(img_id)
-        dot_path = _RESTORED_DOT_PATTERN % basename(boot_path)
+        dot_path = f".{basename(boot_path)}.boomrestored"
         boot_dir = dirname(boot_path)
 
         restore_states = (CACHE_MISSING, CACHE_RESTORED)
         if self.state not in restore_states:
             raise ValueError(
-                "Restore failed: CacheEntry state is not " "%s or %s" % restore_states
+                f"Restore failed: CacheEntry state is not {CACHE_MISSING} or {CACHE_RESTORED}"
             )
 
         shutil.copy2(cache_path, boot_path)
