@@ -162,7 +162,7 @@ def optional_key_default(key):
     :rtype: str
     """
     if key not in OPTIONAL_KEY_DEFAULTS.keys():
-        raise ValueError("Unknown optional BootEntry key: %s" % key)
+        raise ValueError(f"Unknown optional BootEntry key: {key}")
     return OPTIONAL_KEY_DEFAULTS[key]
 
 
@@ -174,7 +174,7 @@ def key_to_bls_name(key):
     :rtype: str
     """
     if key not in KEY_MAP.keys():
-        raise ValueError("Unknown BootEntry key: %s" % key)
+        raise ValueError(f"Unknown BootEntry key: {key}")
     return KEY_MAP[key]
 
 
@@ -229,11 +229,11 @@ def check_root_device(dev):
     :returns: None
     """
     if not path_exists(dev):
-        raise BoomRootDeviceError("Device '%s' not found." % dev)
+        raise BoomRootDeviceError(f"Device '{dev}' not found.")
 
     st = stat(dev)
     if not S_ISBLK(st.st_mode):
-        raise BoomRootDeviceError("Path '%s' is not a block device." % dev)
+        raise BoomRootDeviceError(f"Path '{dev}' is not a block device.")
 
 
 def _match_root_lv(root_device, rd_lvm_lv):
@@ -259,7 +259,7 @@ def _match_root_lv(root_device, rd_lvm_lv):
         return True
     if "mapper" in root_device:
         (vg, lv) = dm_split_name(root_device.split("/")[-1])
-        if rd_lvm_lv == "%s/%s" % (vg, lv):
+        if rd_lvm_lv == f"{vg}/{lv}":
             return True
     return False
 
@@ -373,14 +373,14 @@ class BootParams(object):
         )
 
         # arg
-        bp_str += self.version if not quote else '"%s"' % self.version
+        bp_str += self.version if not quote else f'"{self.version}"'
         bp_str += ", "
 
         # kwargs
 
-        bp_fmt = "%s=%s, " if not quote else '%s="%s", '
-        for fv in [fv for fv in zip(fields[1:], params) if fv[1]]:
-            bp_str += bp_fmt % fv
+        for field, value in [fv for fv in zip(fields[1:], params) if fv[1]]:
+            bp_str += f"{field}="
+            bp_str += f"{value}, " if not quote else f'"{value}", '
 
         return bp_str.rstrip(", ") + suffix
 
@@ -481,7 +481,7 @@ class BootParams(object):
 
         if btrfs_subvol_path and btrfs_subvol_id:
             raise ValueError(
-                "Only one of btrfs_subvol_path and " "btrfs_subvol_id allowed."
+                "Only one of btrfs_subvol_path and btrfs_subvol_id allowed."
             )
 
         if btrfs_subvol_path:
@@ -1164,7 +1164,7 @@ class BootEntry(object):
         if key in KEY_MAP and hasattr(self, KEY_MAP[key]):
             return getattr(self, KEY_MAP[key])
 
-        raise KeyError("BootEntry key %s not present." % key)
+        raise KeyError(f"BootEntry key {key} not present.")
 
     def __setitem__(self, key, value):
         """Set the specified ``BootEntry`` key to the given value.
@@ -1178,7 +1178,7 @@ class BootEntry(object):
         if key in KEY_MAP and hasattr(self, KEY_MAP[key]):
             return setattr(self, KEY_MAP[key], value)
 
-        raise KeyError("BootEntry key %s not present." % key)
+        raise KeyError(f"BootEntry key {key} not present.")
 
     def keys(self):
         """Return the list of keys for this ``BootEntry``.
@@ -1262,9 +1262,7 @@ class BootEntry(object):
         :rtype: None
         """
         if self.read_only:
-            raise ValueError(
-                "Entry with boot_id='%s' is read-only." % self.disp_boot_id
-            )
+            raise ValueError(f"Entry with boot_id='{self.disp_boot_id}' is read-only.")
 
         # Clear cached boot_id: it will be regenerated on next access
         self.__boot_id = None
@@ -1486,7 +1484,7 @@ class BootEntry(object):
                     # Convert BLS key name to Boom notation
                     key = _transform_key(bls_key)
                     if key not in MAP_KEY:
-                        raise LookupError("Unknown BLS key '%s'" % bls_key)
+                        raise LookupError(f"Unknown BLS key '{bls_key}'")
                     key = MAP_KEY[_transform_key(bls_key)]
                     entry_data[key] = value
                     if comment:
@@ -2026,7 +2024,7 @@ class BootEntry(object):
             :rtype: string
             """
             extra = " ".join(append)
-            return "%s %s" % (opts, extra) if append else opts
+            return f"{opts} {extra}" if append else opts
 
         def del_opt(opt, drop):
             """Return ``True`` if option ``opt`` should be dropped or
@@ -2048,7 +2046,7 @@ class BootEntry(object):
                 return True
 
             # "name=" wildcard
-            if ("%s=" % opt.split("=")[0]) in drop:
+            if f"{opt.split('=')[0]}=" in drop:
                 return True
             return False
 
@@ -2240,7 +2238,7 @@ class BootEntry(object):
         # The empty string means no architecture key
         machine_types = ["ia32", "x64", "ia64", "arm", "aa64", ""]
         if architecture and not architecture.lower() in machine_types:
-            raise ValueError("Unknown architecture: '%s'" % architecture)
+            raise ValueError(f"Unknown architecture: '{architecture}'")
         self._entry_data[BOOM_ENTRY_ARCHITECTURE] = architecture
         self._dirty()
 
@@ -2262,8 +2260,7 @@ class BootEntry(object):
         bls_key = KEY_MAP[BOOM_ENTRY_GRUB_USERS]
         if not self._have_optional_key(bls_key):
             raise ValueError(
-                "OsProfile os_id=%s does not allow '%s'"
-                % (self._osp.disp_os_id, bls_key)
+                f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_USERS] = grub_users
 
@@ -2285,8 +2282,7 @@ class BootEntry(object):
         bls_key = KEY_MAP[BOOM_ENTRY_GRUB_ARG]
         if not self._have_optional_key(bls_key):
             raise ValueError(
-                "OsProfile os_id=%s does not allow '%s'"
-                % (self._osp.disp_os_id, bls_key)
+                f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_ARG] = grub_arg
 
@@ -2308,8 +2304,7 @@ class BootEntry(object):
         bls_key = KEY_MAP[BOOM_ENTRY_GRUB_CLASS]
         if not self._have_optional_key(bls_key):
             raise ValueError(
-                "OsProfile os_id=%s does not allow '%s'"
-                % (self._osp.disp_os_id, bls_key)
+                f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_CLASS] = grub_class
 
@@ -2331,8 +2326,7 @@ class BootEntry(object):
         bls_key = KEY_MAP[BOOM_ENTRY_GRUB_ID]
         if not self._have_optional_key(bls_key):
             raise ValueError(
-                "OsProfile os_id=%s does not allow '%s'"
-                % (self._osp.disp_os_id, bls_key)
+                f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_ID] = ident
 
@@ -2384,7 +2378,7 @@ class BootEntry(object):
             tmp_fd = dup(tmp_fd)
             if self._osp:
                 # Insert OsIdentifier comment at top-of-file
-                f.write("#OsIdentifier: %s\n" % self._osp.os_id)
+                f.write(f"#OsIdentifier: {self._osp.os_id}\n")
             if expand:
                 f.write(self.expanded() + "\n")
             else:
@@ -2460,12 +2454,10 @@ class BootEntry(object):
                  ``ValueError`` if the entry does not exist.
         """
         if self.read_only:
-            raise ValueError(
-                "Cannot delete read-only boot " "entry: %s" % self._last_path
-            )
+            raise ValueError(f"Cannot delete read-only boot entry: {self._last_path}")
 
         if not path_exists(self._entry_path):
-            raise ValueError("Entry does not exist: %s" % self._entry_path)
+            raise ValueError(f"Entry does not exist: {self._entry_path}")
         try:
             unlink(self._entry_path)
         except Exception as e:
