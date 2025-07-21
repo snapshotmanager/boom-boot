@@ -475,7 +475,7 @@ class HostProfile(BoomProfile):
         hp_str = ""
         tail = ""
         for f in fields:
-            hp_str += '%s: "%s"' % (HOST_KEY_NAMES[f], self._key_data(f))
+            hp_str += f'{HOST_KEY_NAMES[f]}: "{self._key_data(f)}"'
             tail = ",\n" if f in breaks else ", "
             hp_str += tail
         hp_str = hp_str.rstrip(tail)
@@ -495,7 +495,7 @@ class HostProfile(BoomProfile):
         hp_str = "HostProfile(profile_data={"
         fields = [f for f in HOST_PROFILE_KEYS if self._have_key(f)]
         for f in fields:
-            hp_str += '%s:"%s", ' % (f, self._key_data(f))
+            hp_str += f'{f}:"{self._key_data(f)}", '
         hp_str = hp_str.rstrip(", ")
         return hp_str + "})"
 
@@ -524,15 +524,15 @@ class HostProfile(BoomProfile):
             for bad_key in bad_keys:
                 if bad_key in value:
                     raise ValueError(
-                        "HostProfile.%s cannot contain %s"
-                        % (key, key_from_key_name(bad_key))
+                        f"HostProfile.{key} cannot contain "
+                        f"{key_from_key_name(bad_key)}"
                     )
 
         if not isinstance(key, str):
             raise TypeError("HostProfile key must be a string.")
 
         if key not in HOST_PROFILE_KEYS:
-            raise ValueError("Invalid HostProfile key: %s" % key)
+            raise ValueError(f"Invalid HostProfile key: {key}")
 
         if key in bad_key_map:
             _check_format_key_value(key, value, bad_key_map[key])
@@ -560,9 +560,9 @@ class HostProfile(BoomProfile):
         os_id = self._profile_data[BOOM_OS_ID]
         osps = find_profiles(Selection(os_id=os_id))
         if not osps:
-            raise ValueError("OsProfile not found: %s" % os_id)
+            raise ValueError(f"OsProfile not found: {os_id}")
         if len(osps) > 1:
-            raise ValueError("OsProfile identifier '%s' is ambiguous" % os_id)
+            raise ValueError(f"OsProfile identifier '{os_id}' is ambiguous")
 
         self.osp = osps[0]
 
@@ -570,7 +570,7 @@ class HostProfile(BoomProfile):
         """Append a HostProfile to the global profile list"""
         global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
         if _host_exists(self.host_id):
-            raise ValueError("Profile already exists (host_id=%s)" % self.disp_host_id)
+            raise ValueError(f"Profile already exists (host_id={self.disp_host_id})")
 
         _host_profiles.append(self)
         machine_id = self.machine_id
@@ -591,13 +591,11 @@ class HostProfile(BoomProfile):
 
         :returns: None
         """
-        err_str = "Invalid profile data (missing %s)"
-
         for key in HOST_REQUIRED_KEYS:
             if key == BOOM_HOST_ID:
                 continue
             if key not in host_data:
-                raise ValueError(err_str % key)
+                raise ValueError(f"Invalid profile data (missing {key})")
 
         self._profile_data = dict(host_data)
 
@@ -657,7 +655,7 @@ class HostProfile(BoomProfile):
 
         if profile_data and profile_file:
             raise ValueError(
-                "Only one of 'profile_data' or 'profile_file' " "may be specified."
+                "Only one of 'profile_data' or 'profile_file' may be specified."
             )
 
         if profile_data:
@@ -678,9 +676,9 @@ class HostProfile(BoomProfile):
 
         osps = find_profiles(Selection(os_id=os_id))
         if not osps:
-            raise ValueError("No matching profile found for os_id=%s" % os_id)
+            raise ValueError(f"No matching profile found for os_id={os_id}")
         if len(osps) > 1:
-            raise ValueError("OsProfile ID is ambiguous: %s" % os_id)
+            raise ValueError(f"OsProfile ID is ambiguous: {os_id}")
         os_id = osps[0].os_id
 
         self._profile_data[BOOM_ENTRY_MACHINE_ID] = machine_id
@@ -955,7 +953,7 @@ class HostProfile(BoomProfile):
     def kernel_pattern(self, value):
         kernel_key = key_from_key_name(FMT_KERNEL)
         if kernel_key in value:
-            raise ValueError("HostProfile.kernel cannot contain %s" % kernel_key)
+            raise ValueError(f"HostProfile.kernel cannot contain {kernel_key}")
         self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
         self._dirty()
 
@@ -975,7 +973,7 @@ class HostProfile(BoomProfile):
     def initramfs_pattern(self, value):
         initramfs_key = key_from_key_name(FMT_INITRAMFS)
         if initramfs_key in value:
-            raise ValueError("HostProfile.initramfs cannot contain %s" % initramfs_key)
+            raise ValueError(f"HostProfile.initramfs cannot contain {initramfs_key}")
         self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
         self._dirty()
 
@@ -997,7 +995,7 @@ class HostProfile(BoomProfile):
         root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
         if root_opts_key in value:
             raise ValueError(
-                "HostProfile.root_opts_lvm2 cannot contain " "%s" % root_opts_key
+                f"HostProfile.root_opts_lvm2 cannot contain {root_opts_key}"
             )
         self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = value
         self._dirty()
@@ -1019,7 +1017,7 @@ class HostProfile(BoomProfile):
         root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
         if root_opts_key in value:
             raise ValueError(
-                "HostProfile.root_opts_btrfs cannot contain %s" % root_opts_key
+                f"HostProfile.root_opts_btrfs cannot contain {root_opts_key}"
             )
         self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
         self._dirty()
@@ -1112,7 +1110,7 @@ class HostProfile(BoomProfile):
 
         for c in value:
             if c not in valid_chars:
-                raise ValueError("Invalid host label character: '%s'" % c)
+                raise ValueError(f"Invalid host label character: '{c}'")
 
         self._profile_data[BOOM_HOST_LABEL] = value
         self._dirty()
