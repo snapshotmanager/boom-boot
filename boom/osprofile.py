@@ -551,7 +551,7 @@ class BoomProfile(object):
         if key in self._profile_data:
             return self._profile_data[key]
 
-        raise KeyError("Key %s not in profile." % key)
+        raise KeyError(f"Key {key} not in profile.")
 
     def __setitem__(self, key, value):
         """Set the specified ``Profile`` key to the given value.
@@ -576,13 +576,13 @@ class BoomProfile(object):
             for bad_key in bad_keys:
                 if bad_key in value:
                     bad_fmt = key_from_key_name(bad_key)
-                    raise ValueError("%s.%s cannot contain %s" % (ptype, key, bad_fmt))
+                    raise ValueError(f"{ptype}.{key} cannot contain {bad_fmt}")
 
         if not isinstance(key, str):
-            raise TypeError("%s key must be a string." % ptype)
+            raise TypeError(f"{ptype} key must be a string.")
 
         if key not in self._profile_keys:
-            raise ValueError("Invalid %s key: %s" % (ptype, key))
+            raise ValueError(f"Invalid {ptype} key: {key}")
 
         if key in bad_key_map:
             _check_format_key_value(key, value, bad_key_map[key])
@@ -695,7 +695,7 @@ class BoomProfile(object):
             # Call subclass _from_data() hook for initialisation
             self._from_data(profile_data, dirty=False)
         except ValueError as e:
-            raise ValueError(str(e) + "in %s" % profile_file)
+            raise ValueError(str(e) + f"in {profile_file}")
 
     def __init__(self, profile_keys, required_keys, identity_key):
         """Initialise a new ``BoomProfile`` object.
@@ -972,7 +972,7 @@ class BoomProfile(object):
 
         if kernel_key in value:
             ptype = self.__class__.__name__
-            raise ValueError("%s.kernel cannot contain %s" % (ptype, kernel_key))
+            raise ValueError(f"{ptype}.kernel cannot contain {kernel_key}")
 
         self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
         self._dirty()
@@ -992,7 +992,7 @@ class BoomProfile(object):
         initramfs_key = key_from_key_name(FMT_INITRAMFS)
         if initramfs_key in value:
             ptype = self.__class__.__name__
-            raise ValueError("%s.initramfs cannot contain %s" % (ptype, initramfs_key))
+            raise ValueError(f"{ptype}.initramfs cannot contain {initramfs_key}")
         self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
         self._dirty()
 
@@ -1013,9 +1013,7 @@ class BoomProfile(object):
         root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
         if root_opts_key in value:
             ptype = self.__class__.__name__
-            raise ValueError(
-                "%s.root_opts_lvm2 cannot contain %s" % (ptype, root_opts_key)
-            )
+            raise ValueError(f"{ptype}.root_opts_lvm2 cannot contain {root_opts_key}")
         self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = value
         self._dirty()
 
@@ -1036,9 +1034,7 @@ class BoomProfile(object):
         root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
         if root_opts_key in value:
             ptype = self.__class__.__name__
-            raise ValueError(
-                "%s.root_opts_btrfs cannot contain %s" % (ptype, root_opts_key)
-            )
+            raise ValueError(f"{ptype}.root_opts_btrfs cannot contain {root_opts_key}")
         self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
         self._dirty()
 
@@ -1085,7 +1081,7 @@ class BoomProfile(object):
         """
         _valid_optional_keys = ["grub_users", "grub_arg", "grub_class", "id"]
         if optional_key not in _valid_optional_keys:
-            raise ValueError("Unknown optional key: '%s'" % optional_key)
+            raise ValueError(f"Unknown optional key: '{optional_key}'")
 
     @property
     def optional_keys(self):
@@ -1176,7 +1172,7 @@ class BoomProfile(object):
             for key in [k for k in profile_keys if k in self._profile_data]:
                 if self._comments and key in self._comments:
                     f.write(self._comments[key].rstrip() + "\n")
-                f.write('%s="%s"\n' % (key, self._profile_data[key]))
+                f.write(f'{key}="{self._profile_data[key]}"\n')
                 f.flush()
                 fdatasync(f.fileno())
         try:
@@ -1303,7 +1299,7 @@ class OsProfile(BoomProfile):
         osp_str = ""
         tail = ""
         for f in fields:
-            osp_str += '%s: "%s"' % (OS_KEY_NAMES[f], self._profile_data[f])
+            osp_str += f'{OS_KEY_NAMES[f]}: "{self._profile_data[f]}"'
             tail = ",\n" if f in breaks else ", "
             osp_str += tail
         osp_str = osp_str.rstrip(tail)
@@ -1323,7 +1319,7 @@ class OsProfile(BoomProfile):
         osp_str = "OsProfile(profile_data={"
         fields = [f for f in OS_PROFILE_KEYS if f in self._profile_data]
         for f in fields:
-            osp_str += '%s:"%s", ' % (f, self._profile_data[f])
+            osp_str += f'{f}:"{self._profile_data[f]}", '
         osp_str = osp_str.rstrip(", ")
         return osp_str + "})"
 
@@ -1351,7 +1347,7 @@ class OsProfile(BoomProfile):
         :raises: ValueError
         """
         if _profile_exists(self.os_id):
-            raise ValueError("Profile already exists (os_id=%s)" % self.disp_os_id)
+            raise ValueError(f"Profile already exists (os_id={self.disp_os_id})")
 
         _profiles.append(self)
         _profiles_by_id[self.os_id] = self
