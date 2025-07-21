@@ -172,7 +172,7 @@ class BoomLogger(logging.Logger):
         """
         if mask_bits < 0 or mask_bits > BOOM_DEBUG_ALL:
             raise ValueError(
-                "Invalid BoomLogger mask bits: 0x%x" % (mask_bits & ~BOOM_DEBUG_ALL)
+                f"Invalid BoomLogger mask bits: 0x{mask_bits & ~BOOM_DEBUG_ALL:x}"
             )
 
         self.mask_bits = mask_bits
@@ -211,7 +211,7 @@ def set_debug_mask(mask):
     """
     global __debug_mask
     if mask < 0 or mask > BOOM_DEBUG_ALL:
-        raise ValueError("Invalid boom debug mask: %d" % mask)
+        raise ValueError(f"Invalid boom debug mask: {mask}")
     __debug_mask = mask
 
 
@@ -237,18 +237,18 @@ class BoomConfig(object):
         """
         cstr = ""
         cstr += "[global]\n"
-        cstr += "boot_root = %s\n" % self.boot_path
-        cstr += "boom_root = %s\n\n" % self.boom_path
+        cstr += f"boot_root = {self.boot_path}\n"
+        cstr += f"boom_root = {self.boom_path}\n\n"
 
         cstr += "[legacy]\n"
-        cstr += "enable = %s\n" % self.legacy_enable
-        cstr += "format = %s\n" % self.legacy_format
-        cstr += "sync = %s\n\n" % self.legacy_sync
+        cstr += f"enable = {self.legacy_enable}\n"
+        cstr += f"format = {self.legacy_format}\n"
+        cstr += f"sync = {self.legacy_sync}\n\n"
 
         cstr += "[cache]\n"
-        cstr += "enable = %s\n" % self.cache_enable
-        cstr += "auto_clean = %s\n" % self.cache_auto_clean
-        cstr += "cache_path = %s\n" % self.cache_path
+        cstr += f"enable = {self.cache_enable}\n"
+        cstr += f"auto_clean = {self.cache_auto_clean}\n"
+        cstr += f"cache_path = {self.cache_path}\n"
 
         return cstr
 
@@ -256,18 +256,14 @@ class BoomConfig(object):
         """Return a string representation of this ``BoomConfig`` in
         BoomConfig initialiser notation.
         """
-        cstr = 'BoomConfig(boot_path="%s", boom_path="%s", ' % (
-            self.boot_path,
-            self.boom_path,
+        cstr = (
+            f'BoomConfig(boot_path="{self.boot_path}", boom_path="{self.boom_path}", '
         )
-        cstr += 'enable_legacy=%s, legacy_format="%s", ' % (
-            self.legacy_enable,
-            self.legacy_format,
-        )
-        cstr += "legacy_sync=%s, " % self.legacy_sync
-        cstr += "cache_enable=%s, " % self.cache_enable
-        cstr += "auto_clean=%s, " % self.cache_auto_clean
-        cstr += 'cache_path="%s")' % self.cache_path
+        cstr += f'enable_legacy={self.legacy_enable}, legacy_format="{self.legacy_format}", '
+        cstr += f"legacy_sync={self.legacy_sync}, "
+        cstr += f"cache_enable={self.cache_enable}, "
+        cstr += f"auto_clean={self.cache_auto_clean}, "
+        cstr += f'cache_path="{self.cache_path}")'
 
         return cstr
 
@@ -384,10 +380,10 @@ def set_boot_path(boot_path):
     """
     global __config
     if not isabs(boot_path):
-        raise ValueError("boot_path must be an absolute path: %s" % boot_path)
+        raise ValueError(f"boot_path must be an absolute path: {boot_path}")
 
     if not path_exists(boot_path):
-        raise ValueError("Path '%s' does not exist" % boot_path)
+        raise ValueError(f"Path '{boot_path}' does not exist")
 
     __config.boot_path = boot_path
     _log_debug("Set boot path to: %s", boot_path)
@@ -416,7 +412,7 @@ def set_boom_path(boom_path):
     :raises: ValueError if ``boom_path`` does not exist.
     """
     global __config
-    err_str = "Boom path %s does not exist" % boom_path
+    err_str = f"Boom path {boom_path} does not exist"
     if isabs(boom_path) and not path_exists(boom_path):
         raise ValueError(err_str)
     elif not path_exists(path_join(__config.boot_path, boom_path)):
@@ -427,8 +423,8 @@ def set_boom_path(boom_path):
 
     if not path_exists(path_join(boom_path, "profiles")):
         raise ValueError(
-            "Path does not contain a valid boom configuration"
-            ": %s" % path_join(boom_path, "profiles")
+            "Path does not contain a valid boom configuration: "
+            f"{path_join(boom_path, 'profiles')}"
         )
 
     _log_debug("Set boom path to: %s", boom_path)
@@ -455,7 +451,7 @@ def set_cache_path(cache_path):
     :raises: ValueError if ``cache_path`` does not exist.
     """
     global __config
-    err_str = "Cache path %s does not exist" % cache_path
+    err_str = f"Cache path {cache_path} does not exist"
     if isabs(cache_path) and not path_exists(cache_path):
         raise ValueError(err_str)
     elif not path_exists(path_join(__config.cache_path, cache_path)):
@@ -486,7 +482,7 @@ def set_boom_config_path(path):
     if isdir(path):
         path = path_join(path, BOOM_CONFIG_FILE)
     if not path_exists(path):
-        raise IOError(ENOENT, "File not found: '%s'" % path)
+        raise IOError(ENOENT, f"File not found: '{path}'")
     __boom_config_path = path
     _log_debug("set boom_config_path to '%s'", path)
 
@@ -649,7 +645,7 @@ class Selection(object):
         strval = ""
         tail = ", "
         for attr in set(attrs):
-            strval += "%s='%s'%s" % (attr, getattr(self, attr), tail)
+            strval += f"{attr}='{getattr(self, attr)}'{tail}"
         return strval.rstrip(tail)
 
     def __repr__(self):
@@ -865,7 +861,7 @@ class Selection(object):
 
         if invalid_attrs:
             invalid = ", ".join(invalid_attrs)
-            raise ValueError("Invalid criteria for selection type: %s" % invalid)
+            raise ValueError(f"Invalid criteria for selection type: {invalid}")
 
     def is_null(self):
         """Test this Selection object for null selection criteria.
@@ -915,7 +911,7 @@ def parse_name_value(nvp, separator="=", allow_empty=False):
     :returns: A ``(name, value)`` tuple.
     :rtype: (string, string) tuple.
     """
-    val_err = ValueError("Malformed name/value pair: %s" % nvp)
+    val_err = ValueError(f"Malformed name/value pair: {nvp}")
     try:
         # Only strip newlines: values may contain embedded
         # whitespace anywhere within the string.
@@ -939,7 +935,7 @@ def parse_name_value(nvp, separator="=", allow_empty=False):
     valid_name_chars = string.ascii_letters + string.digits + "_-,.'\""
     bad_chars = [c for c in name if c not in valid_name_chars]
     if any(bad_chars):
-        raise ValueError("Invalid characters in name: %s (%s)" % (name, bad_chars))
+        raise ValueError(f"Invalid characters in name: {name} ({bad_chars})")
 
     if value:
         if value.startswith('"') or value.startswith("'"):
@@ -1023,7 +1019,7 @@ def load_profiles_for_class(profile_class, profile_type, profiles_path, profile_
     profile_files = listdir(profiles_path)
     _log_debug("Loading %s profiles from %s", profile_type, profiles_path)
     for pf in profile_files:
-        if not pf.endswith(".%s" % profile_ext):
+        if not pf.endswith(f".{profile_ext}"):
             continue
         pf_path = path_join(profiles_path, pf)
         try:
