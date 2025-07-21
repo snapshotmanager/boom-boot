@@ -846,7 +846,7 @@ def _merge_add_del_opts(bp, add_opts, del_opts):
         # Do not allow conflicting command line add/del opts
         if add_opt in del_opts:
             raise ValueError(
-                "Conflicting --add-opts %s and --del-opts %s" % (add_opt, add_opt)
+                f"Conflicting --add-opts {add_opt} and --del-opts {del_opts}"
             )
 
         if add_opt in bp.del_opts:
@@ -914,7 +914,7 @@ def _find_one_entry(select):
     """
     bes = find_entries(select)
     if not bes:
-        raise ValueError("No matching entry found for boot ID %s" % select.boot_id)
+        raise ValueError(f"No matching entry found for boot ID {select.boot_id}")
     if len(bes) > 1:
         raise ValueError("Selection criteria must match exactly one entry")
     return bes[0]
@@ -994,8 +994,8 @@ def create_entry(
     bc = get_boom_config()
     if images is not I_NONE and not bc.cache_enable:
         raise BoomConfigError(
-            "Cannot use images=%s with image cache disabled"
-            " (config.cache_enable=False)" % images
+            f"Cannot use images={images} with image cache disabled"
+            " (config.cache_enable=False)"
         )
 
     add_opts = add_opts.split() if add_opts else []
@@ -1043,7 +1043,7 @@ def create_entry(
         be.linux = _cache_image(be.linux, images == I_BACKUP, update=update)
 
     if find_entries(Selection(boot_id=be.boot_id)):
-        raise ValueError("Entry already exists (boot_id=%s)." % be.disp_boot_id)
+        raise ValueError(f"Entry already exists (boot_id={be.disp_boot_id}).")
 
     if write:
         be.write_entry(expand=expand)
@@ -1166,8 +1166,8 @@ def clone_entry(
     bc = get_boom_config()
     if images is not I_NONE and not bc.cache_enable:
         raise BoomConfigError(
-            "Cannot use images=%s with image cache disabled"
-            " (config.cache_enable=False)" % images
+            f"Cannot use images={images} with image cache disabled"
+            " (config.cache_enable=False)"
         )
 
     be = _find_one_entry(selection)
@@ -1236,7 +1236,7 @@ def clone_entry(
         clone_be.linux = _cache_image(clone_be.linux, images == I_BACKUP)
 
     if find_entries(Selection(boot_id=clone_be.boot_id)):
-        raise ValueError("Entry already exists (boot_id=%s)." % clone_be.disp_boot_id)
+        raise ValueError(f"Entry already exists (boot_id={clone_be.disp_boot_id}).")
 
     if write:
         clone_be.write_entry()
@@ -1311,8 +1311,8 @@ def edit_entry(
     bc = get_boom_config()
     if images is not I_NONE and not bc.cache_enable:
         raise BoomConfigError(
-            "Cannot use images=%s with image cache disabled"
-            " (config.cache_enable=False)" % images
+            f"Cannot use images={images} with image cache disabled"
+            " (config.cache_enable=False)"
         )
 
     # Discard all selection criteria but boot_id.
@@ -1347,7 +1347,7 @@ def edit_entry(
 
     # Is the entry now identical to an existing entry?
     if len(find_entries(Selection(boot_id=be.boot_id))) > 1:
-        raise ValueError("Entry already exists (boot_id=%s)." % be.disp_boot_id)
+        raise ValueError(f"Entry already exists (boot_id={be.disp_boot_id}).")
 
     be.update_entry(expand=expand)
     __write_legacy()
@@ -1446,7 +1446,7 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
         osp = match_os_profile_by_version(version)
         os_id = osp.os_id if osp else None
         if not osp:
-            print("No matching OsProfile found for version '%s'" % version)
+            print(f"No matching OsProfile found for version '{version}'")
     else:
         os_id = cmd_args.profile
 
@@ -1454,11 +1454,11 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
 
     # Fail if an explicit profile was given and it is not found.
     if not osps and os_id is not None and os_id == cmd_args.profile:
-        print("OsProfile not found: %s" % os_id)
+        print(f"OsProfile not found: {os_id}")
         return None
 
     if osps and len(osps) > 1:
-        print("OsProfile ID '%s' is ambiguous" % os_id)
+        print(f"OsProfile ID '{os_id}' is ambiguous")
         return None
 
     osp = osps[0] if osps else None
@@ -1528,7 +1528,7 @@ def _uname_heuristic(name, version_id):
         version_id = version_id[0 : version_id.find(".")]
 
     if name in _name_to_uname:
-        return "%s%s" % (_name_to_uname[name], version_id)
+        return f"{_name_to_uname[name]}{version_id}"
     return None
 
 
@@ -1581,7 +1581,7 @@ def _os_profile_from_file(os_release, uname_pattern, profile_data=None):
 
     if not osp.uname_pattern:
         osp.delete_profile()
-        raise ValueError("Could not determine uname pattern for '%s'" % osp.os_name)
+        raise ValueError(f"Could not determine uname pattern for '{osp.os_name}'")
 
     if not osp.optional_keys:
         osp.optional_keys = _default_optional_keys(osp)
@@ -1680,8 +1680,7 @@ def create_profile(
                 profile_data[BOOM_OS_UNAME_PATTERN] = pattern
             else:
                 raise ValueError(
-                    "Could not determine uname pattern for '%s'"
-                    % profile_data[BOOM_OS_NAME]
+                    f"Could not determine uname pattern for '{profile_data[BOOM_OS_NAME]}'"
                 )
 
     if kernel_pattern:
@@ -1809,7 +1808,7 @@ def clone_profile(
 
     osps = find_profiles(selection)
     if not osps:
-        raise ValueError("No matching profile found: %s" % selection.os_id)
+        raise ValueError(f"No matching profile found: {selection.os_id}")
 
     if len(osps) > 1:
         raise ValueError("Clone criteria must match exactly one profile")
@@ -1880,9 +1879,9 @@ def edit_profile(
     osp = None
     osps = find_profiles(Selection(os_id=selection.os_id))
     if not osps:
-        raise ValueError("No matching profile found: %s" % selection.os_id)
+        raise ValueError(f"No matching profile found: {selection.os_id}")
     if len(osps) > 1:
-        raise ValueError("OS profile identifier '%s' is ambiguous" % selection.os_id)
+        raise ValueError(f"OS profile identifier '{selection.os_id}' is ambiguous")
 
     osp = osps.pop()
     osp.uname_pattern = uname_pattern or osp.uname_pattern
@@ -2147,7 +2146,7 @@ def clone_host(
 
     hps = find_host_profiles(selection)
     if not hps:
-        raise ValueError("No matching host profile found: %s" % selection.host_id)
+        raise ValueError(f"No matching host profile found: {selection.host_id}")
 
     if len(hps) > 1:
         raise ValueError("Clone criteria must match exactly one profile")
@@ -2230,9 +2229,9 @@ def edit_host(
     hps = None
     hps = find_host_profiles(selection)
     if not hps:
-        raise ValueError("No matching profile found: %s" % selection.host_id)
+        raise ValueError(f"No matching profile found: {selection.host_id}")
     if len(hps) > 1:
-        raise ValueError("OS profile identifier '%s' is ambiguous" % selection.os_id)
+        raise ValueError(f"OS profile identifier '{selection.os_id}' is ambiguous")
 
     hp = hps.pop()
     hp.delete_profile()
@@ -2403,7 +2402,7 @@ def create_config():
     _log_info("Creating default configuration in %s", bc.boot_path)
 
     if path_exists(join(bc.boom_path, BOOM_CONFIG_FILE)):
-        raise BoomConfigError("Boom configuration already present in %s" % bc.boom_path)
+        raise BoomConfigError(f"Boom configuration already present in {bc.boom_path}")
 
     makedirs(bc.boom_path, mode=0o755)
     for subdir in ["cache", "hosts", "profiles"]:
@@ -2466,8 +2465,8 @@ def _set_optional_key_defaults(profile, cmd_args):
         if bls_key not in profile.optional_keys:
             if getattr(cmd_args, bls_key) is not None:
                 print(
-                    "Profile with os_id='%s' does not support %s"
-                    % (profile.disp_os_id, _optional_key_to_arg(opt_key))
+                    f"Profile with os_id='{profile.disp_os_id}' "
+                    f"does not support {_optional_key_to_arg(opt_key)}"
                 )
                 return 1
         else:
@@ -2632,7 +2631,7 @@ def _create_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
-    print("Created entry with boot_id %s:" % be.disp_boot_id)
+    print(f"Created entry with boot_id {be.disp_boot_id}:")
     print(_str_indent(str(be), 2))
     return 0
 
@@ -2676,7 +2675,7 @@ def _delete_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
-    print("Deleted %d entr%s" % (nr, "ies" if nr > 1 else "y"))
+    print(f"Deleted {nr} entr{'ies' if nr > 1 else 'y'}")
     return 0
 
 
@@ -2768,8 +2767,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
         return 1
 
     print(
-        "Cloned entry with boot_id %s as boot_id %s:"
-        % (select.boot_id, be.disp_boot_id)
+        f"Cloned entry with boot_id {select.boot_id} " f"as boot_id {be.disp_boot_id}:"
     )
     print(_str_indent(str(be), 2))
 
@@ -2807,7 +2805,7 @@ def _show_cmd(cmd_args, select, opts, identifier):
         ws = "" if first else "\n"
         be_str = be.expanded() if cmd_args.expand_variables else str(be)
         be_str = _str_indent(be_str, 2)
-        print("%sBoot Entry (boot_id=%s)\n%s" % (ws, be.disp_boot_id, be_str))
+        print(f"{ws}Boot Entry (boot_id={be.disp_boot_id})\n{be_str}")
         first = False
     return 0
 
@@ -2951,7 +2949,7 @@ def _edit_cmd(cmd_args, select, opts, identifier):
         print(e)
         return 1
 
-    print("Edited entry, boot_id now: %s" % be.disp_boot_id)
+    print(f"Edited entry, boot_id now: {be.disp_boot_id}")
     print(_str_indent(str(be), 2))
     return 0
 
@@ -3029,7 +3027,7 @@ def _create_profile_cmd(cmd_args, select, opts, identifier):
     except ValueError as e:
         print(e)
         return 1
-    print("Created profile with os_id %s:" % osp.disp_os_id)
+    print(f"Created profile with os_id {osp.disp_os_id}:")
     print(_str_indent(str(osp), 2))
     return 0
 
@@ -3068,7 +3066,7 @@ def _delete_profile_cmd(cmd_args, select, opts, identifier):
     except (ValueError, IndexError) as e:
         print(e)
         return 1
-    print("Deleted %d profile%s" % (nr, "s" if nr > 1 else ""))
+    print(f"Deleted {nr} profile{'s' if nr > 1 else ''}")
     return 0
 
 
@@ -3125,7 +3123,7 @@ def _clone_profile_cmd(cmd_args, select, opts, identifier):
     except ValueError as e:
         print(e)
         return 1
-    print("Cloned profile with os_id %s as %s:" % (select.os_id, osp.disp_os_id))
+    print(f"Cloned profile with os_id {select.os_id} as {osp.disp_os_id}:")
     print(_str_indent(str(osp), 2))
     return 0
 
@@ -3316,7 +3314,7 @@ def _create_host_cmd(cmd_args, select, opts, identifier):
     except ValueError as e:
         print(e)
         return 1
-    print("Created host profile with host_id %s:" % hp.disp_host_id)
+    print(f"Created host profile with host_id {hp.disp_host_id}:")
     print(_str_indent(str(hp), 2))
     return 0
 
@@ -3355,7 +3353,7 @@ def _delete_host_cmd(cmd_args, select, opts, identifier):
     except (ValueError, IndexError) as e:
         print(e)
         return 1
-    print("Deleted %d profile%s" % (nr, "s" if nr > 1 else ""))
+    print(f"Deleted {nr} profile{'s' if nr > 1 else ''}")
     return 0
 
 
@@ -3407,7 +3405,7 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
     except ValueError as e:
         print(e)
         return 1
-    print("Cloned profile with host_id %s as %s:" % (select.host_id, hp.disp_host_id))
+    print(f"Cloned profile with host_id {select.host_id} as {hp.disp_host_id}:")
     print(_str_indent(str(hp), 2))
     return 0
 
@@ -3535,7 +3533,7 @@ def _show_cache_cmd(cmd_args, select, opts, identifier):
         ws = "" if first else "\n"
         ce_str = str(ce)
         ce_str = _str_indent(ce_str, 2)
-        print("%sCache Entry (img_id=%s)\n%s" % (ws, ce.disp_img_id, ce_str))
+        print(f"{ws}Cache Entry (img_id={ce.disp_img_id})\n{ce_str}")
         first = False
     return 0
 
@@ -3776,7 +3774,7 @@ def set_debug(debug_arg):
     mask = 0
     for name in debug_arg.split(","):
         if name not in mask_map:
-            raise ValueError("Unknown debug mask: %s" % name)
+            raise ValueError(f"Unknown debug mask: {name}")
         mask |= mask_map[name]
     set_debug_mask(mask)
 
@@ -4143,7 +4141,7 @@ def main(args):
 
     if len(args) < 3:
         parser.print_usage()
-        print("Too few arguments: %s" % " ".join(args[1:]))
+        print(f"Too few arguments: {' '.join(args[1:])}")
         return 1
 
     cmd_types = [cmdtype[0] for cmdtype in _boom_command_types]
@@ -4154,7 +4152,7 @@ def main(args):
 
     if type_arg not in cmd_types or cmd_arg not in cmd_verbs:
         parser.print_usage()
-        print("Unknown command: %s %s" % (type_arg, cmd_arg))
+        print(f"Unknown command: {type_arg} {cmd_arg}")
         return 1
 
     try:
@@ -4170,7 +4168,7 @@ def main(args):
     setup_logging(cmd_args)
     cmd_type = _match_cmd_type(cmd_args.type)
     if not cmd_type:
-        print("Unknown command type: %s" % cmd_args.type)
+        print(f"Unknown command type: {cmd_args.type}")
         return 1
 
     if cmd_args.boot_dir or BOOM_BOOT_PATH_ENV in environ:
@@ -4229,13 +4227,13 @@ def main(args):
             root_lv = _canonicalize_lv_name(cmd_args.root_lv)
         except ValueError as e:
             print(e)
-            print("Invalid logical volume name: '%s'" % cmd_args.root_lv)
+            print(f"Invalid logical volume name: '{cmd_args.root_lv}'")
             return 1
         root_device = DEV_PATTERN % root_lv
         if cmd_args.root_device and cmd_args.root_device != root_device:
             print(
-                "Options --root-lv %s and --root-device %s do not match."
-                % (root_lv, root_device)
+                f"Options --root-lv {root_lv} and "
+                f"--root-device {root_device} do not match."
             )
             return 1
         cmd_args.root_device = root_device
@@ -4253,11 +4251,11 @@ def main(args):
     type_cmds = cmd_type[1]
     command = _match_command(cmd_args.command, type_cmds)
     if not command:
-        print("Unknown command: %s %s" % (cmd_type[0], cmd_args.command))
+        print(f"Unknown command: {cmd_type[0]} {cmd_args.command}")
         return 1
 
     if cmd_args.backup and not bc.cache_enable:
-        print("--backup specified but cache disabled" " (config.cache_enable=False)")
+        print("--backup specified but cache disabled (config.cache_enable=False)")
         return 1
     elif cmd_args.backup:
         load_cache()
