@@ -704,18 +704,18 @@ def _get_machine_id():
     return machine_id
 
 
-def _str_indent(string, indent):
+def _str_indent(strdata, indent):
     """Indent all lines of a multi-line string.
 
-    Indent each line of the multi line string ``string`` to the
+    Indent each line of the multi line string ``strdata`` to the
     specified indentation level.
 
-    :param string: The string to be indented
+    :param strdata: The string to be indented
     :param indent: The number of characters to indent by
     :returns: str
     """
     outstr = ""
-    for line in string.splitlines():
+    for line in strdata.splitlines():
         outstr += indent * " " + line + "\n"
     return outstr.rstrip("\n")
 
