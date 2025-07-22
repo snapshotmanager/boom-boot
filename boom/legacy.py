@@ -236,7 +236,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
             _log_error("Could not unlink '%s': %s", tmp_path, e)
         raise BoomLegacyFormatError(err % fmt_data)
 
-    (name, decorator, path) = find_legacy_loader(loader, cfg_path)
+    (name, _, path) = find_legacy_loader(loader, cfg_path)
 
     if not isabs(path):
         path = path_join(get_boot_path(), path)
@@ -290,8 +290,8 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
                     if not in_boom_cfg:
                         tmp_f.write(line)
                     line_nr += 1
-    except BoomLegacyFormatError as e:
-        _log_error("Error parsing %s configuration: %s", name, e)
+    except BoomLegacyFormatError as err:
+        _log_error("Error parsing %s configuration: %s", name, err)
         found_boom = False
 
     if in_boom_cfg and not found_boom:
@@ -301,21 +301,21 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         # No boom entries: nothing to do.
         try:
             unlink(tmp_path)
-        except OSError as e:
-            _log_error("Could not unlink '%s': %s", tmp_path, e)
+        except OSError as err:
+            _log_error("Could not unlink '%s': %s", tmp_path, err)
         return
 
     try:
         fdatasync(tmp_fd)
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
-    except Exception as e:
-        _log_error("Error writing legacy configuration file %s: %s", path, e)
+    except Exception as err:
+        _log_error("Error writing legacy configuration file %s: %s", path, err)
         try:
             unlink(tmp_path)
         except Exception:
             _log_error("Error unlinking temporary path %s", tmp_path)
-        raise e
+        raise err
 
 
 class Grub1BootEntry:

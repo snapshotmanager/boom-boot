@@ -71,8 +71,8 @@ def pool_name_to_pool_uuid(pool_name):
             for _, obj_data in managed_objects.items()
             if _POOL_IFACE in obj_data and obj_data[_POOL_IFACE]["Name"] == pool_name
         )
-    except StopIteration as e:
-        raise IndexError(f"Stratis pool '{pool_name}' not found")
+    except StopIteration as err:
+        raise IndexError(f"Stratis pool '{pool_name}' not found") from err
     pool_uuid = str(props["Uuid"])
     _log_debug(
         "Looked up pool_uuid=%s for Stratis pool %s",
@@ -95,7 +95,7 @@ def symlink_to_pool_uuid(link_path):
     """
     # Separate the "pool" and "fs" components from a Stratis file system
     # link path formatted as "/dev/stratis/pool/ps".
-    (pool, fs) = normpath(link_path).split(path_sep)[-2:]
+    (pool, _) = normpath(link_path).split(path_sep)[-2:]
     _log_debug_stratis(f"Looking up pool UUID for Stratis symlink '{link_path}'")
     return pool_name_to_pool_uuid(pool)
 
@@ -117,7 +117,7 @@ def is_stratis_device_path(dev_path):
     if not normpath(dev_path).startswith(prefix):
         return False
     try:
-        pool_uuid = symlink_to_pool_uuid(dev_path)
+        _ = symlink_to_pool_uuid(dev_path)
     except (dbus.DBusException, IndexError):
         return False
     return True

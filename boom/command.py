@@ -2396,7 +2396,7 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
                       for the operation
     :param loader: Which boot loader to use
     """
-    (name, decorator, path) = find_legacy_loader(loader, None)
+    (_, decorator, _) = find_legacy_loader(loader, None)
     bes = find_entries(selection=selection)
     [print(decorator(be)) for be in bes]
 
@@ -2489,7 +2489,7 @@ def _lv_from_device_string(dev_path):
         return vg_lv_name
     elif dev_path.startswith("/dev"):
         try:
-            (dev, vg, lv) = dev_path.lstrip("/").split("/")
+            (_, vg, lv) = dev_path.lstrip("/").split("/")
         except ValueError:
             return None
         return join(vg, lv)

@@ -926,7 +926,7 @@ def parse_name_value(nvp, separator="=", allow_empty=False):
     value = value.lstrip() if value else None
 
     if value and "#" in value:
-        value, comment = value.split("#", 1)
+        value, _ = value.split("#", 1)
 
     valid_name_chars = string.ascii_letters + string.digits + "_-,.'\""
     bad_chars = [c for c in name if c not in valid_name_chars]

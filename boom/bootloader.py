@@ -1282,7 +1282,7 @@ class BootEntry:
 
         outlines = ""
         for line in comment.splitlines():
-            (key, os_id) = line.split(":")
+            (_, os_id) = line.split(":")
             os_id = os_id.strip()
             osp = get_os_profile_by_id(os_id)
 
