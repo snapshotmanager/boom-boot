@@ -1912,6 +1912,7 @@ def list_profiles(selection=None):
     return osps
 
 
+# pylint: disable=unused-argument
 def print_profiles(
     selection=None, opts=None, output_fields=None, sort_keys=None, expand=False
 ):
@@ -2267,6 +2268,7 @@ def list_hosts(selection=None):
     return hps
 
 
+# pylint: disable=unused-argument
 def print_hosts(
     selection=None, opts=None, output_fields=None, sort_keys=None, expand=False
 ):
@@ -2299,6 +2301,7 @@ def print_hosts(
     )
 
 
+# pylint: disable=unused-argument
 def _print_cache(
     find_fn, selection=None, opts=None, output_fields=None, sort_keys=None, expand=False
 ):
@@ -2332,6 +2335,7 @@ def _print_cache(
     )
 
 
+# pylint: disable=unused-argument
 def print_cache(
     selection=None, opts=None, output_fields=None, sort_keys=None, expand=False
 ):
@@ -2358,6 +2362,7 @@ def print_cache(
     )
 
 
+# pylint: disable=unused-argument
 def print_cache_images(
     selection=None, opts=None, output_fields=None, sort_keys=None, expand=False
 ):
@@ -2524,7 +2529,7 @@ def os_options_from_cmdline():
     return options.strip() if have_root else None
 
 
-def _create_cmd(cmd_args, select, opts, identifier):
+def _create_cmd(cmd_args, _select, _opts, identifier):
     """Create entry command handler.
 
     Attempt to create a new boot entry using the arguments
@@ -2681,7 +2686,7 @@ def _delete_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _clone_cmd(cmd_args, select, opts, identifier):
+def _clone_cmd(cmd_args, select, _opts, identifier):
     """Clone entry command handler.
 
     Attempt to create a new boot entry by cloning an existing
@@ -2776,7 +2781,7 @@ def _clone_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _show_cmd(cmd_args, select, opts, identifier):
+def _show_cmd(cmd_args, select, _opts, identifier):
     """Show entry command handler.
 
     Show the boot entries that match the given selection criteria in
@@ -2874,7 +2879,7 @@ def _list_cmd(cmd_args, select, opts, identifier):
     )
 
 
-def _edit_cmd(cmd_args, select, opts, identifier):
+def _edit_cmd(cmd_args, select, _opts, identifier):
     """Edit entry command handler.
 
     Attempt to edit an existing boot entry. The ``boot_id`` of
@@ -2956,7 +2961,7 @@ def _edit_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _create_profile_cmd(cmd_args, select, opts, identifier):
+def _create_profile_cmd(cmd_args, _select, _opts, identifier):
     """Create profile command handler.
     Attempt to create a new OS profile using the arguments
     supplied in ``cmd_args`` and return the command status
@@ -3034,7 +3039,7 @@ def _create_profile_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _delete_profile_cmd(cmd_args, select, opts, identifier):
+def _delete_profile_cmd(cmd_args, select, _opts, identifier):
     """Delete profile command handler.
 
     Attempt to delete OS profiles matching the selection criteria
@@ -3072,7 +3077,7 @@ def _delete_profile_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _clone_profile_cmd(cmd_args, select, opts, identifier):
+def _clone_profile_cmd(cmd_args, select, _opts, identifier):
     """Clone profile command handler.
 
     Attempt to create a new OS profile by cloning an existing
@@ -3157,7 +3162,7 @@ def _generic_show_cmd(select, find_fn, fmt, get_data):
     return 0
 
 
-def _show_profile_cmd(cmd_args, select, opts, identifier):
+def _show_profile_cmd(cmd_args, select, _opts, identifier):
     """Show profile command handler.
 
     Show the OS profiles that match the given selection criteria in
@@ -3199,7 +3204,7 @@ def _list_profile_cmd(cmd_args, select, opts, identifier):
     )
 
 
-def _edit_profile_cmd(cmd_args, select, opts, identifier):
+def _edit_profile_cmd(cmd_args, select, _opts, identifier):
     """Edit profile command handler.
 
     Attempt to edit an existing OS profile. The ``os_id`` of the
@@ -3261,7 +3266,7 @@ def _edit_profile_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _create_host_cmd(cmd_args, select, opts, identifier):
+def _create_host_cmd(cmd_args, _select, _opts, identifier):
     """Create host profile command handler.
 
     Attempt to create a new host profile using the arguments
@@ -3319,7 +3324,7 @@ def _create_host_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _delete_host_cmd(cmd_args, select, opts, identifier):
+def _delete_host_cmd(cmd_args, select, _opts, identifier):
     """Delete host profile command handler.
 
     Attempt to delete host profiles matching the selection criteria
@@ -3357,7 +3362,7 @@ def _delete_host_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _clone_host_cmd(cmd_args, select, opts, identifier):
+def _clone_host_cmd(cmd_args, select, _opts, identifier):
     """Clone host profile command handler.
 
     Attempt to create a new host profile by cloning an existing
@@ -3410,7 +3415,7 @@ def _clone_host_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _show_host_cmd(cmd_args, select, opts, identifier):
+def _show_host_cmd(cmd_args, select, _opts, identifier):
     """Show host profile command handler.
 
     Show the host profiles that match the given selection criteria
@@ -3451,7 +3456,7 @@ def _list_host_cmd(cmd_args, select, opts, identifier):
     return _generic_list_cmd(cmd_args, select, opts, _verbose_host_fields, print_hosts)
 
 
-def _edit_host_cmd(cmd_args, select, opts, identifier):
+def _edit_host_cmd(cmd_args, select, _opts, identifier):
     """Edit profile command handler.
 
     Attempt to edit an existing host profile. The ``host_id`` of the
@@ -3508,7 +3513,7 @@ def _edit_host_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _show_cache_cmd(cmd_args, select, opts, identifier):
+def _show_cache_cmd(cmd_args, select, _opts, identifier):
     """Show cache command handler.
 
     Show the cache entries that match the given selection criteria
@@ -3538,7 +3543,7 @@ def _show_cache_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _list_cache_cmd(cmd_args, select, opts, identifier):
+def _list_cache_cmd(cmd_args, select, opts, _identifier):
     """List cache command handler.
 
     List the cache entries that match the given selection criteria
@@ -3552,7 +3557,7 @@ def _list_cache_cmd(cmd_args, select, opts, identifier):
     return _generic_list_cmd(cmd_args, select, opts, _verbose_cache_fields, print_fn)
 
 
-def _write_legacy_cmd(cmd_args, select, opts, identifier):
+def _write_legacy_cmd(_cmd_args, select, _opts, identifier):
     if identifier:
         print("write legacy does not accept a boot_id")
         return 1
@@ -3566,7 +3571,7 @@ def _write_legacy_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _clear_legacy_cmd(cmd_args, select, opts, identifier):
+def _clear_legacy_cmd(_cmd_args, _select, _opts, identifier):
     """Remove all boom entries from the legacy bootloader configuration.
 
     :param cmd_args: Command line arguments for the command
@@ -3584,7 +3589,7 @@ def _clear_legacy_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _show_legacy_cmd(cmd_args, select, opts, identifier):
+def _show_legacy_cmd(_cmd_args, _select, _opts, _identifier):
     """
     Display legacy boot loader configuration.
     """
@@ -3592,7 +3597,7 @@ def _show_legacy_cmd(cmd_args, select, opts, identifier):
     show_legacy(selection=select, loader=config.legacy_format)
 
 
-def _create_config_cmd(cmd_args, select, opts, identifier):
+def _create_config_cmd(_cmd_args, _select, _opts, _identifier):
     """
     Create default boom configuration in /boot.
     """

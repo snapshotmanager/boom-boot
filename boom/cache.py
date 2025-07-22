@@ -192,7 +192,7 @@ def _load_image_ids(cache_path):
     return ids
 
 
-def load_cache(verify=True, digests=False):
+def load_cache():
     """Read the state of the on-disk boot image cache into memory."""
     global _index, _paths, _images
     drop_cache()
