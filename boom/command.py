@@ -2241,6 +2241,8 @@ def edit_host(
     hp.initramfs_pattern = initramfs_pattern or hp.initramfs_pattern
     hp.root_opts_lvm2 = root_opts_lvm2 or hp.root_opts_lvm2
     hp.root_opts_btrfs = root_opts_btrfs or hp.root_opts_btrfs
+    hp.add_opts = add_opts or hp.add_opts
+    hp.del_opts = del_opts or hp.del_opts
     hp.options = options or hp.options
     hp.write_profile()
     return hp
