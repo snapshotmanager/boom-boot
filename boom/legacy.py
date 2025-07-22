@@ -12,8 +12,6 @@ Legacy formats are read-only and can only be updated by synchronising
 the entire current set of boot entries to the legacy format, or removing
 all entries from the legacy configuration file.
 """
-from __future__ import print_function
-
 from subprocess import Popen, PIPE
 from os.path import dirname, exists, isabs, join as path_join
 from os import chmod, dup, fdatasync, fdopen, rename, unlink

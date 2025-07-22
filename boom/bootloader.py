@@ -31,8 +31,6 @@ to BLS keys is available in the ``KEY_MAP`` dictionary (a reverse map
 is also provided in the ``MAP_KEY`` member).
 
 """
-from __future__ import print_function
-
 from os.path import basename, exists as path_exists, join as path_join
 from subprocess import Popen, PIPE
 from tempfile import mkstemp

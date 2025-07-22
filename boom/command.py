@@ -18,8 +18,6 @@ In addition the module contains definitions for ``Report``
 object types and fields that may be of use in implementing custom
 reports using the ``boom.report`` module.
 """
-from __future__ import print_function
-
 from os import environ, uname, getcwd, makedirs
 from os.path import basename, exists as path_exists, isabs, join, sep
 from argparse import ArgumentParser

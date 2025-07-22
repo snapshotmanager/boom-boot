@@ -26,8 +26,6 @@ all the profile keys are stored in the ``OS_KEY_NAMES`` dictionary: these
 are suitable for display use and are used by default by the
 ``OsProfile`` string formatting routines.
 """
-from __future__ import print_function
-
 from hashlib import sha1
 from tempfile import mkstemp
 from os.path import basename, join as path_join, exists as path_exists

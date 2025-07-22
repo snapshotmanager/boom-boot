@@ -15,8 +15,6 @@ value for a given Stratis storage pool name. This is needed to
 set the ``stratis.rootfs.pool_uuid`` kernel command line argument
 that is read by the Stratis early userspace systemd generator.
 """
-from __future__ import print_function
-
 import logging
 from os import sep as path_sep
 from os.path import normpath

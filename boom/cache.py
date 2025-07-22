@@ -9,8 +9,6 @@
 for maintaining an on-disk cache of kernel, initramfs and auxiliary
 images required to load boom-defined boot entries.
 """
-from __future__ import print_function
-
 from hashlib import sha1
 from os import chmod, chown, fdatasync, listdir, stat, unlink
 from stat import S_ISREG, ST_MODE, ST_UID, ST_GID, ST_MTIME, filemode

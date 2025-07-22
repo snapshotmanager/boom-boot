@@ -7,8 +7,6 @@
 in the main ``boom`` module. Users of boom should not import this module
 directly: it will be imported automatically with the top level module.
 """
-from __future__ import print_function
-
 from os.path import exists as path_exists, isabs, isdir, join as path_join
 from os import listdir
 import logging
