@@ -1480,7 +1480,7 @@ class OsProfile(BoomProfile):
         self._profile_data = {}
 
         # Initialise BoomProfile base class
-        super(OsProfile, self).__init__(OS_PROFILE_KEYS, OS_REQUIRED_KEYS, BOOM_OS_ID)
+        super().__init__(OS_PROFILE_KEYS, OS_REQUIRED_KEYS, BOOM_OS_ID)
 
         if profile_data and profile_file:
             raise ValueError(

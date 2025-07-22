@@ -640,9 +640,7 @@ class HostProfile(BoomProfile):
         self._profile_data = {}
 
         # Initialise BoomProfile base class
-        super(HostProfile, self).__init__(
-            HOST_PROFILE_KEYS, HOST_REQUIRED_KEYS, BOOM_HOST_ID
-        )
+        super().__init__(HOST_PROFILE_KEYS, HOST_REQUIRED_KEYS, BOOM_HOST_ID)
 
         if profile_data and profile_file:
             raise ValueError(
