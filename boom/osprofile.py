@@ -1630,7 +1630,7 @@ class OsProfile(BoomProfile):
         return osp
 
     @classmethod
-    def from_os_release_file(cls, path, profile_data={}):
+    def from_os_release_file(cls, path, profile_data=None):
         """Build an OsProfile from an on-disk os-release file.
 
         Construct a new OsProfile object using data obtained from
@@ -1646,7 +1646,7 @@ class OsProfile(BoomProfile):
             return cls.from_os_release(f, profile_data=profile_data)
 
     @classmethod
-    def from_host_os_release(cls, profile_data={}):
+    def from_host_os_release(cls, profile_data=None):
         """Build an OsProfile from the current hosts's os-release.
 
         Construct a new OsProfile object using data obtained from
