@@ -376,7 +376,6 @@ def set_boot_path(boot_path):
     :returnsNone: ``None``
     :raises: ValueError if ``boot_path`` does not exist.
     """
-    global __config
     if not isabs(boot_path):
         raise ValueError(f"boot_path must be an absolute path: {boot_path}")
 
@@ -409,7 +408,6 @@ def set_boom_path(boom_path):
     :returns: ``None``
     :raises: ValueError if ``boom_path`` does not exist.
     """
-    global __config
     err_str = f"Boom path {boom_path} does not exist"
     if isabs(boom_path) and not path_exists(boom_path):
         raise ValueError(err_str)
@@ -448,7 +446,6 @@ def set_cache_path(cache_path):
     :returns: ``None``
     :raises: ValueError if ``cache_path`` does not exist.
     """
-    global __config
     err_str = f"Cache path {cache_path} does not exist"
     if isabs(cache_path) and not path_exists(cache_path):
         raise ValueError(err_str)

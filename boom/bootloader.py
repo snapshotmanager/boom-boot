@@ -759,7 +759,6 @@ def _add_entry(entry):
 
     :param entry: The ``BootEntry`` to add.
     """
-    global _entries
     if _entries is None:
         load_entries()
     if entry not in _entries:
@@ -771,7 +770,6 @@ def _del_entry(entry):
 
     :param entry: The ``BootEntry`` to remove.
     """
-    global _entries
     _entries.remove(entry)
 
 
@@ -797,7 +795,6 @@ def load_entries(machine_id=None):
 
     :param machine_id: A ``machine_id`` value to match.
     """
-    global _entries
     if not profiles_loaded():
         load_profiles()
 
@@ -829,7 +826,6 @@ def write_entries():
     Write all currently loaded boot entries to
     ``boom.bootloader.boom_entries_path()``.
     """
-    global _entries
     for be in _entries:
         try:
             be.write_entry()
@@ -929,8 +925,6 @@ def find_entries(selection=None):
     :returns: a list of ``BootEntry`` objects.
     :rtype: list
     """
-    global _entries
-
     if not _entries:
         load_entries()
 

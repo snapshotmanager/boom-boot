@@ -312,8 +312,6 @@ def _remove(cache_path):
 
 def _insert_path(path, img_id, mode, uid, gid, attrs):
     """Insert a path into the path map and index dictionaries."""
-    global _paths, _index
-
     if path not in _paths:
         _paths[path] = {}
     _paths[path][PATH_MODE] = mode
@@ -355,8 +353,6 @@ def _cache_path(img_path, update=True, backup=False):
         path.
         """
         return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
-
-    global _index, _paths, _images
 
     boot_path = _image_path_to_boot(img_path)
     st = stat(boot_path)
@@ -437,8 +433,6 @@ def uncache_path(img_path, force=False):
 
     :param img_path: The cached path to remove
     """
-    global _index, _paths, _images
-
     if img_path not in _paths:
         raise ValueError(f"Path '{img_path}' is not cached.")
 
@@ -703,7 +697,6 @@ def _find_cache_entries(selection=None, images=False):
     :param images: return results by images instead of paths.
     :returns: A list of matching ``CacheEntry`` objects.
     """
-    global _index, _paths, _images
     matches = []
 
     if not _index:

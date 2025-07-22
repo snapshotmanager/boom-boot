@@ -149,7 +149,6 @@ def _host_exists(host_id):
               otherwise.
     :rtype: bool
     """
-    global _host_profiles_by_host_id
     if not _host_profiles_by_host_id:
         return False
     if host_id in _host_profiles_by_host_id:
@@ -218,7 +217,6 @@ def write_host_profiles(force=False):
 
     :rtype: None
     """
-    global _host_profiles
     _log_debug("Writing host profiles to %s", boom_host_profiles_path())
     for hp in _host_profiles:
         try:
@@ -357,7 +355,6 @@ def get_host_profile_by_id(machine_id, label=""):
     :returns: An HostProfile matching machine_id or None if no match
               was found.
     """
-    global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
     if not host_profiles_loaded():
         load_host_profiles()
     if machine_id in _host_profiles_by_id:
@@ -379,8 +376,6 @@ def match_host_profile(entry):
               ``BootEntry`` or ``None`` if no match is found.
     :rtype: ``BootEntry`` or ``NoneType``.
     """
-    global _host_profiles, _host_profiles_loaded
-
     if not host_profiles_loaded():
         load_host_profiles()
 
@@ -566,7 +561,6 @@ class HostProfile(BoomProfile):
 
     def _append_profile(self):
         """Append a HostProfile to the global profile list"""
-        global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
         if _host_exists(self.host_id):
             raise ValueError(f"Profile already exists (host_id={self.disp_host_id})")
 
@@ -643,7 +637,6 @@ class HostProfile(BoomProfile):
         :returns: A new ``HostProfile`` object.
         :rtype: class HostProfile
         """
-        global _host_profiles
         self._profile_data = {}
 
         # Initialise BoomProfile base class
@@ -1174,7 +1167,6 @@ class HostProfile(BoomProfile):
         :raises: ``OsError`` if an error occurs removing the file or
                  ``ValueError`` if the profile does not exist.
         """
-        global _host_profiles, _host_profiles_by_id, _host_profiles_by_host_id
         self._delete_profile(self.host_id)
 
         machine_id = self.machine_id

@@ -3778,7 +3778,6 @@ def set_debug(debug_arg):
 
 
 def main(args):
-    global _boom_entry_commands, _boom_profile_commands, _boom_command_types
     parser = ArgumentParser(prog=basename(args[0]), description="Boom Boot Manager")
 
     # Default type is boot entry.

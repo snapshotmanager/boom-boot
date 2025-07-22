@@ -162,7 +162,6 @@ def _profile_exists(os_id):
               otherwise.
     :rtype: bool
     """
-    global _profiles_by_id
     if not _profiles_by_id:
         return False
     if os_id in _profiles_by_id:
@@ -194,7 +193,6 @@ def _is_null_profile(osp):
               otherwise
     :rtype: bool
     """
-    global _profiles
     if osp.os_id == _profiles[0].os_id:
         return True
     return False
@@ -263,7 +261,6 @@ def write_profiles(force=False):
 
     :rtype: None
     """
-    global _profiles
     _log_debug("Writing profiles to %s", boom_profiles_path())
     for osp in _profiles:
         if _is_null_profile(osp):
@@ -346,8 +343,6 @@ def find_profiles(selection=None, match_fn=select_profile):
     :returns: a list of ``OsProfile`` objects.
     :rtype: list
     """
-    global _profiles
-
     # Use null search criteria if unspecified
     selection = selection if selection else Selection()
 
@@ -398,8 +393,6 @@ def match_os_profile(entry):
               ``BootEntry`` or ``None`` if no match is found.
     :rtype: ``OsProfile``
     """
-    global _profiles, _profiles_loaded
-
     if not _profiles_loaded:
         load_profiles()
 
@@ -462,8 +455,6 @@ def match_os_profile_by_version(version):
     :returns: An OsProfile matching version or None if not match
               was found
     """
-    global _profiles, _profiles_loaded
-
     if not _profiles_loaded:
         load_profiles()
 
@@ -1486,7 +1477,6 @@ class OsProfile(BoomProfile):
         :returns: A new ``OsProfile`` object.
         :rtype: class OsProfile
         """
-        global _profiles
         self._profile_data = {}
 
         # Initialise BoomProfile base class
@@ -1719,7 +1709,6 @@ class OsProfile(BoomProfile):
         :raises: ``OsError`` if an error occurs removing the file or
                  ``ValueError`` if the profile does not exist.
         """
-        global _profiles
         self._delete_profile(self.os_id)
         if _profiles and self in _profiles:
             _profiles.remove(self)
