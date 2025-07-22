@@ -767,10 +767,10 @@ class BoomProfile:
                     format_opts.append(value)
 
         fixed = [o[1] for o in opts_regex_words if not o[0]]
-        have_fixed = [True if f in fixed_opts else False for f in fixed]
+        have_fixed = [f in fixed_opts for f in fixed]
 
         form = [o[1] for o in opts_regex_words if o[0]]
-        have_form = [True if f in format_opts else False for f in form]
+        have_form = [f in format_opts for f in form]
 
         return all(have_fixed) and any(have_form)
 
