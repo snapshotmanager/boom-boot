@@ -1622,7 +1622,7 @@ class OsProfile(BoomProfile):
             "VERSION_ID": BOOM_OS_VERSION_ID,
         }
 
-        for key in release_keys.keys():
+        for key in release_keys:
             profile_data[release_keys[key]] = release_data[key]
 
         osp = OsProfile(profile_data=profile_data)

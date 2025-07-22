@@ -159,7 +159,7 @@ def optional_key_default(key):
     :returns: The default value for optional key ``key``.
     :rtype: str
     """
-    if key not in OPTIONAL_KEY_DEFAULTS.keys():
+    if key not in OPTIONAL_KEY_DEFAULTS:
         raise ValueError(f"Unknown optional BootEntry key: {key}")
     return OPTIONAL_KEY_DEFAULTS[key]
 
@@ -171,7 +171,7 @@ def key_to_bls_name(key):
     :returns: A string representing the BLS key name.
     :rtype: str
     """
-    if key not in KEY_MAP.keys():
+    if key not in KEY_MAP:
         raise ValueError(f"Unknown BootEntry key: {key}")
     return KEY_MAP[key]
 
@@ -706,7 +706,7 @@ class BootParams(object):
                     return False
                 return opt not in _expand_vars(be.options).split()
 
-            if opt not in matches.keys():
+            if opt not in matches:
                 if opt not in be._osp.options.split():
                     if not opt_in_expansion(opt):
                         _log_debug_entry("Found add_opt: %s", opt)
@@ -735,7 +735,7 @@ class BootParams(object):
                 "stratis.rootfs.pool_uuid",
             ]
             opt_name = opt.split("=")[0]
-            matched_opts = [k.split("=")[0] for k in matches.keys()]
+            matched_opts = [k.split("=")[0] for k in matches]
             if opt_name not in matched_opts and opt_name not in ignore_bp:
                 _log_debug_entry("Found del_opt: %s", opt)
                 return True
@@ -1782,7 +1782,7 @@ class BootEntry(object):
             FMT_OS_VERSION_ID: [{OSP_ATTR: "os_version_id"}],
         }
 
-        for key_name in format_key_specs.keys():
+        for key_name in format_key_specs:
             key = key_format % key_name
             if key not in fmt:
                 continue
