@@ -86,7 +86,7 @@ CACHE_UNKNOWN = "UNKNOWN"
 # boot_path  - The absolute path to an image relative to the host root
 #              file system. E.g. "/boot/vmlinuz-5.0.0".
 #
-# cache_path - The absolute path to a cached boot image relative to the
+# cache_file - The absolute path to a cached boot image relative to the
 #              host root file system. E.g.
 #              "/boot/boom/cache/1562375e4d022e814ba39521d0852e490b7c07f8.img"
 #
@@ -128,7 +128,7 @@ def _image_path_to_boot(img_path):
     return path_join(get_boot_path(), img_path)
 
 
-def _image_id_to_cache_path(img_id):
+def _image_id_to_cache_file(img_id):
     """Convert an image path relative to /boot into a path
     for the corresponding cache entry.
 
@@ -179,13 +179,13 @@ def drop_cache():
     _images = {}
 
 
-def _load_image_ids(cache_path):
+def _load_image_ids(cache_file):
     """Read the set of image_id values from the cache directory.
 
     :returns: A list of image_id values.
     """
     ids = []
-    for entry in listdir(cache_path):
+    for entry in listdir(cache_file):
         if not entry.endswith(_IMAGE_EXT):
             continue
         ids.append(entry.rstrip(_IMAGE_EXT))
@@ -197,14 +197,14 @@ def load_cache():
     global _index, _paths, _images
     drop_cache()
 
-    cache_path = get_cache_path()
+    cache_file = get_cache_path()
 
-    index_path = path_join(cache_path, _CACHE_INDEX)
+    index_path = path_join(cache_file, _CACHE_INDEX)
 
     _log_debug("Loading cache entries from '%s'", index_path)
 
     # Get the set of known image_id values
-    ids = _load_image_ids(cache_path)
+    ids = _load_image_ids(cache_file)
 
     cachedata = {}
     try:
@@ -251,9 +251,9 @@ def load_cache():
 
 def write_cache():
     """Write the current in-memory state of the cache to disk."""
-    cache_path = get_cache_path()
+    cache_file = get_cache_path()
 
-    index_path = path_join(cache_path, _CACHE_INDEX)
+    index_path = path_join(cache_file, _CACHE_INDEX)
 
     cachedata = {"index": _index, "paths": _paths, "images": _images}
 
@@ -262,21 +262,21 @@ def write_cache():
         fdatasync(index_file.fileno())
 
 
-def _insert_copy(boot_path, cache_path):
+def _insert_copy(boot_path, cache_file):
     """Insert an image into the cache by physical data copy."""
-    shutil.copy2(boot_path, cache_path)
+    shutil.copy2(boot_path, cache_file)
 
 
-def _insert(boot_path, cache_path):
+def _insert(boot_path, cache_file):
     """Insert an image into the cache.
 
     :param boot_path: The absolute path to the image to add.
-    :param cache_path: The cache path at which to insert.
+    :param cache_file: The cache path at which to insert.
     :returns: None
     """
     try:
         # FIXME: implement hard link support with fall-back to copy.
-        _insert_copy(boot_path, cache_path)
+        _insert_copy(boot_path, cache_file)
     except Exception as e:
         _log_error("Error copying '%s' to cache: %s", boot_path, e)
         raise e
@@ -292,23 +292,23 @@ def _remove_boot(boot_path):
     unlink(path_join(boot_dir, dot_path))
 
 
-def _remove_copy(cache_path):
+def _remove_copy(cache_file):
     """Remove an image copy from the cache store."""
-    unlink(cache_path)
+    unlink(cache_file)
 
 
-def _remove(cache_path):
+def _remove(cache_file):
     """Remove an image from the cache store.
 
-    :param cache_path: The path to the image to be removed.
+    :param cache_file: The path to the image to be removed.
     :returns: None
     """
-    if not cache_path.startswith(get_cache_path()):
-        raise ValueError(f"'{cache_path}' is not a boom cache path")
+    if not cache_file.startswith(get_cache_path()):
+        raise ValueError(f"'{cache_file}' is not a boom cache path")
     try:
-        _remove_copy(cache_path)
+        _remove_copy(cache_file)
     except Exception as e:
-        _log_error("Error removing cache image '%s': %s", cache_path, e)
+        _log_error("Error removing cache image '%s': %s", cache_file, e)
         raise e
 
 
@@ -364,7 +364,7 @@ def _cache_path(img_path, update=True, backup=False):
         raise ValueError(f"'{img_path}' is not a regular file")
 
     img_id = _image_id_from_path(boot_path)
-    cache_path = _image_id_to_cache_path(img_id)
+    cache_file = _image_id_to_cache_file(img_id)
     image_ts = st[ST_MTIME]
 
     if not update and backup:
@@ -392,7 +392,7 @@ def _cache_path(img_path, update=True, backup=False):
     path_attrs = {}  # FIXME xattr support
 
     # Physically cache the image
-    _insert_copy(boot_path, cache_path)
+    _insert_copy(boot_path, cache_file)
 
     # Set cache entry metadata
     _images[img_id] = {IMAGE_TS: image_ts}
@@ -461,8 +461,8 @@ def uncache_path(img_path, force=False):
         # Shared image?
         if img_id not in all_images:
             _images.pop(img_id)
-            cache_path = _image_id_to_cache_path(img_id)
-            _remove(cache_path)
+            cache_file = _image_id_to_cache_file(img_id)
+            _remove(cache_file)
     if _is_restored(boot_path):
         _remove_boot(boot_path)
 
@@ -550,9 +550,9 @@ class CacheEntry:
     def state(self):
         """Return a string representing the state of this cache entry."""
         boot_path = _image_path_to_boot(self.path)
-        cache_path = _image_id_to_cache_path(self.images[0][0])
+        cache_file = _image_id_to_cache_file(self.images[0][0])
         boot_exists = path_exists(boot_path)
-        cache_exists = path_exists(cache_path)
+        cache_exists = path_exists(cache_file)
         if boot_exists and cache_exists:
             boot_path_id = _image_id_from_path(boot_path)
             if _is_restored(boot_path) and self.img_id == boot_path_id:
@@ -611,7 +611,7 @@ class CacheEntry:
             self.path = dest
             write_cache()
         boot_path = _image_path_to_boot(self.path)
-        cache_path = _image_id_to_cache_path(img_id)
+        cache_file = _image_id_to_cache_file(img_id)
         dot_path = f".{basename(boot_path)}.boomrestored"
         boot_dir = dirname(boot_path)
 
@@ -621,7 +621,7 @@ class CacheEntry:
                 f"Restore failed: CacheEntry state is not {CACHE_MISSING} or {CACHE_RESTORED}"
             )
 
-        shutil.copy2(cache_path, boot_path)
+        shutil.copy2(cache_file, boot_path)
         try:
             chown(boot_path, self.uid, self.gid)
             chmod(boot_path, self.mode)

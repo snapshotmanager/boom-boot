@@ -83,10 +83,10 @@ class CacheHelperTests(unittest.TestCase):
         boot_path = boom.cache._image_path_to_boot(join("/", image_path))
         self.assertEqual(boot_path, xboot_path)
 
-    def test__image_id_to_cache_path(self):
+    def test__image_id_to_cache_file(self):
         img_id = "47dc6ad4ea9ca5453e607987d49c33858bd553e0"
         xcache_file = "47dc6ad4ea9ca5453e607987d49c33858bd553e0.img"
-        self.assertEqual(boom.cache._image_id_to_cache_path(img_id),
+        self.assertEqual(boom.cache._image_id_to_cache_file(img_id),
                          join(get_cache_path(), xcache_file))
 
     def test__image_id_from_path(self):
