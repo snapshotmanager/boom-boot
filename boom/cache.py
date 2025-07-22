@@ -73,6 +73,8 @@ CACHE_MISSING = "MISSING"
 CACHE_BROKEN = "BROKEN"
 #: Path is cached and has been restored to /boot
 CACHE_RESTORED = "RESTORED"
+#: Path is in an unknown state
+CACHE_UNKNOWN = "UNKNOWN"
 
 #
 # Path names in the boom boot image cache
@@ -772,6 +774,7 @@ __all__ = [
     "CACHE_MISSING",
     "CACHE_BROKEN",
     "CACHE_RESTORED",
+    "CACHE_UNKNOWN",
     "drop_cache",
     "load_cache",
     "write_cache",
