@@ -1603,7 +1603,7 @@ class BootEntry:
         def title_empty(osp, title):
             if osp and not osp.title:
                 return True
-            elif not osp and not title:
+            if not osp and not title:
                 return True
             return False
 
@@ -1713,8 +1713,7 @@ class BootEntry:
                 elif BE_ATTR in key_spec:
                     value = getattr(self, key_spec[BE_ATTR])
                 return val_fmt % value if value is not None else None
-            else:
-                return None
+            return None
 
         def test_predicates(key_spec):
             """Test all defined predicate functions and return `True` if

@@ -557,8 +557,7 @@ class CacheEntry:
             boot_path_id = _image_id_from_path(boot_path)
             if _is_restored(boot_path) and self.img_id == boot_path_id:
                 return CACHE_RESTORED
-            else:
-                return CACHE_CACHED
+            return CACHE_CACHED
         if cache_exists and not boot_exists:
             return CACHE_MISSING
         if boot_exists and not cache_exists:

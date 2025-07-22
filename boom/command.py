@@ -1475,7 +1475,7 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
         # matching machine_id and label.
         _log_error("Ambiguous host profile selection")
         return None
-    elif len(hps) == 1:
+    if len(hps) == 1:
         _log_debug("Found HostProfile: %s", hps[0].host_id)
         if (hp and osp) and not osp.os_id.startswith(hp.os_id):
             _log_error(
@@ -1486,7 +1486,7 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
                 osp.disp_os_id,
             )
             return None
-    elif not osp and not hps:
+    if not osp and not hps:
         if not optional:
             _log_error(
                 "%s requires --profile or a matching OsProfile or HostProfile", command
@@ -2487,14 +2487,13 @@ def _lv_from_device_string(dev_path):
         vg_lv_name = re.sub(r"([^-])-([^-])", r"\1/\2", vg_lv_name)
         vg_lv_name = re.sub(r"--", r"-", vg_lv_name)
         return vg_lv_name
-    elif dev_path.startswith("/dev"):
+    if dev_path.startswith("/dev"):
         try:
             (_, vg, lv) = dev_path.lstrip("/").split("/")
         except ValueError:
             return None
         return join(vg, lv)
-    else:
-        return None
+    return None
 
 
 def os_options_from_cmdline():
@@ -2564,8 +2563,7 @@ def _create_cmd(cmd_args, _select, _opts, identifier):
     if not cmd_args.root_device:
         print("create requires --root-device")
         return 1
-    else:
-        root_device = cmd_args.root_device
+    root_device = cmd_args.root_device
 
     lvm_root_lv = cmd_args.root_lv if cmd_args.root_lv else None
     subvol = cmd_args.btrfs_subvolume
@@ -2584,9 +2582,9 @@ def _create_cmd(cmd_args, _select, _opts, identifier):
     if not cmd_args.title and not profile.title:
         print("create requires --title")
         return 1
-    else:
-        # Empty title will be filled out by profile
-        title = cmd_args.title
+
+    # Empty title will be filled out by profile
+    title = cmd_args.title
 
     add_opts = cmd_args.add_opts
     del_opts = cmd_args.del_opts
@@ -2989,26 +2987,22 @@ def _create_profile_cmd(cmd_args, _select, _opts, identifier):
         if not cmd_args.name:
             print("profile create requires --name")
             return 1
-        else:
-            name = cmd_args.name
+        name = cmd_args.name
 
         if not cmd_args.short_name:
             print("profile create requires --short-name")
             return 1
-        else:
-            short_name = cmd_args.short_name
+        short_name = cmd_args.short_name
 
         if not cmd_args.os_version:
             print("profile create requires --os-version")
             return 1
-        else:
-            version = cmd_args.os_version
+        version = cmd_args.os_version
 
         if not cmd_args.os_version_id:
             print("profile create requires --os-version-id")
             return 1
-        else:
-            version_id = cmd_args.os_version_id
+        version_id = cmd_args.os_version_id
         release = None
 
     if cmd_args.from_host and not cmd_args.os_options:
@@ -3299,8 +3293,7 @@ def _create_host_cmd(cmd_args, _select, _opts, identifier):
     if not cmd_args.profile:
         print("host profile create requires --profile")
         return 1
-    else:
-        os_id = cmd_args.profile
+    os_id = cmd_args.profile
 
     try:
         hp = create_host(
@@ -4263,7 +4256,7 @@ def main(args):
     if cmd_args.backup and not bc.cache_enable:
         print("--backup specified but cache disabled (config.cache_enable=False)")
         return 1
-    elif cmd_args.backup:
+    if cmd_args.backup:
         load_cache()
 
     select = Selection.from_cmd_args(cmd_args)
