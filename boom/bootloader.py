@@ -1362,9 +1362,7 @@ class BootEntry:
 
         if BOOM_ENTRY_LINUX not in entry_data:
             if BOOM_ENTRY_EFI not in entry_data:
-                raise ValueError(
-                    "BootEntry missing BOOM_ENTRY_LINUX or" " BOOM_ENTRY_EFI"
-                )
+                raise ValueError("BootEntry missing BOOM_ENTRY_LINUX or BOOM_ENTRY_EFI")
 
         self._entry_data = {}
         for key in [k for k in ENTRY_KEYS if k in entry_data]:

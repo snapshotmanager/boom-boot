@@ -1043,7 +1043,7 @@ class BoomProfile:
     @options.setter
     def options(self, value):
         if "root=" not in value:
-            raise ValueError("OsProfile.options must include root= " "device option")
+            raise ValueError("OsProfile.options must include root= device option")
         self._profile_data[BOOM_OS_OPTIONS] = value
         self._dirty()
 
@@ -1371,7 +1371,7 @@ class OsProfile(BoomProfile):
         if BOOM_OS_OPTIONS not in profile_data:
             raise ValueError(err_str % BOOM_OS_OPTIONS)
         elif "root=" not in profile_data[BOOM_OS_OPTIONS]:
-            raise ValueError("OsProfile.options must include root= " "device option")
+            raise ValueError("OsProfile.options must include root= device option")
 
         root_opts = [key for key in OS_ROOT_KEYS if key in profile_data]
         if not any(root_opts):
@@ -1484,7 +1484,7 @@ class OsProfile(BoomProfile):
 
         if profile_data and profile_file:
             raise ValueError(
-                "Only one of 'profile_data' or 'profile_file' " "may be specified."
+                "Only one of 'profile_data' or 'profile_file' may be specified."
             )
 
         if profile_data:

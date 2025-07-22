@@ -729,7 +729,7 @@ def _canonicalize_lv_name(lvname):
     dev_prefix = DEV_PATTERN % ""
     if lvname.startswith(dev_prefix + "mapper/"):
         raise ValueError(
-            "Logical volume names in /dev/mapper/VG-LV format " "are not supported."
+            "Logical volume names in /dev/mapper/VG-LV format are not supported."
         )
     if lvname.startswith(dev_prefix):
         lvname = lvname[len(dev_prefix) :]
@@ -3275,9 +3275,7 @@ def _create_host_cmd(cmd_args, select, opts, identifier):
     host_name = cmd_args.host_name or platform.node()
 
     if not host_name:
-        print(
-            "host profile create requires a valid host name to be set" "or --host-name"
-        )
+        print("host profile create requires a valid host name to be set or --host-name")
         return 1
 
     if not cmd_args.machine_id:
