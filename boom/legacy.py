@@ -64,7 +64,7 @@ def _get_grub1_device(force=False):
     # The grub1 binary
     grub_cmd = "grub"
     # The command to issue to discover the /boot device
-    find_cmd = "find /%s\n" % _loader_map[BOOM_LOADER_GRUB1][2]
+    find_cmd = f"find /{_loader_map[BOOM_LOADER_GRUB1][2]}\n"
     # Regular expression matching a valid grub device string
     find_rgx = r" \(hd\d+,\d+\)"
 
@@ -109,9 +109,9 @@ def find_legacy_loader(loader, cfg_path):
     :returns: (name, decorator, path) tuple
     """
     if not loader:
-        raise BoomLegacyFormatError("Invalid legacy bootloader format: %s" % loader)
+        raise BoomLegacyFormatError(f"Invalid legacy bootloader format: {loader}")
     if loader not in _loader_map:
-        raise BoomLegacyFormatError("Unknown legacy bootloader format: %s" % loader)
+        raise BoomLegacyFormatError(f"Unknown legacy bootloader format: {loader}")
 
     (name, decorator, path) = _loader_map[loader]
     path = cfg_path or path
@@ -230,7 +230,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         corresponding BoomLegacyFormatError exception.
         """
         if fmt_data[0] is int:
-            fmt_data = ("line %d" % fmt_data[0], fmt_data[1])
+            fmt_data = (f"line {fmt_data[0]}", fmt_data[1])
 
         try:
             unlink(tmp_path)
