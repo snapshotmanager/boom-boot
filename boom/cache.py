@@ -497,7 +497,7 @@ def _is_restored(boot_path):
     return path_exists(path_join(boot_dir, dot_path))
 
 
-class CacheEntry(object):
+class CacheEntry:
     """In-memory representation of cached boot image."""
 
     #: The image path for this CacheEntry

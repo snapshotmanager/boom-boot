@@ -214,7 +214,7 @@ def set_debug_mask(mask):
     __debug_mask = mask
 
 
-class BoomConfig(object):
+class BoomConfig:
     """Class representing boom persistent configuration values."""
 
     # Initialise members from global defaults
@@ -513,7 +513,7 @@ def parse_btrfs_subvol(subvol):
 #
 
 
-class Selection(object):
+class Selection:
     """Selection()
     Selection criteria for boom BootEntry, OsProfile HostProfile,
     and BootParams.

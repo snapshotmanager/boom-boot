@@ -301,7 +301,7 @@ def _expand_vars(args):
     return args
 
 
-class BootParams(object):
+class BootParams:
     """The ``BootParams`` class encapsulates the information needed to
     boot an instance of the operating system: the kernel version,
     root device, and root device options.
@@ -977,7 +977,7 @@ def _transform_key(key_name):
     return key_name
 
 
-class BootEntry(object):
+class BootEntry:
     """A class representing a BLS compliant boot entry.
 
     A ``BootEntry`` exposes two sets of properties that are the

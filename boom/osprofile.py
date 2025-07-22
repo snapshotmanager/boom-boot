@@ -469,7 +469,7 @@ def key_from_key_name(key_name):
     return key_format % key_name
 
 
-class BoomProfile(object):
+class BoomProfile:
     """Class ``BoomProfile`` is the abstract base class for Boom template
     profiles. The ``BoomProfile`` class cannot be instantiated by
     itself but serves as the base class for both ``OsProfile`` and

@@ -318,7 +318,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         raise e
 
 
-class Grub1BootEntry(object):
+class Grub1BootEntry:
     """Class transforming a Boom ``BootEntry`` into legacy Grub1
     boot entry notation.
 
