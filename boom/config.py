@@ -14,7 +14,7 @@ the values of configuration keys defined in the boom configuration file.
 """
 from os.path import dirname
 
-from os import fdopen, rename, chmod, fdatasync
+from os import fdopen, rename, chmod, fdatasync, unlink
 from configparser import ConfigParser, ParsingError
 from tempfile import mkstemp
 import logging
