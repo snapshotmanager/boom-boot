@@ -2470,6 +2470,7 @@ def _set_optional_key_defaults(profile, cmd_args):
         else:
             if getattr(cmd_args, bls_key) is None:
                 setattr(cmd_args, bls_key, optional_key_default(opt_key))
+    return 0
 
 
 def _lv_from_device_string(dev_path):
@@ -2570,7 +2571,8 @@ def _create_cmd(cmd_args, select, opts, identifier):
     if not profile:
         return 1
 
-    _set_optional_key_defaults(profile, cmd_args)
+    if _set_optional_key_defaults(profile, cmd_args):
+        return 1
 
     if not cmd_args.title and not profile.title:
         print("create requires --title")
@@ -3559,6 +3561,7 @@ def _write_legacy_cmd(cmd_args, select, opts, identifier):
     except Exception as e:
         print(e)
         return 1
+    return 0
 
 
 def _clear_legacy_cmd(cmd_args, select, opts, identifier):
@@ -3576,6 +3579,7 @@ def _clear_legacy_cmd(cmd_args, select, opts, identifier):
     except BoomLegacyFormatError as e:
         print(e)
         return 1
+    return 0
 
 
 def _show_legacy_cmd(cmd_args, select, opts, identifier):

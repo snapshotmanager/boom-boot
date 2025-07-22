@@ -251,6 +251,7 @@ def _match_root_lv(root_device, rd_lvm_lv):
             if name[i] == "-":
                 if name[i - 1] != "-" and name[i + 1] != "-":
                     return (name[0:i], name[i + 1 :])
+        return name
 
     # root_device=/dev/vg/lv
     if rd_lvm_lv == root_device[5:]:
@@ -1277,7 +1278,7 @@ class BootEntry:
         :rtype: str
         """
         if "OsIdentifier:" not in comment:
-            return
+            return comment
 
         outlines = ""
         for line in comment.splitlines():
