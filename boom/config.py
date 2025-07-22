@@ -85,7 +85,7 @@ def _read_boom_config(path=None):
     trues = ["True", "true", "Yes", "yes"]
 
     if not cfg.has_section(_CFG_SECT_GLOBAL):
-        raise ValueError("Missing 'global' section in %s" % path)
+        raise ValueError(f"Missing 'global' section in {path}")
 
     if cfg.has_section(_CFG_SECT_GLOBAL):
         if cfg.has_option(_CFG_SECT_GLOBAL, _CFG_BOOT_ROOT):
