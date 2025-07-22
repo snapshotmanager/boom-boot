@@ -156,7 +156,7 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
             # fdatasync once at the end of writing rather than on each
             # loop iteration.
             tmp_fd = dup(tmp_fd)
-            with open(path, "r") as cfg_f:
+            with open(path, "r", encoding="utf8") as cfg_f:
                 for line in cfg_f:
                     tmp_f.write(line)
             tmp_f.write(begin_tag + "\n")
@@ -272,7 +272,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
             # fdatasync once at the end of writing rather than on each
             # loop iteration.
             tmp_fd = dup(tmp_fd)
-            with open(path, "r") as cfg_f:
+            with open(path, "r", encoding="utf8") as cfg_f:
                 for line in cfg_f:
                     if begin_tag in line:
                         if in_boom_cfg or found_boom:

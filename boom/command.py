@@ -695,7 +695,7 @@ def _get_machine_id():
     else:
         return None
 
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf8") as f:
         try:
             machine_id = f.read().strip()
         except Exception as e:
@@ -2502,7 +2502,7 @@ def os_options_from_cmdline():
     options = ""
     vg_lv_name = None
     have_root = False
-    with open("/proc/cmdline") as proc_cmdline:
+    with open("/proc/cmdline", "r", encoding="utf8") as proc_cmdline:
         cmdline = proc_cmdline.read().strip()
     for word in cmdline.split():
         if word.startswith("root="):

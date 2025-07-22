@@ -208,7 +208,7 @@ def load_cache():
 
     cachedata = {}
     try:
-        with open(index_path, "r") as index_file:
+        with open(index_path, "r", encoding="utf8") as index_file:
             cachedata = json_load(index_file)
     except IOError as e:
         if e.errno != ENOENT:
@@ -257,7 +257,7 @@ def write_cache():
 
     cachedata = {"index": _index, "paths": _paths, "images": _images}
 
-    with open(index_path, "w") as index_file:
+    with open(index_path, "w", encoding="utf8") as index_file:
         json_dump(cachedata, index_file)
         fdatasync(index_file.fileno())
 
@@ -633,7 +633,7 @@ class CacheEntry:
             raise e
 
         try:
-            dot_file = open(path_join(boot_dir, dot_path), "w")
+            dot_file = open(path_join(boot_dir, dot_path), "w", encoding="utf8")
             dot_file.close()
         except OSError as e:
             try:

@@ -1464,7 +1464,7 @@ class BootEntry:
         _log_debug("Loading BootEntry from '%s'", entry_basename)
         self._last_path = entry_file
 
-        with open(entry_file, "r") as ef:
+        with open(entry_file, "r", encoding="utf8") as ef:
             for line in ef:
                 if blank_or_comment(line):
                     comment += line if line else ""

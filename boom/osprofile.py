@@ -668,7 +668,7 @@ class BoomProfile:
         ptype = self.__class__.__name__
 
         _log_debug("Loading %s from '%s'", ptype, basename(profile_file))
-        with open(profile_file, "r") as pf:
+        with open(profile_file, "r", encoding="utf8") as pf:
             for line in pf:
                 if blank_or_comment(line):
                     comment += line if line else ""
@@ -1157,7 +1157,7 @@ class BoomProfile:
         profile_keys = self._profile_keys
 
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=profile_dir)
-        with fdopen(tmp_fd, "w") as f:
+        with fdopen(tmp_fd, "w", encoding="utf8") as f:
             for key in [k for k in profile_keys if k in self._profile_data]:
                 if self._comments and key in self._comments:
                     f.write(self._comments[key].rstrip() + "\n")
@@ -1414,7 +1414,7 @@ class OsProfile(BoomProfile):
         ptype = self.__class__.__name__
 
         _log_debug("Loading %s from '%s'", ptype, basename(profile_file))
-        with open(profile_file, "r") as pf:
+        with open(profile_file, "r", encoding="utf8") as pf:
             for line in pf:
                 if blank_or_comment(line):
                     comment += line if line else ""
@@ -1642,7 +1642,7 @@ class OsProfile(BoomProfile):
         :returns: A new OsProfile for the specified os-release file
         :rtype: OsProfile
         """
-        with open(path, "r") as f:
+        with open(path, "r", encoding="utf8") as f:
             return cls.from_os_release(f, profile_data=profile_data)
 
     @classmethod
