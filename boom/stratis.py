@@ -74,7 +74,7 @@ def pool_name_to_pool_uuid(pool_name):
             if _POOL_IFACE in obj_data and obj_data[_POOL_IFACE]["Name"] == pool_name
         )
     except StopIteration as e:
-        raise IndexError("Stratis pool '%s' not found" % pool_name)
+        raise IndexError(f"Stratis pool '{pool_name}' not found")
     pool_uuid = str(props["Uuid"])
     _log_debug(
         "Looked up pool_uuid=%s for Stratis pool %s",
@@ -98,7 +98,7 @@ def symlink_to_pool_uuid(link_path):
     # Separate the "pool" and "fs" components from a Stratis file system
     # link path formatted as "/dev/stratis/pool/ps".
     (pool, fs) = normpath(link_path).split(path_sep)[-2:]
-    _log_debug_stratis("Looking up pool UUID for Stratis symlink '%s'" % link_path)
+    _log_debug_stratis(f"Looking up pool UUID for Stratis symlink '{link_path}'")
     return pool_name_to_pool_uuid(pool)
 
 
