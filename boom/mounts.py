@@ -47,7 +47,7 @@ def _detect_fstype(dev):
             if tag.startswith("TYPE="):
                 (_tag, fstype) = tag.split("=")
                 return fstype.lstrip('"').rstrip('"')
-    raise BoomMountError("Could not determine fstype for %s" % dev)
+    raise BoomMountError(f"Could not determine fstype for {dev}")
 
 
 def _parse_mount_unit(mount):
@@ -60,7 +60,7 @@ def _parse_mount_unit(mount):
     _log_info("parsing mount unit: %s", mount)
     parts = mount.split(":")
     if len(parts) < 2:
-        raise BoomMountError("Invalid mount specification: '%s'" % mount)
+        raise BoomMountError(f"Invalid mount specification: '{mount}'")
     what = parts[0]
     where = parts[1]
     if len(parts) > 2:
@@ -69,7 +69,7 @@ def _parse_mount_unit(mount):
         try:
             fstype = _detect_fstype(what)
         except CalledProcessError:
-            raise BoomMountError("Could not determine fstype for %s" % what)
+            raise BoomMountError(f"Could not determine fstype for {what}")
     if len(parts) > 3:
         options = parts[3]
     else:
