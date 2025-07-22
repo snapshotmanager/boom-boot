@@ -11,6 +11,7 @@ from os.path import exists as path_exists, isabs, isdir, join as path_join
 from os import listdir
 import logging
 import string
+import errno
 
 #: The location of the system ``/boot`` directory.
 DEFAULT_BOOT_PATH = "/boot"
@@ -477,7 +478,7 @@ def set_boom_config_path(path):
     if isdir(path):
         path = path_join(path, BOOM_CONFIG_FILE)
     if not path_exists(path):
-        raise IOError(ENOENT, f"File not found: '{path}'")
+        raise IOError(errno.ENOENT, f"File not found: '{path}'")
     __boom_config_path = path
     _log_debug("set boom_config_path to '%s'", path)
 
