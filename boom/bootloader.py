@@ -1723,7 +1723,7 @@ class BootEntry:
                 return True
             predicates = key_spec[PRED_FN]
             # Ignore invalid predicates
-            return all([fn() for fn in predicates if fn])
+            return all(fn() for fn in predicates if fn)
 
         def mkpred(obj, fn):
             """Return a callable predicate function for method ``fn`` of

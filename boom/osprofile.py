@@ -1514,14 +1514,14 @@ class OsProfile(BoomProfile):
             self.optional_keys = optional_keys
 
         required_args = [name, short_name, version, version_id]
-        if all([not val for val in required_args]):
+        if all(not val for val in required_args):
             # NULL profile
             for key in OS_PROFILE_KEYS:
                 # Allow optional_keys for the NULL profile
                 if key == BOOM_OS_OPTIONAL_KEYS:
                     continue
                 self._profile_data[key] = ""
-        elif any([not val for val in required_args]):
+        elif any(not val for val in required_args):
             raise ValueError(
                 "Invalid profile arguments: name, "
                 "short_name, version, and version_id are"

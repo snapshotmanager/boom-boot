@@ -103,7 +103,7 @@ def _read_boom_config(path=None):
         if cfg.has_option(_CFG_SECT_LEGACY, _CFG_LEGACY_ENABLE):
             _log_debug("Found legacy.enable")
             enable = cfg.get(_CFG_SECT_LEGACY, _CFG_LEGACY_ENABLE)
-            bc.legacy_enable = any([t for t in trues if t in enable])
+            bc.legacy_enable = any(t for t in trues if t in enable)
 
         if cfg.has_option(_CFG_SECT_LEGACY, _CFG_LEGACY_FMT):
             bc.legacy_format = cfg.get(_CFG_SECT_LEGACY, _CFG_LEGACY_FMT)
@@ -111,13 +111,13 @@ def _read_boom_config(path=None):
         if cfg.has_option(_CFG_SECT_LEGACY, _CFG_LEGACY_SYNC):
             _log_debug("Found legacy.sync")
             sync = cfg.get(_CFG_SECT_LEGACY, _CFG_LEGACY_SYNC)
-            bc.legacy_sync = any([t for t in trues if t in sync])
+            bc.legacy_sync = any(t for t in trues if t in sync)
 
     if cfg.has_section(_CFG_SECT_CACHE):
         if cfg.has_option(_CFG_SECT_CACHE, _CFG_CACHE_ENABLE):
             _log_debug("Found cache.enable")
             enable = cfg.get(_CFG_SECT_CACHE, _CFG_CACHE_ENABLE)
-            bc.cache_enable = any([t for t in trues if t in enable])
+            bc.cache_enable = any(t for t in trues if t in enable)
 
         if cfg.has_option(_CFG_SECT_CACHE, _CFG_CACHE_PATH):
             _log_debug("Found cache.cache_path")

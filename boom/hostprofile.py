@@ -659,7 +659,7 @@ class HostProfile(BoomProfile):
         self._dirty()
 
         required_args = [machine_id, host_name, os_id]
-        if any([not val for val in required_args]):
+        if any(not val for val in required_args):
             raise ValueError(
                 "Invalid host profile arguments: machine_id, "
                 "host_name, and os_id are mandatory."
