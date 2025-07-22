@@ -412,7 +412,7 @@ def set_boom_path(boom_path):
     err_str = f"Boom path {boom_path} does not exist"
     if isabs(boom_path) and not path_exists(boom_path):
         raise ValueError(err_str)
-    elif not path_exists(path_join(__config.boot_path, boom_path)):
+    if not path_exists(path_join(__config.boot_path, boom_path)):
         raise ValueError(err_str)
 
     if not isabs(boom_path):
@@ -450,7 +450,7 @@ def set_cache_path(cache_path):
     err_str = f"Cache path {cache_path} does not exist"
     if isabs(cache_path) and not path_exists(cache_path):
         raise ValueError(err_str)
-    elif not path_exists(path_join(__config.cache_path, cache_path)):
+    if not path_exists(path_join(__config.cache_path, cache_path)):
         raise ValueError(err_str)
 
     if not isabs(cache_path):
