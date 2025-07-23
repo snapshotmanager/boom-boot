@@ -12,6 +12,8 @@ from os import listdir
 import logging
 import string
 import errno
+from argparse import Namespace
+from typing import List, Optional, Set, Tuple, Type, Union, Any
 
 #: The location of the system ``/boot`` directory.
 DEFAULT_BOOT_PATH = "/boot"
@@ -159,7 +161,7 @@ class BoomLogger(logging.Logger):
 
     mask_bits = 0
 
-    def set_debug_mask(self, mask_bits):
+    def set_debug_mask(self, mask_bits: int):
         """Set the debug mask for this ``BoomLogger``.
 
         This should normally be set to the ``BOOM_DEBUG_*`` value
@@ -176,7 +178,7 @@ class BoomLogger(logging.Logger):
 
         self.mask_bits = mask_bits
 
-    def debug_masked(self, msg, *args, **kwargs):
+    def debug_masked(self, msg: str, *args, **kwargs):
         """Log a debug message if it passes the current debug mask.
 
         Log the specified message if it passes the current logger
@@ -192,7 +194,7 @@ class BoomLogger(logging.Logger):
 logging.setLoggerClass(BoomLogger)
 
 
-def get_debug_mask():
+def get_debug_mask() -> int:
     """Return the current debug mask for the ``boom`` package.
 
     :returns: The current debug mask value
@@ -230,7 +232,7 @@ class BoomConfig:
     cache_auto_clean = True
     cache_path = DEFAULT_CACHE_PATH
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of this ``BoomConfig`` in
         boom.conf (INI) notation.
         """
@@ -251,7 +253,7 @@ class BoomConfig:
 
         return cstr
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of this ``BoomConfig`` in
         BoomConfig initialiser notation.
         """
@@ -268,14 +270,14 @@ class BoomConfig:
 
     def __init__(
         self,
-        boot_path=None,
-        boom_path=None,
-        legacy_enable=None,
-        legacy_format=None,
-        legacy_sync=None,
-        cache_enable=None,
-        cache_auto_clean=None,
-        cache_path=None,
+        boot_path: Optional[str] = None,
+        boom_path: Optional[str] = None,
+        legacy_enable: Optional[bool] = None,
+        legacy_format: Optional[str] = None,
+        legacy_sync: Optional[bool] = None,
+        cache_enable: Optional[bool] = None,
+        cache_auto_clean: Optional[bool] = None,
+        cache_path: Optional[str] = None,
     ):
         """Initialise a new ``BoomConfig`` object with the supplied
         configuration values, or defaults for any unset arguments.
@@ -303,7 +305,7 @@ class BoomConfig:
 __config = BoomConfig()
 
 
-def set_boom_config(config):
+def set_boom_config(config: BoomConfig):
     """Set the active configuration to the object ``config`` (which may
     be any class that includes the ``BoomConfig`` attributes).
 
@@ -332,7 +334,7 @@ def get_boom_config():
     return __config
 
 
-def get_boot_path():
+def get_boot_path() -> str:
     """Return the currently configured boot file system path.
 
     :returns: the path to the /boot file system.
@@ -341,7 +343,7 @@ def get_boot_path():
     return __config.boot_path
 
 
-def get_boom_path():
+def get_boom_path() -> str:
     """Return the currently configured boom configuration path.
 
     :returns: the path to the BOOT/boom directory.
@@ -350,7 +352,7 @@ def get_boom_path():
     return __config.boom_path
 
 
-def get_cache_path():
+def get_cache_path() -> str:
     """Return the currently configured boot file system path.
 
     :returns: the path to the /boot file system.
@@ -460,7 +462,7 @@ def set_cache_path(cache_path):
     _log_debug("Set cache path to: %s", cache_path)
 
 
-def get_boom_config_path():
+def get_boom_config_path() -> str:
     """Return the currently configured boom configuration file path.
 
     :rtype: str
@@ -483,7 +485,7 @@ def set_boom_config_path(path):
     _log_debug("set boom_config_path to '%s'", path)
 
 
-def parse_btrfs_subvol(subvol):
+def parse_btrfs_subvol(subvol: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
     """Parse a BTRFS subvolume string.
 
     Parse a BTRFS subvolume specification into either a subvolume
@@ -500,8 +502,7 @@ def parse_btrfs_subvol(subvol):
     subvol_path = None
     subvol_id = None
     if subvol.isnumeric():
-        subvol_id = int(subvol)
-        subvol_id = str(subvol_id)
+        subvol_id = str(int(subvol))
     else:
         subvol_path = subvol
 
@@ -629,7 +630,7 @@ class Selection:
 
     all_attrs = entry_attrs + params_attrs + profile_attrs + host_attrs + cache_attrs
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Format this ``Selection`` object as a human readable string.
 
         :returns: A human readable string representation of this
@@ -644,7 +645,7 @@ class Selection:
             strval += f"{attr}='{getattr(self, attr)}'{tail}"
         return strval.rstrip(tail)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Format this ``Selection`` object as a machine readable string.
 
         The returned string may be passed to the Selection
@@ -658,37 +659,37 @@ class Selection:
 
     def __init__(
         self,
-        boot_id=None,
-        title=title,
-        version=version,
-        machine_id=None,
-        linux=None,
-        initrd=None,
-        efi=None,
-        root_device=None,
-        lvm_root_lv=None,
-        btrfs_subvol_path=None,
-        btrfs_subvol_id=None,
-        os_id=None,
-        os_name=None,
-        os_short_name=None,
-        os_version=None,
-        os_version_id=None,
-        os_options=None,
-        os_uname_pattern=None,
-        os_kernel_pattern=None,
-        os_initramfs_pattern=None,
-        allow_null=False,
-        host_id=None,
-        host_name=None,
-        host_label=None,
-        host_short_name=None,
-        host_add_opts=None,
-        host_del_opts=None,
-        path=None,
-        orig_path=None,
-        timestamp=None,
-        img_id=None,
+        boot_id: Optional[str] = None,
+        title: Optional[str] = None,
+        version: Optional[str] = None,
+        machine_id: Optional[str] = None,
+        linux: Optional[str] = None,
+        initrd: Optional[str] = None,
+        efi: Optional[str] = None,
+        root_device: Optional[str] = None,
+        lvm_root_lv: Optional[str] = None,
+        btrfs_subvol_path: Optional[str] = None,
+        btrfs_subvol_id: Optional[str] = None,
+        os_id: Optional[str] = None,
+        os_name: Optional[str] = None,
+        os_short_name: Optional[str] = None,
+        os_version: Optional[str] = None,
+        os_version_id: Optional[str] = None,
+        os_options: Optional[str] = None,
+        os_uname_pattern: Optional[str] = None,
+        os_kernel_pattern: Optional[str] = None,
+        os_initramfs_pattern: Optional[str] = None,
+        allow_null: bool = False,
+        host_id: Optional[str] = None,
+        host_name: Optional[str] = None,
+        host_label: Optional[str] = None,
+        host_short_name: Optional[str] = None,
+        host_add_opts: Optional[str] = None,
+        host_del_opts: Optional[str] = None,
+        path: Optional[str] = None,
+        orig_path: Optional[str] = None,
+        timestamp: None = None,
+        img_id: Optional[str] = None,
     ):
         """Initialise a new Selection object.
 
@@ -762,7 +763,7 @@ class Selection:
         self.img_id = img_id
 
     @classmethod
-    def from_cmd_args(cls, args):
+    def from_cmd_args(cls, args: Namespace) -> "Selection":
         """Initialise Selection from command line arguments.
 
         Construct a new ``Selection`` object from the command line
@@ -818,7 +819,12 @@ class Selection:
         return hasattr(self, attr) and getattr(self, attr) is not None
 
     def check_valid_selection(
-        self, entry=False, params=False, profile=False, host=False, cache=False
+        self,
+        entry: bool = False,
+        params: bool = False,
+        profile: bool = False,
+        host: bool = False,
+        cache: bool = False,
     ):
         """Check a Selection for valid criteria.
 
@@ -878,7 +884,7 @@ class Selection:
 #
 
 
-def blank_or_comment(line):
+def blank_or_comment(line: str) -> bool:
     """Test whether line is empty of contains a comment.
 
     Test whether the ``line`` argument is either blank, or a
@@ -892,7 +898,9 @@ def blank_or_comment(line):
     return not line.strip() or line.lstrip().startswith("#")
 
 
-def parse_name_value(nvp, separator="=", allow_empty=False):
+def parse_name_value(
+    nvp: str, separator: Optional[str] = "=", allow_empty: bool = False
+) -> Tuple[str, Optional[str]]:
     """Parse a name value pair string.
 
     Parse a ``name='value'`` style string into its component parts,
@@ -942,7 +950,7 @@ def parse_name_value(nvp, separator="=", allow_empty=False):
     return (name, value)
 
 
-def find_minimum_sha_prefix(shas, min_prefix):
+def find_minimum_sha_prefix(shas: Set[str], min_prefix: int) -> int:
     """Find the minimum SHA prefix length guaranteeing uniqueness.
 
     Find the minimum unique prefix for the set of SHA IDs in the set
@@ -953,21 +961,22 @@ def find_minimum_sha_prefix(shas, min_prefix):
     :returns: The minimum unique prefix length for the set
     :rtype: int
     """
-    shas = list(shas)
-    shas.sort()
-    for sha in shas:
-        if shas.index(sha) == len(shas) - 1:
+    sha_list = list(shas)
+    sha_list.sort()
+    for sha in sha_list:
+        if sha_list.index(sha) == len(sha_list) - 1:
             continue
 
-        def _next_sha(shas, sha):
-            return shas[shas.index(sha) + 1]
+        def _next_sha(sha_list, sha):
+            return sha_list[sha_list.index(sha) + 1]
 
-        while sha[:min_prefix] == _next_sha(shas, sha)[:min_prefix]:
+        while sha[:min_prefix] == _next_sha(sha_list, sha)[:min_prefix]:
             min_prefix += 1
+
     return min_prefix
 
 
-def min_id_width(min_prefix, objs, attr):
+def min_id_width(min_prefix: int, objs: List[Any], attr: str) -> int:
     """Calculate the minimum unique width for id values.
 
     Calculate the minimum width to ensure uniqueness when displaying
@@ -989,7 +998,9 @@ def min_id_width(min_prefix, objs, attr):
     return find_minimum_sha_prefix(ids, min_prefix)
 
 
-def load_profiles_for_class(profile_class, profile_type, profiles_path, profile_ext):
+def load_profiles_for_class(
+    profile_class: Type, profile_type: str, profiles_path: str, profile_ext: str
+):
     """Load profiles from disk.
 
     Load the set of profiles found at the path ``profiles_path``
