@@ -17,7 +17,7 @@ that is read by the Stratis early userspace systemd generator.
 """
 import logging
 from os import sep as path_sep
-from os.path import normpath
+from os.path import exists, normpath
 from uuid import UUID
 import dbus
 
@@ -114,6 +114,8 @@ def format_pool_uuid(pool_uuid):
 
 def is_stratis_device_path(dev_path):
     prefix = "/dev/stratis/"
+    if not dev_path or not exists(dev_path):
+        return False
     if not normpath(dev_path).startswith(prefix):
         return False
     try:

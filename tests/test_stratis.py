@@ -30,8 +30,7 @@ boom.set_boot_path(BOOT_ROOT_TEST)
 
 
 class StratisTests(unittest.TestCase):
-    """Tests for the BootEntry class that do not depend on external
-        test data.
+    """Tests for the stratis module.
     """
     def setUp(self):
         log.info("Preparing %s", self._testMethodName)
