@@ -490,6 +490,8 @@ class BootParams:
 
         if stratis_pool_uuid:
             self._stratis_pool_uuid = stratis_pool_uuid
+        elif is_stratis_device_path(self.root_device):
+            self._stratis_pool_uuid = symlink_to_pool_uuid(self.root_device)
 
         self.add_opts = add_opts or []
         self.del_opts = del_opts or []
@@ -521,6 +523,8 @@ class BootParams:
         """Set this ``BootParams`` object's root_device."""
         self.generation += 1
         self._root_device = value
+        if is_stratis_device_path(self._root_device):
+            self._stratis_pool_uuid = symlink_to_pool_uuid(self._root_device)
 
     @property
     def lvm_root_lv(self):
@@ -558,11 +562,7 @@ class BootParams:
     @property
     def stratis_pool_uuid(self):
         """Return this ``BootParams`` object's stratis_pool_uuid."""
-        if self._stratis_pool_uuid:
-            return self._stratis_pool_uuid
-        if self.has_stratis():
-            return format_pool_uuid(symlink_to_pool_uuid(self.root_device))
-        return ""
+        return self._stratis_pool_uuid
 
     @stratis_pool_uuid.setter
     def stratis_pool_uuid(self, value):
