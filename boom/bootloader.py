@@ -38,12 +38,13 @@ from os import listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
 from stat import S_ISBLK
 from hashlib import sha1
 import logging
+import re
 
 from boom import *
 from boom.osprofile import *
 from boom.hostprofile import find_host_profiles
-from boom.stratis import *
-import re
+from boom.stratis import is_stratis_device_path, symlink_to_pool_uuid
+from boom.lvm2 import is_lvm_device_path, vg_lv_from_device_path
 
 #: The path to the BLS boot entries directory relative to /boot
 ENTRIES_PATH = "loader/entries"
@@ -476,7 +477,9 @@ class BootParams:
         if lvm_root_lv:
             if not root_device:
                 self.root_device = DEV_PATTERN % lvm_root_lv
-            self.lvm_root_lv = lvm_root_lv
+            self._lvm_root_lv = lvm_root_lv
+        elif is_lvm_device_path(self.root_device):
+            self._lvm_root_lv = vg_lv_from_device_path(self.root_device)
 
         if btrfs_subvol_path and btrfs_subvol_id:
             raise ValueError(
@@ -523,6 +526,8 @@ class BootParams:
         """Set this ``BootParams`` object's root_device."""
         self.generation += 1
         self._root_device = value
+        if is_lvm_device_path(self._root_device):
+            self._lvm_root_lv = vg_lv_from_device_path(self._root_device)
         if is_stratis_device_path(self._root_device):
             self._stratis_pool_uuid = symlink_to_pool_uuid(self._root_device)
 
