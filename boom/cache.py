@@ -24,8 +24,14 @@ from errno import ENOENT
 import shutil
 import logging
 
-from boom import *
-from boom.bootloader import *
+from boom import (
+    BOOM_DEBUG_CACHE,
+    Selection,
+    find_minimum_sha_prefix,
+    get_boot_path,
+    get_cache_path,
+)
+from boom.bootloader import find_entries
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
