@@ -105,6 +105,9 @@ ROOT_OPTS_BTRFS_PATH = "subvol=%{btrfs_subvol_path}"
 #: Volume specified by subvol ID
 ROOT_OPTS_BTRFS_ID = "subvolid=%{btrfs_subvol_id}"
 
+#: Minimum width of SHA1-based identifiers
+MIN_ID_WIDTH = 7
+
 #
 # Logging
 #
@@ -1107,6 +1110,7 @@ __all__ = [
     "find_minimum_sha_prefix",
     "min_id_width",
     "load_profiles_for_class",
+    "MIN_ID_WIDTH",
 ]
 
 # vim: set et ts=4 sw=4
