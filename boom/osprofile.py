@@ -30,6 +30,7 @@ from hashlib import sha1
 from tempfile import mkstemp
 from os.path import basename, join as path_join, exists as path_exists
 from os import fdopen, rename, chmod, unlink, fdatasync
+from typing import Callable, Dict, List, Optional, Tuple
 import logging
 import re
 
@@ -169,14 +170,14 @@ _log_warn = _log.warning
 _log_error = _log.error
 
 #: Global profile list
-_profiles = []
-_profiles_by_id = {}
+_profiles: List["OsProfile"] = []
+_profiles_by_id: Dict[str, "OsProfile"] = {}
 
 #: Whether profiles have been read from disk
 _profiles_loaded = False
 
 
-def _profile_exists(os_id):
+def _profile_exists(os_id: str):
     """Test whether the specified ``os_id`` already exists.
 
     Used during ``OsProfile`` initialisation to test if the new
@@ -196,7 +197,7 @@ def _profile_exists(os_id):
     return False
 
 
-def boom_profiles_path():
+def boom_profiles_path() -> str:
     """Return the path to the boom profiles directory.
 
     :returns: The boom profiles path.
@@ -205,7 +206,7 @@ def boom_profiles_path():
     return path_join(get_boom_path(), BOOM_PROFILES)
 
 
-def _is_null_profile(osp):
+def _is_null_profile(osp: "OsProfile"):
     """Test for the Null Profile.
 
     Test ``osp`` and return ``True`` if it is the Null Profile.
@@ -225,7 +226,7 @@ def _is_null_profile(osp):
     return False
 
 
-def profiles_loaded():
+def profiles_loaded() -> bool:
     """Test whether profiles have been loaded from disk.
 
     :rtype: bool
@@ -298,7 +299,7 @@ def write_profiles(force=False):
             _log_warn("Failed to write OsProfile(os_id='%s'): %s", osp.disp_os_id, e)
 
 
-def min_os_id_width():
+def min_os_id_width() -> int:
     """Calculate the minimum unique width for os_id values.
 
     Calculate the minimum width to ensure uniqueness when displaying
@@ -310,7 +311,7 @@ def min_os_id_width():
     return min_id_width(MIN_ID_WIDTH, _profiles, "os_id")
 
 
-def select_profile(s, osp):
+def select_profile(s: Selection, osp: "OsProfile"):
     """Test the supplied profile against selection criteria.
 
     Test the supplied ``OsProfile`` against the selection criteria
@@ -346,7 +347,9 @@ def select_profile(s, osp):
     return True
 
 
-def find_profiles(selection=None, match_fn=select_profile):
+def find_profiles(
+    selection: Optional[Selection] = None, match_fn: Callable = select_profile
+) -> List["OsProfile"]:
     """Find profiles matching selection criteria.
 
     Return a list of ``OsProfile`` objects matching the specified
@@ -390,7 +393,7 @@ def find_profiles(selection=None, match_fn=select_profile):
     return matches
 
 
-def get_os_profile_by_id(os_id):
+def get_os_profile_by_id(os_id: str) -> Optional["OsProfile"]:
     """Find an OsProfile by its os_id.
 
     Return the OsProfile object corresponding to ``os_id``, or
@@ -407,7 +410,7 @@ def get_os_profile_by_id(os_id):
     return None
 
 
-def match_os_profile(entry):
+def match_os_profile(entry) -> "OsProfile":
     """Attempt to match a BootEntry to a corresponding OsProfile.
 
     Probe all loaded ``OsProfile`` objects with the supplied
@@ -471,7 +474,7 @@ def match_os_profile(entry):
     return _profiles[0]
 
 
-def match_os_profile_by_version(version):
+def match_os_profile_by_version(version: str) -> Optional["OsProfile"]:
     """Attempt to match a version string to an OsProfile.
 
     Attempt to find a profile with a uname pattern that matches
@@ -545,13 +548,13 @@ class BoomProfile:
         """
         raise NotImplementedError
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the length (key count) of this profile.
 
         :returns: the profile length as an integer.
         :rtype: ``int``
         """
-        return len(self._profile_data)
+        return len(self._profile_data) if self._profile_data else 0
 
     def __getitem__(self, key):
         """Return an item from this profile.
@@ -713,7 +716,9 @@ class BoomProfile:
         except ValueError as e:
             raise ValueError(str(e) + f"in {profile_file}")
 
-    def __init__(self, profile_keys, required_keys, identity_key):
+    def __init__(
+        self, profile_keys: List[str], required_keys: List[str], identity_key: str
+    ):
         """Initialise a new ``BoomProfile`` object.
 
         This method should be called by all subclasses of
@@ -734,7 +739,7 @@ class BoomProfile:
         self._required_keys = required_keys
         self._identity_key = identity_key
 
-    def match_uname_version(self, version):
+    def match_uname_version(self, version: str):
         """Test ``BoomProfile`` for version string match.
 
         Test the supplied version string to determine whether it
@@ -753,7 +758,7 @@ class BoomProfile:
                 return True
         return False
 
-    def match_options(self, entry):
+    def match_options(self, entry) -> bool:
         """Test ``BoomProfile`` for options template match.
 
         Test the supplied ``BootEntry`` to determine whether it
@@ -769,7 +774,8 @@ class BoomProfile:
         :rtype: bool
         """
         # Attempt to match a distribution-formatted options line
-
+        if not hasattr(entry, "options"):
+            return False
         if not self.options or not entry.options:
             return False
 
@@ -801,7 +807,7 @@ class BoomProfile:
 
         return all(have_fixed) and any(have_form)
 
-    def make_format_regexes(self, fmt):
+    def make_format_regexes(self, fmt: str) -> List[Tuple[str, str]]:
         """Generate regexes matching format string
 
         Generate a list of ``(key, expr)`` tuples containing key and
@@ -821,7 +827,7 @@ class BoomProfile:
         key_format = "%%{%s}"
         regex_all = r"\S+"
         regex_num = r"\d+"
-        regex_words = []
+        regex_words: List[Tuple[str, str]] = []
 
         if not fmt:
             return regex_words
@@ -914,40 +920,40 @@ class BoomProfile:
     # class is the set of keys exposed by every profile type.
 
     @property
-    def os_name(self):
+    def os_name(self) -> str:
         """The ``os_name`` of this profile.
 
         :getter: returns the ``os_name`` as a string.
         :type: string
         """
-        return self._profile_data[BOOM_OS_NAME]
+        return self._profile_data[BOOM_OS_NAME] if self._profile_data else ""
 
     @property
-    def os_short_name(self):
+    def os_short_name(self) -> str:
         """The ``os_short_name`` of this profile.
 
         :getter: returns the ``os_short_name`` as a string.
         :type: string
         """
-        return self._profile_data[BOOM_OS_SHORT_NAME]
+        return self._profile_data[BOOM_OS_SHORT_NAME] if self._profile_data else ""
 
     @property
-    def os_version(self):
+    def os_version(self) -> str:
         """The ``os_version`` of this profile.
 
         :getter: returns the ``os_version`` as a string.
         :type: string
         """
-        return self._profile_data[BOOM_OS_VERSION]
+        return self._profile_data[BOOM_OS_VERSION] if self._profile_data else ""
 
     @property
-    def os_version_id(self):
+    def os_version_id(self) -> str:
         """The ``version_id`` of this profile.
 
         :getter: returns the ``os_version_id`` as a string.
         :type: string
         """
-        return self._profile_data[BOOM_OS_VERSION_ID]
+        return self._profile_data[BOOM_OS_VERSION_ID] if self._profile_data else ""
 
     # Configuration keys specify values that may be modified and
     # have a corresponding <key>.setter.
@@ -1086,7 +1092,7 @@ class BoomProfile:
         self._profile_data[BOOM_OS_TITLE] = value
         self._dirty()
 
-    def _check_optional_key(self, optional_key):
+    def _check_optional_key(self, optional_key: str):
         """Check that they optional key ``key`` is a valid, known BLS
         optional key and raise ``ValueError`` if it is not.
         """
@@ -1363,7 +1369,7 @@ class OsProfile(BoomProfile):
         _profiles.append(self)
         _profiles_by_id[self.os_id] = self
 
-    def _from_data(self, profile_data, dirty=True):
+    def _from_data(self, profile_data: Dict[str, str], dirty: bool = True):
         """Initialise an OsProfile from in-memory data.
 
         Initialise a new OsProfile object using the profile data
@@ -1418,7 +1424,7 @@ class OsProfile(BoomProfile):
 
         self._append_profile()
 
-    def _from_file(self, profile_file):
+    def _from_file(self, profile_file: str):
         """Initialise a new profile from data stored in a file.
 
         Initialise a new profil object using the profile data
@@ -1430,7 +1436,7 @@ class OsProfile(BoomProfile):
 
         :returns: None
         """
-        profile_data = {}
+        profile_data: Dict[str, str] = {}
         comments = {}
         comment = ""
         ptype = self.__class__.__name__
@@ -1442,7 +1448,7 @@ class OsProfile(BoomProfile):
                     comment += line if line else ""
                 else:
                     name, value = parse_name_value(line)
-                    profile_data[name] = value
+                    profile_data[name] = value or ""
                     if comment:
                         comments[name] = comment
                         comment = ""
@@ -1452,19 +1458,19 @@ class OsProfile(BoomProfile):
 
     def __init__(
         self,
-        name=None,
-        short_name=None,
-        version=None,
-        version_id=None,
-        profile_file=None,
-        profile_data=None,
-        uname_pattern=None,
-        kernel_pattern=None,
-        initramfs_pattern=None,
-        root_opts_lvm2=None,
-        root_opts_btrfs=None,
-        options=None,
-        optional_keys=None,
+        name: Optional[str] = None,
+        short_name: Optional[str] = None,
+        version: Optional[str] = None,
+        version_id: Optional[str] = None,
+        profile_file: Optional[str] = None,
+        profile_data: Optional[Dict[str, str]] = None,
+        uname_pattern: Optional[str] = None,
+        kernel_pattern: Optional[str] = None,
+        initramfs_pattern: Optional[str] = None,
+        root_opts_lvm2: Optional[str] = None,
+        root_opts_btrfs: Optional[str] = None,
+        options: Optional[str] = None,
+        optional_keys: Optional[str] = None,
     ):
         """Initialise a new ``OsProfile`` object.
 
@@ -1516,6 +1522,15 @@ class OsProfile(BoomProfile):
             self._from_file(profile_file)
             return
 
+        if name is None:
+            raise ValueError("Profile name is required")
+        if short_name is None:
+            raise ValueError("Profile short_name is required")
+        if version is None:
+            raise ValueError("Profile version is required")
+        if version_id is None:
+            raise ValueError("Profile version_id is required")
+
         self._dirty()
 
         self._profile_data[BOOM_OS_NAME] = name
@@ -1526,11 +1541,16 @@ class OsProfile(BoomProfile):
         # Optional arguments: unset values will be replaced by defaults.
         if uname_pattern:
             self._profile_data[BOOM_OS_UNAME_PATTERN] = uname_pattern
-        self._profile_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
-        self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
-        self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
-        self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
-        self._profile_data[BOOM_OS_OPTIONS] = options
+        if kernel_pattern:
+            self._profile_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
+        if initramfs_pattern:
+            self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
+        if root_opts_lvm2:
+            self._profile_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
+        if root_opts_btrfs:
+            self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
+        if options:
+            self._profile_data[BOOM_OS_OPTIONS] = options
 
         if optional_keys:
             self.optional_keys = optional_keys
@@ -1590,7 +1610,7 @@ class OsProfile(BoomProfile):
     #   options
 
     @property
-    def disp_os_id(self):
+    def disp_os_id(self) -> str:
         """The display os_id of this profile.
 
         Return the shortest prefix of this OsProfile's os_id that
@@ -1602,15 +1622,17 @@ class OsProfile(BoomProfile):
         return self.os_id[: min_os_id_width()]
 
     @property
-    def os_id(self):
+    def os_id(self) -> str:
         """The ``os_id`` of this profile.
 
         :getter: returns the ``os_id`` as a string.
         :type: string
         """
-        if BOOM_OS_ID not in self._profile_data:
+        if self._profile_data and BOOM_OS_ID not in self._profile_data:
             self._generate_id()
-        return self._profile_data[BOOM_OS_ID]
+        if self._profile_data:
+            return self._profile_data[BOOM_OS_ID]
+        return ""
 
     #
     # Class methods for building OsProfile instances from os-release
