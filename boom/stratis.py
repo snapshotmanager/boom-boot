@@ -22,6 +22,7 @@ from uuid import UUID
 import dbus
 
 from boom import BOOM_DEBUG_STRATIS
+from typing import Optional
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ _STRATISD_TIMEOUT = 120000
 _DBUS_OBJECT_MANAGER_IFACE = "org.freedesktop.DBus.ObjectManager"
 
 
-def pool_name_to_pool_uuid(pool_name):
+def pool_name_to_pool_uuid(pool_name: str) -> str:
     """Return the UUID of the pool named ``pool_name`` as a string.
 
     :param pool_name: The name of the Stratis pool.
@@ -82,7 +83,7 @@ def pool_name_to_pool_uuid(pool_name):
     return pool_uuid
 
 
-def symlink_to_pool_uuid(link_path):
+def symlink_to_pool_uuid(link_path: str) -> str:
     """Return the UUID of the pool corresponding to the stratis file system
     at ``link_path`` as a string.
 
@@ -100,7 +101,7 @@ def symlink_to_pool_uuid(link_path):
     return pool_name_to_pool_uuid(pool)
 
 
-def format_pool_uuid(pool_uuid):
+def format_pool_uuid(pool_uuid: str) -> str:
     """Return the UUID ``pool_uuid`` formatted as a hyphen-separated
     string.
 
@@ -112,7 +113,7 @@ def format_pool_uuid(pool_uuid):
     return str(uuid)
 
 
-def is_stratis_device_path(dev_path):
+def is_stratis_device_path(dev_path: Optional[str]) -> bool:
     prefix = "/dev/stratis/"
     if not dev_path or not exists(dev_path):
         return False
