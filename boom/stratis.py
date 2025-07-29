@@ -21,7 +21,7 @@ from os.path import exists, normpath
 from uuid import UUID
 import dbus
 
-from boom import *
+from boom import BOOM_DEBUG_STRATIS
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
