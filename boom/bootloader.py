@@ -1668,26 +1668,14 @@ class BootEntry:
         if not fmt:
             return ""
 
-        # Table-driven key formatting
-        #
-        # Each entry in the format_key_specs table specifies a list of
-        # possible key substitutions to perform for the named key. Each
-        # entry of the key_spec list contains a dictionary containing
-        # one or more attribute sources or predicates.
-        #
-        # A key substitution is evaluated if at least one of the listed
-        # attribute sources is defined, and if all defined predicates
-        # evaluate to True. A predicate must be a Python callable
-        # accepting no arguments and returning a boolean. A key_spec
-        # may also specify an explicit list of needed objects, "bp",
-        # or "osp", that must exist to evaluate predicates.
-        #
-        # Several helper functions exist to obtain key values from the
-        # appropriate data source (accounting for keys that exist in
-        # multiple objects as well as keys that return None or empty
-        # values), to test key_spec predicates, and to safely obtain
-        # function attributes where the containing object may or may
-        # not exist.
+        # Key spec constants
+        BE_ATTR = "be_attr"
+        BP_ATTR = "bp_attr"
+        OSP_ATTR = "osp_attr"
+        PRED_FN = "pred_fn"
+        VAL_FMT = "val_fmt"
+        NEEDS = "needs"
+
         def get_key_value(key_spec):
             """Return a key's formatted value.
 
@@ -1739,14 +1727,37 @@ class BootEntry:
             """
             return getattr(obj, fn) if obj else None
 
-        # Key spec constants
-        BE_ATTR = "be_attr"
-        BP_ATTR = "bp_attr"
-        OSP_ATTR = "osp_attr"
-        PRED_FN = "pred_fn"
-        VAL_FMT = "val_fmt"
-        NEEDS = "needs"
-
+        # Table-driven key formatting
+        #
+        # Each entry in the format_key_specs table specifies a list of
+        # possible key substitutions to perform for the named key. Each
+        # entry of the key_spec list contains a dictionary containing
+        # one or more attribute sources or predicates.
+        #
+        # A key substitution is evaluated if at least one of the listed
+        # attribute sources is defined, and if all defined predicates
+        # evaluate to True. A predicate must be a Python callable
+        # accepting no arguments and returning a boolean. A key_spec
+        # may also specify an explicit list of needed objects, "bp",
+        # or "osp", that must exist to evaluate predicates.
+        #
+        # Several helper functions exist to obtain key values from the
+        # appropriate data source (accounting for keys that exist in
+        # multiple objects as well as keys that return None or empty
+        # values), to test key_spec predicates, and to safely obtain
+        # function attributes where the containing object may or may
+        # not exist.
+        #
+        # The values of the key_specs keys are as follows:
+        # BE_ATTR: The BootEntry attribute for this format key's value
+        # BP_ATTR: The BootParams attribute for this format key's value
+        # OSP_ATTR: The OsProfile attribute for this format key's value
+        # PRED_FN: A list of predicate functions that must evaluate ``True`` for
+        #          this format key to be substituted.
+        # VAL_FMT: A Python printf-style format string that formats this
+        #          format key's value
+        # NEEDS: A string indicating the object required to obtain this
+        #        format key's value: either "bp" or "osp".
         format_key_specs: Dict[str, List[Dict[str, Union[str, List[Callable]]]]] = {
             FMT_VERSION: [{BE_ATTR: "version", BP_ATTR: "version"}],
             FMT_LVM_ROOT_LV: [{BP_ATTR: "lvm_root_lv"}],
