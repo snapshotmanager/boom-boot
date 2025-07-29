@@ -13,6 +13,7 @@ import logging
 import string
 import errno
 from argparse import Namespace
+from configparser import ConfigParser
 from typing import List, Optional, Set, Tuple, Type, Union, Any
 
 #: The location of the system ``/boot`` directory.
@@ -300,6 +301,7 @@ class BoomConfig:
         self.cache_enable = cache_enable or self.cache_enable
         self.cache_auto_clean = cache_auto_clean or self.cache_auto_clean
         self.cache_path = cache_path or self.cache_path
+        self._cfg: Optional[ConfigParser] = None
 
 
 __config = BoomConfig()
