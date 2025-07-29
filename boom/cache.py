@@ -23,6 +23,8 @@ from json import load as json_load, dump as json_dump
 from errno import ENOENT
 import shutil
 import logging
+from typing import Any, Dict, List, Optional, Tuple
+from io import BufferedReader
 
 from boom import (
     BOOM_DEBUG_CACHE,
@@ -107,7 +109,7 @@ _paths = {}
 _images = {}
 
 
-def _make_relative(img_path):
+def _make_relative(img_path: str) -> str:
     """Convert an image path with a leading path separator into
     a relative path fragment suitable for passing to the
     os.path.join() function.
@@ -120,7 +122,7 @@ def _make_relative(img_path):
     return img_path
 
 
-def _image_path_to_boot(img_path):
+def _image_path_to_boot(img_path: str) -> str:
     """Convert an image path relative to /boot into an absolute
     path to the corresponding boot image.
 
@@ -134,7 +136,7 @@ def _image_path_to_boot(img_path):
     return path_join(get_boot_path(), img_path)
 
 
-def _image_id_to_cache_file(img_id):
+def _image_id_to_cache_file(img_id: str) -> str:
     """Convert an image path relative to /boot into a path
     for the corresponding cache entry.
 
@@ -145,7 +147,7 @@ def _image_id_to_cache_file(img_id):
     return path_join(get_cache_path(), f"{img_id}{_IMAGE_EXT}")
 
 
-def _image_id_from_file(img_file):
+def _image_id_from_file(img_file: BufferedReader) -> str:
     """Calculate the image identifier (SHA1) for the image file
     open at ``img_file``.
 
@@ -162,7 +164,7 @@ def _image_id_from_file(img_file):
     return digest.hexdigest()
 
 
-def _image_id_from_path(img_path):
+def _image_id_from_path(img_path: str) -> str:
     """Calculate the image identifier (SHA1) for the image found
     at ``img_path``.
 
@@ -185,7 +187,7 @@ def drop_cache():
     _images = {}
 
 
-def _load_image_ids(cache_file):
+def _load_image_ids(cache_file: str) -> List[str]:
     """Read the set of image_id values from the cache directory.
 
     :returns: A list of image_id values.
@@ -268,12 +270,12 @@ def write_cache():
         fdatasync(index_file.fileno())
 
 
-def _insert_copy(boot_path, cache_file):
+def _insert_copy(boot_path: str, cache_file: str):
     """Insert an image into the cache by physical data copy."""
     shutil.copy2(boot_path, cache_file)
 
 
-def _insert(boot_path, cache_file):
+def _insert(boot_path: str, cache_file: str):
     """Insert an image into the cache.
 
     :param boot_path: The absolute path to the image to add.
@@ -288,7 +290,7 @@ def _insert(boot_path, cache_file):
         raise e
 
 
-def _remove_boot(boot_path):
+def _remove_boot(boot_path: str):
     """Remove a boom restored boot image from /boot."""
     boot_dir = dirname(boot_path)
     dot_path = f".{basename(boot_path)}.boomrestored"
@@ -298,12 +300,12 @@ def _remove_boot(boot_path):
     unlink(path_join(boot_dir, dot_path))
 
 
-def _remove_copy(cache_file):
+def _remove_copy(cache_file: str):
     """Remove an image copy from the cache store."""
     unlink(cache_file)
 
 
-def _remove(cache_file):
+def _remove(cache_file: str):
     """Remove an image from the cache store.
 
     :param cache_file: The path to the image to be removed.
@@ -318,7 +320,7 @@ def _remove(cache_file):
         raise e
 
 
-def _insert_path(path, img_id, mode, uid, gid, attrs):
+def _insert_path(path: str, img_id: str, mode: int, uid: int, gid: int, attrs: dict):
     """Insert a path into the path map and index dictionaries."""
     if path not in _paths:
         _paths[path] = {}
@@ -334,7 +336,7 @@ def _insert_path(path, img_id, mode, uid, gid, attrs):
         _index[path] = [img_id]
 
 
-def _find_backup_name(img_path):
+def _find_backup_name(img_path: str) -> str:
     """Generate a new, unique backup pathname."""
     # Trim the leading path separator
     img_backup = f"{img_path[1:]}.boom"
@@ -346,161 +348,6 @@ def _find_backup_name(img_path):
     while path_exists(_backup_path(backup_nr)):
         backup_nr += 1
     return path_sep + img_backup + f"{backup_nr}"
-
-
-def _cache_path(img_path, update=True, backup=False):
-    """Add an image to the boom boot image cache.
-
-    :param img_path: The path to the on-disk boot image relative to
-                     the configured /boot directory.
-    :returns: None
-    """
-
-    def this_entry():
-        """Return a new CacheEntry object representing the newly cached
-        path.
-        """
-        return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
-
-    boot_path = _image_path_to_boot(img_path)
-    st = stat(boot_path)
-
-    if not S_ISREG(st[ST_MODE]):
-        _log_error("Image at path '%s' is not a regular file.", img_path)
-        raise ValueError(f"'{img_path}' is not a regular file")
-
-    img_id = _image_id_from_path(boot_path)
-    cache_file = _image_id_to_cache_file(img_id)
-    image_ts = st[ST_MTIME]
-
-    if not update and backup:
-        ces = find_cache_images(Selection(orig_path=img_path))
-        if ces:
-            return ces[0]
-
-    if backup:
-        if img_id in _images:
-            return find_cache_images(Selection(img_id=img_id))[0]
-
-        img_path = _find_backup_name(img_path)
-        _log_debug_cache("Backing up path '%s' as '%s'", boot_path, img_path)
-
-    if img_path in _paths and img_id in _index[img_path]:
-        _log_info(
-            "Image with img_id=%s already cached for path '%s'", img_id[0:6], img_path
-        )
-        return this_entry()
-    _log_info("Adding new image with img_id=%s for path '%s'", img_id[0:6], img_path)
-
-    path_mode = st[ST_MODE]
-    path_uid = st[ST_UID]
-    path_gid = st[ST_GID]
-    path_attrs = {}  # FIXME xattr support
-
-    # Physically cache the image
-    _insert_copy(boot_path, cache_file)
-
-    # Set cache entry metadata
-    _images[img_id] = {IMAGE_TS: image_ts}
-    _insert_path(img_path, img_id, path_mode, path_uid, path_gid, path_attrs)
-    write_cache()
-
-    return this_entry()
-
-
-def cache_path(img_path, update=False):
-    """Add an image to the boom boot image cache.
-
-    :param img_path: The path to the on-disk boot image relative to
-                     the configured /boot directory.
-    :returns: None
-    """
-    _log_debug_cache("Caching path '%s'", img_path)
-    return _cache_path(img_path, update=update)
-
-
-def backup_path(img_path, update=False):
-    """Back up an image to the boom boot image cache.
-
-    :param img_path: The path to the on-disk boot image relative to
-                     the configured /boot directory.
-    :param backup_path: The path where the backup image will be created.
-    :returns: None
-    """
-    ce = _cache_path(img_path, update=update, backup=True)
-    ce.restore()
-    return ce
-
-
-def uncache_path(img_path, force=False):
-    """Remove paths from the boot image cache.
-
-    Remove ``img_path`` from the boot image cache and discard any
-    unused images referenced by the cache entry. Images that are
-    shared with other cached paths are not removed.
-
-    :param img_path: The cached path to remove
-    """
-    if img_path not in _paths:
-        raise ValueError(f"Path '{img_path}' is not cached.")
-
-    boot_path = _image_path_to_boot(img_path)
-    img_id = _index[img_path][0]
-    ts = _images[img_id][IMAGE_TS]
-
-    ce = CacheEntry(img_path, _paths[img_path], [(img_id, ts)])
-    count = ce.count
-
-    if count and not force:
-        _log_info("Retaining cache path '%s' used by %d boot entries", img_path, count)
-        return
-
-    if count:
-        _log_warn("Uncaching path '%s' used by %d boot entries", img_path, count)
-
-    # Remove entry from the path index and metadata
-    images = _index.pop(img_path)
-    _paths.pop(img_path)
-    # Clean up unused images
-    for img_id in images:
-        all_images = sum(_index.values(), [])
-        # Shared image?
-        if img_id not in all_images:
-            _images.pop(img_id)
-            cache_file = _image_id_to_cache_file(img_id)
-            _remove(cache_file)
-    if _is_restored(boot_path):
-        _remove_boot(boot_path)
-
-    write_cache()
-
-
-def clean_cache():
-    """Remove unused cache entries.
-
-    Iterate over the set of cache entries and remove any paths
-    that are not referenced by any BootEntry, and remove all
-    images that are not referenced by a path.
-    """
-    ces = find_cache_paths()
-    nr_unused = 0
-    for ce in ces:
-        if not ce.count:
-            nr_unused += 1
-            ce.uncache()
-    if nr_unused:
-        _log_info("Removed %d unused cache entries", nr_unused)
-
-
-def _is_restored(boot_path):
-    """Return ``True`` if ``boot_path`` was restored by boom, or
-    ``False`` otherwise.
-
-    :param boot_path: The absolute path to a boot image.
-    """
-    boot_dir = dirname(boot_path)
-    dot_path = f".{basename(boot_path)}.boomrestored"
-    return path_exists(path_join(boot_dir, dot_path))
 
 
 class CacheEntry:
@@ -578,7 +425,7 @@ class CacheEntry:
         return len(find_entries(Selection(path=self.path)))
 
     #: The list of cached images for this CacheEntry sorted by increasing age
-    images = []
+    images: List[Tuple[str, int]] = []
 
     def __init__(self, path, pathdata, images):
         """Initialise a CacheEntry object with information from
@@ -692,7 +539,164 @@ def select_cache_entry(s, ce):
     return True
 
 
-def _find_cache_entries(selection=None, images=False):
+def _cache_path(img_path: str, update: bool = True, backup: bool = False) -> CacheEntry:
+    """Add an image to the boom boot image cache.
+
+    :param img_path: The path to the on-disk boot image relative to
+                     the configured /boot directory.
+    :returns: None
+    """
+
+    def this_entry():
+        """Return a new CacheEntry object representing the newly cached
+        path.
+        """
+        return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
+
+    boot_path = _image_path_to_boot(img_path)
+    st = stat(boot_path)
+
+    if not S_ISREG(st[ST_MODE]):
+        _log_error("Image at path '%s' is not a regular file.", img_path)
+        raise ValueError(f"'{img_path}' is not a regular file")
+
+    img_id = _image_id_from_path(boot_path)
+    cache_file = _image_id_to_cache_file(img_id)
+    image_ts = st[ST_MTIME]
+
+    if not update and backup:
+        ces = find_cache_images(Selection(orig_path=img_path))
+        if ces:
+            return ces[0]
+
+    if backup:
+        if img_id in _images:
+            return find_cache_images(Selection(img_id=img_id))[0]
+
+        img_path = _find_backup_name(img_path)
+        _log_debug_cache("Backing up path '%s' as '%s'", boot_path, img_path)
+
+    if img_path in _paths and img_id in _index[img_path]:
+        _log_info(
+            "Image with img_id=%s already cached for path '%s'", img_id[0:6], img_path
+        )
+        return this_entry()
+    _log_info("Adding new image with img_id=%s for path '%s'", img_id[0:6], img_path)
+
+    path_mode = st[ST_MODE]
+    path_uid = st[ST_UID]
+    path_gid = st[ST_GID]
+    path_attrs: Dict[None, None] = {}  # FIXME xattr support
+
+    # Physically cache the image
+    _insert_copy(boot_path, cache_file)
+
+    # Set cache entry metadata
+    _images[img_id] = {IMAGE_TS: image_ts}
+    _insert_path(img_path, img_id, path_mode, path_uid, path_gid, path_attrs)
+    write_cache()
+
+    return this_entry()
+
+
+def cache_path(img_path, update=False):
+    """Add an image to the boom boot image cache.
+
+    :param img_path: The path to the on-disk boot image relative to
+                     the configured /boot directory.
+    :returns: None
+    """
+    _log_debug_cache("Caching path '%s'", img_path)
+    return _cache_path(img_path, update=update)
+
+
+def backup_path(img_path, update=False):
+    """Back up an image to the boom boot image cache.
+
+    :param img_path: The path to the on-disk boot image relative to
+                     the configured /boot directory.
+    :param backup_path: The path where the backup image will be created.
+    :returns: None
+    """
+    ce = _cache_path(img_path, update=update, backup=True)
+    ce.restore()
+    return ce
+
+
+def uncache_path(img_path, force=False):
+    """Remove paths from the boot image cache.
+
+    Remove ``img_path`` from the boot image cache and discard any
+    unused images referenced by the cache entry. Images that are
+    shared with other cached paths are not removed.
+
+    :param img_path: The cached path to remove
+    """
+    if img_path not in _paths:
+        raise ValueError(f"Path '{img_path}' is not cached.")
+
+    boot_path = _image_path_to_boot(img_path)
+    img_id = _index[img_path][0]
+    ts = _images[img_id][IMAGE_TS]
+
+    ce = CacheEntry(img_path, _paths[img_path], [(img_id, ts)])
+    count = ce.count
+
+    if count and not force:
+        _log_info("Retaining cache path '%s' used by %d boot entries", img_path, count)
+        return
+
+    if count:
+        _log_warn("Uncaching path '%s' used by %d boot entries", img_path, count)
+
+    # Remove entry from the path index and metadata
+    images = _index.pop(img_path)
+    _paths.pop(img_path)
+    # Clean up unused images
+    for img_id in images:
+        all_images = sum(_index.values(), [])
+        # Shared image?
+        if img_id not in all_images:
+            _images.pop(img_id)
+            cache_file = _image_id_to_cache_file(img_id)
+            _remove(cache_file)
+    if _is_restored(boot_path):
+        _remove_boot(boot_path)
+
+    write_cache()
+
+
+def clean_cache():
+    """Remove unused cache entries.
+
+    Iterate over the set of cache entries and remove any paths
+    that are not referenced by any BootEntry, and remove all
+    images that are not referenced by a path.
+    """
+    ces = find_cache_paths()
+    nr_unused = 0
+    for ce in ces:
+        if not ce.count:
+            nr_unused += 1
+            ce.uncache()
+    if nr_unused:
+        _log_info("Removed %d unused cache entries", nr_unused)
+
+
+def _is_restored(boot_path):
+    """Return ``True`` if ``boot_path`` was restored by boom, or
+    ``False`` otherwise.
+
+    :param boot_path: The absolute path to a boot image.
+    """
+    boot_dir = dirname(boot_path)
+    dot_path = f".{basename(boot_path)}.boomrestored"
+    return path_exists(path_join(boot_dir, dot_path))
+
+
+def _find_cache_entries(
+    selection: Optional[Selection] = None, images: bool = False
+) -> List[Any]:
     """Find cache entries matching selection criteria.
 
     Return a list of ``CacheEntry`` objects matching the supplied
@@ -741,7 +745,7 @@ def _find_cache_entries(selection=None, images=False):
     return matches
 
 
-def find_cache_paths(selection=None):
+def find_cache_paths(selection: None = None) -> List[Any]:
     """Find cache entries matching selection criteria.
 
     Return a list of ``CacheEntry`` objects matching the supplied
