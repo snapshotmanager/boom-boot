@@ -214,9 +214,10 @@ def write_boom_config(config=None, path=None):
     else:
         _sync_config(config, config._cfg)
 
-    with fdopen(tmp_fd, "w") as f_tmp:
-        config._cfg.write(f_tmp)
-        fdatasync(tmp_fd)
+    if config._cfg:
+        with fdopen(tmp_fd, "w") as f_tmp:
+            config._cfg.write(f_tmp)
+            fdatasync(tmp_fd)
 
     try:
         rename(tmp_path, path)
