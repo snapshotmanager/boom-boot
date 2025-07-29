@@ -2179,6 +2179,11 @@ class BootEntry:
         """
         return self._initrd()
 
+    @initrd.setter
+    def initrd(self, initrd):
+        self._entry_data[BOOM_ENTRY_INITRD] = initrd
+        self._dirty()
+
     @property
     def expand_initrd(self):
         """The loadable initramfs image for this ``BootEntry`` with any
@@ -2189,11 +2194,6 @@ class BootEntry:
         :type: string
         """
         return self._initrd(expand=True)
-
-    @initrd.setter
-    def initrd(self, initrd):
-        self._entry_data[BOOM_ENTRY_INITRD] = initrd
-        self._dirty()
 
     @property
     def efi(self):
