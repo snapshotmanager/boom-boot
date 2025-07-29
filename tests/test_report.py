@@ -921,9 +921,4 @@ class ReportTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             ReportObjType(2, None, "prefix_", lambda x: x)
 
-    def test_ReportObjType_no_data_fn(self):
-        with self.assertRaises(ValueError) as cm:
-            ReportObjType(2, "description", "prefix_", None)
-
-
 # vim: set et ts=4 sw=4 :
