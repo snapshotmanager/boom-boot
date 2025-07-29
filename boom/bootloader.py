@@ -63,6 +63,7 @@ from boom import (
     FMT_OS_SHORT_NAME,
     FMT_OS_VERSION,
     FMT_OS_VERSION_ID,
+    MIN_ID_WIDTH,
 )
 from boom.osprofile import *
 from boom.hostprofile import find_host_profiles
@@ -871,7 +872,9 @@ def min_boot_id_width():
     :returns: the minimum boot_id width.
     :rtype: int
     """
-    return min_id_width(7, _entries, "boot_id")
+    if _entries:
+        return min_id_width(MIN_ID_WIDTH, _entries, "boot_id")
+    return MIN_ID_WIDTH
 
 
 def select_params(s, bp):

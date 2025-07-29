@@ -238,7 +238,7 @@ def min_host_id_width():
     :returns: the minimum host_id width.
     :rtype: int
     """
-    return min_id_width(7, _host_profiles, "host_id")
+    return min_id_width(MIN_ID_WIDTH, _host_profiles, "host_id")
 
 
 def min_machine_id_width():
@@ -250,7 +250,7 @@ def min_machine_id_width():
     :returns: the minimum host_id width.
     :rtype: int
     """
-    return min_id_width(7, _host_profiles, "machine_id")
+    return min_id_width(MIN_ID_WIDTH, _host_profiles, "machine_id")
 
 
 def select_host_profile(s, hp):

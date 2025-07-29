@@ -280,7 +280,7 @@ def min_os_id_width():
     :returns: the minimum os_id width.
     :rtype: int
     """
-    return min_id_width(7, _profiles, "os_id")
+    return min_id_width(MIN_ID_WIDTH, _profiles, "os_id")
 
 
 def select_profile(s, osp):
