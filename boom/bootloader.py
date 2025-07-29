@@ -1688,8 +1688,8 @@ class BootEntry:
         # values), to test key_spec predicates, and to safely obtain
         # function attributes where the containing object may or may
         # not exist.
-        def get_key_attr(key_spec):
-            """Return a key's value attribute.
+        def get_key_value(key_spec):
+            """Return a key's formatted value.
 
             Return a value from either `BootParams`, `OsProfile`,
             or `BootEntry`. Each source is tested in order and the
@@ -1804,7 +1804,7 @@ class BootEntry:
                 #
                 # If the value is not None, but contains the empty string, the
                 # value is substituted as normal.
-                value = get_key_attr(key_spec)
+                value = get_key_value(key_spec)
                 if value is None:
                     continue
                 fmt = fmt.replace(key, value)
