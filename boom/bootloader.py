@@ -35,7 +35,7 @@ from os.path import basename, exists as path_exists, join as path_join
 from subprocess import Popen, PIPE
 from tempfile import mkstemp
 from os import listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 from stat import S_ISBLK
 from hashlib import sha1
 import logging
@@ -1747,7 +1747,7 @@ class BootEntry:
         VAL_FMT = "val_fmt"
         NEEDS = "needs"
 
-        format_key_specs = {
+        format_key_specs: Dict[str, List[Dict[str, Union[str, List[Callable]]]]] = {
             FMT_VERSION: [{BE_ATTR: "version", BP_ATTR: "version"}],
             FMT_LVM_ROOT_LV: [{BP_ATTR: "lvm_root_lv"}],
             FMT_LVM_ROOT_OPTS: [{OSP_ATTR: "root_opts_lvm2"}],
