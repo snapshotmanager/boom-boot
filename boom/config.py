@@ -19,7 +19,14 @@ from configparser import ConfigParser, ParsingError
 from tempfile import mkstemp
 import logging
 
-from boom import *
+from boom import (
+    BOOT_CONFIG_MODE,
+    BoomConfig,
+    BoomError,
+    get_boom_config_path,
+    get_boom_config,
+    set_boom_config,
+)
 
 
 class BoomConfigError(BoomError):
