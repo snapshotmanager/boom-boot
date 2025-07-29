@@ -64,6 +64,7 @@ from boom import (
     FMT_OS_SHORT_NAME,
     FMT_OS_VERSION,
     FMT_OS_VERSION_ID,
+    ROOT_OPTS_STRATIS,
     MIN_ID_WIDTH,
 )
 from boom.osprofile import *
