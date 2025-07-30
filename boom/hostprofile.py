@@ -28,8 +28,36 @@ from os.path import join as path_join
 import logging
 import string
 
-from boom import *
-from boom.osprofile import *
+from boom import (
+    BOOM_DEBUG_PROFILE,
+    FMT_KERNEL,
+    FMT_INITRAMFS,
+    FMT_ROOT_OPTS,
+    MIN_ID_WIDTH,
+    Selection,
+    get_boom_path,
+    min_id_width,
+    load_profiles_for_class,
+)
+from boom.osprofile import (
+    OS_KEY_NAMES,
+    BOOM_OS_ID,
+    BOOM_OS_NAME,
+    BOOM_OS_SHORT_NAME,
+    BOOM_OS_VERSION,
+    BOOM_OS_VERSION_ID,
+    BOOM_OS_UNAME_PATTERN,
+    BOOM_OS_KERNEL_PATTERN,
+    BOOM_OS_INITRAMFS_PATTERN,
+    BOOM_OS_ROOT_OPTS_LVM2,
+    BOOM_OS_ROOT_OPTS_BTRFS,
+    BOOM_OS_OPTIONS,
+    BOOM_OS_TITLE,
+    BOOM_OS_OPTIONAL_KEYS,
+    BoomProfile,
+    find_profiles,
+    key_from_key_name,
+)
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
