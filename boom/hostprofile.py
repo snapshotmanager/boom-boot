@@ -950,6 +950,11 @@ class HostProfile(BoomProfile):
             return self._profile_data[BOOM_OS_UNAME_PATTERN]
         return self.osp.uname_pattern
 
+    @uname_pattern.setter
+    def uname_pattern(self, value):
+        self._profile_data[BOOM_OS_UNAME_PATTERN] = value
+        self._dirty()
+
     #
     # Properties overridden or mapped to OsProfile
     #
@@ -1081,9 +1086,18 @@ class HostProfile(BoomProfile):
 
     @property
     def optional_keys(self):
+        if BOOM_OS_OPTIONAL_KEYS in self._profile_data:
+            return self._profile_data[BOOM_OS_OPTIONAL_KEYS]
         if not self.osp or not self.osp.optional_keys:
             return ""
         return self.osp.optional_keys
+
+    @optional_keys.setter
+    def optional_keys(self, value):
+        for opt_key in optional_keys.split():
+            self._check_optional_key(opt_key)
+        self._profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
+        self._dirty()
 
     #
     # HostProfile specific properties
