@@ -842,12 +842,10 @@ class BoomProfile:
             capture = (
                 "root=%{root_device}",
                 "rd.lvm.lv=%{lvm_root_lv}",
-                ROOT_OPTS_BTRFS_ID,
-                ROOT_OPTS_BTRFS_PATH,
+                "rootflags=" + ROOT_OPTS_BTRFS_ID,
+                "rootflags=" + ROOT_OPTS_BTRFS_PATH,
                 ROOT_OPTS_STRATIS,
             )
-
-            replace = ("rootflags=%{btrfs_subvolume}",)
 
             for key in FORMAT_KEYS:
                 k = key_format % key
@@ -862,11 +860,8 @@ class BoomProfile:
                     did_subst = True
                 elif k in word and key in key_exp:
                     # Recursive expansion and substitution
-                    for e in key_exp[key]:
-                        if word in replace:
-                            exp = e
-                        else:
-                            exp = word.replace(key_format % key, e)
+                    for exp in key_exp[key]:
+                        exp = word.replace(k, exp)
                         subst += _substitute_keys(exp)
                         did_subst = True
 
