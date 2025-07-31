@@ -2075,9 +2075,6 @@ class BootEntry:
 
         if BOOM_ENTRY_OPTIONS in self._entry_data:
             opts = self._entry_data_property(BOOM_ENTRY_OPTIONS)
-            if self.bp and not self.read_only:
-                opts = add_opts(opts, self.bp.add_opts)
-                return do_exp(del_opts(opts, self.bp.del_opts))
             return do_exp(opts)
 
         if self._osp and self.bp:
