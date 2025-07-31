@@ -35,12 +35,38 @@ from os.path import basename, exists as path_exists, join as path_join
 from subprocess import Popen, PIPE
 from tempfile import mkstemp
 from os import listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
+from typing import Any, Callable, Dict, List, Optional, Union
 from stat import S_ISBLK
 from hashlib import sha1
 import logging
 import re
 
-from boom import *
+from boom import (
+    BOOM_DEBUG_ENTRY,
+    BoomError,
+    Selection,
+    blank_or_comment,
+    parse_name_value,
+    get_boot_path,
+    get_debug_mask,
+    min_id_width,
+    FMT_VERSION,
+    FMT_LVM_ROOT_LV,
+    FMT_LVM_ROOT_OPTS,
+    FMT_BTRFS_ROOT_OPTS,
+    FMT_BTRFS_SUBVOLUME,
+    FMT_STRATIS_POOL_UUID,
+    FMT_ROOT_DEVICE,
+    FMT_ROOT_OPTS,
+    FMT_KERNEL,
+    FMT_INITRAMFS,
+    FMT_OS_NAME,
+    FMT_OS_SHORT_NAME,
+    FMT_OS_VERSION,
+    FMT_OS_VERSION_ID,
+    ROOT_OPTS_STRATIS,
+    MIN_ID_WIDTH,
+)
 from boom.osprofile import *
 from boom.hostprofile import find_host_profiles
 from boom.stratis import is_stratis_device_path, symlink_to_pool_uuid
@@ -153,7 +179,7 @@ OPTIONAL_KEY_DEFAULTS = {
 }
 
 
-def optional_key_default(key):
+def optional_key_default(key: str) -> Optional[str]:
     """Return the default value for the optional key ``key``.
 
     :param key: A Boom optional entry key.
@@ -165,7 +191,7 @@ def optional_key_default(key):
     return OPTIONAL_KEY_DEFAULTS[key]
 
 
-def key_to_bls_name(key):
+def key_to_bls_name(key: str) -> str:
     """Return the BLS key name for the corresponding Boom entry key.
 
     :param key: A Boom entry key.
@@ -200,7 +226,7 @@ _entries = None
 DEV_PATTERN = "/dev/%s"
 
 
-def boom_entries_path():
+def boom_entries_path() -> str:
     """Return the path to the boom profiles directory.
 
     :returns: The boom profiles path.
@@ -215,7 +241,7 @@ class BoomRootDeviceError(BoomError):
     pass
 
 
-def check_root_device(dev):
+def check_root_device(dev: str):
     """Test for the presence of root device ``dev`` and return if it
     exists in the configured /dev directory and is a valid block
     device, or raise ``BoomRootDeviceError`` otherwise.
@@ -235,7 +261,7 @@ def check_root_device(dev):
         raise BoomRootDeviceError(f"Path '{dev}' is not a block device.")
 
 
-def _match_root_lv(root_device, rd_lvm_lv):
+def _match_root_lv(root_device: str, rd_lvm_lv: str):
     """Return ``True`` if ``rd_lvm_lv`` is the logical volume
     represented by ``root_device`` or ``False`` otherwise.
 
@@ -287,7 +313,7 @@ def _grub2_get_env(name):
     return ""
 
 
-def _expand_vars(args):
+def _expand_vars(args: str) -> str:
     """Expand a ``BootEntry`` option string that may contain
     references to Grub2 environment variables using shell
     style ``$value`` notation.
@@ -332,10 +358,10 @@ class BootParams:
     _stratis_pool_uuid = None
 
     #: A list of additional kernel options to append
-    _add_opts = []
+    _add_opts: List[str] = []
 
     #: A list of kernel options to drop
-    _del_opts = []
+    _del_opts: List[str] = []
 
     #: Generation counter for dirty detection
     generation = 0
@@ -396,7 +422,7 @@ class BootParams:
         """
         return self.__str()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Format BootParams as a machine-readable string.
 
         Format this ``BootParams`` object as a machine-readable
@@ -410,14 +436,14 @@ class BootParams:
 
     def __init__(
         self,
-        version,
-        root_device=None,
-        lvm_root_lv=None,
-        btrfs_subvol_path=None,
-        btrfs_subvol_id=None,
-        stratis_pool_uuid=None,
-        add_opts=None,
-        del_opts=None,
+        version: str,
+        root_device: Optional[str] = None,
+        lvm_root_lv: Optional[str] = None,
+        btrfs_subvol_path: None = None,
+        btrfs_subvol_id: None = None,
+        stratis_pool_uuid: None = None,
+        add_opts: Optional[List[str]] = None,
+        del_opts: Optional[List[str]] = None,
     ):
         """Initialise a new ``BootParams`` object.
 
@@ -615,7 +641,7 @@ class BootParams:
         """
         return self.lvm_root_lv is not None and len(self.lvm_root_lv)
 
-    def has_stratis(self):
+    def has_stratis(self) -> bool:
         """Return ``True`` if this BootParams object is configured to
         use a Stratis root file system.
 
@@ -628,7 +654,7 @@ class BootParams:
         return is_stratis_device_path(self.root_device)
 
     @classmethod
-    def from_entry(cls, be, expand=False):
+    def from_entry(cls, be: "BootEntry", expand: bool = False) -> "BootParams":
         """Recover BootParams from BootEntry.
 
         Recover BootParams values from a templated BootEntry: each
@@ -654,9 +680,13 @@ class BootParams:
         bp = BootParams(version)
         matches = {}
 
+        if not osp:
+            return bp
+
         opts_regexes = osp.make_format_regexes(osp.options)
+
         if not opts_regexes:
-            return None
+            return bp
 
         _log_debug_entry(
             "Matching options regex list with %d entries", len(opts_regexes)
@@ -760,23 +790,26 @@ class BootParams:
         return bp
 
 
-def _add_entry(entry):
+def _add_entry(entry: "BootEntry"):
     """Add a new entry to the list of loaded on-disk entries.
 
     :param entry: The ``BootEntry`` to add.
     """
     if _entries is None:
         load_entries()
-    if entry not in _entries:
+    if _entries is not None and entry not in _entries:
         _entries.append(entry)
 
 
-def _del_entry(entry):
+def _del_entry(entry: "BootEntry"):
     """Remove a ``BootEntry`` from the list of loaded entries.
 
     :param entry: The ``BootEntry`` to remove.
     """
-    _entries.remove(entry)
+    if _entries is None:
+        load_entries()
+    if _entries and entry in _entries:
+        _entries.remove(entry)
 
 
 def drop_entries():
@@ -791,7 +824,7 @@ def drop_entries():
     _entries = []
 
 
-def load_entries(machine_id=None):
+def load_entries(machine_id: None = None):
     """Load boot entries into memory.
 
     Load boot entries from ``boom.bootloader.boom_entries_path()``.
@@ -823,7 +856,8 @@ def load_entries(machine_id=None):
             if get_debug_mask():
                 raise e
 
-    _log_debug("Loaded %d entries", len(_entries))
+    if _entries:
+        _log_debug("Loaded %d entries", len(_entries))
 
 
 def write_entries():
@@ -839,7 +873,7 @@ def write_entries():
             _log_warn("Could not write BootEntry(boot_id='%s'): %s", be.disp_boot_id, e)
 
 
-def min_boot_id_width():
+def min_boot_id_width() -> int:
     """Calculate the minimum unique width for boot_id values.
 
     Calculate the minimum width to ensure uniqueness when displaying
@@ -848,10 +882,12 @@ def min_boot_id_width():
     :returns: the minimum boot_id width.
     :rtype: int
     """
-    return min_id_width(7, _entries, "boot_id")
+    if _entries:
+        return min_id_width(MIN_ID_WIDTH, _entries, "boot_id")
+    return MIN_ID_WIDTH
 
 
-def select_params(s, bp):
+def select_params(s: Selection, bp: BootParams):
     """Test BootParams against Selection criteria.
 
     Test the supplied ``BootParams`` against the selection criteria
@@ -876,7 +912,7 @@ def select_params(s, bp):
     return True
 
 
-def select_entry(s, be):
+def select_entry(s: Selection, be: "BootEntry"):
     """Test BootEntry against Selection criteria.
 
     Test the supplied ``BootEntry`` against the selection criteria
@@ -913,45 +949,7 @@ def select_entry(s, be):
     return True
 
 
-def find_entries(selection=None):
-    """Find boot entries matching selection criteria.
-
-    Return a list of ``BootEntry`` objects matching the specified
-    criteria. Matching proceeds as the logical 'and' of all criteria.
-    Criteria that are unset (``None``) are ignored.
-
-    If no ``BootEntry`` matches the specified criteria the empty list
-    is returned.
-
-    Boot entries will be automatically loaded from disk if they are
-    not already in memory.
-
-    :param selection: A ``Selection`` object specifying the match
-                      criteria for the operation.
-    :returns: a list of ``BootEntry`` objects.
-    :rtype: list
-    """
-    if not _entries:
-        load_entries()
-
-    matches = []
-
-    # Use null search criteria if unspecified
-    selection = selection if selection else Selection()
-
-    selection.check_valid_selection(entry=True, params=True, profile=True)
-
-    _log_debug_entry("Finding entries for %s", repr(selection))
-
-    for be in _entries:
-        if select_entry(selection, be):
-            matches.append(be)
-
-    _log_debug_entry("Found %d entries", len(matches))
-    return matches
-
-
-def _transform_key(key_name):
+def _transform_key(key_name: str) -> str:
     """Transform key characters between Boom and BLS notation.
 
     Transform all occurrences of '_' in ``key_name`` to '-' or vice
@@ -1003,7 +1001,6 @@ class BootEntry:
     method.
     """
 
-    _entry_data = None
     _unwritten = False
     _last_path = None
     _comments = None
@@ -1028,7 +1025,7 @@ class BootEntry:
         bls=True,
         no_boot_id=False,
         expand=False,
-    ):
+    ) -> str:
         """Format BootEntry as a string.
 
         Return a human or machine readable representation of this
@@ -1090,7 +1087,7 @@ class BootEntry:
 
         return be_str.rstrip(tail) + suffix
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Format BootEntry as a human-readable string in BLS notation.
 
         Format this BootEntry as a string containing a BLS
@@ -1102,7 +1099,7 @@ class BootEntry:
         """
         return self.__str()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Format BootEntry as a machine-readable string.
 
         Return a machine readable representation of this BootEntry,
@@ -1121,15 +1118,17 @@ class BootEntry:
             bls=False,
         )
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the length (key count) of this ``BootEntry``.
 
         :returns: the ``BootEntry`` length as an integer.
         :rtype: ``int``
         """
-        return len(self._entry_data)
+        if self._entry_data:
+            return len(self._entry_data)
+        return 0
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Test for equality between this ``BootEntry`` and another
         object.
 
@@ -1148,7 +1147,7 @@ class BootEntry:
             return True
         return False
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         """Return an item from this ``BootEntry``.
 
         :returns: the item corresponding to the key requested.
@@ -1164,7 +1163,7 @@ class BootEntry:
 
         raise KeyError(f"BootEntry key {key} not present.")
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value):
         """Set the specified ``BootEntry`` key to the given value.
 
         :param key: the ``BootEntry`` key to be set.
@@ -1370,7 +1369,7 @@ class BootEntry:
             if BOOM_ENTRY_EFI not in entry_data:
                 raise ValueError("BootEntry missing BOOM_ENTRY_LINUX or BOOM_ENTRY_EFI")
 
-        self._entry_data = {}
+        self._entry_data.clear()
         for key in [k for k in ENTRY_KEYS if k in entry_data]:
             self._entry_data[key] = entry_data[key]
 
@@ -1405,8 +1404,8 @@ class BootEntry:
 
             # Copy the current _entry_data and clear self._entry_data to
             # allow comparison of stored value with template.
-            _entry_data = self._entry_data
-            self._entry_data = {}
+            _entry_data = self._entry_data.copy()
+            self._entry_data.clear()
 
             # Clear templated keys from _entry_data and if the value
             # read from entry_data is identical to that generated by the
@@ -1415,7 +1414,7 @@ class BootEntry:
             _pop_if_set(BOOM_ENTRY_LINUX)
             _pop_if_set(BOOM_ENTRY_INITRD)
             _pop_if_set(BOOM_ENTRY_OPTIONS)
-            self._entry_data = _entry_data
+            self._entry_data.update(_entry_data)
 
     def __from_file(self, entry_file, boot_params):
         """Initialise a new BootEntry from on-disk data.
@@ -1523,14 +1522,14 @@ class BootEntry:
 
     def __init__(
         self,
-        title=None,
-        machine_id=None,
-        osprofile=None,
-        boot_params=None,
-        entry_file=None,
-        entry_data=None,
-        architecture=None,
-        allow_no_dev=False,
+        title: Optional[str] = None,
+        machine_id: Optional[str] = None,
+        osprofile: Optional[OsProfile] = None,
+        boot_params: Optional[BootParams] = None,
+        entry_file: Optional[str] = None,
+        entry_data: Optional[Dict[str, str]] = None,
+        architecture: Optional[str] = None,
+        allow_no_dev: bool = False,
     ):
         """Initialise new BootEntry.
 
@@ -1569,7 +1568,7 @@ class BootEntry:
                           this ``BootEntry``.
 
         :param boot_params: An optional ``BootParams`` object to
-                            initialise this ``BooyEntry``.
+                            initialise this ``BootEntry``.
 
         :param entry_file: An optional path to a file in the file
                            system containing a boot entry in BLS
@@ -1589,6 +1588,11 @@ class BootEntry:
         # 'OsIdentifier' comment or a matched osprofile value.
         self._osp = osprofile
 
+        # The BootEntry._entry_data dictionary contains data for an existing
+        # BootEntry that has been read from disk, as well as any overridden
+        # fields for a new BootEntry with an OsProfile attached.
+        self._entry_data: Dict[str, str] = {}
+
         if entry_data:
             self.__from_data(entry_data, boot_params)
             return
@@ -1599,11 +1603,6 @@ class BootEntry:
         self._unwritten = True
 
         self.bp = boot_params
-
-        # The BootEntry._entry_data dictionary contains data for an existing
-        # BootEntry that has been read from disk, as well as any overridden
-        # fields for a new BootEntry with an OsProfile attached.
-        self._entry_data = {}
 
         def title_empty(osp, title):
             if osp and not osp.title:
@@ -1631,7 +1630,7 @@ class BootEntry:
             if not allow_no_dev:
                 check_root_device(self.bp.root_device)
 
-    def _apply_format(self, fmt):
+    def _apply_format(self, fmt: str) -> str:
         """Apply key format string substitution.
 
         Apply format key substitution to format string ``fmt``,
@@ -1670,28 +1669,16 @@ class BootEntry:
         if not fmt:
             return ""
 
-        # Table-driven key formatting
-        #
-        # Each entry in the format_key_specs table specifies a list of
-        # possible key substitutions to perform for the named key. Each
-        # entry of the key_spec list contains a dictionary containing
-        # one or more attribute sources or predicates.
-        #
-        # A key substitution is evaluated if at least one of the listed
-        # attribute sources is defined, and if all defined predicates
-        # evaluate to True. A predicate must be a Python callable
-        # accepting no arguments and returning a boolean. A key_spec
-        # may also specify an explicit list of needed objects, "bp",
-        # or "osp", that must exist to evaluate predicates.
-        #
-        # Several helper functions exist to obtain key values from the
-        # appropriate data source (accounting for keys that exist in
-        # multiple objects as well as keys that return None or empty
-        # values), to test key_spec predicates, and to safely obtain
-        # function attributes where the containing object may or may
-        # not exist.
-        def get_key_attr(key_spec):
-            """Return a key's value attribute.
+        # Key spec constants
+        BE_ATTR = "be_attr"
+        BP_ATTR = "bp_attr"
+        OSP_ATTR = "osp_attr"
+        PRED_FN = "pred_fn"
+        VAL_FMT = "val_fmt"
+        NEEDS = "needs"
+
+        def get_key_value(key_spec):
+            """Return a key's formatted value.
 
             Return a value from either `BootParams`, `OsProfile`,
             or `BootEntry`. Each source is tested in order and the
@@ -1741,15 +1728,38 @@ class BootEntry:
             """
             return getattr(obj, fn) if obj else None
 
-        # Key spec constants
-        BE_ATTR = "be_attr"
-        BP_ATTR = "bp_attr"
-        OSP_ATTR = "osp_attr"
-        PRED_FN = "pred_fn"
-        VAL_FMT = "val_fmt"
-        NEEDS = "needs"
-
-        format_key_specs = {
+        # Table-driven key formatting
+        #
+        # Each entry in the format_key_specs table specifies a list of
+        # possible key substitutions to perform for the named key. Each
+        # entry of the key_spec list contains a dictionary containing
+        # one or more attribute sources or predicates.
+        #
+        # A key substitution is evaluated if at least one of the listed
+        # attribute sources is defined, and if all defined predicates
+        # evaluate to True. A predicate must be a Python callable
+        # accepting no arguments and returning a boolean. A key_spec
+        # may also specify an explicit list of needed objects, "bp",
+        # or "osp", that must exist to evaluate predicates.
+        #
+        # Several helper functions exist to obtain key values from the
+        # appropriate data source (accounting for keys that exist in
+        # multiple objects as well as keys that return None or empty
+        # values), to test key_spec predicates, and to safely obtain
+        # function attributes where the containing object may or may
+        # not exist.
+        #
+        # The values of the key_specs keys are as follows:
+        # BE_ATTR: The BootEntry attribute for this format key's value
+        # BP_ATTR: The BootParams attribute for this format key's value
+        # OSP_ATTR: The OsProfile attribute for this format key's value
+        # PRED_FN: A list of predicate functions that must evaluate ``True`` for
+        #          this format key to be substituted.
+        # VAL_FMT: A Python printf-style format string that formats this
+        #          format key's value
+        # NEEDS: A string indicating the object required to obtain this
+        #        format key's value: either "bp" or "osp".
+        format_key_specs: Dict[str, List[Dict[str, Union[str, List[Callable]]]]] = {
             FMT_VERSION: [{BE_ATTR: "version", BP_ATTR: "version"}],
             FMT_LVM_ROOT_LV: [{BP_ATTR: "lvm_root_lv"}],
             FMT_LVM_ROOT_OPTS: [{OSP_ATTR: "root_opts_lvm2"}],
@@ -1806,7 +1816,7 @@ class BootEntry:
                 #
                 # If the value is not None, but contains the empty string, the
                 # value is substituted as normal.
-                value = get_key_attr(key_spec)
+                value = get_key_value(key_spec)
                 if value is None:
                     continue
                 fmt = fmt.replace(key, value)
@@ -1838,7 +1848,7 @@ class BootEntry:
         ).hexdigest()
         return boot_id
 
-    def _entry_data_property(self, name):
+    def _entry_data_property(self, name: str) -> Optional[str]:
         """Return property value from entry data.
 
         :param name: The boom key name of the property to return
@@ -1848,7 +1858,7 @@ class BootEntry:
             return self._entry_data[name]
         return None
 
-    def _have_optional_key(self, key):
+    def _have_optional_key(self, key: str):
         """Return ``True`` if optional BLS key ``key`` is permitted by
         the attached ``OsProfile``, or ``False`` otherwise.
         """
@@ -1883,7 +1893,7 @@ class BootEntry:
         self._bp_generation = self._bp.generation if self._bp else 0
 
     @property
-    def disp_boot_id(self):
+    def disp_boot_id(self) -> str:
         """The display boot_id of this entry.
 
         Return the shortest prefix of this BootEntry's boot_id that
@@ -1895,7 +1905,7 @@ class BootEntry:
         return self.boot_id[: min_boot_id_width()]
 
     @property
-    def boot_id(self):
+    def boot_id(self) -> str:
         """A SHA1 digest that uniquely identifies this ``BootEntry``.
 
         :getter: return this ``BootEntry``'s ``boot_id``.
@@ -1911,7 +1921,7 @@ class BootEntry:
         return self.__boot_id
 
     @property
-    def root_opts(self):
+    def root_opts(self) -> str:
         """The root options that should be used for this ``BootEntry``.
 
         :getter: Returns the root options string for this ``BootEntry``.
@@ -1996,7 +2006,7 @@ class BootEntry:
         self._entry_data[BOOM_ENTRY_VERSION] = version
         self._dirty()
 
-    def _options(self, expand=False):
+    def _options(self, expand: bool = False) -> str:
         """The command line options for this ``BootEntry``, optionally
         expanding any bootloader environment variables to their
         current values.
@@ -2078,7 +2088,7 @@ class BootEntry:
             if self.bp and not self.read_only:
                 opts = add_opts(opts, self.bp.add_opts)
                 return do_exp(del_opts(opts, self.bp.del_opts))
-            return do_exp(opts)
+            return do_exp(opts) if opts else ""
 
         if self._osp and self.bp:
             opts = self._apply_format(self._osp.options)
@@ -2088,7 +2098,7 @@ class BootEntry:
         return ""
 
     @property
-    def expand_options(self):
+    def expand_options(self) -> str:
         """The command line options for this ``BootEntry``, with any
         bootloader environment variables expanded to their current
         values.
@@ -2138,7 +2148,7 @@ class BootEntry:
         self._entry_data[BOOM_ENTRY_LINUX] = linux
         self._dirty()
 
-    def _initrd(self, expand=False):
+    def _initrd(self, expand: bool = False) -> str:
         """Return the initrd string with or without variable expansion.
 
         Since some distributions use bootloader environment
@@ -2153,13 +2163,13 @@ class BootEntry:
         """
         if not self._osp or BOOM_ENTRY_INITRD in self._entry_data:
             initrd_string = self._entry_data_property(BOOM_ENTRY_INITRD)
-            if expand:
+            if expand and initrd_string:
                 return _expand_vars(initrd_string)
-            return initrd_string
+            return initrd_string or ""
 
         initramfs_path = self._apply_format(self._osp.initramfs_pattern)
         if expand:
-            return _expand_vars(initrd_string)
+            return _expand_vars(initramfs_path)
         return initramfs_path
 
     @property
@@ -2172,6 +2182,11 @@ class BootEntry:
         """
         return self._initrd()
 
+    @initrd.setter
+    def initrd(self, initrd):
+        self._entry_data[BOOM_ENTRY_INITRD] = initrd
+        self._dirty()
+
     @property
     def expand_initrd(self):
         """The loadable initramfs image for this ``BootEntry`` with any
@@ -2182,11 +2197,6 @@ class BootEntry:
         :type: string
         """
         return self._initrd(expand=True)
-
-    @initrd.setter
-    def initrd(self, initrd):
-        self._entry_data[BOOM_ENTRY_INITRD] = initrd
-        self._dirty()
 
     @property
     def efi(self):
@@ -2326,7 +2336,7 @@ class BootEntry:
         self._entry_data[BOOM_ENTRY_GRUB_ID] = ident
 
     @property
-    def _entry_path(self):
+    def _entry_path(self) -> str:
         id_tuple = (self.machine_id, self.boot_id[0:7], self.version)
         file_name = BOOT_ENTRIES_FORMAT % id_tuple
         return path_join(boom_entries_path(), file_name)
@@ -2338,7 +2348,7 @@ class BootEntry:
             return self._last_path
         return self._entry_path
 
-    def write_entry(self, force=False, expand=False):
+    def write_entry(self, force: bool = False, expand: bool = False):
         """Write out entry to disk.
 
         Write out this ``BootEntry``'s data to a file in BLS
@@ -2461,6 +2471,45 @@ class BootEntry:
 
         if not self._unwritten:
             _del_entry(self)
+
+
+def find_entries(selection: Optional[Selection] = None) -> List[BootEntry]:
+    """Find boot entries matching selection criteria.
+
+    Return a list of ``BootEntry`` objects matching the specified
+    criteria. Matching proceeds as the logical 'and' of all criteria.
+    Criteria that are unset (``None``) are ignored.
+
+    If no ``BootEntry`` matches the specified criteria the empty list
+    is returned.
+
+    Boot entries will be automatically loaded from disk if they are
+    not already in memory.
+
+    :param selection: A ``Selection`` object specifying the match
+                      criteria for the operation.
+    :returns: a list of ``BootEntry`` objects.
+    :rtype: list
+    """
+    if not _entries:
+        load_entries()
+
+    matches = []
+
+    # Use null search criteria if unspecified
+    selection = selection if selection else Selection()
+
+    selection.check_valid_selection(entry=True, params=True, profile=True)
+
+    _log_debug_entry("Finding entries for %s", repr(selection))
+
+    if _entries:
+        for be in _entries:
+            if select_entry(selection, be):
+                matches.append(be)
+
+    _log_debug_entry("Found %d entries", len(matches))
+    return matches
 
 
 __all__ = [

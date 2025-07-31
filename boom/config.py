@@ -17,9 +17,17 @@ from os.path import dirname
 from os import fdopen, rename, chmod, fdatasync, unlink
 from configparser import ConfigParser, ParsingError
 from tempfile import mkstemp
+from typing import Optional
 import logging
 
-from boom import *
+from boom import (
+    BOOT_CONFIG_MODE,
+    BoomConfig,
+    BoomError,
+    get_boom_config_path,
+    get_boom_config,
+    set_boom_config,
+)
 
 
 class BoomConfigError(BoomError):
@@ -61,7 +69,7 @@ _CFG_CACHE_AUTOCLEAN = "auto_clean"
 _CFG_CACHE_PATH = "cache_path"
 
 
-def _read_boom_config(path=None):
+def _read_boom_config(path: Optional[str] = None) -> BoomConfig:
     """Read boom persistent configuration values from the defined path
     and return them as a ``BoomConfig`` object.
 
@@ -128,7 +136,7 @@ def _read_boom_config(path=None):
     return bc
 
 
-def load_boom_config(path=None):
+def load_boom_config(path: Optional[str] = None) -> BoomConfig:
     """Load boom persistent configuration values from the defined path
     and make the them the active configuration.
 
@@ -142,7 +150,7 @@ def load_boom_config(path=None):
     return bc
 
 
-def _sync_config(bc, cfg):
+def _sync_config(bc: BoomConfig, cfg: ConfigParser):
     """Sync the configuration values of ``BoomConfig`` object ``bc`` to
     the ``ConfigParser`` ``cfg``.
     """
@@ -173,7 +181,7 @@ def _sync_config(bc, cfg):
         cfg.set(_CFG_SECT_CACHE, _CFG_CACHE_PATH, bc.cache_path)
 
 
-def __make_config(bc):
+def __make_config(bc: BoomConfig) -> BoomConfig:
     """Create a new ``ConfigParser`` corresponding to the ``BoomConfig``
     object ``bc`` and return the result.
     """
@@ -186,7 +194,7 @@ def __make_config(bc):
     return bc
 
 
-def write_boom_config(config=None, path=None):
+def write_boom_config(config: Optional[BoomConfig] = None, path: Optional[str] = None):
     """Write boom configuration to disk.
 
     :param config: the configuration values to write, or None to
@@ -202,14 +210,15 @@ def write_boom_config(config=None, path=None):
 
     config = config or get_boom_config()
 
-    if not hasattr("config", "_cfg") or not config._cfg:
+    if not config._cfg:
         __make_config(config)
     else:
         _sync_config(config, config._cfg)
 
-    with fdopen(tmp_fd, "w") as f_tmp:
-        config._cfg.write(f_tmp)
-        fdatasync(tmp_fd)
+    if config._cfg:
+        with fdopen(tmp_fd, "w") as f_tmp:
+            config._cfg.write(f_tmp)
+            fdatasync(tmp_fd)
 
     try:
         rename(tmp_path, path)

@@ -25,11 +25,40 @@ property names) are identical to those used by the ``OsProfile`` class.
 """
 from hashlib import sha1
 from os.path import join as path_join
+from typing import Any, Callable, Dict, List, Optional
 import logging
 import string
 
-from boom import *
-from boom.osprofile import *
+from boom import (
+    BOOM_DEBUG_PROFILE,
+    FMT_KERNEL,
+    FMT_INITRAMFS,
+    FMT_ROOT_OPTS,
+    Selection,
+    get_boom_path,
+    min_id_width,
+    load_profiles_for_class,
+)
+from boom.osprofile import (
+    OS_KEY_NAMES,
+    BOOM_OS_ID,
+    BOOM_OS_NAME,
+    BOOM_OS_SHORT_NAME,
+    BOOM_OS_VERSION,
+    BOOM_OS_VERSION_ID,
+    BOOM_OS_UNAME_PATTERN,
+    BOOM_OS_KERNEL_PATTERN,
+    BOOM_OS_INITRAMFS_PATTERN,
+    BOOM_OS_ROOT_OPTS_LVM2,
+    BOOM_OS_ROOT_OPTS_BTRFS,
+    BOOM_OS_OPTIONS,
+    BOOM_OS_TITLE,
+    BOOM_OS_OPTIONAL_KEYS,
+    BoomProfile,
+    OsProfile,
+    find_profiles,
+    key_from_key_name,
+)
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
@@ -43,8 +72,8 @@ _log_error = _log.error
 
 #: Global host profile list
 _host_profiles = []
-_host_profiles_by_id = {}
-_host_profiles_by_host_id = {}
+_host_profiles_by_id: Dict[str, Dict[str, "HostProfile"]] = {}
+_host_profiles_by_host_id: Dict[str, "HostProfile"] = {}
 
 #: Whether profiles have been read from disk
 _host_profiles_loaded = False
@@ -136,7 +165,7 @@ HOST_REQUIRED_KEYS = HOST_PROFILE_KEYS[0:4]
 HOST_OPTIONAL_KEYS = HOST_PROFILE_KEYS[4:]
 
 
-def _host_exists(host_id):
+def _host_exists(host_id) -> bool:
     """Test whether the specified ``host_id`` already exists.
 
     Used during ``HostProfile`` initialisation to test if the new
@@ -156,7 +185,7 @@ def _host_exists(host_id):
     return False
 
 
-def boom_host_profiles_path():
+def boom_host_profiles_path() -> str:
     """Return the path to the boom host profiles directory.
 
     :returns: The boom host profiles path.
@@ -165,7 +194,7 @@ def boom_host_profiles_path():
     return path_join(get_boom_path(), BOOM_HOST_PROFILES)
 
 
-def host_profiles_loaded():
+def host_profiles_loaded() -> bool:
     """Test whether profiles have been loaded from disk.
 
     :rtype: bool
@@ -229,7 +258,7 @@ def write_host_profiles(force=False):
             )
 
 
-def min_host_id_width():
+def min_host_id_width() -> int:
     """Calculate the minimum unique width for host_id values.
 
     Calculate the minimum width to ensure uniqueness when displaying
@@ -241,7 +270,7 @@ def min_host_id_width():
     return min_id_width(7, _host_profiles, "host_id")
 
 
-def min_machine_id_width():
+def min_machine_id_width() -> int:
     """Calculate the minimum unique width for host_id values.
 
     Calculate the minimum width to ensure uniqueness when displaying
@@ -253,7 +282,7 @@ def min_machine_id_width():
     return min_id_width(7, _host_profiles, "machine_id")
 
 
-def select_host_profile(s, hp):
+def select_host_profile(s, hp: "HostProfile") -> bool:
     """Test the supplied host profile against selection criteria.
 
     Test the supplied ``HostProfile`` against the selection criteria
@@ -300,7 +329,9 @@ def select_host_profile(s, hp):
     return True
 
 
-def find_host_profiles(selection=None, match_fn=select_host_profile):
+def find_host_profiles(
+    selection: Optional[Selection] = None, match_fn: Callable = select_host_profile
+) -> List["HostProfile"]:
     """Find host profiles matching selection criteria.
 
     Return a list of ``HostProfile`` objects matching the specified
@@ -345,7 +376,7 @@ def find_host_profiles(selection=None, match_fn=select_host_profile):
     return matches
 
 
-def get_host_profile_by_id(machine_id, label=""):
+def get_host_profile_by_id(machine_id, label="") -> Optional["HostProfile"]:
     """Find a HostProfile by its machine_id.
 
     Return the HostProfile object corresponding to ``machine_id``,
@@ -363,7 +394,7 @@ def get_host_profile_by_id(machine_id, label=""):
     return None
 
 
-def match_host_profile(entry):
+def match_host_profile(entry) -> Optional["HostProfile"]:
     """Attempt to match a BootEntry to a corresponding HostProfile.
 
     Attempt to find a loaded ``HostProfile`` object with the a
@@ -415,7 +446,6 @@ class HostProfile(BoomProfile):
     ``OsProfile`` instance.
     """
 
-    _profile_data = None
     _unwritten = False
     _comments = None
 
@@ -425,18 +455,22 @@ class HostProfile(BoomProfile):
 
     _osp = None
 
-    def _key_data(self, key):
-        if key in self._profile_data:
+    def _key_data(self, key) -> Optional[str]:
+        if self._profile_data and key in self._profile_data:
             return self._profile_data[key]
-        if key in self.osp._profile_data:
+        if self.osp and self.osp._profile_data and key in self.osp._profile_data:
             return self.osp._profile_data[key]
         return None
 
-    def _have_key(self, key):
+    def _have_key(self, key) -> bool:
         """Test for presence of a Host or Os profile key."""
-        return key in self._profile_data or key in self.osp._profile_data
+        if self._profile_data and key in self._profile_data:
+            return True
+        if self.osp and self.osp._profile_data and key in self.osp._profile_data:
+            return True
+        return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Format this HostProfile as a human readable string.
 
         Profile attributes are printed as "Name: value, " pairs,
@@ -474,7 +508,7 @@ class HostProfile(BoomProfile):
         hp_str = hp_str.rstrip(tail)
         return hp_str
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Format this HostProfile as a machine readable string.
 
         Return a machine-readable representation of this ``HostProfile``
@@ -737,7 +771,7 @@ class HostProfile(BoomProfile):
     #   del_opts
 
     @property
-    def disp_os_id(self):
+    def disp_os_id(self) -> str:
         """The display os_id of this profile.
 
         Return the shortest prefix of this OsProfile's os_id that
@@ -746,16 +780,16 @@ class HostProfile(BoomProfile):
         :getter: return this OsProfile's os_id.
         :type: str
         """
-        return self.osp.disp_os_id
+        return self.osp.disp_os_id if self.osp else ""
 
     @property
-    def host_id(self):
-        if BOOM_HOST_ID not in self._profile_data:
+    def host_id(self) -> str:
+        if self._profile_data and BOOM_HOST_ID not in self._profile_data:
             self._generate_id()
-        return self._profile_data[BOOM_HOST_ID]
+        return self._profile_data[BOOM_HOST_ID] if self._profile_data else ""
 
     @property
-    def disp_host_id(self):
+    def disp_host_id(self) -> str:
         """The display host_id of this profile
 
         Return the shortest prefix of this HostProfile's os_id that
@@ -767,7 +801,7 @@ class HostProfile(BoomProfile):
         return self.host_id[: min_host_id_width()]
 
     @property
-    def disp_machine_id(self):
+    def disp_machine_id(self) -> str:
         """The machine_id of this host profile.
         Return the shortest prefix of this HostProfile's os_id that
         is unique within the current set of loaded profiles.
@@ -778,7 +812,7 @@ class HostProfile(BoomProfile):
         return self.machine_id[: min_machine_id_width()]
 
     @property
-    def machine_id(self):
+    def machine_id(self) -> str:
         """The machine_id of this host profile.
         Return the shortest prefix of this HostProfile's os_id that
         is unique within the current set of loaded profiles.
@@ -788,24 +822,28 @@ class HostProfile(BoomProfile):
                  will change the ``host_id``.
         :type: str
         """
-        return self._profile_data[BOOM_ENTRY_MACHINE_ID]
+        if self._profile_data and BOOM_ENTRY_MACHINE_ID in self._profile_data:
+            return self._profile_data[BOOM_ENTRY_MACHINE_ID]
+        return ""
 
     @machine_id.setter
-    def machine_id(self, value):
-        if value == self._profile_data[BOOM_ENTRY_MACHINE_ID]:
-            return
-        self._profile_data[BOOM_ENTRY_MACHINE_ID] = value
-        self._dirty()
-        self._generate_id()
+    def machine_id(self, value: str):
+        if self._profile_data and BOOM_ENTRY_MACHINE_ID in self._profile_data:
+            if value == self._profile_data[BOOM_ENTRY_MACHINE_ID]:
+                return
+        if self._profile_data:
+            self._profile_data[BOOM_ENTRY_MACHINE_ID] = value
+            self._dirty()
+            self._generate_id()
 
     @property
-    def os_id(self):
+    def os_id(self) -> str:
         """The ``os_id`` of this profile.
 
         :getter: returns the ``os_id`` as a string.
         :type: string
         """
-        return self.osp.os_id
+        return self.osp.os_id if self.osp else ""
 
     @os_id.setter
     def os_id(self, value):
@@ -817,7 +855,7 @@ class HostProfile(BoomProfile):
         self._generate_id()
 
     @property
-    def osp(self):
+    def osp(self) -> Optional[OsProfile]:
         """The ``OsProfile`` used by this ``HostProfile``.
 
         :getter: returns the ``OsProfile`` object used by this
@@ -921,6 +959,11 @@ class HostProfile(BoomProfile):
         if BOOM_OS_UNAME_PATTERN in self._profile_data:
             return self._profile_data[BOOM_OS_UNAME_PATTERN]
         return self.osp.uname_pattern
+
+    @uname_pattern.setter
+    def uname_pattern(self, value):
+        self._profile_data[BOOM_OS_UNAME_PATTERN] = value
+        self._dirty()
 
     #
     # Properties overridden or mapped to OsProfile
@@ -1053,9 +1096,18 @@ class HostProfile(BoomProfile):
 
     @property
     def optional_keys(self):
+        if BOOM_OS_OPTIONAL_KEYS in self._profile_data:
+            return self._profile_data[BOOM_OS_OPTIONAL_KEYS]
         if not self.osp or not self.osp.optional_keys:
             return ""
         return self.osp.optional_keys
+
+    @optional_keys.setter
+    def optional_keys(self, value):
+        for opt_key in optional_keys.split():
+            self._check_optional_key(opt_key)
+        self._profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
+        self._dirty()
 
     #
     # HostProfile specific properties

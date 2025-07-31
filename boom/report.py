@@ -26,7 +26,7 @@ import sys
 import uuid
 import math
 from json import dumps
-
+from typing import Callable, List, Optional, TextIO
 
 from boom import find_minimum_sha_prefix, BOOM_DEBUG_REPORT
 
@@ -93,16 +93,16 @@ class ReportOpts:
     # pylint: disable=too-many-arguments
     def __init__(
         self,
-        columns=_DEFAULT_COLUMNS,
-        headings=True,
-        buffered=True,
-        separator=" ",
-        field_name_prefix="",
-        unquoted=True,
-        aligned=True,
-        json=False,
-        columns_as_rows=False,
-        report_file=sys.stdout,
+        columns: int = _DEFAULT_COLUMNS,
+        headings: bool = True,
+        buffered: bool = True,
+        separator: str = " ",
+        field_name_prefix: str = "",
+        unquoted: bool = True,
+        aligned: bool = True,
+        json: bool = False,
+        columns_as_rows: bool = False,
+        report_file: TextIO = sys.stdout,
     ):
         """Initialise ReportOpts object.
 
@@ -175,7 +175,7 @@ class ReportObjType:
     type the ``data_fn`` member may be simply ``lambda x: x``.
     """
 
-    def __init__(self, objtype, desc, prefix, data_fn):
+    def __init__(self, objtype: int, desc: str, prefix: str, data_fn: Callable):
         """
         Initialise ReportObjType.
 
@@ -192,9 +192,6 @@ class ReportObjType:
         if not desc:
             raise ValueError("ReportObjType desc cannot be empty.")
 
-        if not data_fn:
-            raise ValueError("ReportObjType requires data_fn.")
-
         self.objtype = objtype
         self.desc = desc
         self.prefix = prefix
@@ -210,7 +207,17 @@ class FieldType:
     """
 
     # pylint: disable=too-many-arguments
-    def __init__(self, objtype, name, head, desc, width, dtype, report_fn, align=None):
+    def __init__(
+        self,
+        objtype: int,
+        name: str,
+        head: str,
+        desc: str,
+        width: int,
+        dtype: str,
+        report_fn: Callable,
+        align: Optional[str] = None,
+    ):
         """
         Initialise new FieldType object.
 
@@ -265,19 +272,19 @@ class FieldProperties:
 
     def __init__(
         self,
-        field_num=None,
-        initial_width=0,
-        width=0,
-        objtype=None,
-        dtype=None,
-        align=None,
-        hidden=False,
-        implicit=False,
-        sort_key=False,
-        sort_dir=None,
-        compact_one=False,
-        compacted=False,
-        sort_posn=None,
+        field_num: int = 0,
+        initial_width: int = 0,
+        width: int = 0,
+        objtype: Optional[ReportObjType] = None,
+        dtype: Optional[str] = None,
+        align: Optional[str] = None,
+        hidden: bool = False,
+        implicit: bool = False,
+        sort_key: bool = False,
+        sort_dir: Optional[str] = None,
+        compact_one: bool = False,
+        compacted: bool = False,
+        sort_posn: Optional[int] = None,
     ):
         self.field_num = field_num
         self.initial_width = initial_width
@@ -306,7 +313,7 @@ class Field:
     """
 
     #: reference to the containing Report
-    def __init__(self, report, props):
+    def __init__(self, report: "Report", props: FieldProperties):
         """
         Initialise a new Field object.
 
@@ -319,9 +326,9 @@ class Field:
         self.report = report
         self.props = props
         self.report_string = ""
-        self.sort_value = None
+        self.sort_value: Optional[str] = None
 
-    def report_str(self, value):
+    def report_str(self, value: str):
         """
         Report a string value for this Field object.
 
@@ -334,7 +341,7 @@ class Field:
             raise TypeError("Value for report_str() must be a string type.")
         self.set_value(value, sort_value=value)
 
-    def report_sha(self, value):
+    def report_sha(self, value: str):
         """
         Report a SHA value for this Field object.
 
@@ -423,7 +430,7 @@ class Field:
         list_value = ", ".join(value)
         self.set_value(list_value, sort_value=list_value)
 
-    def set_value(self, report_string, sort_value=None):
+    def set_value(self, report_string: str, sort_value: Optional[str] = None):
         """
         Report an arbitrary value for this Field object.
 
@@ -448,12 +455,12 @@ class Row:
     A class representing a single data row making up a report.
     """
 
-    def __init__(self, report):
+    def __init__(self, report: "Report"):
         self.report = report
-        self._fields = []
+        self._fields: List[Field] = []
         self.sort_fields = None
 
-    def add_field(self, field):
+    def add_field(self, field: Field):
         """
         Add a field to this Row.
 
@@ -521,8 +528,6 @@ class Report:
     # Implicit field support
     _implicit_types = _implicit_special_report_types
     _implicit_fields = _implicit_special_report_fields
-
-    opts = None
 
     def __help_requested(self):
         """
@@ -832,7 +837,15 @@ class Report:
                 raise err
 
     # pylint: disable=too-many-arguments
-    def __init__(self, types, fields, output_fields, opts, sort_keys, title):
+    def __init__(
+        self,
+        types: List[ReportObjType],
+        fields: List[FieldType],
+        output_fields: str,
+        opts: ReportOpts,
+        sort_keys: Optional[str],
+        title: str,
+    ):
         """
         Initialise Report.
 
@@ -851,8 +864,6 @@ class Report:
         self.keys_count = 0
 
         self._data = None
-        self._rows = None
-        self._field_properties = None
         self._header_written = False
         self._field_calc_needed = True
         self._sort_required = False
@@ -865,10 +876,10 @@ class Report:
         if opts.buffered:
             self._sort_required = True
 
-        self.opts = opts if opts else ReportOpts()
+        self.opts: ReportOpts = opts if opts else ReportOpts()
 
-        self._rows = []
-        self._field_properties = []
+        self._rows: List[Row] = []
+        self._field_properties: List[FieldProperties] = []
 
         # set field_prefix from type
 
@@ -1132,7 +1143,7 @@ class Report:
             return self.report_output()
         return ""
 
-    def _output_field(self, field):
+    def _output_field(self, field: Field) -> str:
         """
         Output field data.
 
@@ -1270,7 +1281,7 @@ class Report:
             rows[f"{self._title}"].append(row_vals)
         self.opts.report_file.write(dumps(rows, indent=4) + "\n")
 
-    def report_output(self):
+    def report_output(self) -> None:
         """
         Output report data.
 
@@ -1284,7 +1295,7 @@ class Report:
         :rtype: ``int``
         """
         if self._already_reported:
-            return ""
+            return
         if self._field_calc_needed:
             self.__recalculate_sha_width()
             self.__recalculate_fields()
