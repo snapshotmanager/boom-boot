@@ -26,15 +26,99 @@ import platform
 import logging
 import re
 
-from boom import *
-from boom.osprofile import *
-from boom.report import *
-from boom.bootloader import *
-from boom.hostprofile import *
-from boom.legacy import *
-from boom.config import *
-from boom.cache import *
-from boom.mounts import *
+from boom import (
+    BOOM_CONFIG_FILE,
+    MIN_ID_WIDTH,
+    BOOM_DEBUG_PROFILE,
+    BOOM_DEBUG_ENTRY,
+    BOOM_DEBUG_REPORT,
+    BOOM_DEBUG_COMMAND,
+    BOOM_DEBUG_ALL,
+    Selection,
+    get_boom_config,
+    parse_btrfs_subvol,
+    set_debug_mask,
+    set_boot_path,
+    get_boom_config_path,
+    set_boom_config_path,
+    get_boom_path,
+)
+from boom.osprofile import (
+    BOOM_OS_ID,
+    BOOM_OS_NAME,
+    BOOM_OS_SHORT_NAME,
+    BOOM_OS_VERSION,
+    BOOM_OS_VERSION_ID,
+    BOOM_OS_OPTIONS,
+    BOOM_OS_UNAME_PATTERN,
+    BOOM_OS_KERNEL_PATTERN,
+    BOOM_OS_INITRAMFS_PATTERN,
+    BOOM_OS_ROOT_OPTS_LVM2,
+    BOOM_OS_ROOT_OPTS_BTRFS,
+    BOOM_OS_OPTIONAL_KEYS,
+    OsProfile,
+    find_profiles,
+    match_os_profile_by_version,
+    boom_profiles_path,
+)
+from boom.report import (
+    REP_STR,
+    REP_SHA,
+    REP_NUM,
+    Report,
+    ReportOpts,
+    ReportObjType,
+    FieldType,
+)
+from boom.bootloader import (
+    BoomRootDeviceError,
+    DEV_PATTERN,
+    BOOM_ENTRY_GRUB_USERS,
+    BOOM_ENTRY_GRUB_ARG,
+    BOOM_ENTRY_GRUB_CLASS,
+    BOOM_ENTRY_GRUB_ID,
+    BOOM_ENTRY_MACHINE_ID,
+    OPTIONAL_KEYS,
+    BootEntry,
+    BootParams,
+    boom_entries_path,
+    key_to_bls_name,
+    optional_key_default,
+    find_entries,
+)
+from boom.hostprofile import (
+    BOOM_HOST_NAME,
+    BOOM_HOST_LABEL,
+    BOOM_HOST_ADD_OPTS,
+    BOOM_HOST_DEL_OPTS,
+    HostProfile,
+    find_host_profiles,
+    boom_host_profiles_path,
+)
+from boom.legacy import (
+    BOOM_LOADER_GRUB1,
+    BoomLegacyFormatError,
+    find_legacy_loader,
+    write_legacy_loader,
+    clear_legacy_loader,
+)
+from boom.config import (
+    BoomConfigError,
+    load_boom_config,
+    write_boom_config,
+)
+from boom.cache import (
+    find_cache_paths,
+    find_cache_images,
+    load_cache,
+    cache_path,
+    backup_path,
+    clean_cache,
+)
+from boom.mounts import (
+    parse_mount_units,
+    parse_swap_units,
+)
 
 #: The environment variable from which to take the location of the
 #: ``/boot`` file system.
