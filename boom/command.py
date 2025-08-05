@@ -679,7 +679,7 @@ _default_cache_fields = "path,imgid,ts,state"
 _verbose_cache_fields = "path,imgid,ts,mode,uid,gid,state,count"
 
 
-def _get_machine_id():
+def get_machine_id():
     """Return the current host's machine-id.
 
     Get the machine-id value for the running system by reading from
@@ -2553,7 +2553,7 @@ def _create_cmd(cmd_args, _select, _opts, identifier):
 
     if not cmd_args.machine_id:
         # Use host machine-id by default
-        machine_id = _get_machine_id()
+        machine_id = get_machine_id()
         if not machine_id:
             print("Could not determine machine_id")
             return 1
@@ -3283,7 +3283,7 @@ def _create_host_cmd(cmd_args, _select, _opts, identifier):
 
     if not cmd_args.machine_id:
         # Use host machine-id by default
-        machine_id = _get_machine_id()
+        machine_id = get_machine_id()
         if not machine_id:
             print("Could not determine machine_id")
             return 1
@@ -4311,6 +4311,9 @@ __all__ = [
     "I_NONE",
     "I_CACHE",
     "I_BACKUP",
+    # Environment
+    "get_machine_id",
+    "get_uts_release",
 ]
 
 # vim: set et ts=4 sw=4 :
