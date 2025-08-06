@@ -1,0 +1,3 @@
+[MESSAGES CONTROL]
+#disable=too-many-lines,too-few-public-methods,too-many-arguments,too-many-instance-attributes,too-many-positional-arguments
+disable=C0302,R0902,R0903,R0913,R0801,R0917
