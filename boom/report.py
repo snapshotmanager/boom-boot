@@ -841,10 +841,10 @@ class Report:
         self,
         types: List[ReportObjType],
         fields: List[FieldType],
-        output_fields: str,
+        output_fields: Optional[str],
         opts: ReportOpts,
         sort_keys: Optional[str],
-        title: str,
+        title: Optional[str],
     ):
         """
         Initialise Report.
@@ -871,7 +871,7 @@ class Report:
 
         self._fields = fields
         self._types = types
-        self._title = title
+        self._title = title or ""
 
         if opts.buffered:
             self._sort_required = True
