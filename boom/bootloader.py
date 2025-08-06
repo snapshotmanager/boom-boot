@@ -68,7 +68,7 @@ from boom import (
     MIN_ID_WIDTH,
 )
 from boom.osprofile import *
-from boom.hostprofile import find_host_profiles
+from boom.hostprofile import HostProfile, find_host_profiles
 from boom.stratis import is_stratis_device_path, symlink_to_pool_uuid
 from boom.lvm2 import is_lvm_device_path, vg_lv_from_device_path
 
@@ -1524,7 +1524,7 @@ class BootEntry:
         self,
         title: Optional[str] = None,
         machine_id: Optional[str] = None,
-        osprofile: Optional[OsProfile] = None,
+        osprofile: Optional[Union[OsProfile, HostProfile]] = None,
         boot_params: Optional[BootParams] = None,
         entry_file: Optional[str] = None,
         entry_data: Optional[Dict[str, str]] = None,
