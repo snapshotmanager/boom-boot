@@ -745,7 +745,7 @@ def _find_cache_entries(
     return matches
 
 
-def find_cache_paths(selection: None = None) -> List[Any]:
+def find_cache_paths(selection: Optional[Selection] = None) -> List[Any]:
     """Find cache entries matching selection criteria.
 
     Return a list of ``CacheEntry`` objects matching the supplied
