@@ -439,9 +439,9 @@ class BootParams:
         version: str,
         root_device: Optional[str] = None,
         lvm_root_lv: Optional[str] = None,
-        btrfs_subvol_path: None = None,
-        btrfs_subvol_id: None = None,
-        stratis_pool_uuid: None = None,
+        btrfs_subvol_path: Optional[str] = None,
+        btrfs_subvol_id: Optional[str] = None,
+        stratis_pool_uuid: Optional[str] = None,
         add_opts: Optional[List[str]] = None,
         del_opts: Optional[List[str]] = None,
     ):
