@@ -20,7 +20,8 @@ reports using the ``boom.report`` module.
 """
 from os import environ, uname, getcwd, makedirs
 from os.path import basename, exists as path_exists, isabs, join, sep
-from argparse import ArgumentParser
+from typing import Any, Dict, Callable, List, Optional, Set, Tuple, Union
+from argparse import Namespace, ArgumentParser
 from stat import filemode
 import platform
 import logging
@@ -114,6 +115,7 @@ from boom.cache import (
     cache_path,
     backup_path,
     clean_cache,
+    CacheEntry,
 )
 from boom.mounts import (
     parse_mount_units,
@@ -134,7 +136,7 @@ _log = logging.getLogger(__name__)
 _log.set_debug_mask(BOOM_DEBUG_COMMAND)
 
 _log_debug = _log.debug
-_log_debug_cmd = _log.debug_masked
+_log_debug_cmd = _log.debug
 _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
@@ -168,7 +170,11 @@ class ReportObj:
     ce = None
 
     def __init__(
-        self, boot_entry=None, os_profile=None, host_profile=None, cache_entry=None
+        self,
+        boot_entry: Optional[BootEntry] = None,
+        os_profile: Optional[Union[OsProfile, HostProfile]] = None,
+        host_profile: Optional[HostProfile] = None,
+        cache_entry: Optional[CacheEntry] = None,
     ):
         """Initialise new ReportObj objects.
 
@@ -447,7 +453,7 @@ _default_host_fields = "hostid,hostname,machineid,osid"
 _verbose_host_fields = _default_host_fields + ",options,addopts,delopts"
 
 
-def _int_if_val(val):
+def _int_if_val(val: Optional[str]) -> Optional[int]:
     """Return an int if val is defined or None otherwise.
 
     A TypeError exception is raised if val is defined but does
@@ -763,7 +769,7 @@ _default_cache_fields = "path,imgid,ts,state"
 _verbose_cache_fields = "path,imgid,ts,mode,uid,gid,state,count"
 
 
-def get_machine_id():
+def get_machine_id() -> str:
     """Return the current host's machine-id.
 
     Get the machine-id value for the running system by reading from
@@ -777,18 +783,18 @@ def get_machine_id():
     elif path_exists(_DBUS_MACHINE_ID):
         path = _DBUS_MACHINE_ID
     else:
-        return None
+        return ""
 
     with open(path, "r", encoding="utf8") as f:
         try:
             machine_id = f.read().strip()
         except Exception as e:
             _log_error("Could not read machine-id from '%s': %s", path, e)
-            machine_id = None
+            machine_id = ""
     return machine_id
 
 
-def _str_indent(strdata, indent):
+def _str_indent(strdata: str, indent: int) -> str:
     """Indent all lines of a multi-line string.
 
     Indent each line of the multi line string ``strdata`` to the
@@ -804,7 +810,7 @@ def _str_indent(strdata, indent):
     return outstr.rstrip("\n")
 
 
-def _canonicalize_lv_name(lvname):
+def _canonicalize_lv_name(lvname: str) -> str:
     """Canonicalize an LVM2 logical volume name as "VG/LV", removing any
     "/dev/" prefix and return the result as a string.
 
@@ -833,13 +839,13 @@ def __write_legacy():
 
 
 def _do_print_type(
-    report_fields,
-    selected,
-    output_fields=None,
-    opts=None,
-    sort_keys=None,
-    title=None,
-):
+    report_fields: List[FieldType],
+    selected: List[ReportObj],
+    output_fields: Optional[str] = None,
+    opts: Optional[ReportOpts] = None,
+    sort_keys: Optional[str] = None,
+    title: Optional[str] = None,
+) -> None:
     """Print an object type report (entry, osprofile, hostprofile).
 
     Helper for list function that generate Reports.
@@ -876,7 +882,9 @@ def _do_print_type(
     return br.report_output()
 
 
-def _merge_add_del_opts(bp, add_opts, del_opts):
+def _merge_add_del_opts(
+    bp: BootParams, add_opts: Optional[str], del_opts: Optional[str]
+) -> Tuple[List[str], List[str]]:
     """Merge a set of existing bootparams option alterations with
     a set of command-line provided values to produce a single
     set of options to add or remove from a cloned or edited
@@ -921,32 +929,32 @@ def _merge_add_del_opts(bp, add_opts, del_opts):
     r_del_opts = []
     r_add_opts = []
 
-    add_opts = add_opts.split() if add_opts else []
-    del_opts = del_opts.split() if del_opts else []
+    add_opts_list = add_opts.split() if add_opts else []
+    del_opts_list = del_opts.split() if del_opts else []
 
-    for add_opt in list(add_opts):
+    for add_opt in add_opts_list.copy():
         # Do not allow conflicting command line add/del opts
-        if add_opt in del_opts:
+        if add_opt in del_opts_list:
             raise ValueError(
                 f"Conflicting --add-opts {add_opt} and --del-opts {del_opts}"
             )
 
         if add_opt in bp.del_opts:
             r_del_opts.append(add_opt)
-            add_opts.remove(add_opt)
+            add_opts_list.remove(add_opt)
 
-    for del_opt in list(del_opts):
+    for del_opt in del_opts_list.copy():
         if del_opt in bp.add_opts:
             r_add_opts.append(del_opt)
-            del_opts.remove(del_opt)
+            del_opts_list.remove(del_opt)
 
-    add_opts = _merge_opts(bp.add_opts, add_opts, r_add_opts)
-    del_opts = _merge_opts(bp.del_opts, del_opts, r_del_opts)
+    add_opts_list = _merge_opts(bp.add_opts, add_opts_list, r_add_opts)
+    del_opts_list = _merge_opts(bp.del_opts, del_opts_list, r_del_opts)
 
-    _log_debug_cmd("Effective add options: %s", add_opts)
-    _log_debug_cmd("Effective del options: %s", del_opts)
+    _log_debug_cmd("Effective add options: %s", add_opts_list)
+    _log_debug_cmd("Effective del options: %s", del_opts_list)
 
-    return (add_opts, del_opts)
+    return (add_opts_list, del_opts_list)
 
 
 #
@@ -966,7 +974,7 @@ I_BACKUP = "backup"
 #
 
 
-def _cache_image(img_path, backup, update=False):
+def _cache_image(img_path: str, backup: bool, update: bool = False) -> str:
     """Cache the image found at ``img_path`` and optionally create
     a backup copy.
     """
@@ -986,7 +994,7 @@ def _cache_image(img_path, backup, update=False):
     return ce.path
 
 
-def _find_one_entry(select):
+def _find_one_entry(select: Selection) -> BootEntry:
     """Find exactly one entry, and raise ValueError if zero or more
     than one entry is found.
 
@@ -1003,26 +1011,26 @@ def _find_one_entry(select):
 
 
 def create_entry(
-    title,
-    version,
-    machine_id,
-    root_device,
-    lvm_root_lv=None,
-    btrfs_subvol_path=None,
-    btrfs_subvol_id=None,
-    profile=None,
-    add_opts=None,
-    del_opts=None,
-    write=True,
-    architecture=None,
-    expand=False,
-    allow_no_dev=False,
-    images=I_NONE,
-    update=False,
-    no_fstab=False,
-    mounts=None,
-    swaps=None,
-):
+    title: str,
+    version: str,
+    machine_id: str,
+    root_device: str,
+    lvm_root_lv: Optional[str] = None,
+    btrfs_subvol_path: Optional[str] = None,
+    btrfs_subvol_id: Optional[str] = None,
+    profile: Optional[Union[OsProfile, HostProfile]] = None,
+    add_opts: Optional[str] = None,
+    del_opts: Optional[str] = None,
+    write: bool = True,
+    architecture: Optional[str] = None,
+    expand: bool = False,
+    allow_no_dev: bool = False,
+    images: Optional[str] = I_NONE,
+    update: bool = False,
+    no_fstab: bool = False,
+    mounts: Optional[List[str]] = None,
+    swaps: Optional[List[str]] = None,
+) -> BootEntry:
     """Create new boot loader entry.
 
     Create the specified boot entry in the configured loader directory.
@@ -1058,6 +1066,9 @@ def create_entry(
              a duplicate entry exists, or ``OsError`` if an error
              occurs while writing the entry file.
     """
+    if not profile:
+        raise ValueError("Cannot create entry without OsProfile.")
+
     if not title and not profile.title:
         raise ValueError("Entry title cannot be empty.")
 
@@ -1070,9 +1081,6 @@ def create_entry(
     if not root_device:
         raise ValueError("Entry requires a root_device.")
 
-    if not profile:
-        raise ValueError("Cannot create entry without OsProfile.")
-
     bc = get_boom_config()
     if images is not I_NONE and not bc.cache_enable:
         raise BoomConfigError(
@@ -1080,26 +1088,26 @@ def create_entry(
             " (config.cache_enable=False)"
         )
 
-    add_opts = add_opts.split() if add_opts else []
-    del_opts = del_opts.split() if del_opts else []
+    add_opts_list = add_opts.split() if add_opts else []
+    del_opts_list = del_opts.split() if del_opts else []
 
     if no_fstab:
-        add_opts.append("fstab=no")
+        add_opts_list.append("fstab=no")
         # Ensure that root is mounted read-write
-        if "ro" not in del_opts:
-            del_opts.append("ro")
-            add_opts.append("rw")
+        if "ro" not in del_opts_list:
+            del_opts_list.append("ro")
+            add_opts_list.append("rw")
 
     if mounts:
         mount_units = parse_mount_units(mounts)
-        add_opts.extend(mount_units)
+        add_opts_list.extend(mount_units)
 
     if swaps:
         swap_units = parse_swap_units(swaps)
-        add_opts.extend(swap_units)
+        add_opts_list.extend(swap_units)
 
-    _log_debug_cmd("Effective add options: %s", add_opts)
-    _log_debug_cmd("Effective del options: %s", del_opts)
+    _log_debug_cmd("Effective add options: %s", add_opts_list)
+    _log_debug_cmd("Effective del options: %s", del_opts_list)
 
     bp = BootParams(
         version,
@@ -1107,8 +1115,8 @@ def create_entry(
         lvm_root_lv=lvm_root_lv,
         btrfs_subvol_path=btrfs_subvol_path,
         btrfs_subvol_id=btrfs_subvol_id,
-        add_opts=add_opts,
-        del_opts=del_opts,
+        add_opts=add_opts_list,
+        del_opts=del_opts_list,
     )
 
     be = BootEntry(
@@ -1134,7 +1142,7 @@ def create_entry(
     return be
 
 
-def delete_entries(selection=None):
+def delete_entries(selection: Optional[Selection] = None) -> int:
     """Delete entries matching selection criteria.
 
     Delete the specified boot entry or entries from the configured
@@ -1169,26 +1177,26 @@ def delete_entries(selection=None):
 
 
 def clone_entry(
-    selection=None,
-    title=None,
-    version=None,
-    machine_id=None,
-    root_device=None,
-    lvm_root_lv=None,
-    btrfs_subvol_path=None,
-    btrfs_subvol_id=None,
-    profile=None,
-    architecture=None,
-    add_opts=None,
-    del_opts=None,
-    write=True,
-    expand=False,
-    allow_no_dev=False,
-    images=I_NONE,
-    no_fstab=False,
-    mounts=None,
-    swaps=None,
-):
+    selection: Optional[Selection] = None,
+    title: Optional[str] = None,
+    version: Optional[str] = None,
+    machine_id: Optional[str] = None,
+    root_device: Optional[str] = None,
+    lvm_root_lv: Optional[str] = None,
+    btrfs_subvol_path: None = None,
+    btrfs_subvol_id: Optional[str] = None,
+    profile: Optional[Union[OsProfile, HostProfile]] = None,
+    architecture: None = None,
+    add_opts: Optional[str] = None,
+    del_opts: Optional[str] = None,
+    write: bool = True,
+    expand: bool = False,
+    allow_no_dev: bool = False,
+    images: Optional[str] = I_NONE,
+    no_fstab: bool = False,
+    mounts: Optional[str] = None,
+    swaps: Optional[str] = None,
+) -> BootEntry:
     """Clone an existing boot loader entry.
 
     Create the specified boot entry in the configured loader directory
@@ -1224,6 +1232,8 @@ def clone_entry(
              a duplicate entry exists, or ``OsError`` if an error
              occurs while writing the entry file.
     """
+    if not selection:
+        raise ValueError("clone requires selection criteria")
     if not selection.boot_id or selection.boot_id is None:
         raise ValueError("clone requires boot_id")
 
@@ -1262,18 +1272,20 @@ def clone_entry(
     profile = profile if profile else be._osp
 
     bp = BootParams.from_entry(be, expand=expand)
-    (add_opts, del_opts) = _merge_add_del_opts(bp, add_opts, del_opts)
+    print(f"add_opts: {add_opts} del_opts: {del_opts}")
+    (add_opts_list, del_opts_list) = _merge_add_del_opts(bp, add_opts, del_opts)
+    print(f"add_opts_list: {add_opts_list} del_opts_list: {del_opts_list}")
 
     if no_fstab:
-        add_opts.append("fstab=no")
+        add_opts_list.append("fstab=no")
 
     if mounts:
         mount_units = parse_mount_units(mounts)
-        add_opts.extend(mount_units)
+        add_opts_list.extend(mount_units)
 
     if swaps:
         swap_units = parse_swap_units(swaps)
-        add_opts.extend(swap_units)
+        add_opts_list.extend(swap_units)
 
     bp.root_device = root_device if root_device else bp.root_device
     bp.lvm_root_lv = lvm_root_lv if lvm_root_lv else bp.lvm_root_lv
@@ -1298,14 +1310,15 @@ def clone_entry(
     if be.options != be.expand_options and not expand:
         clone_be.options = be.options
     else:
-        clone_be.bp.add_opts = add_opts
-        clone_be.bp.del_opts = del_opts
+        clone_be.bp.add_opts = add_opts_list
+        clone_be.bp.del_opts = del_opts_list
 
     # Clone optional keys allowed by profile
-    for optional_key in be._osp.optional_keys.split():
-        if optional_key in clone_be._osp.optional_keys:
-            if hasattr(be, optional_key):
-                setattr(clone_be, optional_key, getattr(be, optional_key))
+    if be._osp:
+        for optional_key in be._osp.optional_keys.split():
+            if clone_be._osp and optional_key in clone_be._osp.optional_keys:
+                if hasattr(be, optional_key):
+                    setattr(clone_be, optional_key, getattr(be, optional_key))
 
     # Boot image overrides?
     if be.initrd != clone_be.initrd:
@@ -1328,21 +1341,21 @@ def clone_entry(
 
 
 def edit_entry(
-    selection=None,
-    title=None,
-    version=None,
-    machine_id=None,
-    root_device=None,
-    lvm_root_lv=None,
-    btrfs_subvol_path=None,
-    btrfs_subvol_id=None,
-    profile=None,
-    architecture=None,
-    add_opts=None,
-    del_opts=None,
-    expand=False,
-    images=I_NONE,
-):
+    selection: Optional[Selection] = None,
+    title: Optional[str] = None,
+    version: Optional[str] = None,
+    machine_id: Optional[str] = None,
+    root_device: Optional[str] = None,
+    lvm_root_lv: Optional[str] = None,
+    btrfs_subvol_path: None = None,
+    btrfs_subvol_id: Optional[str] = None,
+    profile: None = None,
+    architecture: None = None,
+    add_opts: Optional[str] = None,
+    del_opts: Optional[str] = None,
+    expand: bool = False,
+    images: None = I_NONE,
+) -> BootEntry:
     """Edit an existing boot loader entry.
 
     Modify an existing BootEntry by changing one or more of the
@@ -1383,6 +1396,11 @@ def edit_entry(
         profile,
     )
 
+    if not selection:
+        raise ValueError("edit requires selection criteria")
+    if not selection.boot_id or selection.boot_id is None:
+        raise ValueError("edit requires boot_id")
+
     if not any(all_args):
         raise ValueError(
             "edit requires one or more of:\ntitle, version, "
@@ -1409,7 +1427,7 @@ def edit_entry(
     machine_id = machine_id or be.machine_id
     version = version or be.version
 
-    (add_opts, del_opts) = _merge_add_del_opts(be.bp, add_opts, del_opts)
+    (add_opts_list, del_opts_list) = _merge_add_del_opts(be.bp, add_opts, del_opts)
 
     be._osp = profile or be._osp
     be.title = title or be.title
@@ -1420,8 +1438,8 @@ def edit_entry(
     be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
     be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
     be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
-    be.bp.add_opts = add_opts
-    be.bp.del_opts = del_opts
+    be.bp.add_opts = add_opts_list
+    be.bp.del_opts = del_opts_list
 
     if images in (I_BACKUP, I_CACHE):
         be.initrd = _cache_image(be.initrd, images == I_BACKUP)
@@ -1437,7 +1455,7 @@ def edit_entry(
     return be
 
 
-def list_entries(selection=None):
+def list_entries(selection: Optional[Selection] = None) -> List[Union[Any, BootEntry]]:
     """List entries matching selection criteria.
 
     Return a list of ``boom.bootloader.BootEntry`` objects matching
@@ -1456,7 +1474,7 @@ def list_entries(selection=None):
     return bes
 
 
-def _expand_fields(default_fields, output_fields):
+def _expand_fields(default_fields: str, output_fields: Optional[str]) -> str:
     """Expand output fields list from command line arguments."""
 
     if not output_fields:
@@ -1467,8 +1485,12 @@ def _expand_fields(default_fields, output_fields):
 
 
 def print_entries(
-    selection=None, output_fields=None, opts=None, sort_keys=None, expand=None
-):
+    selection: Optional[Selection] = None,
+    output_fields: Optional[str] = None,
+    opts: Optional[ReportOpts] = None,
+    sort_keys: None = None,
+    expand: Optional[bool] = None,
+) -> None:
     """Print boot loader entries matching selection criteria.
 
     Format a set of ``boom.bootloader.BootEntry`` objects matching
@@ -1511,7 +1533,13 @@ def print_entries(
 #
 
 
-def _find_profile(cmd_args, version, machine_id, command, optional=True):
+def _find_profile(
+    cmd_args: Namespace,
+    version: str,
+    machine_id: str,
+    command: str,
+    optional: bool = True,
+) -> Optional[Union[OsProfile, HostProfile]]:
     """Find a matching profile (HostProfile or OsProfile) for this
     combination of version, machine_id, label and command line
     profile arguments
@@ -1580,7 +1608,7 @@ def _find_profile(cmd_args, version, machine_id, command, optional=True):
     return hp or osp
 
 
-def _uname_heuristic(name, version_id):
+def _uname_heuristic(name: str, version_id: str):
     """Attempt to guess a uname pattern for a given OS name and
     version_id value.
 
@@ -1614,7 +1642,7 @@ def _uname_heuristic(name, version_id):
     return None
 
 
-def _default_optional_keys(osp):
+def _default_optional_keys(osp: OsProfile) -> str:
     """Set default optional keys for OsProfile
 
     Attempt to set default optional keys for a given OsProfile
@@ -1635,7 +1663,9 @@ def _default_optional_keys(osp):
     return ""
 
 
-def _os_profile_from_file(os_release, uname_pattern, profile_data=None):
+def _os_profile_from_file(
+    os_release: str, uname_pattern: str, profile_data: Optional[Dict[str, str]] = None
+) -> OsProfile:
     """Create OsProfile from os-release file.
 
     Construct a new ``OsProfile`` object from the specified path,
@@ -1648,6 +1678,9 @@ def _os_profile_from_file(os_release, uname_pattern, profile_data=None):
     :returns: A new OsProfile
     :rtype: OsProfile
     """
+    if profile_data is None:
+        profile_data = {}
+
     profile_data[BOOM_OS_UNAME_PATTERN] = uname_pattern
     osp = OsProfile.from_os_release_file(os_release, profile_data=profile_data)
 
@@ -1673,20 +1706,20 @@ def _os_profile_from_file(os_release, uname_pattern, profile_data=None):
 
 
 def create_profile(
-    name,
-    short_name,
-    version,
-    version_id,
-    uname_pattern=None,
-    kernel_pattern=None,
-    initramfs_pattern=None,
-    root_opts_lvm2=None,
-    root_opts_btrfs=None,
-    options=None,
-    optional_keys=None,
-    profile_data=None,
-    profile_file=None,
-):
+    name: Optional[str],
+    short_name: Optional[str],
+    version: Optional[str],
+    version_id: Optional[str],
+    uname_pattern: str = "",
+    kernel_pattern: Optional[str] = None,
+    initramfs_pattern: Optional[str] = None,
+    root_opts_lvm2: Optional[str] = None,
+    root_opts_btrfs: Optional[str] = None,
+    options: Optional[str] = None,
+    optional_keys: Optional[str] = None,
+    profile_data: Optional[Dict[str, str]] = None,
+    profile_file: Optional[str] = None,
+) -> OsProfile:
     """Create new operating system profile.
 
     Create the specified OsProfile in the configured profiles
@@ -1792,7 +1825,7 @@ def create_profile(
     return osp
 
 
-def delete_profiles(selection=None):
+def delete_profiles(selection: Optional[Selection] = None) -> int:
     """Delete profiles matching selection criteria.
 
     Delete the specified OsProfile or profiles from the configured
@@ -1825,18 +1858,18 @@ def delete_profiles(selection=None):
 
 
 def clone_profile(
-    selection=None,
-    name=None,
-    short_name=None,
-    version=None,
-    version_id=None,
-    uname_pattern=None,
-    kernel_pattern=None,
-    initramfs_pattern=None,
-    root_opts_lvm2=None,
-    root_opts_btrfs=None,
-    options=None,
-):
+    selection: Optional[Selection] = None,
+    name: Optional[str] = None,
+    short_name: Optional[str] = None,
+    version: Optional[str] = None,
+    version_id: Optional[str] = None,
+    uname_pattern: Optional[str] = None,
+    kernel_pattern: Optional[str] = None,
+    initramfs_pattern: Optional[str] = None,
+    root_opts_lvm2: Optional[str] = None,
+    root_opts_btrfs: Optional[str] = None,
+    options: Optional[str] = None,
+) -> OsProfile:
     """Clone an existing operating system profile.
 
     Create the specified profile in the configured profile directory
@@ -1864,6 +1897,8 @@ def clone_profile(
              a duplicate profile exists, or ``OsError`` if an error
              occurs while writing the profile file.
     """
+    if not selection:
+        raise ValueError("clone requires selection criteria")
     if not selection.os_id:
         raise ValueError("clone requires os_id")
 
@@ -1928,15 +1963,15 @@ def clone_profile(
 
 
 def edit_profile(
-    selection=None,
-    uname_pattern=None,
-    kernel_pattern=None,
-    initramfs_pattern=None,
-    root_opts_lvm2=None,
-    root_opts_btrfs=None,
-    options=None,
-    optional_keys=None,
-):
+    selection: Optional[Selection] = None,
+    uname_pattern: Optional[str] = None,
+    kernel_pattern: Optional[str] = None,
+    initramfs_pattern: Optional[str] = None,
+    root_opts_lvm2: Optional[str] = None,
+    root_opts_btrfs: Optional[str] = None,
+    options: Optional[str] = None,
+    optional_keys: Optional[str] = None,
+) -> OsProfile:
     """Edit an existing operating system profile.
 
     Modify an existing OsProfile by changing one or more of the
@@ -1955,6 +1990,8 @@ def edit_profile(
     :returns: The modified ``OsProfile``
     :rtype: ``OsProfile``
     """
+    if not selection:
+        raise ValueError("edit requires selection criteria")
     # Discard all selection criteria but os_id.
     selection = Selection(os_id=selection.os_id)
 
@@ -1977,7 +2014,7 @@ def edit_profile(
     return osp
 
 
-def list_profiles(selection=None):
+def list_profiles(selection: None = None) -> List[OsProfile]:
     """List operating system profiles matching selection criteria.
 
     Return a list of ``boom.osprofile.OsProfile`` objects matching
@@ -1998,8 +2035,12 @@ def list_profiles(selection=None):
 
 # pylint: disable=unused-argument
 def print_profiles(
-    selection=None, opts=None, output_fields=None, sort_keys=None, expand=False
-):
+    selection: Optional[Selection] = None,
+    opts: Optional[ReportOpts] = None,
+    output_fields: Optional[str] = None,
+    sort_keys: Optional[str] = None,
+    expand: bool = False,
+) -> None:
     """Print operating system profiles matching selection criteria.
 
     Selection criteria may be expressed via a Selection object
@@ -2031,19 +2072,19 @@ def print_profiles(
 
 
 def create_host(
-    machine_id=None,
-    host_name=None,
-    os_id=None,
-    label=None,
-    kernel_pattern=None,
-    initramfs_pattern=None,
-    root_opts_lvm2=None,
-    root_opts_btrfs=None,
-    options=None,
-    add_opts=None,
-    del_opts=None,
-    host_data=None,
-):
+    machine_id: Optional[str] = None,
+    host_name: Optional[str] = None,
+    os_id: Optional[str] = None,
+    label: Optional[str] = None,
+    kernel_pattern: Optional[str] = None,
+    initramfs_pattern: Optional[str] = None,
+    root_opts_lvm2: Optional[str] = None,
+    root_opts_btrfs: Optional[str] = None,
+    options: Optional[str] = None,
+    add_opts: Optional[str] = None,
+    del_opts: Optional[str] = None,
+    host_data: Dict[str, str] = {},
+) -> HostProfile:
     """Create new host profile.
 
     Create the specified HostProfile in the configured profiles
@@ -2092,9 +2133,6 @@ def create_host(
 
     label = label or ""
 
-    if not host_data:
-        host_data = {}
-
     # FIXME use kwarg style
 
     # Allow keyword arguments to override
@@ -2127,7 +2165,7 @@ def create_host(
     return hp
 
 
-def delete_hosts(selection=None):
+def delete_hosts(selection: Optional[Selection] = None) -> int:
     """Delete host profiles matching selection criteria.
 
     Delete the specified ``HostProfile`` or profiles from the
@@ -2160,19 +2198,19 @@ def delete_hosts(selection=None):
 
 
 def clone_host(
-    selection=None,
-    machine_id=None,
-    host_name=None,
-    label=None,
-    os_id=None,
-    kernel_pattern=None,
-    initramfs_pattern=None,
-    root_opts_lvm2=None,
-    root_opts_btrfs=None,
-    add_opts=None,
-    del_opts=None,
-    options=None,
-):
+    selection: Optional[Selection] = None,
+    machine_id: Optional[str] = None,
+    host_name: Optional[str] = None,
+    label: Optional[str] = None,
+    os_id: Optional[str] = None,
+    kernel_pattern: Optional[str] = None,
+    initramfs_pattern: Optional[str] = None,
+    root_opts_lvm2: Optional[str] = None,
+    root_opts_btrfs: Optional[str] = None,
+    add_opts: Optional[str] = None,
+    del_opts: Optional[str] = None,
+    options: Optional[str] = None,
+) -> HostProfile:
     """Clone an existing host profile.
 
     Create the specified profile in the configured profile directory
@@ -2201,6 +2239,8 @@ def clone_host(
              a duplicate profile exists, or ``OsError`` if an error
              occurs while writing the profile file.
     """
+    if not selection:
+        raise ValueError("clone requires selection criteria")
     if not selection.host_id:
         raise ValueError("clone requires host_id")
 
@@ -2269,19 +2309,19 @@ def clone_host(
 
 
 def edit_host(
-    selection=None,
-    machine_id=None,
-    os_id=None,
-    host_name=None,
-    label=None,
-    kernel_pattern=None,
-    initramfs_pattern=None,
-    root_opts_lvm2=None,
-    root_opts_btrfs=None,
-    add_opts=None,
-    del_opts=None,
-    options=None,
-):
+    selection: Optional[Selection] = None,
+    machine_id: Optional[str] = None,
+    os_id: Optional[str] = None,
+    host_name: Optional[str] = None,
+    label: Optional[str] = None,
+    kernel_pattern: Optional[str] = None,
+    initramfs_pattern: Optional[str] = None,
+    root_opts_lvm2: Optional[str] = None,
+    root_opts_btrfs: Optional[str] = None,
+    add_opts: Optional[str] = None,
+    del_opts: Optional[str] = None,
+    options: Optional[str] = None,
+) -> HostProfile:
     """Edit an existing host profile.
 
     Modify an existing HostProfile by changing one or more of the
@@ -2306,6 +2346,8 @@ def edit_host(
     :returns: The modified ``HostProfile``
     :rtype: ``HostProfile``
     """
+    if not selection:
+        raise ValueError("edit requires selection criteria")
     # Discard all selection criteria but host_id.
     selection = Selection(host_id=selection.host_id)
 
@@ -2333,7 +2375,7 @@ def edit_host(
     return hp
 
 
-def list_hosts(selection=None):
+def list_hosts(selection: None = None) -> List[HostProfile]:
     """List host profiles matching selection criteria.
 
     Return a list of ``boom.hostprofile.HostProfile`` objects
@@ -2354,8 +2396,12 @@ def list_hosts(selection=None):
 
 # pylint: disable=unused-argument
 def print_hosts(
-    selection=None, opts=None, output_fields=None, sort_keys=None, expand=False
-):
+    selection: Optional[Selection] = None,
+    opts: Optional[ReportOpts] = None,
+    output_fields: Optional[str] = None,
+    sort_keys: Optional[str] = None,
+    expand: bool = False,
+) -> None:
     """Print host profiles matching selection criteria.
 
     Selection criteria may be expressed via a Selection object
@@ -2387,8 +2433,13 @@ def print_hosts(
 
 # pylint: disable=unused-argument
 def _print_cache(
-    find_fn, selection=None, opts=None, output_fields=None, sort_keys=None, expand=False
-):
+    find_fn: Callable,
+    selection: Optional[Selection] = None,
+    opts: Optional[ReportOpts] = None,
+    output_fields: Optional[str] = None,
+    sort_keys: Optional[str] = None,
+    expand: bool = False,
+) -> None:
     """Print cache entries (with or without images) matching selection
     criteria.
 
@@ -2421,8 +2472,12 @@ def _print_cache(
 
 # pylint: disable=unused-argument
 def print_cache(
-    selection=None, opts=None, output_fields=None, sort_keys=None, expand=False
-):
+    selection: Optional[Selection] = None,
+    opts: Optional[ReportOpts] = None,
+    output_fields: None = None,
+    sort_keys: Optional[str] = None,
+    expand: bool = False,
+) -> None:
     """Print cache entries matching selection criteria.
 
     Selection criteria may be expressed via a ``Selection`` object
@@ -2504,7 +2559,7 @@ def create_config():
 #
 
 
-def _apply_profile_overrides(boot_entry, cmd_args):
+def _apply_profile_overrides(boot_entry: BootEntry, cmd_args: Namespace):
     if cmd_args.linux:
         boot_entry.linux = cmd_args.linux
 
@@ -2512,7 +2567,7 @@ def _apply_profile_overrides(boot_entry, cmd_args):
         boot_entry.initrd = cmd_args.initrd
 
 
-def _optional_key_to_arg(optional_key):
+def _optional_key_to_arg(optional_key: str) -> Optional[str]:
     """Map a Boom optional key name constant to the boom command line
     argument it corresponds to.
 
@@ -2528,7 +2583,7 @@ def _optional_key_to_arg(optional_key):
     return _key_map[optional_key] if optional_key in _key_map else None
 
 
-def _apply_optional_keys(be, cmd_args):
+def _apply_optional_keys(be: BootEntry, cmd_args: Namespace):
     """Set the optional key values defined by ``cmd_args`` in the
     ``BootEntry`` ``be``. This function assumes that the caller
     has already checked that the active ``OsProfile`` accepts these
@@ -2545,7 +2600,9 @@ def _apply_optional_keys(be, cmd_args):
         be.grub_users = cmd_args.grub_users.strip()
 
 
-def _set_optional_key_defaults(profile, cmd_args):
+def _set_optional_key_defaults(
+    profile: Union[OsProfile, HostProfile], cmd_args: Namespace
+):
     """Apply default values for all optional keys supported by
     ``profile`` to command line arguments ``cmd_args``.
     """
@@ -2564,7 +2621,7 @@ def _set_optional_key_defaults(profile, cmd_args):
     return 0
 
 
-def _lv_from_device_string(dev_path):
+def _lv_from_device_string(dev_path: str) -> Optional[str]:
     """Return an LVM2 vg/lv name from a /dev/mapper device path."""
     if dev_path.startswith("/dev/mapper"):
         vg_lv_name = basename(dev_path)
@@ -2580,7 +2637,7 @@ def _lv_from_device_string(dev_path):
     return None
 
 
-def os_options_from_cmdline():
+def os_options_from_cmdline() -> Optional[str]:
     """Generate an os-options template from the running system."""
     options = ""
     vg_lv_name = None
@@ -2612,7 +2669,9 @@ def os_options_from_cmdline():
     return options.strip() if have_root else None
 
 
-def _create_cmd(cmd_args, _select, _opts, identifier):
+def _create_cmd(
+    cmd_args: Namespace, _select: Selection, _opts: ReportOpts, identifier: None
+):
     """Create entry command handler.
 
     Attempt to create a new boot entry using the arguments
@@ -2725,7 +2784,9 @@ def _create_cmd(cmd_args, _select, _opts, identifier):
     return 0
 
 
-def _delete_cmd(cmd_args, select, opts, identifier):
+def _delete_cmd(
+    cmd_args: Namespace, select: Selection, opts: ReportOpts, identifier: str
+):
     """Delete entry command handler.
 
     Attempt to delete boot entries matching the selection criteria
@@ -2768,7 +2829,7 @@ def _delete_cmd(cmd_args, select, opts, identifier):
     return 0
 
 
-def _clone_cmd(cmd_args, select, _opts, identifier):
+def _clone_cmd(cmd_args: Namespace, select: None, _opts: ReportOpts, identifier: None):
     """Clone entry command handler.
 
     Attempt to create a new boot entry by cloning an existing
@@ -2863,7 +2924,12 @@ def _clone_cmd(cmd_args, select, _opts, identifier):
     return 0
 
 
-def _show_cmd(cmd_args, select, _opts, identifier):
+def _show_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: None,
+    identifier: Optional[str],
+):
     """Show entry command handler.
 
     Show the boot entries that match the given selection criteria in
@@ -2899,7 +2965,13 @@ def _show_cmd(cmd_args, select, _opts, identifier):
     return 0
 
 
-def _generic_list_cmd(cmd_args, select, opts, verbose_fields, print_fn):
+def _generic_list_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    opts: Optional[ReportOpts],
+    verbose_fields: str,
+    print_fn: Callable,
+):
     """Generic list command implementation.
 
     Implements a simple list command that applies selection criteria
@@ -2937,7 +3009,9 @@ def _generic_list_cmd(cmd_args, select, opts, verbose_fields, print_fn):
     return 0
 
 
-def _list_cmd(cmd_args, select, opts, identifier):
+def _list_cmd(
+    cmd_args: Namespace, select: Selection, opts: ReportOpts, identifier: None
+) -> int:
     """List entry command handler.
     List the boot entries that match the given selection criteria as
     a tabular report, with one boot entry per row.
@@ -2961,7 +3035,7 @@ def _list_cmd(cmd_args, select, opts, identifier):
     )
 
 
-def _edit_cmd(cmd_args, select, _opts, identifier):
+def _edit_cmd(cmd_args: Namespace, select: None, _opts: ReportOpts, identifier: None):
     """Edit entry command handler.
 
     Attempt to edit an existing boot entry. The ``boot_id`` of
@@ -3043,7 +3117,9 @@ def _edit_cmd(cmd_args, select, _opts, identifier):
     return 0
 
 
-def _create_profile_cmd(cmd_args, _select, _opts, identifier):
+def _create_profile_cmd(
+    cmd_args: Namespace, _select: None, _opts: None, identifier: Optional[str]
+):
     """Create profile command handler.
     Attempt to create a new OS profile using the arguments
     supplied in ``cmd_args`` and return the command status
@@ -3117,7 +3193,12 @@ def _create_profile_cmd(cmd_args, _select, _opts, identifier):
     return 0
 
 
-def _delete_profile_cmd(cmd_args, select, _opts, identifier):
+def _delete_profile_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: None,
+    identifier: Optional[str],
+):
     """Delete profile command handler.
 
     Attempt to delete OS profiles matching the selection criteria
@@ -3155,7 +3236,9 @@ def _delete_profile_cmd(cmd_args, select, _opts, identifier):
     return 0
 
 
-def _clone_profile_cmd(cmd_args, select, _opts, identifier):
+def _clone_profile_cmd(
+    cmd_args: Namespace, select: None, _opts: None, identifier: None
+):
     """Clone profile command handler.
 
     Attempt to create a new OS profile by cloning an existing
@@ -3213,7 +3296,9 @@ def _clone_profile_cmd(cmd_args, select, _opts, identifier):
     return 0
 
 
-def _generic_show_cmd(select, find_fn, fmt, get_data):
+def _generic_show_cmd(
+    select: Optional[Selection], find_fn: Callable, fmt: str, get_data: Callable
+):
     """Generic show command handler.
 
     Show the objects returned by calling `find_fn` with selection
@@ -3240,7 +3325,12 @@ def _generic_show_cmd(select, find_fn, fmt, get_data):
     return 0
 
 
-def _show_profile_cmd(cmd_args, select, _opts, identifier):
+def _show_profile_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: None,
+    identifier: Optional[str],
+) -> int:
     """Show profile command handler.
 
     Show the OS profiles that match the given selection criteria in
@@ -3263,7 +3353,12 @@ def _show_profile_cmd(cmd_args, select, _opts, identifier):
     return _generic_show_cmd(select, find_profiles, fmt, _profile_get_data)
 
 
-def _list_profile_cmd(cmd_args, select, opts, identifier):
+def _list_profile_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    opts: ReportOpts,
+    identifier: Optional[str],
+) -> int:
     """List profile command handler.
 
     List the OS profiles that match the given selection criteria as
@@ -3282,7 +3377,12 @@ def _list_profile_cmd(cmd_args, select, opts, identifier):
     )
 
 
-def _edit_profile_cmd(cmd_args, select, _opts, identifier):
+def _edit_profile_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: None,
+    identifier: Optional[str],
+):
     """Edit profile command handler.
 
     Attempt to edit an existing OS profile. The ``os_id`` of the
@@ -3344,7 +3444,9 @@ def _edit_profile_cmd(cmd_args, select, _opts, identifier):
     return 0
 
 
-def _create_host_cmd(cmd_args, _select, _opts, identifier):
+def _create_host_cmd(
+    cmd_args: Namespace, _select: None, _opts: None, identifier: Optional[str]
+):
     """Create host profile command handler.
 
     Attempt to create a new host profile using the arguments
@@ -3401,7 +3503,12 @@ def _create_host_cmd(cmd_args, _select, _opts, identifier):
     return 0
 
 
-def _delete_host_cmd(cmd_args, select, _opts, identifier):
+def _delete_host_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+):
     """Delete host profile command handler.
 
     Attempt to delete host profiles matching the selection criteria
@@ -3439,7 +3546,9 @@ def _delete_host_cmd(cmd_args, select, _opts, identifier):
     return 0
 
 
-def _clone_host_cmd(cmd_args, select, _opts, identifier):
+def _clone_host_cmd(
+    cmd_args: Namespace, select: Optional[Selection], _opts: None, identifier: None
+):
     """Clone host profile command handler.
 
     Attempt to create a new host profile by cloning an existing
@@ -3458,6 +3567,10 @@ def _clone_host_cmd(cmd_args, select, _opts, identifier):
     identifier = identifier or cmd_args.host_id
     if identifier is not None:
         select = Selection(host_id=identifier)
+
+    if not select:
+        print("host clone requires identifier or selection criteria")
+        return 1
 
     # For clone allow the machine_id to be inherited from the original
     # HostProfile unless the user has given an explicit argument.
@@ -3492,7 +3605,12 @@ def _clone_host_cmd(cmd_args, select, _opts, identifier):
     return 0
 
 
-def _show_host_cmd(cmd_args, select, _opts, identifier):
+def _show_host_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: None,
+    identifier: Optional[str],
+) -> int:
     """Show host profile command handler.
 
     Show the host profiles that match the given selection criteria
@@ -3516,7 +3634,12 @@ def _show_host_cmd(cmd_args, select, _opts, identifier):
     return _generic_show_cmd(select, find_host_profiles, fmt, _host_get_data)
 
 
-def _list_host_cmd(cmd_args, select, opts, identifier):
+def _list_host_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
     """List host profile command handler.
 
     List the host profiles that match the given selection criteria
@@ -3533,7 +3656,12 @@ def _list_host_cmd(cmd_args, select, opts, identifier):
     return _generic_list_cmd(cmd_args, select, opts, _verbose_host_fields, print_hosts)
 
 
-def _edit_host_cmd(cmd_args, select, _opts, identifier):
+def _edit_host_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: None,
+    identifier: Optional[str],
+):
     """Edit profile command handler.
 
     Attempt to edit an existing host profile. The ``host_id`` of the
@@ -3590,7 +3718,7 @@ def _edit_host_cmd(cmd_args, select, _opts, identifier):
     return 0
 
 
-def _show_cache_cmd(cmd_args, select, _opts, identifier):
+def _show_cache_cmd(cmd_args: Namespace, select: None, _opts: None, identifier: None):
     """Show cache command handler.
 
     Show the cache entries that match the given selection criteria
@@ -3620,7 +3748,12 @@ def _show_cache_cmd(cmd_args, select, _opts, identifier):
     return 0
 
 
-def _list_cache_cmd(cmd_args, select, opts, _identifier):
+def _list_cache_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    opts: Optional[ReportOpts],
+    _identifier: None,
+) -> int:
     """List cache command handler.
 
     List the cache entries that match the given selection criteria
@@ -3666,7 +3799,7 @@ def _clear_legacy_cmd(_cmd_args, _select, _opts, identifier):
     return 0
 
 
-def _show_legacy_cmd(_cmd_args, _select, _opts, _identifier):
+def _show_legacy_cmd(_cmd_args, select, _opts, _identifier):
     """
     Display legacy boot loader configuration.
     """
@@ -3747,7 +3880,7 @@ _boom_command_types = [
 ]
 
 
-def _get_command_verbs():
+def _get_command_verbs() -> Set[str]:
     """Return the set of command verbs known to boom."""
     verbs = set()
     all_cmds = [
@@ -3762,7 +3895,7 @@ def _get_command_verbs():
     return verbs
 
 
-def _id_from_arg(cmd_args, cmdtype, cmd):
+def _id_from_arg(cmd_args: Namespace, cmdtype: str, cmd: str) -> Optional[str]:
     if cmd == CREATE_CMD:
         if cmdtype == ENTRY_TYPE:
             return cmd_args.boot_id
@@ -3778,21 +3911,21 @@ def _id_from_arg(cmd_args, cmdtype, cmd):
     return None
 
 
-def _match_cmd_type(cmdtype):
+def _match_cmd_type(cmdtype: str):
     for t in _boom_command_types:
         if t[0].startswith(cmdtype):
             return t
     return None
 
 
-def _match_command(cmd, cmds):
+def _match_command(cmd: str, cmds):
     for c in cmds:
         if cmd == c[0]:
             return c
     return None
 
 
-def _report_opts_from_args(cmd_args):
+def _report_opts_from_args(cmd_args: Namespace) -> ReportOpts:
     opts = ReportOpts()
 
     if not cmd_args:
@@ -3818,11 +3951,11 @@ def _report_opts_from_args(cmd_args):
     return opts
 
 
-def get_uts_release():
+def get_uts_release() -> str:
     return uname()[2]
 
 
-def setup_logging(cmd_args):
+def setup_logging(cmd_args: Namespace):
     global _console_handler
     level = _default_log_level
     if cmd_args.verbose and cmd_args.verbose > 1:
@@ -3843,7 +3976,7 @@ def shutdown_logging():
     logging.shutdown()
 
 
-def set_debug(debug_arg):
+def set_debug(debug_arg: None):
     if not debug_arg:
         return
 
@@ -3863,7 +3996,7 @@ def set_debug(debug_arg):
     set_debug_mask(mask)
 
 
-def main(args):
+def main(args: List[str]) -> int:
     parser = ArgumentParser(prog=basename(args[0]), description="Boom Boot Manager")
 
     # Default type is boot entry.
@@ -4241,7 +4374,11 @@ def main(args):
     try:
         cmd_args = parser.parse_args(args=args[1:])
     except SystemExit as e:
-        return e.code
+        if not e.code:
+            return 0
+        if isinstance(e.code, int):
+            return e.code
+        return 1
 
     try:
         set_debug(cmd_args.debug)
