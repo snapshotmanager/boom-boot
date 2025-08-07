@@ -783,15 +783,15 @@ def get_machine_id() -> str:
     """
     if path_exists(_MACHINE_ID):
         path = _MACHINE_ID
-    elif path_exists(_DBUS_MACHINE_ID):
+    elif path_exists(_DBUS_MACHINE_ID):  # pragma: no cover
         path = _DBUS_MACHINE_ID
-    else:
+    else:  # pragma: no cover
         return ""
 
     with open(path, "r", encoding="utf8") as f:
         try:
             machine_id = f.read().strip()
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             _log_error("Could not read machine-id from '%s': %s", path, e)
             machine_id = ""
     return machine_id
