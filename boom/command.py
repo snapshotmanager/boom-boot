@@ -464,7 +464,8 @@ def _int_if_val(val: Optional[str]) -> Optional[int]:
     :param val: The value to convert
     :returns: None if val is None or an integer representation of
               the string val
-    :raises: TypeError is val cannot be converted to an int
+    :raises: TypeError if val is not str, bytes-like, or number.
+             ValueError if val cannot be converted to an int.
     """
     return int(val) if val is not None else None
 
