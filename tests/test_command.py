@@ -172,6 +172,13 @@ class CommandHelperTests(unittest.TestCase):
         machine_id = boom.command.get_machine_id()
         self.assertTrue(machine_id)
 
+    def test__bool_to_yes_no(self):
+        _bool_to_yes_no = boom.command._bool_to_yes_no
+
+        self.assertEqual(_bool_to_yes_no(True), "yes")
+        self.assertEqual(_bool_to_yes_no(False), "no")
+        self.assertEqual(_bool_to_yes_no(None), "no")
+
     def test__merge_add_del_opts_no_op(self):
         bp = BootParams(version="1.1.1", root_device="/dev/vg00/lvol0")
         _merge_add_del_opts = boom.command._merge_add_del_opts
