@@ -250,6 +250,16 @@ class CommandHelperTests(unittest.TestCase):
         (add_opts, del_opts) = _merge_add_del_opts(bp, to_add, to_del)
         self.assertEqual(["log_buf_len=16M", "debug"], add_opts)
 
+    def test__merge_add_del_opts_with_conflicts(self):
+        bp = BootParams(version="1.1.1", root_device="/dev/vg00/lvol0")
+        _merge_add_del_opts = boom.command._merge_add_del_opts
+
+        # Try to add and delete the same option.
+        to_add = "debug"
+        to_del = "debug"
+        with self.assertRaises(ValueError) as cm:
+            (add_opts, del_opts) = _merge_add_del_opts(bp, to_add, to_del)
+
     def test__optional_key_to_arg_valid(self):
         _optional_key_to_arg = boom.command._optional_key_to_arg
         valid_keys_and_args = {
