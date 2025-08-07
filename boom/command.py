@@ -2618,9 +2618,15 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
     [print(decorator(be)) for be in bes]
 
 
-def create_config():
+def create_config(boot_path: Optional[str] = None):
     """Create default boom configuration in /boot."""
     bc = get_boom_config()
+
+    if boot_path is not None:
+        bc.boot_path = boot_path
+        bc.boom_path = join(boot_path, "boom")
+        bc.cache_path = join(bc.boom_path, "cache")
+
     _log_info("Creating default configuration in %s", bc.boot_path)
 
     if path_exists(join(bc.boom_path, BOOM_CONFIG_FILE)):
@@ -2629,7 +2635,7 @@ def create_config():
     makedirs(bc.boom_path, mode=0o755)
     for subdir in ["cache", "hosts", "profiles"]:
         makedirs(join(bc.boom_path, subdir), mode=0o700)
-    write_boom_config(config=bc)
+    write_boom_config(config=bc, path=join(bc.boot_path, "boom", "boom.conf"))
 
 
 #
