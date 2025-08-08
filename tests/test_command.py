@@ -25,6 +25,7 @@ from boom.hostprofile import *
 from boom.command import *
 from boom.config import *
 from boom.report import *
+from boom.cache import drop_cache
 
 # For access to non-exported members
 import boom.command
@@ -369,6 +370,7 @@ class CommandTests(unittest.TestCase):
         drop_entries()
         drop_profiles()
         drop_host_profiles()
+        drop_cache()
 
         # Clear sandbox data
         rm_sandbox()
