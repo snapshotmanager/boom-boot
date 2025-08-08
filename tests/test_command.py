@@ -10,6 +10,7 @@ import logging
 from sys import stdout
 from os import listdir, makedirs
 from os.path import abspath, basename, dirname, exists, join
+from tempfile import TemporaryDirectory
 from io import StringIO
 from glob import glob
 import shutil
@@ -24,6 +25,7 @@ from boom.hostprofile import *
 from boom.command import *
 from boom.config import *
 from boom.report import *
+from boom.cache import drop_cache
 
 # For access to non-exported members
 import boom.command
@@ -51,18 +53,37 @@ class CommandHelperTests(unittest.TestCase):
         test suite import boom.command directly in order to access the
         non-public helper routines not included in __all__.
     """
+    def test__int_if_val(self):
+        _int_if_val = boom.command._int_if_val
+
+        self.assertEqual(_int_if_val(None), None)
+        self.assertEqual(_int_if_val("0"), 0)
+        self.assertEqual(_int_if_val("1"), 1)
+        self.assertEqual(_int_if_val("10"), 10)
+        self.assertEqual(_int_if_val("16777216"), 16777216)
+        self.assertEqual(_int_if_val("-1"), -1)
+
+    def test__int_if_val_badval(self):
+        _int_if_val = boom.command._int_if_val
+
+        with self.assertRaises(ValueError) as cm:
+           val = _int_if_val("")
+
+        with self.assertRaises(ValueError) as cm:
+           val = _int_if_val("q")
+
+        with self.assertRaises(TypeError) as cm:
+           val = _int_if_val([])
+
     def test_int_if_val_with_val(self):
-        import boom.command
         val = "1"
         self.assertEqual(boom.command._int_if_val(val), int(val))
 
     def test_int_if_val_with_none(self):
-        import boom.command
         val = None
         self.assertEqual(boom.command._int_if_val(val), None)
 
     def test_int_if_val_with_badint(self):
-        import boom.command
         val = "qux"
         with self.assertRaises(ValueError) as cm:
             boom.command._int_if_val(val)
@@ -172,6 +193,13 @@ class CommandHelperTests(unittest.TestCase):
         machine_id = boom.command.get_machine_id()
         self.assertTrue(machine_id)
 
+    def test__bool_to_yes_no(self):
+        _bool_to_yes_no = boom.command._bool_to_yes_no
+
+        self.assertEqual(_bool_to_yes_no(True), "yes")
+        self.assertEqual(_bool_to_yes_no(False), "no")
+        self.assertEqual(_bool_to_yes_no(None), "no")
+
     def test__merge_add_del_opts_no_op(self):
         bp = BootParams(version="1.1.1", root_device="/dev/vg00/lvol0")
         _merge_add_del_opts = boom.command._merge_add_del_opts
@@ -223,6 +251,16 @@ class CommandHelperTests(unittest.TestCase):
         to_del = ""
         (add_opts, del_opts) = _merge_add_del_opts(bp, to_add, to_del)
         self.assertEqual(["log_buf_len=16M", "debug"], add_opts)
+
+    def test__merge_add_del_opts_with_conflicts(self):
+        bp = BootParams(version="1.1.1", root_device="/dev/vg00/lvol0")
+        _merge_add_del_opts = boom.command._merge_add_del_opts
+
+        # Try to add and delete the same option.
+        to_add = "debug"
+        to_del = "debug"
+        with self.assertRaises(ValueError) as cm:
+            (add_opts, del_opts) = _merge_add_del_opts(bp, to_add, to_del)
 
     def test__optional_key_to_arg_valid(self):
         _optional_key_to_arg = boom.command._optional_key_to_arg
@@ -332,6 +370,7 @@ class CommandTests(unittest.TestCase):
         drop_entries()
         drop_profiles()
         drop_host_profiles()
+        drop_cache()
 
         # Clear sandbox data
         rm_sandbox()
@@ -1430,6 +1469,18 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_cmd(args, None, opts, None)
         self.assertNotEqual(r, 1)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test__create_cmd_backup(self):
+        """Test the _create_cmd() handler with image backups.
+        """
+        args = get_create_cmd_args()
+        args.profile = None
+        args.version = "5.4.7-100.fc30.x86_64"
+        args.backup = True
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertNotEqual(r, 1)
+
     def test__create_cmd_no_profile(self):
         """Test the _create_cmd() handler with missing profile.
         """
@@ -2355,5 +2406,34 @@ class CommandTests(unittest.TestCase):
     def test_boom_main_list(self):
         args = ['bin/boom', 'entry', 'list']
         boom.command.main(args)
+
+    def test_boom_main_bad_type(self):
+        args = ['bin/boom', 'quux', 'create']
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_bad_command(self):
+        args = ['bin/boom', 'entry', 'quux']
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_bad_debug(self):
+        args = ['bin/boom', 'entry', 'list', '--debug', 'quux']
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_bad_arg(self):
+        args = ['bin/boom', 'entry', 'list', '--quux']
+        r = boom.command.main(args)
+        # ArgumentParser exits with status 2 on parse error.
+        self.assertEqual(r, 2)
+
+    def test_create_config(self):
+        with TemporaryDirectory(dir="/var/tmp") as conf_dir:
+            boom.command.create_config(boot_path=conf_dir)
+            self.assertTrue(exists(join(conf_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(conf_dir, "boom", "cache")))
+            self.assertTrue(exists(join(conf_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(conf_dir, "boom", "profiles")))
 
 # vim: set et ts=4 sw=4 :
