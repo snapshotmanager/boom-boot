@@ -51,18 +51,37 @@ class CommandHelperTests(unittest.TestCase):
         test suite import boom.command directly in order to access the
         non-public helper routines not included in __all__.
     """
+    def test__int_if_val(self):
+        _int_if_val = boom.command._int_if_val
+
+        self.assertEqual(_int_if_val(None), None)
+        self.assertEqual(_int_if_val("0"), 0)
+        self.assertEqual(_int_if_val("1"), 1)
+        self.assertEqual(_int_if_val("10"), 10)
+        self.assertEqual(_int_if_val("16777216"), 16777216)
+        self.assertEqual(_int_if_val("-1"), -1)
+
+    def test__int_if_val_badval(self):
+        _int_if_val = boom.command._int_if_val
+
+        with self.assertRaises(ValueError):
+           _int_if_val("")
+
+        with self.assertRaises(ValueError):
+           _int_if_val("q")
+
+        with self.assertRaises(TypeError):
+           _int_if_val([])
+
     def test_int_if_val_with_val(self):
-        import boom.command
         val = "1"
         self.assertEqual(boom.command._int_if_val(val), int(val))
 
     def test_int_if_val_with_none(self):
-        import boom.command
         val = None
         self.assertEqual(boom.command._int_if_val(val), None)
 
     def test_int_if_val_with_badint(self):
-        import boom.command
         val = "qux"
         with self.assertRaises(ValueError) as cm:
             boom.command._int_if_val(val)
