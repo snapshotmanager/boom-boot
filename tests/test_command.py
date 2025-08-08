@@ -10,6 +10,7 @@ import logging
 from sys import stdout
 from os import listdir, makedirs
 from os.path import abspath, basename, dirname, exists, join
+from tempfile import TemporaryDirectory
 from io import StringIO
 from glob import glob
 import shutil
@@ -2417,5 +2418,13 @@ class CommandTests(unittest.TestCase):
                 with self.assertRaises(SystemExit) as cm:
                     boom.command.main(args)
                 self.assertEqual(cm.exception.code, 2)
+
+    def test_create_config(self):
+        with TemporaryDirectory(dir="/var/tmp") as conf_dir:
+            boom.command.create_config(boot_path=conf_dir)
+            self.assertTrue(exists(join(conf_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(conf_dir, "boom", "cache")))
+            self.assertTrue(exists(join(conf_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(conf_dir, "boom", "profiles")))
 
 # vim: set et ts=4 sw=4 :
