@@ -2445,6 +2445,11 @@ class CommandTests(unittest.TestCase):
             boom.command.main(args)
         self.assertEqual(cm.exception.code, 2)
 
+    def test_boom_main_bad_debug(self):
+        args = ['bin/boom', 'entry', 'list', '--debug', 'quux']
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
     def test_create_config(self):
         with TemporaryDirectory(dir="/var/tmp") as conf_dir:
             boom.command.create_config(boot_path=conf_dir)
