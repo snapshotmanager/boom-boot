@@ -1469,6 +1469,18 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_cmd(args, None, opts, None)
         self.assertNotEqual(r, 1)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test__create_cmd_backup(self):
+        """Test the _create_cmd() handler with image backups.
+        """
+        args = get_create_cmd_args()
+        args.profile = None
+        args.version = "5.4.7-100.fc30.x86_64"
+        args.backup = True
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertNotEqual(r, 1)
+
     def test__create_cmd_no_profile(self):
         """Test the _create_cmd() handler with missing profile.
         """
