@@ -989,7 +989,7 @@ def _cache_image(img_path: str, backup: bool, update: bool = False) -> str:
             ce = backup_path(img_path, update=update)
         else:
             ce = cache_path(img_path, update=update)
-    except (OSError, ValueError) as e:
+    except (OSError, ValueError) as e:  # pragma: no cover
         _log_error("Could not cache path %s", img_path)
         raise e
     return ce.path
