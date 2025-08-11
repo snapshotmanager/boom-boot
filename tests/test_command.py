@@ -2456,6 +2456,12 @@ class CommandTests(unittest.TestCase):
             boom.command.main(args)
         self.assertEqual(cm.exception.code, 2)
 
+    def test_boom_main_bad_root_device(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'BAD_ROOT']
+        args += ['--version', '5.4.7-100.fc30.x86_64', '--root-device', "/dev/zda2"]
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
     @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_boom_main_root_lv(self):
         args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
