@@ -41,9 +41,11 @@ from boom import (
     parse_btrfs_subvol,
     set_debug_mask,
     set_boot_path,
+    get_boot_path,
     get_boom_config_path,
     set_boom_config_path,
     get_boom_path,
+    set_boom_path,
 )
 from boom.osprofile import (
     BOOM_OS_ID,
@@ -4600,14 +4602,18 @@ def main(args: List[str]) -> int:
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
         if not isabs(boot_path):
             boot_path = join(getcwd(), boot_path)
-        set_boot_path(boot_path)
-        set_boom_config_path("boom.conf")
+        try:
+            set_boot_path(boot_path)
+        except ValueError as e:
+            _log_error("Failed to set boot path to '%s': %s", boot_path, e)
+            return 1
 
     if cmd_args.config:
         set_boom_config_path(cmd_args.config)
 
     if cmd_type[0] != CONFIG_TYPE:
         try:
+            set_boom_path(join(get_boot_path(), "boom"))
             bc = load_boom_config()
         except ValueError as e:
             _log_error("Could not load boom configuration: %s", e)

@@ -484,8 +484,6 @@ def set_boom_config_path(path):
         path = path_join(get_boom_path())
     if isdir(path):
         path = path_join(path, BOOM_CONFIG_FILE)
-    if not path_exists(path):
-        raise IOError(errno.ENOENT, f"File not found: '{path}'")
     __boom_config_path = path
     _log_debug("set boom_config_path to '%s'", path)
 
