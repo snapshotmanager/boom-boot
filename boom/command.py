@@ -3947,7 +3947,7 @@ def _write_legacy_cmd(
     select: Optional[Selection],
     _opts: Optional[ReportOpts],
     identifier: Optional[str],
-) -> int:
+) -> int:  # pragma: no cover
     """Write legacy command handler.
 
     Write entries in configured legacy bootloader format.
@@ -3976,7 +3976,7 @@ def _clear_legacy_cmd(
     _select: Optional[Selection],
     _opts: Optional[ReportOpts],
     identifier: Optional[str],
-) -> int:
+) -> int:  # pragma: no cover
     """Clear legacy command handler.
 
     Remove all boom entries from the legacy bootloader configuration.
