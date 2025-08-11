@@ -3775,7 +3775,7 @@ def _list_cache_cmd(
     return _generic_list_cmd(cmd_args, select, opts, _verbose_cache_fields, print_fn)
 
 
-def _write_legacy_cmd(_cmd_args, select, _opts, identifier):
+def _write_legacy_cmd(_cmd_args, select, _opts, identifier):  # pragma: no cover
     if identifier:
         print("write legacy does not accept a boot_id")
         return 1
@@ -3789,7 +3789,7 @@ def _write_legacy_cmd(_cmd_args, select, _opts, identifier):
     return 0
 
 
-def _clear_legacy_cmd(_cmd_args, _select, _opts, identifier):
+def _clear_legacy_cmd(_cmd_args, _select, _opts, identifier):  # pragma: no cover
     """Remove all boom entries from the legacy bootloader configuration.
 
     :param cmd_args: Command line arguments for the command
