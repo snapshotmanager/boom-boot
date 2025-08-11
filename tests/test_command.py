@@ -2456,6 +2456,35 @@ class CommandTests(unittest.TestCase):
             boom.command.main(args)
         self.assertEqual(cm.exception.code, 2)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test_boom_main_root_lv(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
+        args += ['--version', '5.4.7-100.fc30.x86_64', '--root-lv', get_root_lv()]
+        r = boom.command.main(args)
+        self.assertEqual(r, 0)
+
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test_boom_main_root_lv_as_root_device(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
+        args += ['--version', '5.4.7-100.fc30.x86_64']
+        args += ['--root-device', "/dev/" + get_root_lv()]
+        r = boom.command.main(args)
+        self.assertEqual(r, 0)
+
+    def test_boom_main_root_lv_bad_lv_name(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'NOT_AN_LV_TEST']
+        args += ['--version', '5.4.7-100.fc30.x86_64', '--root-lv', "not-an-lv"]
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test_boom_main_root_lv_root_device_mismatch(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
+        args += ['--version', '5.4.7-100.fc30.x86_64', '--root-lv', get_root_lv()]
+        args += ['--root-device', '/dev/vda2']
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
     def test_create_config(self):
         with TemporaryDirectory(dir="/var/tmp") as conf_dir:
             boom.command.create_config(boot_path=conf_dir)
