@@ -8,7 +8,7 @@
 import unittest
 import logging
 from sys import stdout
-from os import listdir, makedirs
+from os import listdir, makedirs, unlink
 from os.path import abspath, basename, dirname, exists, join
 from tempfile import TemporaryDirectory
 from io import StringIO
@@ -2482,6 +2482,34 @@ class CommandTests(unittest.TestCase):
         args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
         args += ['--version', '5.4.7-100.fc30.x86_64', '--root-lv', get_root_lv()]
         args += ['--root-device', '/dev/vda2']
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_missing_boom(self):
+        args = ['bin/boom', 'list']
+        shutil.rmtree(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom"))
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_missing_boom_conf(self):
+        args = ['bin/boom', 'list']
+        unlink(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom", "boom.conf"))
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_missing_boom_conf_with_boot_dir(self):
+        args = ['bin/boom', 'list', '--boot-dir', join(BOOT_ROOT_TEST, 'sandbox', 'boot')]
+        # Ensure boom.conf is absent at the explicit boot-dir
+        conf_path = join(BOOT_ROOT_TEST, 'sandbox', 'boot', 'boom', 'boom.conf')
+        if exists(conf_path):
+            unlink(conf_path)
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_missing_boom_profiles(self):
+        args = ['bin/boom', 'list']
+        args += ['--boot-dir', join(BOOT_ROOT_TEST, "sandbox", "boot")]
+        shutil.rmtree(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom", "profiles"))
         r = boom.command.main(args)
         self.assertEqual(r, 1)
 
