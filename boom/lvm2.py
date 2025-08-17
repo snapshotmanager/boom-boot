@@ -12,6 +12,7 @@ and logical volumes present on the system.
 from subprocess import run, CalledProcessError
 from os.path import exists
 import logging
+import os
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ LVM_UUID_PREFIX = "LVM-"
 
 _CMD_ENV = {
     "LC_ALL": "C",
+    "PATH": os.environ["PATH"],
 }
 
 
