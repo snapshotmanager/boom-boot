@@ -3981,6 +3981,13 @@ def set_debug(debug_arg: None):
 
 def main(args: List[str]) -> int:
     parser = ArgumentParser(prog=basename(args[0]), description="Boom Boot Manager")
+    # Derive help text from registered command types/commands
+    type_choices_list = sorted(t[0] for t in _boom_command_types)
+    type_choices = ", ".join(type_choices_list)
+    cmd_help_by_type = "; ".join(
+        f"{t}=[{', '.join(sorted(cmd for (cmd, _) in cmds))}]"
+        for (t, cmds) in _boom_command_types
+    )
 
     # Default type is boot entry.
     if len(args) > 1 and _match_command(args[1], _boom_entry_commands):
@@ -3988,9 +3995,11 @@ def main(args: List[str]) -> int:
 
     parser.add_argument(
         "type",
-        metavar="[TYPE]",
+        metavar="TYPE",
         type=str,
-        help="The command type to run: profile or entry",
+        help=(
+            f"The command type to run: {type_choices}. Defaults to 'entry' for known entry commands."
+        ),
         action="store",
     )
     parser.add_argument(
@@ -3998,7 +4007,7 @@ def main(args: List[str]) -> int:
         metavar="COMMAND",
         type=str,
         action="store",
-        help="The command to run: create, delete, list, edit, clone, show",
+        help=f"The command to run; by TYPE: {cmd_help_by_type}",
     )
     parser.add_argument(
         "identifier",
