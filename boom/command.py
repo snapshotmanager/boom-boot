@@ -4356,9 +4356,7 @@ def main(args: List[str]) -> int:
     )
 
     if len(args) < 3:
-        parser.print_usage()
-        print(f"Too few arguments: {' '.join(args[1:])}")
-        return 1
+        parser.error("too few arguments")
 
     cmd_types = [cmdtype[0] for cmdtype in _boom_command_types]
     cmd_verbs = _get_command_verbs()
@@ -4367,9 +4365,7 @@ def main(args: List[str]) -> int:
     cmd_arg = args[2] if len(args) > 2 else ""
 
     if type_arg not in cmd_types or cmd_arg not in cmd_verbs:
-        parser.print_usage()
-        print(f"Unknown command: {type_arg} {cmd_arg}")
-        return 1
+        parser.error(f"unknown command: {type_arg} {cmd_arg}")
 
     cmd_args = parser.parse_args(args=args[1:])
 
@@ -4381,8 +4377,7 @@ def main(args: List[str]) -> int:
     setup_logging(cmd_args)
     cmd_type = _match_cmd_type(cmd_args.type)
     if not cmd_type:
-        print(f"Unknown command type: {cmd_args.type}")
-        return 1
+        parser.error(f"unknown command type: {cmd_args.type}")
 
     if cmd_args.boot_dir or BOOM_BOOT_PATH_ENV in environ:
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
@@ -4464,8 +4459,7 @@ def main(args: List[str]) -> int:
     type_cmds = cmd_type[1]
     command = _match_command(cmd_args.command, type_cmds)
     if not command:
-        print(f"Unknown command: {cmd_type[0]} {cmd_args.command}")
-        return 1
+        parser.error(f"unknown command: {cmd_type[0]} {cmd_args.command}")
 
     if cmd_args.backup and not bc.cache_enable:
         print("--backup specified but cache disabled (config.cache_enable=False)")
