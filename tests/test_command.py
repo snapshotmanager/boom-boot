@@ -2353,10 +2353,14 @@ class CommandTests(unittest.TestCase):
         status = boom.command.main(args)
         self.assertEqual(status, 0)
 
+    def test_boom_main_help(self):
+        args = ['bin/boom', '--help']
+        status = boom.command.main(args)
+        self.assertEqual(status, 0)
+
     def test_boom_main_argument_errors(self):
         cases = [
             ["bin/boom",],
-            ["bin/boom", "--help"],
             ["bin/boom", "quux", "list"],
             ["bin/boom", "entry", "quux"],
             ["bin/boom", "entry", "create", "--quux", "--title", "FOO"],

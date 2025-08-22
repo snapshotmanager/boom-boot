@@ -4347,6 +4347,10 @@ def main(args: List[str]) -> int:
         help="The kernel version of a boom boot entry",
     )
 
+    # Special case: allow -h/--help to work even if type/command are omitted.
+    if any(a in ("-h", "--help") for a in args[1:]):
+        parser.print_help()
+        return 0
     if len(args) < 3:
         parser.error("too few arguments")
 
