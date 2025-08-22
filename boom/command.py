@@ -3880,21 +3880,6 @@ _boom_command_types = [
 ]
 
 
-def _get_command_verbs() -> Set[str]:
-    """Return the set of command verbs known to boom."""
-    verbs = set()
-    all_cmds = [
-        _boom_entry_commands,
-        _boom_profile_commands,
-        _boom_host_commands,
-        _boom_cache_commands,
-        _boom_legacy_commands,
-    ]
-    for cmd_list in all_cmds:
-        verbs.update([cmd[0] for cmd in cmd_list])
-    return verbs
-
-
 def _id_from_arg(cmd_args: Namespace, cmdtype: str, cmd: str) -> Optional[str]:
     if cmd == CREATE_CMD:
         if cmdtype == ENTRY_TYPE:
@@ -4356,13 +4341,15 @@ def main(args: List[str]) -> int:
     if len(args) < 3:
         parser.error("too few arguments")
 
-    cmd_types = [cmdtype[0] for cmdtype in _boom_command_types]
-    cmd_verbs = _get_command_verbs()
-
     type_arg = args[1] if len(args) > 1 else ""
     cmd_arg = args[2] if len(args) > 2 else ""
 
-    if type_arg not in cmd_types or cmd_arg not in cmd_verbs:
+    cmd_type = _match_cmd_type(type_arg)
+    if not cmd_type:
+        parser.error(f"unknown command type: {type_arg}")
+
+    command = _match_command(cmd_arg, cmd_type[1])
+    if not command:
         parser.error(f"unknown command: {type_arg} {cmd_arg}")
 
     cmd_args = parser.parse_args(args=args[1:])
@@ -4373,9 +4360,6 @@ def main(args: List[str]) -> int:
         print(e)
         return 1
     setup_logging(cmd_args)
-    cmd_type = _match_cmd_type(cmd_args.type)
-    if not cmd_type:
-        parser.error(f"unknown command type: {cmd_args.type}")
 
     if cmd_args.boot_dir or BOOM_BOOT_PATH_ENV in environ:
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
@@ -4453,11 +4437,6 @@ def main(args: List[str]) -> int:
         except ValueError:
             # No valid VG name
             pass
-
-    type_cmds = cmd_type[1]
-    command = _match_command(cmd_args.command, type_cmds)
-    if not command:
-        parser.error(f"unknown command: {cmd_type[0]} {cmd_args.command}")
 
     if cmd_args.backup and not bc.cache_enable:
         print("--backup specified but cache disabled (config.cache_enable=False)")
