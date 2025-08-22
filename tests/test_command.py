@@ -2348,12 +2348,23 @@ class CommandTests(unittest.TestCase):
         args = MockArgs()
         r = boom.command._show_cache_cmd(args, None, None, None)
 
-    def test_boom_main_noargs(self):
-        args = ['bin/boom', '--help']
-        boom.command.main(args)
-
     def test_boom_main_list(self):
         args = ['bin/boom', 'entry', 'list']
-        boom.command.main(args)
+        status = boom.command.main(args)
+        self.assertEqual(status, 0)
+
+    def test_boom_main_argument_errors(self):
+        cases = [
+            ["bin/boom",],
+            ["bin/boom", "--help"],
+            ["bin/boom", "quux", "list"],
+            ["bin/boom", "entry", "quux"],
+            ["bin/boom", "entry", "create", "--quux", "--title", "FOO"],
+        ]
+        for args in cases:
+            with self.subTest(args=args):
+                with self.assertRaises(SystemExit) as cm:
+                    boom.command.main(args)
+                self.assertEqual(cm.exception.code, 2)
 
 # vim: set et ts=4 sw=4 :
