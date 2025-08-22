@@ -4371,14 +4371,7 @@ def main(args: List[str]) -> int:
         print(f"Unknown command: {type_arg} {cmd_arg}")
         return 1
 
-    try:
-        cmd_args = parser.parse_args(args=args[1:])
-    except SystemExit as e:
-        if not e.code:
-            return 0
-        if isinstance(e.code, int):
-            return e.code
-        return 1
+    cmd_args = parser.parse_args(args=args[1:])
 
     try:
         set_debug(cmd_args.debug)
