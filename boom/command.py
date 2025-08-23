@@ -3912,10 +3912,8 @@ def _id_from_arg(cmd_args: Namespace, cmdtype: str, cmd: str) -> Optional[str]:
 
 
 def _match_cmd_type(cmdtype: str):
-    for t in _boom_command_types:
-        if t[0].startswith(cmdtype):
-            return t
-    return None
+    matches = [t for t in _boom_command_types if t[0] == cmdtype]
+    return matches[0] if len(matches) == 1 else None
 
 
 def _match_command(cmd: str, cmds):
