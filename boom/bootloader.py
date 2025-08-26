@@ -102,6 +102,8 @@ BOOM_ENTRY_OPTIONS = "BOOM_ENTRY_OPTIONS"
 BOOM_ENTRY_DEVICETREE = "BOOM_ENTRY_DEVICETREE"
 #: The ``BootEntry`` architecture key.
 BOOM_ENTRY_ARCHITECTURE = "BOOM_ENTRY_ARCHITECTURE"
+#: The ``BootEntry`` sort key key.
+BOOM_ENTRY_SORT_KEY = "BOOM_ENTRY_SORT_KEY"
 #: The ``BootEntry`` boot identifier key.
 BOOM_ENTRY_BOOT_ID = "BOOM_ENTRY_BOOT_ID"
 
@@ -146,6 +148,7 @@ ENTRY_KEYS = [
     BOOM_ENTRY_OPTIONS,
     BOOM_ENTRY_DEVICETREE,
     BOOM_ENTRY_ARCHITECTURE,
+    BOOM_ENTRY_SORT_KEY,
     # Optional implementation defined BLS keys
     BOOM_ENTRY_GRUB_ID,
     BOOM_ENTRY_GRUB_USERS,
@@ -164,6 +167,7 @@ KEY_MAP = {
     BOOM_ENTRY_OPTIONS: "options",
     BOOM_ENTRY_DEVICETREE: "devicetree",
     BOOM_ENTRY_ARCHITECTURE: "architecture",
+    BOOM_ENTRY_SORT_KEY: "sort_key",
     BOOM_ENTRY_GRUB_USERS: "grub_users",
     BOOM_ENTRY_GRUB_ARG: "grub_arg",
     BOOM_ENTRY_GRUB_CLASS: "grub_class",
@@ -1378,6 +1382,7 @@ class BootEntry:
 
         self.machine_id = self.machine_id or ""
         self.architecture = self.architecture or ""
+        self.sort_key = self.sort_key or ""
 
         if boot_params:
             self._bp = boot_params
@@ -2242,6 +2247,21 @@ class BootEntry:
         if architecture and not architecture.lower() in machine_types:
             raise ValueError(f"Unknown architecture: '{architecture}'")
         self._entry_data[BOOM_ENTRY_ARCHITECTURE] = architecture
+        self._dirty()
+
+    @property
+    def sort_key(self):
+        """The sort-key value for this ``BootEntry.
+
+        :getter: returns the configured sort key.
+        :setter: sets the configured sort key.
+        :type: string
+        """
+        return self._entry_data_property(BOOM_ENTRY_SORT_KEY)
+
+    @sort_key.setter
+    def sort_key(self, value):
+        self._entry_data[BOOM_ENTRY_SORT_KEY] = value
         self._dirty()
 
     @property

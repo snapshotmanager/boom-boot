@@ -530,6 +530,15 @@ _entry_fields = [
     ),
     FieldType(
         BR_ENTRY,
+        "sortkey",
+        "SortKey",
+        "Sort key",
+        7,
+        REP_STR,
+        lambda f, d: f.report_str(d.sort_key),
+    ),
+    FieldType(
+        BR_ENTRY,
         "entrypath",
         "EntryPath",
         "On-disk entry path",
