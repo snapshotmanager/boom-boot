@@ -1,4 +1,5 @@
-![Boom CI](https://github.com/snapshotmanager/boom/actions/workflows/default.yml/badge.svg)
+![Boom CI](https://github.com/snapshotmanager/boom/actions/workflows/default.yml/badge.svg) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/snapshotmanager/boom-boot)
+
 # Boom
 
 Boom is a *boot manager* for Linux systems using boot loaders that
