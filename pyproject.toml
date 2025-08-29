@@ -26,6 +26,9 @@ Issues = "https://github.com/snapshotmanager/boom-boot/issues"
 
 [build-system]
 requires = [
-    "setuptools>=61.0"
+    "setuptools>=61.0",
 ]
 build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+docs = ["Sphinx>=1.8"]

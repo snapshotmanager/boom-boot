@@ -1,0 +1,10 @@
+div.documentwrapper div.bodywrapper { margin-left: 350px;}
+div.document div.sphinxsidebar { width: 350px; }
+
+div.sphinxsidebarwrapper {
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100vh;
+    overscroll-behavior: contain;
+    word-break: break-word; /* or: overflow-wrap: anywhere; */
+}

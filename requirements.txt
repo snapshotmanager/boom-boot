@@ -1,4 +1,4 @@
 pycodestyle>=2.4.0
 coverage>=4.0.3
-Sphinx>=1.3.5
+Sphinx>=1.8
 dbus-python>=1.2.16

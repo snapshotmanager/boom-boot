@@ -343,3 +343,8 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #
 # texinfo_no_detailmenu = False
+
+# Work around sidebar overflow (#197)
+html_css_files = [
+    'css/workaround.css'
+]
