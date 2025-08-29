@@ -43,6 +43,7 @@ from boom import (
     get_boom_config_path,
     set_boom_config_path,
     get_boom_path,
+    set_boom_path,
 )
 from boom.osprofile import (
     BOOM_OS_ID,
@@ -462,7 +463,8 @@ def _int_if_val(val: Optional[str]) -> Optional[int]:
     :param val: The value to convert
     :returns: None if val is None or an integer representation of
               the string val
-    :raises: TypeError is val cannot be converted to an int
+    :raises: TypeError if val is not str, bytes-like, or number.
+             ValueError if val cannot be converted to an int.
     """
     return int(val) if val is not None else None
 
@@ -780,15 +782,15 @@ def get_machine_id() -> str:
     """
     if path_exists(_MACHINE_ID):
         path = _MACHINE_ID
-    elif path_exists(_DBUS_MACHINE_ID):
+    elif path_exists(_DBUS_MACHINE_ID):  # pragma: no cover
         path = _DBUS_MACHINE_ID
-    else:
+    else:  # pragma: no cover
         return ""
 
     with open(path, "r", encoding="utf8") as f:
         try:
             machine_id = f.read().strip()
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             _log_error("Could not read machine-id from '%s': %s", path, e)
             machine_id = ""
     return machine_id
@@ -833,7 +835,7 @@ def __write_legacy():
     bootloader format.
     """
     config = get_boom_config()
-    if config.legacy_enable and config.legacy_sync:
+    if config.legacy_enable and config.legacy_sync:  # pragma: no cover
         clear_legacy_loader()
         write_legacy_loader(selection=Selection(), loader=config.legacy_format)
 
@@ -988,7 +990,7 @@ def _cache_image(img_path: str, backup: bool, update: bool = False) -> str:
             ce = backup_path(img_path, update=update)
         else:
             ce = cache_path(img_path, update=update)
-    except (OSError, ValueError) as e:
+    except (OSError, ValueError) as e:  # pragma: no cover
         _log_error("Could not cache path %s", img_path)
         raise e
     return ce.path
@@ -2540,9 +2542,15 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
     [print(decorator(be)) for be in bes]
 
 
-def create_config():
+def create_config(boot_path: Optional[str] = None):
     """Create default boom configuration in /boot."""
     bc = get_boom_config()
+
+    if boot_path is not None:
+        bc.boot_path = boot_path
+        bc.boom_path = join(boot_path, "boom")
+        bc.cache_path = join(bc.boom_path, "cache")
+
     _log_info("Creating default configuration in %s", bc.boot_path)
 
     if path_exists(join(bc.boom_path, BOOM_CONFIG_FILE)):
@@ -2551,7 +2559,7 @@ def create_config():
     makedirs(bc.boom_path, mode=0o755)
     for subdir in ["cache", "hosts", "profiles"]:
         makedirs(join(bc.boom_path, subdir), mode=0o700)
-    write_boom_config(config=bc)
+    write_boom_config(config=bc, path=join(bc.boot_path, "boom", "boom.conf"))
 
 
 #
@@ -3767,7 +3775,7 @@ def _list_cache_cmd(
     return _generic_list_cmd(cmd_args, select, opts, _verbose_cache_fields, print_fn)
 
 
-def _write_legacy_cmd(_cmd_args, select, _opts, identifier):
+def _write_legacy_cmd(_cmd_args, select, _opts, identifier):  # pragma: no cover
     if identifier:
         print("write legacy does not accept a boot_id")
         return 1
@@ -3781,7 +3789,7 @@ def _write_legacy_cmd(_cmd_args, select, _opts, identifier):
     return 0
 
 
-def _clear_legacy_cmd(_cmd_args, _select, _opts, identifier):
+def _clear_legacy_cmd(_cmd_args, _select, _opts, identifier):  # pragma: no cover
     """Remove all boom entries from the legacy bootloader configuration.
 
     :param cmd_args: Command line arguments for the command
@@ -4378,8 +4386,12 @@ def main(args: List[str]) -> int:
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
         if not isabs(boot_path):
             boot_path = join(getcwd(), boot_path)
-        set_boot_path(boot_path)
-        set_boom_config_path("boom.conf")
+        try:
+            set_boot_path(boot_path)
+            set_boom_path(join(boot_path, "boom"))
+        except ValueError as e:
+            _log_error("Failed to set boot path to '%s': %s", boot_path, e)
+            return 1
 
     if cmd_args.config:
         set_boom_config_path(cmd_args.config)
