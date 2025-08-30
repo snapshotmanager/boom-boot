@@ -1105,9 +1105,11 @@ class HostProfile(BoomProfile):
 
     @optional_keys.setter
     def optional_keys(self, value):
-        for opt_key in optional_keys.split():
+        if value is None:
+            value = ""
+        for opt_key in value.split():
             self._check_optional_key(opt_key)
-        self._profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
+        self._profile_data[BOOM_OS_OPTIONAL_KEYS] = value
         self._dirty()
 
     #
