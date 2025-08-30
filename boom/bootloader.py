@@ -67,7 +67,14 @@ from boom import (
     ROOT_OPTS_STRATIS,
     MIN_ID_WIDTH,
 )
-from boom.osprofile import *
+from boom.osprofile import (
+    OsProfile,
+    select_profile,
+    match_os_profile,
+    profiles_loaded,
+    load_profiles,
+    get_os_profile_by_id,
+)
 from boom.hostprofile import HostProfile, find_host_profiles
 from boom.stratis import is_stratis_device_path, symlink_to_pool_uuid
 from boom.lvm2 import is_lvm_device_path, vg_lv_from_device_path
