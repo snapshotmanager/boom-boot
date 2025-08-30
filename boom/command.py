@@ -2130,10 +2130,10 @@ def create_host(
     def _have_key(hd, arg, key):
         return arg or hd and key in hd
 
-    if not _have_key(host_data, host_name, BOOM_OS_NAME):
+    if not _have_key(host_data, host_name, BOOM_HOST_NAME):
         raise ValueError("Host name cannot be empty.")
 
-    if not _have_key(host_data, machine_id, BOOM_OS_VERSION):
+    if not _have_key(host_data, machine_id, BOOM_ENTRY_MACHINE_ID):
         raise ValueError("Host machine_id cannot be empty.")
 
     if not _have_key(host_data, os_id, BOOM_OS_ID):
