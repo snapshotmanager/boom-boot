@@ -3891,7 +3891,7 @@ def _clear_legacy_cmd(
     :returns: integer status code returned from ``main()``
     """
     if identifier:
-        print("write legacy does not accept a boot_id")
+        print("clear legacy does not accept a boot_id")
         return 1
 
     try:
