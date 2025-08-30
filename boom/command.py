@@ -3322,7 +3322,7 @@ def _clone_profile_cmd(
         select = Selection(os_id=identifier)
 
     if not select or select.is_null():
-        print("profile delete requires selection criteria")
+        print("profile clone requires selection criteria")
         return 1
 
     # Discard all selection criteria but os_id.
