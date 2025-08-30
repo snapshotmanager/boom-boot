@@ -1195,6 +1195,7 @@ def clone_entry(
     expand: bool = False,
     allow_no_dev: bool = False,
     images: Optional[str] = I_NONE,
+    update: bool = False,
     no_fstab: bool = False,
     mounts: Optional[List[str]] = None,
     swaps: Optional[List[str]] = None,
@@ -1225,10 +1226,14 @@ def clone_entry(
     :param allow_no_dev: Allow the block device to not exist.
     :param images: Whether to cache or backup boot images in the new
                    entry.
-    :returns: a ``BootEntry`` object corresponding to the new entry.
+    :param update: Whether to update or re-use an existing cached boot
+                   image.
     :param no_fstab: Disable parsing of the fstab for the new entry.
-    :param mounts: A list of colon separated command-line mount
-                   specifications for the new entry.
+    :param mounts: A list of colon-separated command-line mount
+                   specifications.
+    :param swaps: A list of colon-separated command-line swap
+                  specifications.
+    :returns: a ``BootEntry`` object corresponding to the new entry.
     :rtype: ``BootEntry``
     :raises: ``ValueError`` if either required values are missing or
              a duplicate entry exists, or ``OsError`` if an error
@@ -1330,9 +1335,13 @@ def clone_entry(
 
     if images in (I_BACKUP, I_CACHE):
         if clone_be.initrd:
-            clone_be.initrd = _cache_image(clone_be.initrd, images == I_BACKUP)
+            clone_be.initrd = _cache_image(
+                clone_be.initrd, images == I_BACKUP, update=update
+            )
         if clone_be.linux:
-            clone_be.linux = _cache_image(clone_be.linux, images == I_BACKUP)
+            clone_be.linux = _cache_image(
+                clone_be.linux, images == I_BACKUP, update=update
+            )
 
     if find_entries(Selection(boot_id=clone_be.boot_id)):
         raise ValueError(f"Entry already exists (boot_id={clone_be.disp_boot_id}).")
@@ -2912,6 +2921,7 @@ def _clone_cmd(
             expand=cmd_args.expand_variables,
             allow_no_dev=cmd_args.no_dev,
             images=images,
+            update=cmd_args.update,
             no_fstab=cmd_args.no_fstab,
             mounts=cmd_args.mount,
             swaps=cmd_args.swap,
