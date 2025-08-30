@@ -30,9 +30,12 @@ from hashlib import sha1
 from tempfile import mkstemp
 from os.path import basename, join as path_join, exists as path_exists
 from os import fdopen, rename, chmod, unlink, fdatasync
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple, Union, TYPE_CHECKING
 import logging
 import re
+
+if TYPE_CHECKING:
+    from .hostprofile import HostProfile
 
 from boom import (
     BoomError,
@@ -206,7 +209,7 @@ def boom_profiles_path() -> str:
     return path_join(get_boom_path(), BOOM_PROFILES)
 
 
-def _is_null_profile(osp: "OsProfile"):
+def _is_null_profile(osp: Union["OsProfile", "HostProfile"]):
     """Test for the Null Profile.
 
     Test ``osp`` and return ``True`` if it is the Null Profile.
@@ -311,7 +314,7 @@ def min_os_id_width() -> int:
     return min_id_width(MIN_ID_WIDTH, _profiles, "os_id")
 
 
-def select_profile(s: Selection, osp: "OsProfile"):
+def select_profile(s: Selection, osp: Optional[Union["OsProfile", "HostProfile"]]):
     """Test the supplied profile against selection criteria.
 
     Test the supplied ``OsProfile`` against the selection criteria
@@ -319,11 +322,13 @@ def select_profile(s: Selection, osp: "OsProfile"):
     otherwise.
 
     :param s: The selection criteria
-    :param osp: The ``OsProfile`` to test
+    :param osp: The ``OsProfile`` or ``HostProfile`` to test
     :rtype: bool
     :returns: True if ``osp`` passes selection or ``False``
               otherwise.
     """
+    if not osp:
+        return False
     if not s.allow_null_profile and _is_null_profile(osp):
         return False
     if s.os_id and not osp.os_id.startswith(s.os_id):
