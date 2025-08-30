@@ -1067,7 +1067,7 @@ def create_entry(
              occurs while writing the entry file.
     """
     if not profile:
-        raise ValueError("Cannot create entry without OsProfile.")
+        raise ValueError("Profile is required (OsProfile or HostProfile).")
 
     if not title and not profile.title:
         raise ValueError("Entry title cannot be empty.")
