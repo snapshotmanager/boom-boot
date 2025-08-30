@@ -1442,6 +1442,10 @@ def edit_entry(
 
     if be.bp:
         (add_opts_list, del_opts_list) = _merge_add_del_opts(be.bp, add_opts, del_opts)
+    elif add_opts or del_opts:
+        raise ValueError(
+            f"add_opts or del_opts given, but boot_id={be.boot_id} has no BootParams"
+        )
 
     be._osp = profile or be._osp
     be.title = title or be.title
