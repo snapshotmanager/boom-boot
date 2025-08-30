@@ -1272,9 +1272,7 @@ def clone_entry(
     profile = profile if profile else be._osp
 
     bp = BootParams.from_entry(be, expand=expand)
-    print(f"add_opts: {add_opts} del_opts: {del_opts}")
     (add_opts_list, del_opts_list) = _merge_add_del_opts(bp, add_opts, del_opts)
-    print(f"add_opts_list: {add_opts_list} del_opts_list: {del_opts_list}")
 
     if no_fstab:
         add_opts_list.append("fstab=no")
