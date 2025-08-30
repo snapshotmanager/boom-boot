@@ -2371,7 +2371,7 @@ def edit_host(
 
     hp = hps.pop()
     hp.delete_profile()
-    hp.machine_id = machine_id or hp.os_id
+    hp.machine_id = machine_id or hp.machine_id
     hp.host_name = host_name or hp.host_name
     hp.label = label or hp.label
     hp.os_id = os_id or hp.os_id
