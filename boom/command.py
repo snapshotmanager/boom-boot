@@ -1761,12 +1761,11 @@ def create_profile(
              a duplicate profile exists, or ``OsError`` if an error
              occurs while writing the profile file.
     """
+    profile_data = profile_data or {}
 
     def _have_key(pd, arg, key):
-        return arg or pd and key in pd
-
-    if not profile_data:
-        profile_data = {}
+        val = arg if arg is not None else pd.get(key)
+        return bool(val) and str(val).strip() != ""
 
     if not profile_file:
         if not _have_key(profile_data, name, BOOM_OS_NAME):
@@ -2091,7 +2090,7 @@ def create_host(
     options: Optional[str] = None,
     add_opts: Optional[str] = None,
     del_opts: Optional[str] = None,
-    host_data: Dict[str, str] = {},
+    host_data: Optional[Dict[str, str]] = None,
 ) -> HostProfile:
     """Create new host profile.
 
@@ -2127,8 +2126,11 @@ def create_host(
              occurs while writing the profile file.
     """
 
+    host_data = host_data or {}
+
     def _have_key(hd, arg, key):
-        return arg or hd and key in hd
+        val = arg if arg is not None else hd.get(key)
+        return bool(val) and str(val).strip() != ""
 
     if not _have_key(host_data, host_name, BOOM_HOST_NAME):
         raise ValueError("Host name cannot be empty.")
@@ -2141,33 +2143,25 @@ def create_host(
 
     label = label or ""
 
-    # FIXME use kwarg style
+    # Resolve required fields from kwargs or host_data
+    machine_id = machine_id or host_data.get(BOOM_ENTRY_MACHINE_ID, "").strip()
+    host_name = host_name or host_data.get(BOOM_HOST_NAME, "").strip()
+    os_id = os_id or host_data.get(BOOM_OS_ID, "").strip()
 
-    # Allow keyword arguments to override
-    if machine_id:
-        host_data[BOOM_ENTRY_MACHINE_ID] = machine_id
-    if host_name:
-        host_data[BOOM_HOST_NAME] = host_name
-    if label:
-        host_data[BOOM_HOST_LABEL] = label
-    if os_id:
-        host_data[BOOM_OS_ID] = os_id
-    if kernel_pattern:
-        host_data[BOOM_OS_KERNEL_PATTERN] = kernel_pattern
-    if initramfs_pattern:
-        host_data[BOOM_OS_INITRAMFS_PATTERN] = initramfs_pattern
-    if root_opts_lvm2:
-        host_data[BOOM_OS_ROOT_OPTS_LVM2] = root_opts_lvm2
-    if root_opts_btrfs:
-        host_data[BOOM_OS_ROOT_OPTS_BTRFS] = root_opts_btrfs
-    if options:
-        host_data[BOOM_OS_OPTIONS] = options
-    if add_opts:
-        host_data[BOOM_HOST_ADD_OPTS] = add_opts
-    if del_opts:
-        host_data[BOOM_HOST_DEL_OPTS] = del_opts
-
-    hp = HostProfile(machine_id=machine_id, profile_data=host_data)
+    hp = HostProfile(
+        machine_id=machine_id,
+        host_name=host_name,
+        label=label,
+        os_id=os_id,
+        kernel_pattern=kernel_pattern,
+        initramfs_pattern=initramfs_pattern,
+        root_opts_lvm2=root_opts_lvm2,
+        root_opts_btrfs=root_opts_btrfs,
+        add_opts=add_opts,
+        del_opts=del_opts,
+        options=options,
+        profile_data=host_data,
+    )
 
     hp.write_profile()
     return hp

@@ -621,7 +621,7 @@ class HostProfile(BoomProfile):
         for key in HOST_REQUIRED_KEYS:
             if key == BOOM_HOST_ID:
                 continue
-            if key not in host_data:
+            if key not in host_data or not host_data[key]:
                 raise ValueError(f"Invalid profile data (missing {key})")
 
         self._profile_data = dict(host_data)
