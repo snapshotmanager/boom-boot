@@ -2367,7 +2367,7 @@ def edit_host(
     if not hps:
         raise ValueError(f"No matching profile found: {selection.host_id}")
     if len(hps) > 1:
-        raise ValueError(f"OS profile identifier '{selection.os_id}' is ambiguous")
+        raise ValueError(f"Host profile identifier '{selection.host_id}' is ambiguous")
 
     hp = hps.pop()
     hp.delete_profile()
