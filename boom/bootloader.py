@@ -708,7 +708,7 @@ class BootParams:
         if not osp:
             return bp
 
-        opts_regexes = osp.make_format_regexes(osp.options)
+        opts_regexes = osp.make_format_regexes(osp.options or "")
 
         if not opts_regexes:
             return bp
@@ -768,7 +768,7 @@ class BootParams:
                 return opt not in _expand_vars(be.options).split()
 
             if opt not in matches:
-                if be._osp and opt not in be._osp.options.split():
+                if (be._osp and be._osp.options) and opt not in be._osp.options.split():
                     if not opt_in_expansion(opt):
                         _log_debug_entry("Found add_opt: %s", opt)
                         return True
@@ -1974,11 +1974,11 @@ class BootEntry:
         root_opts = []
 
         if bp.lvm_root_lv:
-            lvm_opts = self._apply_format(osp.root_opts_lvm2)
+            lvm_opts = self._apply_format(osp.root_opts_lvm2 or "")
             root_opts.append(lvm_opts)
 
         if bp.btrfs_subvol_id or bp.btrfs_subvol_path:
-            btrfs_opts = self._apply_format(osp.root_opts_btrfs)
+            btrfs_opts = self._apply_format(osp.root_opts_btrfs or "")
             root_opts.append(btrfs_opts)
 
         if is_stratis_device_path(self.bp.root_device):
@@ -2002,7 +2002,7 @@ class BootEntry:
             return ""
 
         osp = self._osp
-        return self._apply_format(osp.title)
+        return self._apply_format(osp.title or "")
 
     @title.setter
     def title(self, title: Optional[str]):
@@ -2135,7 +2135,7 @@ class BootEntry:
             return do_exp(opts) if opts else ""
 
         if self._osp and self.bp:
-            opts = self._apply_format(self._osp.options)
+            opts = self._apply_format(self._osp.options or "")
             opts = add_opts(opts, self.bp.add_opts)
             return do_exp(del_opts(opts, self.bp.del_opts))
 
