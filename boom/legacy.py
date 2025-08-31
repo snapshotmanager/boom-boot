@@ -19,8 +19,8 @@ from tempfile import mkstemp
 import logging
 import re
 
-from boom import *
-from boom.bootloader import *
+from boom import BoomError, get_boot_path
+from boom.bootloader import BOOT_ENTRY_MODE, find_entries
 
 #: Format strings use to construct begin/end markers
 BOOM_LEGACY_BEGIN_FMT = "#--- BOOM_%s_BEGIN ---"
