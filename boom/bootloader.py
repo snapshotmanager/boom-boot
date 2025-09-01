@@ -1902,9 +1902,7 @@ class BootEntry:
         """
         if not self._osp or not self._osp.optional_keys:
             return False
-        if key not in self._osp.optional_keys:
-            return False
-        return True
+        return key in set(self._osp.optional_keys.split())
 
     def expanded(self) -> str:
         """Return a string representation of this ``BootEntry``, with
