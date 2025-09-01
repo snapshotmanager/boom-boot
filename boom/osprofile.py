@@ -1224,8 +1224,8 @@ class BoomProfile:
                     if self._comments and key in self._comments:
                         f.write(self._comments[key].rstrip() + "\n")
                     f.write(f'{key}="{self._profile_data[key]}"\n')
-                    f.flush()
-                    fdatasync(f.fileno())
+                f.flush()
+                fdatasync(f.fileno())
         try:
             rename(tmp_path, profile_path)
             chmod(profile_path, mode)
