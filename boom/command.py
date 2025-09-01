@@ -28,6 +28,7 @@ import logging
 import re
 
 from boom import (
+    BoomError,
     BOOM_CONFIG_FILE,
     MIN_ID_WIDTH,
     BOOM_DEBUG_PROFILE,
@@ -1398,7 +1399,7 @@ def edit_entry(
     :param root_device: The new root device
     :param lvm_root_lv: The new LVM root LV
     :param btrfs_subvol_path: The new BTRFS subvolume path
-    :param btrfs_subvol_id: The new BTRFS subvolme ID
+    :param btrfs_subvol_id: The new BTRFS subvolume ID
     :param profile: The host or OS profile for the edited entry
     :param architecture: An optional BLS architecture string.
     :param add_opts: A list of additional kernel options to append.
@@ -1456,14 +1457,15 @@ def edit_entry(
     machine_id = machine_id or be.machine_id
     version = version or be.version
 
-    add_opts_list: List[str] = []
-    del_opts_list: List[str] = []
-    if be.bp:
-        (add_opts_list, del_opts_list) = _merge_add_del_opts(be.bp, add_opts, del_opts)
-    elif add_opts or del_opts:
-        raise ValueError(
-            f"add_opts or del_opts given, but boot_id={be.boot_id} has no BootParams"
+    if be.read_only:
+        raise ValueError(f"Cannot edit read-only entry with boot_id={be.disp_boot_id}")
+
+    if not be.bp:
+        raise BoomError(
+            f"Internal error: BootEntry with boot_id={be.disp_boot_id} has no BootParams"
         )
+
+    add_opts_list, del_opts_list = _merge_add_del_opts(be.bp, add_opts, del_opts)
 
     if no_fstab:
         add_opts_list.append("fstab=no")
@@ -1484,17 +1486,16 @@ def edit_entry(
     be.title = title or be.title
     be.machine_id = machine_id or be.machine_id
     be.architecture = architecture or be.architecture
-    if be.bp:
-        be.bp.version = version
-        be.bp.root_device = root_device or be.bp.root_device
-        be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
-        be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
-        be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
-        be.bp.add_opts = add_opts_list
-        be.bp.del_opts = del_opts_list
+    be.bp.version = version
+    be.bp.root_device = root_device or be.bp.root_device
+    be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
+    be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
+    be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
+    be.bp.add_opts = add_opts_list
+    be.bp.del_opts = del_opts_list
 
-        if not allow_no_dev:
-            check_root_device(be.bp.root_device)
+    if not allow_no_dev:
+        check_root_device(be.bp.root_device)
 
     if images in (I_BACKUP, I_CACHE):
         if be.initrd:
