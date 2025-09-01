@@ -2601,6 +2601,7 @@ __all__ = [
     "DEV_PATTERN",
     # Boom root device error class
     "BoomRootDeviceError",
+    "check_root_device",
     # BootParams and BootEntry objects
     "BootParams",
     "BootEntry",

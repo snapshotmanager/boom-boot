@@ -73,6 +73,7 @@ from boom.report import (
 )
 from boom.bootloader import (
     BoomRootDeviceError,
+    check_root_device,
     DEV_PATTERN,
     BOOM_ENTRY_GRUB_USERS,
     BOOM_ENTRY_GRUB_ARG,
@@ -1283,6 +1284,10 @@ def clone_entry(
 
     if no_fstab:
         add_opts_list.append("fstab=no")
+        # Ensure that root is mounted read-write
+        if "ro" not in del_opts_list:
+            del_opts_list.append("ro")
+            add_opts_list.append("rw")
 
     if mounts:
         mount_units = parse_mount_units(mounts)
@@ -1367,7 +1372,12 @@ def edit_entry(
     add_opts: Optional[str] = None,
     del_opts: Optional[str] = None,
     expand: bool = False,
+    allow_no_dev: bool = False,
     images: Optional[str] = I_NONE,
+    update: bool = False,
+    no_fstab: bool = False,
+    mounts: Optional[List[str]] = None,
+    swaps: Optional[List[str]] = None,
 ) -> BootEntry:
     """Edit an existing boot loader entry.
 
@@ -1394,6 +1404,12 @@ def edit_entry(
     :param add_opts: A list of additional kernel options to append.
     :param del_opts: A list of template-supplied options to drop.
     :param expand: Expand bootloader environment variables.
+    :param allow_no_dev: Accept a non-existent or invalid root device.
+    :param images: Whether to cache or back up boot images.
+    :param update: Whether to refresh existing cached images.
+    :param no_fstab: Disable parsing of fstab for the entry.
+    :param mounts: Colon-separated mount unit specifications.
+    :param swaps: Colon-separated swap unit specifications.
 
     :returns: The modified ``BootEntry``
     :rtype: ``BootEntry``
@@ -1440,12 +1456,29 @@ def edit_entry(
     machine_id = machine_id or be.machine_id
     version = version or be.version
 
+    add_opts_list: List[str] = []
+    del_opts_list: List[str] = []
     if be.bp:
         (add_opts_list, del_opts_list) = _merge_add_del_opts(be.bp, add_opts, del_opts)
     elif add_opts or del_opts:
         raise ValueError(
             f"add_opts or del_opts given, but boot_id={be.boot_id} has no BootParams"
         )
+
+    if no_fstab:
+        add_opts_list.append("fstab=no")
+        # Ensure that root is mounted read-write
+        if "ro" not in del_opts_list:
+            del_opts_list.append("ro")
+            add_opts_list.append("rw")
+
+    if mounts:
+        mount_units = parse_mount_units(mounts)
+        add_opts_list.extend(mount_units)
+
+    if swaps:
+        swap_units = parse_swap_units(swaps)
+        add_opts_list.extend(swap_units)
 
     be._osp = profile or be._osp
     be.title = title or be.title
@@ -1460,11 +1493,14 @@ def edit_entry(
         be.bp.add_opts = add_opts_list
         be.bp.del_opts = del_opts_list
 
+        if not allow_no_dev:
+            check_root_device(be.bp.root_device)
+
     if images in (I_BACKUP, I_CACHE):
         if be.initrd:
-            be.initrd = _cache_image(be.initrd, images == I_BACKUP)
+            be.initrd = _cache_image(be.initrd, images == I_BACKUP, update=update)
         if be.linux:
-            be.linux = _cache_image(be.linux, images == I_BACKUP)
+            be.linux = _cache_image(be.linux, images == I_BACKUP, update=update)
 
     # Is the entry now identical to an existing entry?
     if len(find_entries(Selection(boot_id=be.boot_id))) > 1:
@@ -3126,6 +3162,8 @@ def _edit_cmd(
 
     arch = cmd_args.architecture
 
+    images = I_BACKUP if cmd_args.backup else I_NONE
+
     try:
         be = edit_entry(
             selection=select,
@@ -3141,7 +3179,17 @@ def _edit_cmd(
             del_opts=del_opts,
             architecture=arch,
             expand=cmd_args.expand_variables,
+            allow_no_dev=cmd_args.no_dev,
+            images=images,
+            update=cmd_args.update,
+            no_fstab=cmd_args.no_fstab,
+            mounts=cmd_args.mount,
+            swaps=cmd_args.swap,
         )
+    except BoomRootDeviceError as brde:
+        print(brde)
+        print("Editing an entry with no valid root device requires --no-dev")
+        return 1
     except ValueError as e:
         print(e)
         return 1
