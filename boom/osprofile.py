@@ -151,7 +151,7 @@ OS_KEY_NAMES: Dict[str, str] = {
 OS_REQUIRED_KEYS: List[str] = OS_PROFILE_KEYS[0:7]
 
 #: Boom profile keys for different forms of root device specification.
-OS_ROOT_KEYS: List[str] = OS_PROFILE_KEYS[8:9]
+OS_ROOT_KEYS: List[str] = OS_PROFILE_KEYS[7:9]
 
 #: Keys with default values
 _DEFAULT_KEYS: Dict[str, str] = {
