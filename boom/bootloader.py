@@ -718,10 +718,11 @@ class BootParams:
         )
         _log_debug_entry("Options regex list: %s", str(opts_regexes))
 
+        words = be.expand_options.split() if expand else be.options.split()
         for rgx_word in opts_regexes:
             (name, exp) = rgx_word
             value = ""
-            for word in be.expand_options.split():
+            for word in words:
                 match = re.search(exp, word) if name else re.match(exp, word)
                 if match:
                     if len(match.groups()):
