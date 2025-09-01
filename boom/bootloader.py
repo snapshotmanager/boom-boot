@@ -1725,7 +1725,8 @@ class BootEntry:
                         have |= source is not None
                 return have
 
-            val_fmt = "%s" if VAL_FMT not in key_spec else key_spec[VAL_FMT]
+            val_fmt: str = "%s" if VAL_FMT not in key_spec else str(key_spec[VAL_FMT])
+            value: Optional[str] = None
 
             if have_attr():
                 if BP_ATTR in key_spec and bp:
@@ -1840,13 +1841,10 @@ class BootEntry:
             if key not in fmt:
                 continue
             for key_spec in format_key_specs[key_name]:
-                # Check NEEDS
-                for k in key_spec.keys():
-                    if k == NEEDS:
-                        if key_spec[k] == "bp" and not bp:
-                            continue
-                        if key_spec[k] == "osp" and not self._osp:
-                            continue
+                # Check NEEDS: skip this key_spec entirely if unmet
+                needs = key_spec.get(NEEDS)
+                if (needs == "bp" and not bp) or (needs == "osp" and not self._osp):
+                    continue
                 if not test_predicates(key_spec):
                     continue
                 # A key value of None means the key should not be substituted:
