@@ -1438,8 +1438,6 @@ class OsProfile(BoomProfile):
             if key not in profile_data:
                 raise ValueError(err_str % key)
 
-        if BOOM_OS_OPTIONS not in profile_data:
-            raise ValueError(err_str % BOOM_OS_OPTIONS)
         if "root=" not in profile_data[BOOM_OS_OPTIONS]:
             raise ValueError("OsProfile.options must include root= device option")
 
