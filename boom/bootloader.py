@@ -766,7 +766,7 @@ class BootParams:
                 """
                 if GRUB2_EXPAND_ENV not in be.options:
                     return False
-                return opt not in _expand_vars(be.options).split()
+                return opt in _expand_vars(be.options).split()
 
             if opt not in matches:
                 if (be._osp and be._osp.options) and opt not in be._osp.options.split():
