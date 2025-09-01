@@ -2396,6 +2396,8 @@ class BootEntry:
 
     @property
     def _entry_path(self) -> Optional[str]:
+        if not self.machine_id or not self.version:
+            return None
         id_tuple = (self.machine_id, self.boot_id[0:7], self.version)
         file_name = BOOT_ENTRIES_FORMAT % id_tuple
         return path_join(boom_entries_path(), file_name)
