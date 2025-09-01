@@ -701,7 +701,7 @@ class BootParams:
         """
         osp = be._osp
         # Version is written directly from BootParams
-        version = be.version
+        version = be.version or "-"
         bp = BootParams(version)
         matches = {}
 
