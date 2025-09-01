@@ -34,7 +34,7 @@ is also provided in the ``MAP_KEY`` member).
 from os.path import basename, exists as path_exists, join as path_join
 from subprocess import Popen, PIPE
 from tempfile import mkstemp
-from os import listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
+from os import close, listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from stat import S_ISBLK
 from hashlib import sha1
@@ -2437,7 +2437,7 @@ class BootEntry:
         if not entry_path:
             return
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_entries_path())
-        with fdopen(tmp_fd, "w") as f:
+        with fdopen(tmp_fd, "w", encoding="utf8") as f:
             # Our original file descriptor will be closed on exit from the
             # fdopen with statement: save a copy so that we can call fdatasync
             # once at the end of writing rather than on each loop iteration.
@@ -2451,6 +2451,9 @@ class BootEntry:
                 f.write(str(self) + "\n")
         try:
             fdatasync(tmp_fd)
+        finally:
+            close(tmp_fd)
+        try:
             rename(tmp_path, entry_path)
             chmod(entry_path, BOOT_ENTRY_MODE)
         except Exception as e:
