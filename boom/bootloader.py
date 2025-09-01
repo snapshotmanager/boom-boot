@@ -191,7 +191,7 @@ def optional_key_default(key: str) -> Optional[str]:
 
     :param key: A Boom optional entry key.
     :returns: The default value for optional key ``key``.
-    :rtype: str
+    :rtype: Optional[str]
     """
     if key not in OPTIONAL_KEY_DEFAULTS:
         raise ValueError(f"Unknown optional BootEntry key: {key}")
