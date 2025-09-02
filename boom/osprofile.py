@@ -613,6 +613,7 @@ class BoomProfile:
 
         if self._profile_data:
             self._profile_data[key] = value
+            self._dirty()
 
     def keys(self) -> List[str]:
         """Return the list of keys for this ``BoomProfile``.
