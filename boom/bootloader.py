@@ -1175,7 +1175,7 @@ class BootEntry:
             return True
         return False
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Optional[str]:
         """Return an item from this ``BootEntry``.
 
         :returns: the item corresponding to the key requested.
@@ -1191,7 +1191,7 @@ class BootEntry:
 
         raise KeyError(f"BootEntry key {key} not present.")
 
-    def __setitem__(self, key: str, value):
+    def __setitem__(self, key: str, value: str) -> None:
         """Set the specified ``BootEntry`` key to the given value.
 
         :param key: the ``BootEntry`` key to be set.
