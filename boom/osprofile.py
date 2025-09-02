@@ -1753,7 +1753,7 @@ class OsProfile(BoomProfile):
         """
         return cls.from_os_release_file("/etc/os-release", profile_data=profile_data)
 
-    def _profile_path(self):
+    def _profile_path(self) -> str:
         """Return the path to this profile's on-disk data.
 
         Return the full path to this OsProfile in the Boom profiles
@@ -1767,7 +1767,7 @@ class OsProfile(BoomProfile):
         profile_path_name = BOOM_OS_PROFILE_FORMAT % (profile_id)
         return path_join(boom_profiles_path(), profile_path_name)
 
-    def write_profile(self, force=False):
+    def write_profile(self, force: bool = False) -> None:
         """Write out profile data to disk.
 
         Write out this ``OsProfile``'s data to a file in Boom
@@ -1790,7 +1790,7 @@ class OsProfile(BoomProfile):
         mode = BOOM_PROFILE_MODE
         self._write_profile(self.os_id, path, mode, force=force)
 
-    def delete_profile(self):
+    def delete_profile(self) -> None:
         """Delete on-disk data for this profile.
 
         Remove the on-disk profile corresponding to this
