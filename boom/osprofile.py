@@ -1078,7 +1078,7 @@ class BoomProfile:
                 self._dirty()
 
     @property
-    def options(self):
+    def options(self) -> Optional[str]:
         """The current kernel command line options setting for this
         profile.
 
@@ -1086,16 +1086,18 @@ class BoomProfile:
         :setter: store a new ``options`` value.
         :type: string
         """
-        if BOOM_OS_OPTIONS not in self._profile_data:
+        if self._profile_data and BOOM_OS_OPTIONS not in self._profile_data:
             return None
-        return self._profile_data[BOOM_OS_OPTIONS]
+        return self._profile_data[BOOM_OS_OPTIONS] if self._profile_data else None
 
     @options.setter
-    def options(self, value):
-        if "root=" not in value:
-            raise ValueError("OsProfile.options must include root= device option")
-        self._profile_data[BOOM_OS_OPTIONS] = value
-        self._dirty()
+    def options(self, value: Optional[str]):
+        if value is not None:
+            if "root=" not in value:
+                raise ValueError("OsProfile.options must include root= device option")
+            if self._profile_data:
+                self._profile_data[BOOM_OS_OPTIONS] = value
+                self._dirty()
 
     @property
     def title(self):
