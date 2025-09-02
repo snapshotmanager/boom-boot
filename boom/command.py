@@ -1351,14 +1351,14 @@ def edit_entry(
     machine_id: Optional[str] = None,
     root_device: Optional[str] = None,
     lvm_root_lv: Optional[str] = None,
-    btrfs_subvol_path: None = None,
+    btrfs_subvol_path: Optional[str] = None,
     btrfs_subvol_id: Optional[str] = None,
-    profile: None = None,
-    architecture: None = None,
+    profile: Optional[Union[OsProfile, HostProfile]] = None,
+    architecture: Optional[str] = None,
     add_opts: Optional[str] = None,
     del_opts: Optional[str] = None,
     expand: bool = False,
-    images: None = I_NONE,
+    images: Optional[str] = I_NONE,
 ) -> BootEntry:
     """Edit an existing boot loader entry.
 
@@ -1431,23 +1431,27 @@ def edit_entry(
     machine_id = machine_id or be.machine_id
     version = version or be.version
 
-    (add_opts_list, del_opts_list) = _merge_add_del_opts(be.bp, add_opts, del_opts)
+    if be.bp:
+        (add_opts_list, del_opts_list) = _merge_add_del_opts(be.bp, add_opts, del_opts)
 
     be._osp = profile or be._osp
     be.title = title or be.title
     be.machine_id = machine_id or be.machine_id
     be.architecture = architecture or be.architecture
-    be.bp.version = version
-    be.bp.root_device = root_device or be.bp.root_device
-    be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
-    be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
-    be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
-    be.bp.add_opts = add_opts_list
-    be.bp.del_opts = del_opts_list
+    if be.bp:
+        be.bp.version = version
+        be.bp.root_device = root_device or be.bp.root_device
+        be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
+        be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
+        be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
+        be.bp.add_opts = add_opts_list
+        be.bp.del_opts = del_opts_list
 
     if images in (I_BACKUP, I_CACHE):
-        be.initrd = _cache_image(be.initrd, images == I_BACKUP)
-        be.linux = _cache_image(be.linux, images == I_BACKUP)
+        if be.initrd:
+            be.initrd = _cache_image(be.initrd, images == I_BACKUP)
+        if be.linux:
+            be.linux = _cache_image(be.linux, images == I_BACKUP)
 
     # Is the entry now identical to an existing entry?
     if len(find_entries(Selection(boot_id=be.boot_id))) > 1:
