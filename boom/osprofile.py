@@ -36,6 +36,7 @@ import re
 
 if TYPE_CHECKING:
     from .hostprofile import HostProfile
+    from .bootloader import BootEntry
 
 from boom import (
     BoomError,
@@ -423,7 +424,7 @@ def match_os_profile(entry: "BootEntry") -> "OsProfile":
     :param entry: A ``BootEntry`` object with no attached
                   ``OsProfile``.
     :returns: The corresponding ``OsProfile`` for the supplied
-              ``BootEntry`` or ``None`` if no match is found.
+              ``BootEntry`` or the Null profile if no match is found.
     :rtype: ``OsProfile``
     """
     if not _profiles_loaded:
@@ -743,7 +744,7 @@ class BoomProfile:
         self._required_keys = required_keys
         self._identity_key = identity_key
 
-    def match_uname_version(self, version: str):
+    def match_uname_version(self, version: str) -> bool:
         """Test ``BoomProfile`` for version string match.
 
         Test the supplied version string to determine whether it
@@ -762,7 +763,7 @@ class BoomProfile:
                 return True
         return False
 
-    def match_options(self, entry) -> bool:
+    def match_options(self, entry: "BootEntry") -> bool:
         """Test ``BoomProfile`` for options template match.
 
         Test the supplied ``BootEntry`` to determine whether it
