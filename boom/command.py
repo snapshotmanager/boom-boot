@@ -1185,10 +1185,10 @@ def clone_entry(
     machine_id: Optional[str] = None,
     root_device: Optional[str] = None,
     lvm_root_lv: Optional[str] = None,
-    btrfs_subvol_path: None = None,
+    btrfs_subvol_path: Optional[str] = None,
     btrfs_subvol_id: Optional[str] = None,
     profile: Optional[Union[OsProfile, HostProfile]] = None,
-    architecture: None = None,
+    architecture: Optional[str] = None,
     add_opts: Optional[str] = None,
     del_opts: Optional[str] = None,
     write: bool = True,
@@ -1196,8 +1196,8 @@ def clone_entry(
     allow_no_dev: bool = False,
     images: Optional[str] = I_NONE,
     no_fstab: bool = False,
-    mounts: Optional[str] = None,
-    swaps: Optional[str] = None,
+    mounts: Optional[List[str]] = None,
+    swaps: Optional[List[str]] = None,
 ) -> BootEntry:
     """Clone an existing boot loader entry.
 
@@ -1287,6 +1287,7 @@ def clone_entry(
         swap_units = parse_swap_units(swaps)
         add_opts_list.extend(swap_units)
 
+    bp.version = version if version else bp.version
     bp.root_device = root_device if root_device else bp.root_device
     bp.lvm_root_lv = lvm_root_lv if lvm_root_lv else bp.lvm_root_lv
 
@@ -1310,8 +1311,9 @@ def clone_entry(
     if be.options != be.expand_options and not expand:
         clone_be.options = be.options
     else:
-        clone_be.bp.add_opts = add_opts_list
-        clone_be.bp.del_opts = del_opts_list
+        if clone_be.bp:
+            clone_be.bp.add_opts = add_opts_list
+            clone_be.bp.del_opts = del_opts_list
 
     # Clone optional keys allowed by profile
     if be._osp:
@@ -1327,8 +1329,10 @@ def clone_entry(
         clone_be.linux = be.linux
 
     if images in (I_BACKUP, I_CACHE):
-        clone_be.initrd = _cache_image(clone_be.initrd, images == I_BACKUP)
-        clone_be.linux = _cache_image(clone_be.linux, images == I_BACKUP)
+        if clone_be.initrd:
+            clone_be.initrd = _cache_image(clone_be.initrd, images == I_BACKUP)
+        if clone_be.linux:
+            clone_be.linux = _cache_image(clone_be.linux, images == I_BACKUP)
 
     if find_entries(Selection(boot_id=clone_be.boot_id)):
         raise ValueError(f"Entry already exists (boot_id={clone_be.disp_boot_id}).")
