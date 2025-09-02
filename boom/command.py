@@ -4092,7 +4092,7 @@ def shutdown_logging():
     logging.shutdown()
 
 
-def set_debug(debug_arg: None):
+def set_debug(debug_arg: Optional[str]):
     if not debug_arg:
         return
 
