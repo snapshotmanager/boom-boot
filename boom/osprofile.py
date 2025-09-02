@@ -510,18 +510,18 @@ class BoomProfile:
     """
 
     #: Profile data dictionary
-    _profile_data = None
+    _profile_data: Optional[Dict[str, str]] = None
     #: Dirty flag
-    _unwritten = False
+    _unwritten: bool = False
     #: Comment descriptors read from on-disk store
-    _comments = None
+    _comments: Optional[Dict[str, str]] = None
 
     #: Key set for this profile class
-    _profile_keys = None
+    _profile_keys: Optional[List[str]] = None
     #: Mandatory keys for this profile class
-    _required_keys = None
+    _required_keys: Optional[List[str]] = None
     #: The identity key for this profile class
-    _identity_key = None
+    _identity_key: Optional[str] = None
 
     def __str__(self):
         """Format this profile as a human readable string.
