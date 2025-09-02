@@ -447,7 +447,7 @@ class BootEntryTests(unittest.TestCase):
 
         # Assert that root_device is empty and that other parameters
         # are still recovered.
-        self.assertEqual(bp.root_device, "")
+        self.assertEqual(bp.root_device, None)
         self.assertEqual(bp.version, "1.1.1")
 
     def test_BootParams_from_entry_no_root_device(self):
@@ -746,7 +746,7 @@ class BootEntryTests(unittest.TestCase):
 
         xkeys = [
             'BOOM_ENTRY_TITLE', 'BOOM_ENTRY_MACHINE_ID',
-            'BOOM_ENTRY_ARCHITECTURE', 'BOOM_ENTRY_LINUX', 'BOOM_ENTRY_INITRD',
+            'BOOM_ENTRY_LINUX', 'BOOM_ENTRY_INITRD',
             'BOOM_ENTRY_OPTIONS', 'BOOM_ENTRY_VERSION'
         ]
 
@@ -788,14 +788,13 @@ class BootEntryTests(unittest.TestCase):
 
         xkeys = [
             'BOOM_ENTRY_TITLE', 'BOOM_ENTRY_MACHINE_ID',
-            'BOOM_ENTRY_ARCHITECTURE', 'BOOM_ENTRY_LINUX',
-            'BOOM_ENTRY_INITRD', 'BOOM_ENTRY_OPTIONS', 'BOOM_ENTRY_VERSION'
+            'BOOM_ENTRY_LINUX', 'BOOM_ENTRY_INITRD',
+            'BOOM_ENTRY_OPTIONS', 'BOOM_ENTRY_VERSION'
         ]
 
         xvalues = [
             'title',
             'ffffffff',
-            '',
             '/vmlinuz-4.11.5-100.fc24.x86_64',
             '/initramfs-4.11.5-100.fc24.x86_64.img',
             'root=/dev/sda5 ro rhgb quiet',

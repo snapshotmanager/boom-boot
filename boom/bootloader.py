@@ -2288,7 +2288,7 @@ class BootEntry:
         self._dirty()
 
     @property
-    def architecture(self):
+    def architecture(self) -> Optional[str]:
         """The EFI machine type string for this ``BootEntry``.
 
         :getter: returns the configured architecture.
@@ -2298,12 +2298,15 @@ class BootEntry:
         return self._entry_data_property(BOOM_ENTRY_ARCHITECTURE)
 
     @architecture.setter
-    def architecture(self, architecture):
+    def architecture(self, architecture: Optional[str]):
         # The empty string means no architecture key
         machine_types = ["ia32", "x64", "ia64", "arm", "aa64", ""]
-        if architecture and not architecture.lower() in machine_types:
+        if architecture and architecture.lower() not in machine_types:
             raise ValueError(f"Unknown architecture: '{architecture}'")
-        self._entry_data[BOOM_ENTRY_ARCHITECTURE] = architecture
+        if architecture:
+            self._entry_data[BOOM_ENTRY_ARCHITECTURE] = architecture
+        else:
+            self._entry_data.pop(BOOM_ENTRY_ARCHITECTURE, None)
         self._dirty()
 
     @property
