@@ -30,7 +30,7 @@ from hashlib import sha1
 from tempfile import mkstemp
 from os.path import basename, join as path_join, exists as path_exists
 from os import fdopen, rename, chmod, unlink, fdatasync
-from typing import Callable, Dict, List, Optional, Tuple, Union, TYPE_CHECKING
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TYPE_CHECKING
 import logging
 import re
 
@@ -559,7 +559,7 @@ class BoomProfile:
         """
         return len(self._profile_data) if self._profile_data else 0
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> str:
         """Return an item from this profile.
 
         :returns: the item corresponding to the key requested.
@@ -570,12 +570,12 @@ class BoomProfile:
         if not isinstance(key, str):
             raise TypeError("Profile key must be a string.")
 
-        if key in self._profile_data:
+        if self._profile_data and key in self._profile_data:
             return self._profile_data[key]
 
-        raise KeyError(f"Key {key} not in profile.")
+        raise KeyError(key)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: str):
         """Set the specified ``Profile`` key to the given value.
 
         :param key: the ``Profile`` key to be set.
@@ -603,13 +603,14 @@ class BoomProfile:
         if not isinstance(key, str):
             raise TypeError(f"{ptype} key must be a string.")
 
-        if key not in self._profile_keys:
+        if self._profile_keys and key not in self._profile_keys:
             raise ValueError(f"Invalid {ptype} key: {key}")
 
         if key in bad_key_map:
             _check_format_key_value(key, value, bad_key_map[key])
 
-        self._profile_data[key] = value
+        if self._profile_data:
+            self._profile_data[key] = value
 
     def keys(self):
         """Return the list of keys for this ``BoomProfile``.
