@@ -1130,32 +1130,33 @@ class BoomProfile:
             raise ValueError(f"Unknown optional key: '{optional_key}'")
 
     @property
-    def optional_keys(self):
+    def optional_keys(self) -> str:
         """The set of optional BLS keys allowed by this profile.
 
         :getter: returns a string containing optional BLS key names.
         :setter: store a new set of optional BLS keys.
         :type: string
         """
-        if BOOM_OS_OPTIONAL_KEYS not in self._profile_data:
+        if self._profile_data and BOOM_OS_OPTIONAL_KEYS not in self._profile_data:
             return ""
-        return self._profile_data[BOOM_OS_OPTIONAL_KEYS]
+        return self._profile_data[BOOM_OS_OPTIONAL_KEYS] if self._profile_data else ""
 
     @optional_keys.setter
-    def optional_keys(self, optional_keys):
+    def optional_keys(self, optional_keys: str):
         for opt_key in optional_keys.split():
             self._check_optional_key(opt_key)
-        self._profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
-        self._dirty()
+        if self._profile_data:
+            self._profile_data[BOOM_OS_OPTIONAL_KEYS] = optional_keys
+            self._dirty()
 
-    def add_optional_key(self, key):
+    def add_optional_key(self, key: str):
         """Add the BLS key ``key`` to the allowed set of optional keys
         for this profile.
         """
         self._check_optional_key(key)
-        self.optional_keys = self.optional_keys + " " + key
+        self.optional_keys = " ".join(k for k in (self.optional_keys, key) if k)
 
-    def del_optional_key(self, key):
+    def del_optional_key(self, key: str):
         """Remove the BLS key ``key`` from the allowed set of optional
         keys for this profile.
         """
