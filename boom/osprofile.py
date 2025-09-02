@@ -523,7 +523,7 @@ class BoomProfile:
     #: The identity key for this profile class
     _identity_key: Optional[str] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Format this profile as a human readable string.
 
         This method must be implemented by concrete profile classes.
@@ -535,7 +535,7 @@ class BoomProfile:
         """
         raise NotImplementedError
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Format this ``BoomProfile`` as a machine readable string.
 
         This method must be implemented by concrete profile classes.
