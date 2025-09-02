@@ -1165,7 +1165,7 @@ class BoomProfile:
         key_list = [k for k in self.optional_keys.split() if k != key]
         self.optional_keys = spacer.join(key_list)
 
-    def _profile_path(self):
+    def _profile_path(self) -> str:
         """Return the path to this profile's on-disk data.
 
         Return the full path to this Profile in the appropriate
@@ -1179,7 +1179,9 @@ class BoomProfile:
         """
         raise NotImplementedError
 
-    def _write_profile(self, profile_id, profile_dir, mode, force=False):
+    def _write_profile(
+        self, profile_id: str, profile_dir: str, mode: int, force: bool = False
+    ) -> None:
         """Write helper for profile classes.
 
         Write out this profile's data to a file in Boom format to
@@ -1216,12 +1218,13 @@ class BoomProfile:
 
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=profile_dir)
         with fdopen(tmp_fd, "w", encoding="utf8") as f:
-            for key in [k for k in profile_keys if k in self._profile_data]:
-                if self._comments and key in self._comments:
-                    f.write(self._comments[key].rstrip() + "\n")
-                f.write(f'{key}="{self._profile_data[key]}"\n')
-                f.flush()
-                fdatasync(f.fileno())
+            if self._profile_data and profile_keys:
+                for key in [k for k in profile_keys if k in self._profile_data]:
+                    if self._comments and key in self._comments:
+                        f.write(self._comments[key].rstrip() + "\n")
+                    f.write(f'{key}="{self._profile_data[key]}"\n')
+                    f.flush()
+                    fdatasync(f.fileno())
         try:
             rename(tmp_path, profile_path)
             chmod(profile_path, mode)
@@ -1235,7 +1238,7 @@ class BoomProfile:
 
         _log_debug("Wrote %s (id=%s)'", ptype, profile_id)
 
-    def write_profile(self, force=False):
+    def write_profile(self, force: bool = False) -> None:
         """Write out profile data to disk.
 
         Write out this ``BoomProfile``'s data to a file in Boom
@@ -1251,7 +1254,7 @@ class BoomProfile:
         """
         raise NotImplementedError
 
-    def _delete_profile(self, profile_id):
+    def _delete_profile(self, profile_id: str) -> None:
         """Deletion helper for profile classes.
 
         Remove the on-disk profile corresponding to this
@@ -1283,7 +1286,7 @@ class BoomProfile:
         except Exception as e:
             _log_error("Error removing %s file '%s': %s", ptype, profile_path, e)
 
-    def delete_profile(self):
+    def delete_profile(self) -> None:
         """Delete on-disk data for this profile.
 
         Remove the on-disk profile corresponding to this
