@@ -2017,7 +2017,7 @@ class BootEntry:
         self._dirty()
 
     @property
-    def machine_id(self):
+    def machine_id(self) -> Optional[str]:
         """The machine_id of this ``BootEntry``.
 
         :getter: returns this ``BootEntry`` object's ``machine_id``.
@@ -2027,8 +2027,11 @@ class BootEntry:
         return self._entry_data_property(BOOM_ENTRY_MACHINE_ID)
 
     @machine_id.setter
-    def machine_id(self, machine_id):
-        self._entry_data[BOOM_ENTRY_MACHINE_ID] = machine_id
+    def machine_id(self, machine_id: Optional[str]):
+        if machine_id:
+            self._entry_data[BOOM_ENTRY_MACHINE_ID] = machine_id
+        else:
+            self._entry_data.pop(BOOM_ENTRY_MACHINE_ID, None)
         self._dirty()
 
     @property
