@@ -1898,7 +1898,7 @@ class BootEntry:
             return self._entry_data[name]
         return None
 
-    def _have_optional_key(self, key: str):
+    def _have_optional_key(self, key: str) -> bool:
         """Return ``True`` if optional BLS key ``key`` is permitted by
         the attached ``OsProfile``, or ``False`` otherwise.
         """
