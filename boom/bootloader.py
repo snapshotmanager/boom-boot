@@ -2470,7 +2470,7 @@ class BootEntry:
         # Add this entry to the list of known on-disk entries
         _add_entry(self)
 
-    def update_entry(self, force=False, expand=False):
+    def update_entry(self, force: bool = False, expand: bool = False):
         """Update on-disk entry.
 
         Update this ``BootEntry``'s on-disk data.
@@ -2504,9 +2504,10 @@ class BootEntry:
         to_unlink = self._last_path
         self.write_entry(force=force, expand=expand)
         _log_info("Rewrote entry %s as %s", self.disp_boot_id, self._entry_path)
-        if self._entry_path != to_unlink:
+        if self._entry_path and self._entry_path != to_unlink:
             try:
-                unlink(to_unlink)
+                if to_unlink:
+                    unlink(to_unlink)
             except Exception as e:
                 _log_error("Error unlinking entry file %s: %s", to_unlink, e)
 
