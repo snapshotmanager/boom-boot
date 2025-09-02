@@ -980,44 +980,48 @@ class BoomProfile:
             self._dirty()
 
     @property
-    def kernel_pattern(self):
+    def kernel_pattern(self) -> str:
         """The current ``kernel_pattern`` setting of this profile.
 
         :getter: returns the ``kernel_pattern`` as a string.
         :setter: stores a new ``kernel_pattern`` setting.
         :type: string
         """
-        return self._profile_data[BOOM_OS_KERNEL_PATTERN]
+        return self._profile_data[BOOM_OS_KERNEL_PATTERN] if self._profile_data else ""
 
     @kernel_pattern.setter
-    def kernel_pattern(self, value):
+    def kernel_pattern(self, value: str):
         kernel_key = key_from_key_name(FMT_KERNEL)
 
         if kernel_key in value:
             ptype = self.__class__.__name__
             raise ValueError(f"{ptype}.kernel cannot contain {kernel_key}")
 
-        self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
-        self._dirty()
+        if self._profile_data:
+            self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
+            self._dirty()
 
     @property
-    def initramfs_pattern(self):
+    def initramfs_pattern(self) -> str:
         """The current ``initramfs_pattern`` setting of this profile.
 
         :getter: returns the ``initramfs_pattern`` as a string.
         :setter: store a new ``initramfs_pattern`` setting.
         :type: string
         """
-        return self._profile_data[BOOM_OS_INITRAMFS_PATTERN]
+        return (
+            self._profile_data[BOOM_OS_INITRAMFS_PATTERN] if self._profile_data else ""
+        )
 
     @initramfs_pattern.setter
-    def initramfs_pattern(self, value):
+    def initramfs_pattern(self, value: str):
         initramfs_key = key_from_key_name(FMT_INITRAMFS)
         if initramfs_key in value:
             ptype = self.__class__.__name__
             raise ValueError(f"{ptype}.initramfs cannot contain {initramfs_key}")
-        self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
-        self._dirty()
+        if self._profile_data:
+            self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
+            self._dirty()
 
     @property
     def root_opts_lvm2(self):
