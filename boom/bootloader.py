@@ -1988,7 +1988,7 @@ class BootEntry:
         return " ".join(root_opts)
 
     @property
-    def title(self):
+    def title(self) -> Optional[str]:
         """The title of this ``BootEntry``.
 
         :getter: returns the ``BootEntry`` title.
@@ -2005,13 +2005,15 @@ class BootEntry:
         return self._apply_format(osp.title)
 
     @title.setter
-    def title(self, title):
+    def title(self, title: Optional[str]):
         if not title:
             # It is valid to set an empty title in a HostProfile as long
             # as the OsProfile defines one.
             if not self._osp or not self._osp.title:
                 raise ValueError("Entry title cannot be empty")
-        self._entry_data[BOOM_ENTRY_TITLE] = title
+            self._entry_data.pop(BOOM_ENTRY_TITLE, None)
+        else:
+            self._entry_data[BOOM_ENTRY_TITLE] = title
         self._dirty()
 
     @property
