@@ -248,7 +248,7 @@ class BoomRootDeviceError(BoomError):
     pass
 
 
-def check_root_device(dev: str):
+def check_root_device(dev: Optional[str]) -> None:
     """Test for the presence of root device ``dev`` and return if it
     exists in the configured /dev directory and is a valid block
     device, or raise ``BoomRootDeviceError`` otherwise.
@@ -260,6 +260,9 @@ def check_root_device(dev: str):
     :raises: BoomRootDeviceError if ``dev`` is invalid.
     :returns: None
     """
+    if not dev:
+        raise BoomRootDeviceError("Device is None or empty.")
+
     if not path_exists(dev):
         raise BoomRootDeviceError(f"Device '{dev}' not found.")
 
