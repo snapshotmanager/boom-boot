@@ -383,7 +383,7 @@ class BootParams:
     #: Generation counter for dirty detection
     generation: int = 0
 
-    def __str(self, quote=False, prefix="", suffix=""):
+    def __str(self, quote=False, prefix="", suffix="") -> str:
         """Format BootParams as a string.
 
         Format this ``BootParams`` object as a string, with optional
@@ -427,7 +427,7 @@ class BootParams:
 
         return bp_str.rstrip(", ") + suffix
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Format BootParams as a human-readable string.
 
         Format this ``BootParams`` object as a human-readable string.
