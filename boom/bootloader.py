@@ -1315,9 +1315,13 @@ class BootEntry:
 
         outlines = ""
         for line in comment.splitlines():
-            (_, os_id) = line.split(":", maxsplit=1)
-            os_id = os_id.strip()
-            osp = get_os_profile_by_id(os_id)
+            if "OsIdentifier:" in line:
+                (_, os_id) = line.split(":", maxsplit=1)
+                os_id = os_id.strip()
+                osp = get_os_profile_by_id(os_id)
+            else:
+                os_id = None
+                osp = None
 
             # An OsIdentifier comment is automatically added to the
             # entry when it is written: do not add the read value to
