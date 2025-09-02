@@ -497,7 +497,7 @@ def match_os_profile_by_version(version: str) -> Optional["OsProfile"]:
     return None
 
 
-def key_from_key_name(key_name):
+def key_from_key_name(key_name: str) -> str:
     key_format = "%%{%s}"
     return key_format % key_name
 
