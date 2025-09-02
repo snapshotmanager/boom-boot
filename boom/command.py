@@ -1129,8 +1129,10 @@ def create_entry(
     )
 
     if images in (I_BACKUP, I_CACHE):
-        be.initrd = _cache_image(be.initrd, images == I_BACKUP, update=update)
-        be.linux = _cache_image(be.linux, images == I_BACKUP, update=update)
+        if be.initrd:
+            be.initrd = _cache_image(be.initrd, images == I_BACKUP, update=update)
+        if be.linux:
+            be.linux = _cache_image(be.linux, images == I_BACKUP, update=update)
 
     if find_entries(Selection(boot_id=be.boot_id)):
         raise ValueError(f"Entry already exists (boot_id={be.disp_boot_id}).")
