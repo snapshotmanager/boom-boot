@@ -67,47 +67,47 @@ from boom import (
 )
 
 #: Boom profiles directory name.
-BOOM_PROFILES = "profiles"
+BOOM_PROFILES: str = "profiles"
 
 #: File name format for Boom profiles.
-BOOM_OS_PROFILE_FORMAT = "%s-%s%s.profile"
+BOOM_OS_PROFILE_FORMAT: str = "%s-%s%s.profile"
 
 #: The file mode with which to create Boom profiles.
-BOOM_PROFILE_MODE = 0o644
+BOOM_PROFILE_MODE: int = 0o644
 
 # Constants for Boom profile keys
 
 #: Constant for the Boom OS identifier profile key.
-BOOM_OS_ID = "BOOM_OS_ID"
+BOOM_OS_ID: str = "BOOM_OS_ID"
 #: Constant for the Boom OS name profile key.
-BOOM_OS_NAME = "BOOM_OS_NAME"
+BOOM_OS_NAME: str = "BOOM_OS_NAME"
 #: Constant for the Boom OS short name profile key.
-BOOM_OS_SHORT_NAME = "BOOM_OS_SHORT_NAME"
+BOOM_OS_SHORT_NAME: str = "BOOM_OS_SHORT_NAME"
 #: Constant for the Boom OS version string profile key.
-BOOM_OS_VERSION = "BOOM_OS_VERSION"
+BOOM_OS_VERSION: str = "BOOM_OS_VERSION"
 #: Constant for the Boom OS version ID string profile key.
-BOOM_OS_VERSION_ID = "BOOM_OS_VERSION_ID"
+BOOM_OS_VERSION_ID: str = "BOOM_OS_VERSION_ID"
 #: Constant for the Boom OS uname pattern profile key.
-BOOM_OS_UNAME_PATTERN = "BOOM_OS_UNAME_PATTERN"
+BOOM_OS_UNAME_PATTERN: str = "BOOM_OS_UNAME_PATTERN"
 #: Constant for the Boom OS kernel pattern profile key.
-BOOM_OS_KERNEL_PATTERN = "BOOM_OS_KERNEL_PATTERN"
+BOOM_OS_KERNEL_PATTERN: str = "BOOM_OS_KERNEL_PATTERN"
 #: Constant for the Boom OS initramfs pattern profile key.
-BOOM_OS_INITRAMFS_PATTERN = "BOOM_OS_INITRAMFS_PATTERN"
+BOOM_OS_INITRAMFS_PATTERN: str = "BOOM_OS_INITRAMFS_PATTERN"
 #: Constant for the Boom OS LVM2 root options key.
-BOOM_OS_ROOT_OPTS_LVM2 = "BOOM_OS_ROOT_OPTS_LVM2"
+BOOM_OS_ROOT_OPTS_LVM2: str = "BOOM_OS_ROOT_OPTS_LVM2"
 #: Constant for the Boom OS BTRFS root options key.
-BOOM_OS_ROOT_OPTS_BTRFS = "BOOM_OS_ROOT_OPTS_BTRFS"
+BOOM_OS_ROOT_OPTS_BTRFS: str = "BOOM_OS_ROOT_OPTS_BTRFS"
 #: Constant for the Boom OS command line options key.
-BOOM_OS_OPTIONS = "BOOM_OS_OPTIONS"
+BOOM_OS_OPTIONS: str = "BOOM_OS_OPTIONS"
 #: Constant for the Boom OS title template key.
-BOOM_OS_TITLE = "BOOM_OS_TITLE"
+BOOM_OS_TITLE: str = "BOOM_OS_TITLE"
 #: Constant for the Boom OS optional keys key.
-BOOM_OS_OPTIONAL_KEYS = "BOOM_OS_OPTIONAL_KEYS"
+BOOM_OS_OPTIONAL_KEYS: str = "BOOM_OS_OPTIONAL_KEYS"
 
 #: Ordered list of possible profile keys, partitioned into mandatory
 #: keys, root option keys, and optional keys (currently the Linux
 #: kernel command line).
-OS_PROFILE_KEYS = [
+OS_PROFILE_KEYS: List[str] = [
     # Keys 0-6 (ID to INITRAMFS_PATTERN) are mandatory.
     BOOM_OS_ID,
     BOOM_OS_NAME,
@@ -129,7 +129,7 @@ OS_PROFILE_KEYS = [
 #: A map of Boom profile keys to human readable key names suitable
 #: for use in formatted output. These key names are used to format
 #: a ``OsProfile`` object as a human readable string.
-OS_KEY_NAMES = {
+OS_KEY_NAMES: Dict[str, str] = {
     BOOM_OS_ID: "OS ID",
     BOOM_OS_NAME: "Name",
     BOOM_OS_SHORT_NAME: "Short name",
@@ -146,13 +146,13 @@ OS_KEY_NAMES = {
 }
 
 #: Boom profile keys that must exist in a valid profile.
-OS_REQUIRED_KEYS = OS_PROFILE_KEYS[0:7]
+OS_REQUIRED_KEYS: List[str] = OS_PROFILE_KEYS[0:7]
 
 #: Boom profile keys for different forms of root device specification.
-OS_ROOT_KEYS = OS_PROFILE_KEYS[8:9]
+OS_ROOT_KEYS: List[str] = OS_PROFILE_KEYS[8:9]
 
 #: Keys with default values
-_DEFAULT_KEYS = {
+_DEFAULT_KEYS: Dict[str, str] = {
     BOOM_OS_UNAME_PATTERN: "",
     BOOM_OS_KERNEL_PATTERN: "/vmlinuz-%{version}",
     BOOM_OS_INITRAMFS_PATTERN: "/initramfs-%{version}.img",
