@@ -2064,7 +2064,7 @@ class BootEntry:
         :rtype: string
         """
 
-        def add_opts(opts, append):
+        def add_opts(opts: str, append: Optional[List[str]]):
             """Append additional kernel options to this options string.
 
             Format the elements of list ``append`` as a space separated
@@ -2076,10 +2076,9 @@ class BootEntry:
             :returns: A string with additional options appended.
             :rtype: string
             """
-            extra = " ".join(append)
-            return f"{opts} {extra}" if append else opts
+            return f"{opts} {' '.join(append)}" if append else opts
 
-        def del_opt(opt, drop):
+        def del_opt(opt: str, drop: Optional[List[str]]) -> bool:
             """Return ``True`` if option ``opt`` should be dropped or
             ``False`` otherwise.
 
@@ -2095,15 +2094,15 @@ class BootEntry:
             :rtype: bool
             """
             # "name" or "name=value"
-            if opt in drop:
+            if drop and opt in drop:
                 return True
 
             # "name=" wildcard
-            if f"{opt.split('=')[0]}=" in drop:
+            if drop and f"{opt.split('=')[0]}=" in drop:
                 return True
             return False
 
-        def del_opts(opts, drop):
+        def del_opts(opts: str, drop: Optional[List[str]]):
             """Remove template-supplied kernel options matching ``drop`` from
             options string ``opts``.
 
@@ -2124,7 +2123,7 @@ class BootEntry:
             """
             return " ".join([o for o in opts.split() if not del_opt(o, drop)])
 
-        def do_null(opts):
+        def do_null(opts: str) -> str:
             """Dummy expansion function."""
             return opts
 
@@ -2158,7 +2157,7 @@ class BootEntry:
         return self._options(expand=True)
 
     @property
-    def options(self):
+    def options(self) -> str:
         """The command line options for this ``BootEntry``, including
         any bootloader environment variable references as they
         appear.
@@ -2170,8 +2169,11 @@ class BootEntry:
         return self._options()
 
     @options.setter
-    def options(self, options):
-        self._entry_data[BOOM_ENTRY_OPTIONS] = options
+    def options(self, options: Optional[str]):
+        if options:
+            self._entry_data[BOOM_ENTRY_OPTIONS] = options
+        else:
+            self._entry_data.pop(BOOM_ENTRY_OPTIONS, None)
         self._dirty()
 
     @property
