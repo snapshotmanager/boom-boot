@@ -684,7 +684,7 @@ class BoomProfile:
         """
         raise NotImplementedError
 
-    def _from_file(self, profile_file):
+    def _from_file(self, profile_file: str):
         """Initialise a new profile from data stored in a file.
 
         Initialise a new profile object using the profile data
