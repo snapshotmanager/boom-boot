@@ -310,7 +310,9 @@ def min_os_id_width() -> int:
     return min_id_width(MIN_ID_WIDTH, _profiles, "os_id")
 
 
-def select_profile(s: Selection, osp: Optional[Union["OsProfile", "HostProfile"]]):
+def select_profile(
+    s: Selection, osp: Optional[Union["OsProfile", "HostProfile"]]
+) -> bool:
     """Test the supplied profile against selection criteria.
 
     Test the supplied ``OsProfile`` against the selection criteria
