@@ -549,98 +549,106 @@ class BootParams:
     # a containing BootEntry to mark itself as dirty.
 
     @property
-    def version(self):
+    def version(self) -> Optional[str]:
         """Return this ``BootParams`` object's version."""
         return self._version
 
     @version.setter
-    def version(self, value):
+    def version(self, value: Optional[str]):
         """Set this ``BootParams`` object's version."""
         self.generation += 1
         self._version = value
 
     @property
-    def root_device(self):
+    def root_device(self) -> Optional[str]:
         """Return this ``BootParams`` object's root_device."""
         return self._root_device
 
     @root_device.setter
-    def root_device(self, value):
+    def root_device(self, value: Optional[str]):
         """Set this ``BootParams`` object's root_device."""
         self.generation += 1
         self._root_device = value
+        if not self._root_device:
+            self._lvm_root_lv = None
+            self._stratis_pool_uuid = None
+            return
         if is_lvm_device_path(self._root_device):
             self._lvm_root_lv = vg_lv_from_device_path(self._root_device)
+        else:
+            self._lvm_root_lv = None
         if is_stratis_device_path(self._root_device):
             self._stratis_pool_uuid = symlink_to_pool_uuid(self._root_device)
+        else:
+            self._stratis_pool_uuid = None
 
     @property
-    def lvm_root_lv(self):
+    def lvm_root_lv(self) -> Optional[str]:
         """Return this ``BootParams`` object's lvm_root_lv."""
         return self._lvm_root_lv
 
     @lvm_root_lv.setter
-    def lvm_root_lv(self, value):
+    def lvm_root_lv(self, value: Optional[str]):
         """Set this ``BootParams`` object's lvm_root_lv."""
         self.generation += 1
         self._lvm_root_lv = value
 
     @property
-    def btrfs_subvol_path(self):
+    def btrfs_subvol_path(self) -> Optional[str]:
         """Return this ``BootParams`` object's btrfs_subvol_path."""
         return self._btrfs_subvol_path
 
     @btrfs_subvol_path.setter
-    def btrfs_subvol_path(self, value):
+    def btrfs_subvol_path(self, value: Optional[str]):
         """Set this ``BootParams`` object's btrfs_subvol_path."""
         self.generation += 1
         self._btrfs_subvol_path = value
 
     @property
-    def btrfs_subvol_id(self):
+    def btrfs_subvol_id(self) -> Optional[str]:
         """Return this ``BootParams`` object's btrfs_subvol_id."""
         return self._btrfs_subvol_id
 
     @btrfs_subvol_id.setter
-    def btrfs_subvol_id(self, value):
+    def btrfs_subvol_id(self, value: Optional[str]):
         """Set this ``BootParams`` object's btrfs_subvol_id."""
         self.generation += 1
         self._btrfs_subvol_id = value
 
     @property
-    def stratis_pool_uuid(self):
+    def stratis_pool_uuid(self) -> Optional[str]:
         """Return this ``BootParams`` object's stratis_pool_uuid."""
         return self._stratis_pool_uuid
 
     @stratis_pool_uuid.setter
-    def stratis_pool_uuid(self, value):
+    def stratis_pool_uuid(self, value: Optional[str]):
         """Override this ``BootParams`` object's stratis_pool_uuid."""
         self.generation += 1
         self._stratis_pool_uuid = value
 
     @property
-    def add_opts(self):
+    def add_opts(self) -> List[str]:
         """Return this ``BootParams`` object's add_opts."""
         return self._add_opts
 
     @add_opts.setter
-    def add_opts(self, value):
+    def add_opts(self, value: List[str]):
         """Set this ``BootParams`` object's add_opts."""
         self.generation += 1
         self._add_opts = value
 
     @property
-    def del_opts(self):
+    def del_opts(self) -> List[str]:
         """Return this ``BootParams`` object's del_opts."""
         return self._del_opts
 
     @del_opts.setter
-    def del_opts(self, value):
+    def del_opts(self, value: List[str]):
         """Set this ``BootParams`` object's del_opts."""
         self.generation += 1
         self._del_opts = value
 
-    def has_btrfs(self):
+    def has_btrfs(self) -> bool:
         """Return ``True`` if this BootParams object is configured to
         use BTRFS.
 
@@ -649,14 +657,14 @@ class BootParams:
         """
         return any((self.btrfs_subvol_id, self.btrfs_subvol_path))
 
-    def has_lvm2(self):
+    def has_lvm2(self) -> bool:
         """Return ``True`` if this BootParams object is configured to
         use LVM2.
 
         :returns: True if LVM2 is in use, or False otherwise
         :rtype: bool
         """
-        return self.lvm_root_lv is not None and len(self.lvm_root_lv)
+        return bool(self.lvm_root_lv)
 
     def has_stratis(self) -> bool:
         """Return ``True`` if this BootParams object is configured to

@@ -656,18 +656,24 @@ class CommandTests(unittest.TestCase):
 
         be.delete_entry()
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_clone_entry_with_add_del_opts(self):
-        # Entry with options +"debug" -"rhgb quiet"
-        orig_boot_id = "78861b7"
-        # Use allow_no_dev=True here since we are cloning an existing
-        # entry on a system with unknown devices.
-        be = clone_entry(Selection(boot_id=orig_boot_id),
-                         title="clone with addopts", allow_no_dev=True)
-        orig_be = find_entries(Selection(boot_id=orig_boot_id))[0]
-        self.assertTrue(orig_be)
-        self.assertTrue(be)
-        self.assertEqual(orig_be.options, be.options)
+        # Fedora 24 (Workstation Edition)
+        osp = get_os_profile_by_id(test_os_id)
+        be = create_entry("ATITLE", "2.6.0", "ffffffff", test_lv,
+                          lvm_root_lv=test_root_lv, profile=osp,
+                          add_opts="debug", del_opts="rhgb quiet")
+        self.assertTrue(exists(be._entry_path))
+
+        be2 = clone_entry(Selection(boot_id=be.boot_id),
+                          title="clone with addopts",
+                          version="2.6.1")
+
+        self.assertTrue(exists(be2._entry_path))
+        self.assertEqual(be.options, be2.options)
+
         be.delete_entry()
+        be2.delete_entry()
 
     @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_clone_dupe(self):
