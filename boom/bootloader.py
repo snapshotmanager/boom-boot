@@ -912,7 +912,7 @@ def min_boot_id_width() -> int:
     return MIN_ID_WIDTH
 
 
-def select_params(s: Selection, bp: BootParams):
+def select_params(s: Selection, bp: Optional[BootParams]) -> bool:
     """Test BootParams against Selection criteria.
 
     Test the supplied ``BootParams`` against the selection criteria
@@ -925,6 +925,9 @@ def select_params(s: Selection, bp: BootParams):
     :returns: True if BootParams passes selection or ``False``
               otherwise.
     """
+    if not bp:
+        return False
+
     if s.root_device and s.root_device != bp.root_device:
         return False
     if s.lvm_root_lv and s.lvm_root_lv != bp.lvm_root_lv:
@@ -937,7 +940,7 @@ def select_params(s: Selection, bp: BootParams):
     return True
 
 
-def select_entry(s: Selection, be: "BootEntry"):
+def select_entry(s: Selection, be: "BootEntry") -> bool:
     """Test BootEntry against Selection criteria.
 
     Test the supplied ``BootEntry`` against the selection criteria
