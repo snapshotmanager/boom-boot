@@ -2177,7 +2177,7 @@ class BootEntry:
         self._dirty()
 
     @property
-    def linux(self):
+    def linux(self) -> Optional[str]:
         """The bootable Linux image for this ``BootEntry``.
 
         :getter: returns the configured ``linux`` image.
@@ -2187,12 +2187,15 @@ class BootEntry:
         if not self._osp or BOOM_ENTRY_LINUX in self._entry_data:
             return self._entry_data_property(BOOM_ENTRY_LINUX)
 
-        kernel_path = self._apply_format(self._osp.kernel_pattern)
+        kernel_path = self._apply_format(self._osp.kernel_pattern or "")
         return kernel_path
 
     @linux.setter
-    def linux(self, linux):
-        self._entry_data[BOOM_ENTRY_LINUX] = linux
+    def linux(self, linux: Optional[str]):
+        if linux:
+            self._entry_data[BOOM_ENTRY_LINUX] = linux
+        else:
+            self._entry_data.pop(BOOM_ENTRY_LINUX, None)
         self._dirty()
 
     def _initrd(self, expand: bool = False) -> str:
@@ -2220,7 +2223,7 @@ class BootEntry:
         return initramfs_path
 
     @property
-    def initrd(self):
+    def initrd(self) -> str:
         """The loadable initramfs image for this ``BootEntry``.
 
         :getter: returns the configured ``initrd`` image.
@@ -2230,12 +2233,15 @@ class BootEntry:
         return self._initrd()
 
     @initrd.setter
-    def initrd(self, initrd):
-        self._entry_data[BOOM_ENTRY_INITRD] = initrd
+    def initrd(self, initrd: Optional[str]):
+        if initrd:
+            self._entry_data[BOOM_ENTRY_INITRD] = initrd
+        else:
+            self._entry_data.pop(BOOM_ENTRY_INITRD, None)
         self._dirty()
 
     @property
-    def expand_initrd(self):
+    def expand_initrd(self) -> str:
         """The loadable initramfs image for this ``BootEntry`` with any
         embedded bootloader variable references expanded.
 
