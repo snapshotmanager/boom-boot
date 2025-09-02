@@ -307,7 +307,7 @@ def _match_root_lv(root_device: Optional[str], rd_lvm_lv: str) -> bool:
     return False
 
 
-def _grub2_get_env(name):
+def _grub2_get_env(name: str) -> str:
     """Return the value of the Grub2 environment variable with name
     ``name`` as a string.
 
