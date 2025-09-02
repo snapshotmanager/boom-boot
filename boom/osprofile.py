@@ -1100,21 +1100,26 @@ class BoomProfile:
                 self._dirty()
 
     @property
-    def title(self):
+    def title(self) -> Optional[str]:
         """The current title template for this profile.
 
         :getter: returns the ``title`` value as a string.
         :setter: store a new ``title`` value.
         :type: string
         """
-        if BOOM_OS_TITLE not in self._profile_data:
+        if self._profile_data and BOOM_OS_TITLE not in self._profile_data:
             return None
-        return self._profile_data[BOOM_OS_TITLE]
+        return self._profile_data[BOOM_OS_TITLE] if self._profile_data else None
 
     @title.setter
-    def title(self, value):
-        self._profile_data[BOOM_OS_TITLE] = value
-        self._dirty()
+    def title(self, value: Optional[str]):
+        if value is not None:
+            if self._profile_data:
+                self._profile_data[BOOM_OS_TITLE] = value
+        elif self._profile_data and BOOM_OS_TITLE in self._profile_data:
+            self._profile_data.pop(BOOM_OS_TITLE, None)
+        if self._profile_data:
+            self._dirty()
 
     def _check_optional_key(self, optional_key: str):
         """Check that they optional key ``key`` is a valid, known BLS
