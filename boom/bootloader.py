@@ -2398,13 +2398,13 @@ class BootEntry:
         self._entry_data[BOOM_ENTRY_GRUB_ID] = ident
 
     @property
-    def _entry_path(self) -> str:
+    def _entry_path(self) -> Optional[str]:
         id_tuple = (self.machine_id, self.boot_id[0:7], self.version)
         file_name = BOOT_ENTRIES_FORMAT % id_tuple
         return path_join(boom_entries_path(), file_name)
 
     @property
-    def entry_path(self):
+    def entry_path(self) -> Optional[str]:
         """The path to the on-disk file containing this ``BootEntry``."""
         if self.read_only:
             return self._last_path
@@ -2437,6 +2437,8 @@ class BootEntry:
         if not self._unwritten and not force:
             return
         entry_path = self._entry_path
+        if not entry_path:
+            return
         (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=boom_entries_path())
         with fdopen(tmp_fd, "w") as f:
             # Our original file descriptor will be closed on exit from the
