@@ -745,15 +745,15 @@ class BootParams:
             # for a valid BootEntry.
             if name == "root_device" and not value:
                 _log_warn("No root_device for entry at %s", be._last_path)
-                setattr(bp, name, "")
+                setattr(bp, name, None)
 
-        def is_add(opt):
+        def is_add(opt: str) -> bool:
             """Return ``True`` if ``opt`` was appended to this options line,
             and was not generated from the active ``OsProfile`` template,
             or from expansion of a bootloader environment variable.
             """
 
-            def opt_in_expansion(opt):
+            def opt_in_expansion(opt: str) -> bool:
                 """Return ``True`` if ``opt`` is contained in the expansion of
                 a bootloader environment variable embedded in this entry's
                 options string.
@@ -768,13 +768,13 @@ class BootParams:
                 return opt not in _expand_vars(be.options).split()
 
             if opt not in matches:
-                if opt not in be._osp.options.split():
+                if be._osp and opt not in be._osp.options.split():
                     if not opt_in_expansion(opt):
                         _log_debug_entry("Found add_opt: %s", opt)
                         return True
             return False
 
-        def is_del(opt):
+        def is_del(opt: str) -> bool:
             """Return ``True`` if the option regex `opt` has been deleted
             from this options line. An option is dropped if it is in
             the ``OsProfile`` template and is absent from the option
