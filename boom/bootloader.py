@@ -849,7 +849,7 @@ def drop_entries():
     _entries = []
 
 
-def load_entries(machine_id: None = None):
+def load_entries(machine_id: Optional[str] = None):
     """Load boot entries into memory.
 
     Load boot entries from ``boom.bootloader.boom_entries_path()``.
