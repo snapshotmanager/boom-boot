@@ -1205,13 +1205,13 @@ class BootEntry:
 
         raise KeyError(f"BootEntry key {key} not present.")
 
-    def keys(self):
+    def keys(self) -> List[str]:
         """Return the list of keys for this ``BootEntry``.
 
         Return a copy of this ``BootEntry``'s keys as a list of
         key name strings.
 
-        :returns: the current list of ``BotoEntry`` keys.
+        :returns: the current list of ``BootEntry`` keys.
         :rtype: list of str
         """
         keys = list(self._entry_data.keys())
@@ -1229,7 +1229,7 @@ class BootEntry:
 
         return keys
 
-    def values(self):
+    def values(self) -> List[str]:
         """Return the list of values for this ``BootEntry``.
 
         Return a copy of this ``BootEntry``'s values as a list.
@@ -1237,35 +1237,35 @@ class BootEntry:
         :returns: the current list of ``BootEntry`` values.
         :rtype: list
         """
-        values = list(self._entry_data.values())
-        add_values = [self.linux, self.initrd, self.options]
+        prop_values = (self.linux, self.initrd, self.options)
+        add_values = [v for v in prop_values if v is not None]
 
-        # Sort the item list to give stable list ordering on Py3.
-        values = sorted(values, reverse=True)
-
-        if self.bp:
+        if self.bp and self.version:
             add_values.append(self.version)
 
-        return values + add_values
+        ordered = [self._entry_data[k] for k in self._entry_data.keys()]
+        return ordered + add_values
 
-    def items(self):
+    def items(self) -> List[Tuple[str, str]]:
         """Return the items list for this BootEntry.
 
         Return a copy of this ``BootEntry``'s ``(key, value)``
         pairs as a list.
 
-        :returns: the current list of ``BotoEntry`` items.
+        :returns: the current list of ``BootEntry`` items.
         :rtype: list of ``(key, value)`` tuples.
         """
         items = list(self._entry_data.items())
 
-        add_items = [
+        prop_items = (
             (BOOM_ENTRY_LINUX, self.linux),
             (BOOM_ENTRY_INITRD, self.initrd),
             (BOOM_ENTRY_OPTIONS, self.options),
-        ]
+        )
 
-        if self.bp:
+        add_items = [(k, v) for k, v in prop_items if v is not None]
+
+        if self.bp and self.version:
             add_items.append((BOOM_ENTRY_VERSION, self.version))
 
         # Sort the item list to give stable list ordering on Py3.
