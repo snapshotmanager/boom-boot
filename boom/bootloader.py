@@ -2327,6 +2327,7 @@ class BootEntry:
                 f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_USERS] = grub_users
+        self._dirty()
 
     @property
     def grub_arg(self) -> Optional[str]:
@@ -2349,6 +2350,7 @@ class BootEntry:
                 f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_ARG] = grub_arg
+        self._dirty()
 
     @property
     def grub_class(self) -> Optional[str]:
@@ -2371,6 +2373,7 @@ class BootEntry:
                 f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_CLASS] = grub_class
+        self._dirty()
 
     @property
     def id(self) -> Optional[str]:
@@ -2393,6 +2396,7 @@ class BootEntry:
                 f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_ID] = ident
+        self._dirty()
 
     @property
     def _entry_path(self) -> Optional[str]:
