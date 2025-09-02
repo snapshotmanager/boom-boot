@@ -413,7 +413,7 @@ def get_os_profile_by_id(os_id: str) -> Optional["OsProfile"]:
     return None
 
 
-def match_os_profile(entry) -> "OsProfile":
+def match_os_profile(entry: "BootEntry") -> "OsProfile":
     """Attempt to match a BootEntry to a corresponding OsProfile.
 
     Probe all loaded ``OsProfile`` objects with the supplied
@@ -442,7 +442,7 @@ def match_os_profile(entry) -> "OsProfile":
     for osp in sorted(_profiles, key=lambda o: (o.os_name, o.os_version)):
         if _is_null_profile(osp):
             continue
-        if osp.match_uname_version(entry.version):
+        if entry.version and osp.match_uname_version(entry.version):
             _log_debug(
                 "Matched BootEntry(version='%s', boot_id='%s') "
                 "to OsProfile(name='%s', os_id='%s')",
