@@ -964,19 +964,20 @@ class BoomProfile:
     # have a corresponding <key>.setter.
 
     @property
-    def uname_pattern(self):
+    def uname_pattern(self) -> str:
         """The current ``uname_pattern`` setting of this profile.
 
         :getter: returns the ``uname_pattern`` as a string.
         :setter: stores a new ``uname_pattern`` setting.
         :type: string
         """
-        return self._profile_data[BOOM_OS_UNAME_PATTERN]
+        return self._profile_data[BOOM_OS_UNAME_PATTERN] if self._profile_data else ""
 
     @uname_pattern.setter
-    def uname_pattern(self, value):
-        self._profile_data[BOOM_OS_UNAME_PATTERN] = value
-        self._dirty()
+    def uname_pattern(self, value: str):
+        if self._profile_data:
+            self._profile_data[BOOM_OS_UNAME_PATTERN] = value
+            self._dirty()
 
     @property
     def kernel_pattern(self):
