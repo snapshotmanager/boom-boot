@@ -2035,7 +2035,7 @@ class BootEntry:
         self._dirty()
 
     @property
-    def version(self):
+    def version(self) -> Optional[str]:
         """The version string associated with this ``BootEntry``.
 
         :getter: returns this ``BootEntry`` object's ``version``.
@@ -2047,8 +2047,11 @@ class BootEntry:
         return self._entry_data_property(BOOM_ENTRY_VERSION)
 
     @version.setter
-    def version(self, version):
-        self._entry_data[BOOM_ENTRY_VERSION] = version
+    def version(self, version: Optional[str]):
+        if version:
+            self._entry_data[BOOM_ENTRY_VERSION] = version
+        else:
+            self._entry_data.pop(BOOM_ENTRY_VERSION, None)
         self._dirty()
 
     def _options(self, expand: bool = False) -> str:
