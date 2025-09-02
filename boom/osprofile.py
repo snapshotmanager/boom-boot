@@ -180,7 +180,7 @@ _profiles_by_id: Dict[str, "OsProfile"] = {}
 _profiles_loaded = False
 
 
-def _profile_exists(os_id: str):
+def _profile_exists(os_id: str) -> bool:
     """Test whether the specified ``os_id`` already exists.
 
     Used during ``OsProfile`` initialisation to test if the new
@@ -193,11 +193,7 @@ def _profile_exists(os_id: str):
               otherwise.
     :rtype: bool
     """
-    if not _profiles_by_id:
-        return False
-    if os_id in _profiles_by_id:
-        return True
-    return False
+    return bool(_profiles_by_id and os_id in _profiles_by_id)
 
 
 def boom_profiles_path() -> str:
@@ -209,7 +205,7 @@ def boom_profiles_path() -> str:
     return path_join(get_boom_path(), BOOM_PROFILES)
 
 
-def _is_null_profile(osp: Union["OsProfile", "HostProfile"]):
+def _is_null_profile(osp: Union["OsProfile", "HostProfile"]) -> bool:
     """Test for the Null Profile.
 
     Test ``osp`` and return ``True`` if it is the Null Profile.
