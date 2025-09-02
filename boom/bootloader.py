@@ -453,7 +453,7 @@ class BootParams:
 
     def __init__(
         self,
-        version: str,
+        version: Optional[str],
         root_device: Optional[str] = None,
         lvm_root_lv: Optional[str] = None,
         btrfs_subvol_path: Optional[str] = None,
@@ -521,7 +521,7 @@ class BootParams:
             if not root_device:
                 self.root_device = DEV_PATTERN % lvm_root_lv
             self._lvm_root_lv = lvm_root_lv
-        elif is_lvm_device_path(self.root_device):
+        elif self.root_device and is_lvm_device_path(self.root_device):
             self._lvm_root_lv = vg_lv_from_device_path(self.root_device)
 
         if btrfs_subvol_path and btrfs_subvol_id:
@@ -536,7 +536,7 @@ class BootParams:
 
         if stratis_pool_uuid:
             self._stratis_pool_uuid = stratis_pool_uuid
-        elif is_stratis_device_path(self.root_device):
+        elif self.root_device and is_stratis_device_path(self.root_device):
             self._stratis_pool_uuid = symlink_to_pool_uuid(self.root_device)
 
         self.add_opts = add_opts or []
