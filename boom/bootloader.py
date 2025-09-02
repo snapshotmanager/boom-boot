@@ -1293,7 +1293,7 @@ class BootEntry:
         self.__boot_id = None
         self._unwritten = True
 
-    def __os_id_from_comment(self, comment):
+    def __os_id_from_comment(self, comment: str) -> str:
         """Retrieve OsProfile from BootEntry comment.
 
         Attempt to set this BootEntry's OsProfile using a comment
@@ -1468,7 +1468,7 @@ class BootEntry:
         :raises: ValueError
         """
 
-        def machine_id_from_filename(filename):
+        def machine_id_from_filename(filename: str) -> str:
             """Try to obtain a machine-id value from a BLS entry file name.
 
             :param filename: The file name of the BLS snippet.
