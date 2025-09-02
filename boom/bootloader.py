@@ -1156,7 +1156,7 @@ class BootEntry:
             return len(self._entry_data)
         return 0
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Test for equality between this ``BootEntry`` and another
         object.
 
