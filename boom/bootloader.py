@@ -357,31 +357,31 @@ class BootParams:
     """
 
     #: The kernel version of the instance.
-    _version = None
+    _version: Optional[str] = None
 
     #: The path to the root device
-    _root_device = None
+    _root_device: Optional[str] = None
 
     #: The LVM2 logical volume containing the root file system
-    _lvm_root_lv = None
+    _lvm_root_lv: Optional[str] = None
 
     #: The BTRFS subvolume path to be used as the root file system.
-    _btrfs_subvol_path = None
+    _btrfs_subvol_path: Optional[str] = None
 
     #: The ID of the BTRFS subvolume to be used as the root file system.
-    _btrfs_subvol_id = None
+    _btrfs_subvol_id: Optional[str] = None
 
     #: The UUID of the Stratis pool containing the root_device.
-    _stratis_pool_uuid = None
+    _stratis_pool_uuid: Optional[str] = None
 
     #: A list of additional kernel options to append
-    _add_opts: List[str] = []
+    _add_opts: List[str]
 
     #: A list of kernel options to drop
-    _del_opts: List[str] = []
+    _del_opts: List[str]
 
     #: Generation counter for dirty detection
-    generation = 0
+    generation: int = 0
 
     def __str(self, quote=False, prefix="", suffix=""):
         """Format BootParams as a string.
