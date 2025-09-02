@@ -1919,12 +1919,12 @@ class BootEntry:
         return self.__str(expand=True)
 
     @property
-    def bp(self):
+    def bp(self) -> Optional[BootParams]:
         """The ``BootParams`` object associated with this ``BootEntry``."""
         return self._bp
 
     @bp.setter
-    def bp(self, value):
+    def bp(self, value: Optional[BootParams]):
         """Set the ``BootParams`` object associated with this
         ``BootEntry``.
         """
