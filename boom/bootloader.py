@@ -2536,7 +2536,7 @@ class BootEntry:
         if self.read_only:
             raise ValueError(f"Cannot delete read-only boot entry: {self._last_path}")
 
-        if not path_exists(self._entry_path):
+        if not self._entry_path or not path_exists(self._entry_path):
             raise ValueError(f"Entry does not exist: {self._entry_path}")
         try:
             unlink(self._entry_path)
