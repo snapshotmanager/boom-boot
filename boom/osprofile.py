@@ -612,23 +612,23 @@ class BoomProfile:
         if self._profile_data:
             self._profile_data[key] = value
 
-    def keys(self):
+    def keys(self) -> List[str]:
         """Return the list of keys for this ``BoomProfile``.
 
         :rtype: list
         :returns: A list of ``BoomProfile`` key names
         """
-        return self._profile_data.keys()
+        return list(self._profile_data.keys()) if self._profile_data else []
 
-    def values(self):
+    def values(self) -> List[str]:
         """Return the list of key values for this ``BoomProfile``.
 
         :rtype: list
         :returns: A list of ``BoomProfile`` key values
         """
-        return self._profile_data.values()
+        return list(self._profile_data.values()) if self._profile_data else []
 
-    def items(self):
+    def items(self) -> List[Tuple[str, str]]:
         """Return the items list for this ``BoomProfile``.
 
         Return a list of ``(key, value)`` tuples representing the
@@ -637,7 +637,7 @@ class BoomProfile:
         :rtype: list
         :returns: A list of ``BoomProfile`` key item tuples
         """
-        return self._profile_data.items()
+        return list(self._profile_data.items()) if self._profile_data else []
 
     def _dirty(self):
         """Mark this ``BoomProfile`` as needing to be written to disk.
