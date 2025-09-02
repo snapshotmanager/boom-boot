@@ -35,7 +35,7 @@ from os.path import basename, exists as path_exists, join as path_join
 from subprocess import Popen, PIPE
 from tempfile import mkstemp
 from os import listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from stat import S_ISBLK
 from hashlib import sha1
 import logging
@@ -271,7 +271,7 @@ def check_root_device(dev: Optional[str]) -> None:
         raise BoomRootDeviceError(f"Path '{dev}' is not a block device.")
 
 
-def _match_root_lv(root_device: str, rd_lvm_lv: str):
+def _match_root_lv(root_device: Optional[str], rd_lvm_lv: str) -> bool:
     """Return ``True`` if ``rd_lvm_lv`` is the logical volume
     represented by ``root_device`` or ``False`` otherwise.
 
@@ -283,18 +283,25 @@ def _match_root_lv(root_device: str, rd_lvm_lv: str):
 
     """
 
-    def dm_split_name(name):
-        for i in range(1, len(name)):
+    def dm_split_name(name: str) -> Tuple[str, str]:
+        for i in range(1, len(name) - 1):
             if name[i] == "-":
                 if name[i - 1] != "-" and name[i + 1] != "-":
                     return (name[0:i], name[i + 1 :])
-        return name
+        raise ValueError(f"Cannot split name '{name}'")
+
+    if not root_device:
+        return False
 
     # root_device=/dev/vg/lv
-    if rd_lvm_lv == root_device[5:]:
+    if root_device.startswith("/dev/") and rd_lvm_lv == root_device[5:]:
         return True
-    if "mapper" in root_device:
-        (vg, lv) = dm_split_name(root_device.split("/")[-1])
+    if "/mapper/" in root_device:
+        try:
+            (vg, lv) = dm_split_name(root_device.split("/")[-1])
+        except ValueError as err:
+            _log_debug("Failed to split dm_name '%s': %s", root_device, err)
+            return False
         if rd_lvm_lv == f"{vg}/{lv}":
             return True
     return False
