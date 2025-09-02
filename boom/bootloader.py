@@ -2270,7 +2270,7 @@ class BootEntry:
         self._dirty()
 
     @property
-    def devicetree(self):
+    def devicetree(self) -> Optional[str]:
         """The devicetree archive for this ``BootEntry``.
 
         :getter: returns the configured device tree archive.
@@ -2280,8 +2280,11 @@ class BootEntry:
         return self._entry_data_property(BOOM_ENTRY_DEVICETREE)
 
     @devicetree.setter
-    def devicetree(self, devicetree):
-        self._entry_data[BOOM_ENTRY_DEVICETREE] = devicetree
+    def devicetree(self, devicetree: Optional[str]):
+        if devicetree:
+            self._entry_data[BOOM_ENTRY_DEVICETREE] = devicetree
+        else:
+            self._entry_data.pop(BOOM_ENTRY_DEVICETREE, None)
         self._dirty()
 
     @property
