@@ -1323,7 +1323,7 @@ class OsProfile(BoomProfile):
     _required_keys = OS_REQUIRED_KEYS
     _identity_key = BOOM_OS_ID
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Format this OsProfile as a human readable string.
 
         Profile attributes are printed as "Name: value, " pairs,
@@ -1345,17 +1345,21 @@ class OsProfile(BoomProfile):
             BOOM_OS_TITLE,
         ]
 
-        fields = [f for f in OS_PROFILE_KEYS if f in self._profile_data]
+        if self._profile_data:
+            fields: List[str] = [f for f in OS_PROFILE_KEYS if f in self._profile_data]
+        else:
+            fields = []
         osp_str = ""
         tail = ""
         for f in fields:
-            osp_str += f'{OS_KEY_NAMES[f]}: "{self._profile_data[f]}"'
+            if self._profile_data:
+                osp_str += f'{OS_KEY_NAMES[f]}: "{self._profile_data[f]}"'
             tail = ",\n" if f in breaks else ", "
             osp_str += tail
         osp_str = osp_str.rstrip(tail)
         return osp_str
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Format this OsProfile as a machine readable string.
 
         Return a machine-readable representation of this ``OsProfile``
@@ -1367,9 +1371,13 @@ class OsProfile(BoomProfile):
         :rtype: string
         """
         osp_str = "OsProfile(profile_data={"
-        fields = [f for f in OS_PROFILE_KEYS if f in self._profile_data]
+        if self._profile_data:
+            fields: List[str] = [f for f in OS_PROFILE_KEYS if f in self._profile_data]
+        else:
+            fields = []
         for f in fields:
-            osp_str += f'{f}:"{self._profile_data[f]}", '
+            if self._profile_data:
+                osp_str += f'{f}:"{self._profile_data[f]}", '
         osp_str = osp_str.rstrip(", ")
         return osp_str + "})"
 
