@@ -1908,7 +1908,7 @@ class BootEntry:
             return False
         return True
 
-    def expanded(self):
+    def expanded(self) -> str:
         """Return a string representation of this ``BootEntry``, with
         any bootloader environment variables expanded to their
         current values.
