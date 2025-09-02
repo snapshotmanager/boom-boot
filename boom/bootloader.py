@@ -1682,9 +1682,9 @@ class BootEntry:
           root file system.
         * ``%{linux}`` The linux image to boot
         * ``%{os_name}`` The OS Profile name
-        * ``%{os_short_name`` The OS Profile short name
+        * ``%{os_short_name}`` The OS Profile short name
         * ``%{os_version}`` The OS Profile version
-        * ``%{os_version id`` The OS Profile version ID
+        * ``%{os_version_id}`` The OS Profile version ID
 
         :param fmt: The string to be formatted.
 
@@ -1705,7 +1705,9 @@ class BootEntry:
         VAL_FMT = "val_fmt"
         NEEDS = "needs"
 
-        def get_key_value(key_spec):
+        def get_key_value(
+            key_spec: Dict[str, Union[str, List[Optional[Callable]]]]
+        ) -> Optional[str]:
             """Return a key's formatted value.
 
             Return a value from either `BootParams`, `OsProfile`,
@@ -1714,7 +1716,7 @@ class BootEntry:
             for the named key.
             """
 
-            def have_attr():
+            def have_attr() -> bool:
                 """Test whether any attribute source for this key exists."""
                 attrs_vals = [(BP_ATTR, bp), (OSP_ATTR, self._osp), (BE_ATTR, True)]
                 have = False
@@ -1727,15 +1729,21 @@ class BootEntry:
 
             if have_attr():
                 if BP_ATTR in key_spec and bp:
-                    value = getattr(bp, key_spec[BP_ATTR])
+                    if not isinstance(key_spec[BP_ATTR], str):
+                        raise ValueError("key_spec[BP_ATTR] must be str")
+                    value = getattr(bp, str(key_spec[BP_ATTR]))
                 elif OSP_ATTR in key_spec:
-                    value = getattr(self._osp, key_spec[OSP_ATTR])
+                    if not isinstance(key_spec[OSP_ATTR], str):
+                        raise ValueError("key_spec[OSP_ATTR] must be str")
+                    value = getattr(self._osp, str(key_spec[OSP_ATTR]))
                 elif BE_ATTR in key_spec:
-                    value = getattr(self, key_spec[BE_ATTR])
+                    if not isinstance(key_spec[BE_ATTR], str):
+                        raise ValueError("key_spec[BE_ATTR] must be str")
+                    value = getattr(self, str(key_spec[BE_ATTR]))
                 return val_fmt % value if value is not None else None
             return None
 
-        def test_predicates(key_spec):
+        def test_predicates(key_spec) -> bool:
             """Test all defined predicate functions and return `True` if
             all evaluate `True`, or `False` otherwise.
             """
@@ -1745,7 +1753,9 @@ class BootEntry:
             # Ignore invalid predicates
             return all(fn() for fn in predicates if fn)
 
-        def mkpred(obj, fn):
+        def mkpred(
+            obj: Optional[Union[BootParams, OsProfile, "BootEntry"]], fn: str
+        ) -> Optional[Callable]:
             """Return a callable predicate function for method ``fn`` of
             object ``obj`` if ``obj`` is valid and contains ``fn``,
             or ``None`` otherwise.
@@ -1787,7 +1797,9 @@ class BootEntry:
         #          format key's value
         # NEEDS: A string indicating the object required to obtain this
         #        format key's value: either "bp" or "osp".
-        format_key_specs: Dict[str, List[Dict[str, Union[str, List[Callable]]]]] = {
+        format_key_specs: Dict[
+            str, List[Dict[str, Union[str, List[Optional[Callable]]]]]
+        ] = {
             FMT_VERSION: [{BE_ATTR: "version", BP_ATTR: "version"}],
             FMT_LVM_ROOT_LV: [{BP_ATTR: "lvm_root_lv"}],
             FMT_LVM_ROOT_OPTS: [{OSP_ATTR: "root_opts_lvm2"}],
