@@ -2678,8 +2678,11 @@ def os_options_from_cmdline() -> Optional[str]:
 
 
 def _create_cmd(
-    cmd_args: Namespace, _select: Selection, _opts: ReportOpts, identifier: None
-):
+    cmd_args: Namespace,
+    _select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
     """Create entry command handler.
 
     Attempt to create a new boot entry using the arguments
@@ -2687,7 +2690,9 @@ def _create_cmd(
     as an integer.
 
     :param cmd_args: Command line arguments for the command
-    :param select: Unused
+    :param _select: Unused
+    :param _opts: Unused
+    :param identifier: Unused
     :returns: integer status code returned from ``main()``
     """
     if identifier is not None:
@@ -2793,8 +2798,11 @@ def _create_cmd(
 
 
 def _delete_cmd(
-    cmd_args: Namespace, select: Selection, opts: ReportOpts, identifier: str
-):
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
     """Delete entry command handler.
 
     Attempt to delete boot entries matching the selection criteria
@@ -2802,6 +2810,8 @@ def _delete_cmd(
 
     :param cmd_args: Command line arguments for the command
     :param select: Selection criteria for the entries to remove
+    :param opts: Optional ReportOpts
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     # If a boot_id is given as a command line argument treat it as
@@ -2837,7 +2847,12 @@ def _delete_cmd(
     return 0
 
 
-def _clone_cmd(cmd_args: Namespace, select: None, _opts: ReportOpts, identifier: None):
+def _clone_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
     """Clone entry command handler.
 
     Attempt to create a new boot entry by cloning an existing
@@ -2848,6 +2863,8 @@ def _clone_cmd(cmd_args: Namespace, select: None, _opts: ReportOpts, identifier:
 
     :param cmd_args: Command line arguments for the command
     :param select: The ``boot_id`` to clone
+    :param _opts: Unused
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     identifier = identifier or cmd_args.boot_id
@@ -2935,9 +2952,9 @@ def _clone_cmd(cmd_args: Namespace, select: None, _opts: ReportOpts, identifier:
 def _show_cmd(
     cmd_args: Namespace,
     select: Optional[Selection],
-    _opts: None,
+    _opts: Optional[ReportOpts],
     identifier: Optional[str],
-):
+) -> int:
     """Show entry command handler.
 
     Show the boot entries that match the given selection criteria in
@@ -2946,6 +2963,8 @@ def _show_cmd(
 
     :param cmd_args: Command line arguments for the command
     :param select: Selection criteria for the entries to show.
+    :param _opts: Unused
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     identifier = identifier or cmd_args.boot_id
@@ -2979,7 +2998,7 @@ def _generic_list_cmd(
     opts: Optional[ReportOpts],
     verbose_fields: str,
     print_fn: Callable,
-):
+) -> int:
     """Generic list command implementation.
 
     Implements a simple list command that applies selection criteria
@@ -2994,7 +3013,7 @@ def _generic_list_cmd(
     :param print_fn: the API call to display results. The function
                      must accept the selection, output_fields,
                      opts, and sort_keys keyword arguments
-    :returns: None
+    :returns: integer status code returned from ``main()``
     """
     if cmd_args.options:
         fields = cmd_args.options
@@ -3018,14 +3037,19 @@ def _generic_list_cmd(
 
 
 def _list_cmd(
-    cmd_args: Namespace, select: Selection, opts: ReportOpts, identifier: None
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    opts: Optional[ReportOpts],
+    identifier: Optional[str],
 ) -> int:
     """List entry command handler.
     List the boot entries that match the given selection criteria as
     a tabular report, with one boot entry per row.
 
     :param cmd_args: Command line arguments for the command
-    :param select: Selection criteria fore the entries to list
+    :param select: Selection criteria for the entries to list
+    :param opts: Optional ReportOpts
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     identifier = identifier or cmd_args.boot_id
@@ -3043,7 +3067,12 @@ def _list_cmd(
     )
 
 
-def _edit_cmd(cmd_args: Namespace, select: None, _opts: ReportOpts, identifier: None):
+def _edit_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
     """Edit entry command handler.
 
     Attempt to edit an existing boot entry. The ``boot_id`` of
@@ -3053,6 +3082,8 @@ def _edit_cmd(cmd_args: Namespace, select: None, _opts: ReportOpts, identifier: 
 
     :param cmd_args: Command line arguments for the command
     :param select: The ``boot_id`` of the entry to edit
+    :param _opts: Unused
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     identifier = identifier or cmd_args.boot_id
@@ -3126,15 +3157,20 @@ def _edit_cmd(cmd_args: Namespace, select: None, _opts: ReportOpts, identifier: 
 
 
 def _create_profile_cmd(
-    cmd_args: Namespace, _select: None, _opts: None, identifier: Optional[str]
-):
+    cmd_args: Namespace,
+    _select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
     """Create profile command handler.
     Attempt to create a new OS profile using the arguments
     supplied in ``cmd_args`` and return the command status
     as an integer.
 
     :param cmd_args: Command line arguments for the command
-    :param select: Unused
+    :param _select: Unused
+    :param _opts: Unused
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     if identifier is not None:
@@ -3204,9 +3240,9 @@ def _create_profile_cmd(
 def _delete_profile_cmd(
     cmd_args: Namespace,
     select: Optional[Selection],
-    _opts: None,
+    _opts: Optional[ReportOpts],
     identifier: Optional[str],
-):
+) -> int:
     """Delete profile command handler.
 
     Attempt to delete OS profiles matching the selection criteria
@@ -3214,6 +3250,8 @@ def _delete_profile_cmd(
 
     :param cmd_args: Command line arguments for the command
     :param select: Selection criteria for the profiles to remove
+    :param _opts: Optional ReportOpts (unused)
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     # If an os_id is given as a command line argument treat it as
@@ -3245,8 +3283,11 @@ def _delete_profile_cmd(
 
 
 def _clone_profile_cmd(
-    cmd_args: Namespace, select: None, _opts: None, identifier: None
-):
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
     """Clone profile command handler.
 
     Attempt to create a new OS profile by cloning an existing
@@ -3257,6 +3298,8 @@ def _clone_profile_cmd(
 
     :param cmd_args: Command line arguments for the command
     :param select: The ``os_id`` to clone
+    :param _opts: Optional ReportOpts (unused)
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     name = cmd_args.name
@@ -3306,7 +3349,7 @@ def _clone_profile_cmd(
 
 def _generic_show_cmd(
     select: Optional[Selection], find_fn: Callable, fmt: str, get_data: Callable
-):
+) -> int:
     """Generic show command handler.
 
     Show the objects returned by calling `find_fn` with selection
@@ -3318,6 +3361,7 @@ def _generic_show_cmd(
     :param fmt: A Python format string.
     :param get_data: A function returning a tuple of data values
                      satisfying the format string `fmt`.
+    :returns: integer status code returned from ``main()``
     """
     try:
         objs = find_fn(select)
@@ -3336,7 +3380,7 @@ def _generic_show_cmd(
 def _show_profile_cmd(
     cmd_args: Namespace,
     select: Optional[Selection],
-    _opts: None,
+    _opts: Optional[ReportOpts],
     identifier: Optional[str],
 ) -> int:
     """Show profile command handler.
@@ -3348,6 +3392,8 @@ def _show_profile_cmd(
 
     :param cmd_args: Command line arguments for the command
     :param select: Selection criteria for the profiles to show.
+    :param _opts: Optional ReportOpts
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     identifier = identifier or cmd_args.profile
@@ -3364,7 +3410,7 @@ def _show_profile_cmd(
 def _list_profile_cmd(
     cmd_args: Namespace,
     select: Optional[Selection],
-    opts: ReportOpts,
+    opts: Optional[ReportOpts],
     identifier: Optional[str],
 ) -> int:
     """List profile command handler.
@@ -3373,7 +3419,9 @@ def _list_profile_cmd(
     a tabular report, with one profile per row.
 
     :param cmd_args: Command line arguments for the command
-    :param select: Selection criteria fore the profiles to list
+    :param select: Selection criteria for the profiles to list
+    :param opts: Optional ReportOpts
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     identifier = identifier or cmd_args.profile
@@ -3388,9 +3436,9 @@ def _list_profile_cmd(
 def _edit_profile_cmd(
     cmd_args: Namespace,
     select: Optional[Selection],
-    _opts: None,
+    _opts: Optional[ReportOpts],
     identifier: Optional[str],
-):
+) -> int:
     """Edit profile command handler.
 
     Attempt to edit an existing OS profile. The ``os_id`` of the
@@ -3400,6 +3448,8 @@ def _edit_profile_cmd(
 
     :param cmd_args: Command line arguments for the command
     :param select: The ``os_id`` of the profile to edit
+    :param _opts: Unused
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     identifier = identifier or cmd_args.profile
@@ -3453,8 +3503,11 @@ def _edit_profile_cmd(
 
 
 def _create_host_cmd(
-    cmd_args: Namespace, _select: None, _opts: None, identifier: Optional[str]
-):
+    cmd_args: Namespace,
+    _select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
     """Create host profile command handler.
 
     Attempt to create a new host profile using the arguments
@@ -3462,7 +3515,8 @@ def _create_host_cmd(
     as an integer.
 
     :param cmd_args: Command line arguments for the command
-    :param select: Unused
+    :param _select: Unused
+    :param _opts: Unused
     :returns: integer status code returned from ``main()``
     """
     if identifier is not None:
@@ -3516,14 +3570,16 @@ def _delete_host_cmd(
     select: Optional[Selection],
     _opts: Optional[ReportOpts],
     identifier: Optional[str],
-):
+) -> int:
     """Delete host profile command handler.
 
     Attempt to delete host profiles matching the selection criteria
     given in ``select``.
 
     :param cmd_args: Command line arguments for the command
-    :param select: Selection criteria for the profiles to remove
+    :param select: Selection criteria for the host to remove
+    :param _opts: Unused
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     # If a host_id is given as a command line argument treat it as
@@ -3555,8 +3611,11 @@ def _delete_host_cmd(
 
 
 def _clone_host_cmd(
-    cmd_args: Namespace, select: Optional[Selection], _opts: None, identifier: None
-):
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
     """Clone host profile command handler.
 
     Attempt to create a new host profile by cloning an existing
@@ -3567,6 +3626,8 @@ def _clone_host_cmd(
 
     :param cmd_args: Command line arguments for the command
     :param select: The ``host_id`` to clone
+    :param _opts: Unused
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     host_name = cmd_args.host_name
@@ -3616,7 +3677,7 @@ def _clone_host_cmd(
 def _show_host_cmd(
     cmd_args: Namespace,
     select: Optional[Selection],
-    _opts: None,
+    _opts: Optional[ReportOpts],
     identifier: Optional[str],
 ) -> int:
     """Show host profile command handler.
@@ -3627,7 +3688,9 @@ def _show_host_cmd(
     line.
 
     :param cmd_args: Command line arguments for the command
-    :param select: Selection criteria for the profiles to show.
+    :param select: Selection criteria for the hosts to show.
+    :param _opts: Unused
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     identifier = identifier or cmd_args.host_id
@@ -3654,7 +3717,9 @@ def _list_host_cmd(
     as a tabular report, with one profile per row.
 
     :param cmd_args: Command line arguments for the command
-    :param select: Selection criteria fore the profiles to list
+    :param select: Selection criteria for the hosts to list
+    :param opts: Optional ReportOpts
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     identifier = identifier or cmd_args.host_id
@@ -3667,9 +3732,9 @@ def _list_host_cmd(
 def _edit_host_cmd(
     cmd_args: Namespace,
     select: Optional[Selection],
-    _opts: None,
+    _opts: Optional[ReportOpts],
     identifier: Optional[str],
-):
+) -> int:
     """Edit profile command handler.
 
     Attempt to edit an existing host profile. The ``host_id`` of the
@@ -3678,7 +3743,9 @@ def _edit_host_cmd(
     to modify the edited profile.
 
     :param cmd_args: Command line arguments for the command
-    :param select: The ``host_id`` of the profile to edit
+    :param select: The ``host_id`` of the host to edit
+    :param _opts: Unused
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     identifier = identifier or cmd_args.host_id
@@ -3726,7 +3793,12 @@ def _edit_host_cmd(
     return 0
 
 
-def _show_cache_cmd(cmd_args: Namespace, select: None, _opts: None, identifier: None):
+def _show_cache_cmd(
+    cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
     """Show cache command handler.
 
     Show the cache entries that match the given selection criteria
@@ -3734,7 +3806,9 @@ def _show_cache_cmd(cmd_args: Namespace, select: None, _opts: None, identifier: 
     multi-line record.
 
     :param cmd_args: Command line arguments for the command
-    :param select: Selection criteria for the profiles to show.
+    :param select: Selection criteria for the cache entries to show.
+    :param _opts: Unused
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     if identifier is not None:
@@ -3760,7 +3834,7 @@ def _list_cache_cmd(
     cmd_args: Namespace,
     select: Optional[Selection],
     opts: Optional[ReportOpts],
-    _identifier: None,
+    _identifier: Optional[str],
 ) -> int:
     """List cache command handler.
 
@@ -3768,14 +3842,31 @@ def _list_cache_cmd(
     as a tabular report, with one entry per row.
 
     :param cmd_args: Command line arguments for the command
-    :param select: Selection criteria fore the profiles to list
+    :param select: Selection criteria for the cache entries to list
+    :param opts: Optional ReportOpts
+    :param identifier: Optional identifier
     :returns: integer status code returned from ``main()``
     """
     print_fn = print_cache if not cmd_args.verbose else print_cache_images
     return _generic_list_cmd(cmd_args, select, opts, _verbose_cache_fields, print_fn)
 
 
-def _write_legacy_cmd(_cmd_args, select, _opts, identifier):
+def _write_legacy_cmd(
+    _cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
+    """Write legacy command handler.
+
+    Write entries in configured legacy bootloader format.
+
+    :param cmd_args: Command line arguments for the command
+    :param select: Selection criteria for the entries to write
+    :param _opts: Unused
+    :param _identifier: Unused
+    :returns: integer status code returned from ``main()``
+    """
     if identifier:
         print("write legacy does not accept a boot_id")
         return 1
@@ -3789,10 +3880,20 @@ def _write_legacy_cmd(_cmd_args, select, _opts, identifier):
     return 0
 
 
-def _clear_legacy_cmd(_cmd_args, _select, _opts, identifier):
-    """Remove all boom entries from the legacy bootloader configuration.
+def _clear_legacy_cmd(
+    _cmd_args: Namespace,
+    _select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    identifier: Optional[str],
+) -> int:
+    """Clear legacy command handler.
+
+    Remove all boom entries from the legacy bootloader configuration.
 
     :param cmd_args: Command line arguments for the command
+    :param _select: Unused
+    :param _opts: Unused
+    :param _identifier: Unused
     :returns: integer status code returned from ``main()``
     """
     if identifier:
@@ -3807,19 +3908,43 @@ def _clear_legacy_cmd(_cmd_args, _select, _opts, identifier):
     return 0
 
 
-def _show_legacy_cmd(_cmd_args, select, _opts, _identifier):
+def _show_legacy_cmd(
+    _cmd_args: Namespace,
+    select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    _identifier: Optional[str],
+) -> int:
     """
     Display legacy boot loader configuration.
+
+    :param cmd_args: Command line arguments for the command
+    :param select: Selection criteria for the entries to show
+    :param _opts: Unused
+    :param _identifier: Unused
+    :returns: integer status code returned from ``main()``
     """
     config = get_boom_config()
     show_legacy(selection=select, loader=config.legacy_format)
+    return 0
 
 
-def _create_config_cmd(_cmd_args, _select, _opts, _identifier):
+def _create_config_cmd(
+    _cmd_args: Namespace,
+    _select: Optional[Selection],
+    _opts: Optional[ReportOpts],
+    _identifier: Optional[str],
+) -> int:
     """
     Create default boom configuration in /boot.
+
+    :param _cmd_args: Unused
+    :param _select: Unused
+    :param _opts: Unused
+    :param _identifier: Unused
+    :returns: integer status code returned from ``main()``
     """
     create_config()
+    return 0
 
 
 CREATE_CMD = "create"
@@ -3878,7 +4003,7 @@ _boom_config_commands = [
     (CREATE_CMD, _create_config_cmd),
 ]
 
-_boom_command_types = [
+_boom_command_types: List[Tuple[str, List[Tuple[str, Any]]]] = [
     (ENTRY_TYPE, _boom_entry_commands),
     (PROFILE_TYPE, _boom_profile_commands),
     (HOST_TYPE, _boom_host_commands),
