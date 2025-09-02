@@ -80,37 +80,37 @@ from boom.stratis import is_stratis_device_path, symlink_to_pool_uuid
 from boom.lvm2 import is_lvm_device_path, vg_lv_from_device_path
 
 #: The path to the BLS boot entries directory relative to /boot
-ENTRIES_PATH = "loader/entries"
+ENTRIES_PATH: str = "loader/entries"
 
 #: The format used to construct entry file names.
-BOOT_ENTRIES_FORMAT = "%s-%s-%s.conf"
+BOOT_ENTRIES_FORMAT: str = "%s-%s-%s.conf"
 
 #: A regular expression matching the boom file name format.
-BOOT_ENTRIES_PATTERN = r"(\w*)-([0-9a-f]{7,})-.*\.conf"
+BOOT_ENTRIES_PATTERN: str = r"(\w*)-([0-9a-f]{7,})-.*\.conf"
 
 #: The file mode with which BLS entries should be created.
-BOOT_ENTRY_MODE = 0o644
+BOOT_ENTRY_MODE: int = 0o644
 
 #: The ``BootEntry`` title key.
-BOOM_ENTRY_TITLE = "BOOM_ENTRY_TITLE"
+BOOM_ENTRY_TITLE: str = "BOOM_ENTRY_TITLE"
 #: The ``BootEntry`` version key.
-BOOM_ENTRY_VERSION = "BOOM_ENTRY_VERSION"
+BOOM_ENTRY_VERSION: str = "BOOM_ENTRY_VERSION"
 #: The ``BootEntry`` machine_id key.
-BOOM_ENTRY_MACHINE_ID = "BOOM_ENTRY_MACHINE_ID"
+BOOM_ENTRY_MACHINE_ID: str = "BOOM_ENTRY_MACHINE_ID"
 #: The ``BootEntry`` linux key.
-BOOM_ENTRY_LINUX = "BOOM_ENTRY_LINUX"
+BOOM_ENTRY_LINUX: str = "BOOM_ENTRY_LINUX"
 #: The ``BootEntry`` initrd key.
-BOOM_ENTRY_INITRD = "BOOM_ENTRY_INITRD"
+BOOM_ENTRY_INITRD: str = "BOOM_ENTRY_INITRD"
 #: The ``BootEntry`` efi key.
-BOOM_ENTRY_EFI = "BOOM_ENTRY_EFI"
+BOOM_ENTRY_EFI: str = "BOOM_ENTRY_EFI"
 #: The ``BootEntry`` options key.
-BOOM_ENTRY_OPTIONS = "BOOM_ENTRY_OPTIONS"
+BOOM_ENTRY_OPTIONS: str = "BOOM_ENTRY_OPTIONS"
 #: The ``BootEntry`` device tree key.
-BOOM_ENTRY_DEVICETREE = "BOOM_ENTRY_DEVICETREE"
+BOOM_ENTRY_DEVICETREE: str = "BOOM_ENTRY_DEVICETREE"
 #: The ``BootEntry`` architecture key.
-BOOM_ENTRY_ARCHITECTURE = "BOOM_ENTRY_ARCHITECTURE"
+BOOM_ENTRY_ARCHITECTURE: str = "BOOM_ENTRY_ARCHITECTURE"
 #: The ``BootEntry`` boot identifier key.
-BOOM_ENTRY_BOOT_ID = "BOOM_ENTRY_BOOT_ID"
+BOOM_ENTRY_BOOT_ID: str = "BOOM_ENTRY_BOOT_ID"
 
 #
 # Optional and non-standard BLS keys
@@ -121,16 +121,16 @@ BOOM_ENTRY_BOOT_ID = "BOOM_ENTRY_BOOT_ID"
 #
 
 #: The Red Hat ``BootEntry`` grub_users key.
-BOOM_ENTRY_GRUB_USERS = "BOOM_ENTRY_GRUB_USERS"
+BOOM_ENTRY_GRUB_USERS: str = "BOOM_ENTRY_GRUB_USERS"
 #: The Red Hat ``BootEntry`` grub_arg key.
-BOOM_ENTRY_GRUB_ARG = "BOOM_ENTRY_GRUB_ARG"
+BOOM_ENTRY_GRUB_ARG: str = "BOOM_ENTRY_GRUB_ARG"
 #: The Red Hat ``BootEntry`` grub_class key.
-BOOM_ENTRY_GRUB_CLASS = "BOOM_ENTRY_GRUB_CLASS"
+BOOM_ENTRY_GRUB_CLASS: str = "BOOM_ENTRY_GRUB_CLASS"
 #: The Red Hat ``BootEntry`` id key.
-BOOM_ENTRY_GRUB_ID = "BOOM_ENTRY_GRUB_ID"
+BOOM_ENTRY_GRUB_ID: str = "BOOM_ENTRY_GRUB_ID"
 
 #: Optional keys not defined by the upstream BLS specification.
-OPTIONAL_KEYS = [
+OPTIONAL_KEYS: List[str] = [
     BOOM_ENTRY_GRUB_USERS,
     BOOM_ENTRY_GRUB_ARG,
     BOOM_ENTRY_GRUB_CLASS,
@@ -138,7 +138,7 @@ OPTIONAL_KEYS = [
 ]
 
 #: An ordered list of all possible ``BootEntry`` keys.
-ENTRY_KEYS = [
+ENTRY_KEYS: List[str] = [
     # We require a title for each entry (BLS does not)
     BOOM_ENTRY_TITLE,
     # MACHINE_ID is optional in BLS, however, since the standard suggests
@@ -161,7 +161,7 @@ ENTRY_KEYS = [
 ]
 
 #: Map Boom entry names to BLS keys
-KEY_MAP = {
+KEY_MAP: Dict[str, str] = {
     BOOM_ENTRY_TITLE: "title",
     BOOM_ENTRY_VERSION: "version",
     BOOM_ENTRY_MACHINE_ID: "machine_id",
@@ -178,7 +178,7 @@ KEY_MAP = {
 }
 
 #: Default values for optional keys
-OPTIONAL_KEY_DEFAULTS = {
+OPTIONAL_KEY_DEFAULTS: Dict[str, Optional[str]] = {
     BOOM_ENTRY_GRUB_USERS: "$grub_users",
     BOOM_ENTRY_GRUB_ARG: "--unrestricted",
     BOOM_ENTRY_GRUB_CLASS: "kernel",
@@ -211,10 +211,10 @@ def key_to_bls_name(key: str) -> str:
 
 
 #: Map BLS entry keys to Boom names
-MAP_KEY = {v: k for k, v in KEY_MAP.items()}
+MAP_KEY: Dict[str, str] = {v: k for k, v in KEY_MAP.items()}
 
 #: Grub2 environment variable expansion character
-GRUB2_EXPAND_ENV = "$"
+GRUB2_EXPAND_ENV: str = "$"
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
@@ -227,10 +227,10 @@ _log_warn = _log.warning
 _log_error = _log.error
 
 #: The global list of boot entries.
-_entries = None
+_entries: Optional[List["BootEntry"]] = None
 
 #: Pattern for forming root device paths from LVM2 names.
-DEV_PATTERN = "/dev/%s"
+DEV_PATTERN: str = "/dev/%s"
 
 
 def boom_entries_path() -> str:
