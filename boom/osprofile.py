@@ -1051,25 +1051,31 @@ class BoomProfile:
                 self._dirty()
 
     @property
-    def root_opts_btrfs(self):
+    def root_opts_btrfs(self) -> Optional[str]:
         """The current BTRFS root options setting of this profile.
 
         :getter: returns the ``root_opts_btrfs`` value as a string.
-        :setter: store a new ``root_opts_btrfs`` value.
+        :setter:store a new ``root_opts_btrfs`` value.
         :type: string
         """
-        if BOOM_OS_ROOT_OPTS_BTRFS not in self._profile_data:
-            return None
-        return self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS]
+        return (
+            self._profile_data.get(BOOM_OS_ROOT_OPTS_BTRFS)
+            if self._profile_data
+            else None
+        )
 
     @root_opts_btrfs.setter
-    def root_opts_btrfs(self, value):
-        root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
-        if root_opts_key in value:
-            ptype = self.__class__.__name__
-            raise ValueError(f"{ptype}.root_opts_btrfs cannot contain {root_opts_key}")
-        self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
-        self._dirty()
+    def root_opts_btrfs(self, value: Optional[str]):
+        if value is not None:
+            root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
+            if root_opts_key in value:
+                ptype = self.__class__.__name__
+                raise ValueError(
+                    f"{ptype}.root_opts_btrfs cannot contain {root_opts_key}"
+                )
+            if self._profile_data:
+                self._profile_data[BOOM_OS_ROOT_OPTS_BTRFS] = value
+                self._dirty()
 
     @property
     def options(self):
