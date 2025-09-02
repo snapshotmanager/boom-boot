@@ -2310,7 +2310,7 @@ class BootEntry:
         self._dirty()
 
     @property
-    def grub_users(self):
+    def grub_users(self) -> Optional[str]:
         """The current ``grub_users`` key for this entry.
 
         :getter: Return the current ``grub_users`` value.
@@ -2323,16 +2323,16 @@ class BootEntry:
         return self._entry_data_property(BOOM_ENTRY_GRUB_USERS)
 
     @grub_users.setter
-    def grub_users(self, grub_users):
+    def grub_users(self, grub_users: str):
         bls_key = KEY_MAP[BOOM_ENTRY_GRUB_USERS]
-        if not self._have_optional_key(bls_key):
+        if self._osp and not self._have_optional_key(bls_key):
             raise ValueError(
                 f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_USERS] = grub_users
 
     @property
-    def grub_arg(self):
+    def grub_arg(self) -> Optional[str]:
         """The current ``grub_arg`` key for this entry.
 
         :getter: Return the current ``grub_arg`` value.
@@ -2345,16 +2345,16 @@ class BootEntry:
         return self._entry_data_property(BOOM_ENTRY_GRUB_ARG)
 
     @grub_arg.setter
-    def grub_arg(self, grub_arg):
+    def grub_arg(self, grub_arg: str):
         bls_key = KEY_MAP[BOOM_ENTRY_GRUB_ARG]
-        if not self._have_optional_key(bls_key):
+        if self._osp and not self._have_optional_key(bls_key):
             raise ValueError(
                 f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_ARG] = grub_arg
 
     @property
-    def grub_class(self):
+    def grub_class(self) -> Optional[str]:
         """The current ``grub_class`` key for this entry.
 
         :getter: Return the current ``grub_class`` value.
@@ -2367,16 +2367,16 @@ class BootEntry:
         return self._entry_data_property(BOOM_ENTRY_GRUB_CLASS)
 
     @grub_class.setter
-    def grub_class(self, grub_class):
+    def grub_class(self, grub_class: str):
         bls_key = KEY_MAP[BOOM_ENTRY_GRUB_CLASS]
-        if not self._have_optional_key(bls_key):
+        if self._osp and not self._have_optional_key(bls_key):
             raise ValueError(
                 f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
         self._entry_data[BOOM_ENTRY_GRUB_CLASS] = grub_class
 
     @property
-    def id(self):
+    def id(self) -> Optional[str]:
         """The value of the ``id`` key for this entry.
 
         :getter: Return the current ``id`` value.
@@ -2389,9 +2389,9 @@ class BootEntry:
         return self._entry_data_property(BOOM_ENTRY_GRUB_ID)
 
     @id.setter
-    def id(self, ident):
+    def id(self, ident: str):
         bls_key = KEY_MAP[BOOM_ENTRY_GRUB_ID]
-        if not self._have_optional_key(bls_key):
+        if self._osp and not self._have_optional_key(bls_key):
             raise ValueError(
                 f"OsProfile os_id={self._osp.disp_os_id} does not allow '{bls_key}'"
             )
