@@ -1863,7 +1863,7 @@ class BootEntry:
 
         return fmt
 
-    def __generate_boot_id(self):
+    def __generate_boot_id(self) -> str:
         """Generate a new boot_id value.
 
         Generate a new sha1 profile identifier for this entry,
