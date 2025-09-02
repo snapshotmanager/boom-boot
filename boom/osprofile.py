@@ -280,7 +280,7 @@ def load_profiles():
     _profiles_loaded = True
 
 
-def write_profiles(force=False):
+def write_profiles(force: bool = False) -> None:
     """Write all OsProfile data to disk.
 
     Write the current list of profiles to the directory located at
