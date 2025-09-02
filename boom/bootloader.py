@@ -2252,7 +2252,7 @@ class BootEntry:
         return self._initrd(expand=True)
 
     @property
-    def efi(self):
+    def efi(self) -> Optional[str]:
         """The loadable EFI image for this ``BootEntry``.
 
         :getter: returns the configured EFI application image.
@@ -2262,8 +2262,11 @@ class BootEntry:
         return self._entry_data_property(BOOM_ENTRY_EFI)
 
     @efi.setter
-    def efi(self, efi):
-        self._entry_data[BOOM_ENTRY_EFI] = efi
+    def efi(self, efi: Optional[str]):
+        if efi:
+            self._entry_data[BOOM_ENTRY_EFI] = efi
+        else:
+            self._entry_data.pop(BOOM_ENTRY_EFI, None)
         self._dirty()
 
     @property
