@@ -33,6 +33,7 @@ from os import fdopen, rename, chmod, unlink, fdatasync
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TYPE_CHECKING
 import logging
 import re
+from io import TextIOWrapper
 
 if TYPE_CHECKING:
     from .hostprofile import HostProfile
@@ -1680,7 +1681,11 @@ class OsProfile(BoomProfile):
     #
 
     @classmethod
-    def from_os_release(cls, os_release, profile_data=None):
+    def from_os_release(
+        cls,
+        os_release: Union[TextIOWrapper, List[str]],
+        profile_data: Optional[Dict[str, str]] = None,
+    ) -> "OsProfile":
         """Build an OsProfile from os-release file data.
 
         Construct a new OsProfile object using data obtained from
@@ -1698,7 +1703,7 @@ class OsProfile(BoomProfile):
             if blank_or_comment(line):
                 continue
             name, value = parse_name_value(line)
-            release_data[name] = value
+            release_data[name] = value or ""
 
         release_keys = {
             "NAME": BOOM_OS_NAME,
@@ -1708,14 +1713,16 @@ class OsProfile(BoomProfile):
         }
 
         for key in release_keys:
-            profile_data[release_keys[key]] = release_data[key]
+            profile_data[release_keys[key]] = release_data.get(key, "")
 
         osp = OsProfile(profile_data=profile_data)
 
         return osp
 
     @classmethod
-    def from_os_release_file(cls, path, profile_data=None):
+    def from_os_release_file(
+        cls, path: str, profile_data: Optional[Dict[str, str]] = None
+    ) -> "OsProfile":
         """Build an OsProfile from an on-disk os-release file.
 
         Construct a new OsProfile object using data obtained from
@@ -1731,7 +1738,9 @@ class OsProfile(BoomProfile):
             return cls.from_os_release(f, profile_data=profile_data)
 
     @classmethod
-    def from_host_os_release(cls, profile_data=None):
+    def from_host_os_release(
+        cls, profile_data: Optional[Dict[str, str]] = None
+    ) -> "OsProfile":
         """Build an OsProfile from the current hosts's os-release.
 
         Construct a new OsProfile object using data obtained from
