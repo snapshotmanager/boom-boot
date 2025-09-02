@@ -1030,11 +1030,11 @@ class BootEntry:
     """
 
     _unwritten = False
-    _last_path = None
-    _comments = None
-    _osp = None
-    _bp = None
-    _bp_generation = None
+    _last_path: Optional[str] = None
+    _comments: Optional[Dict[str, str]] = None
+    _osp: Optional[Union[OsProfile, HostProfile]] = None
+    _bp: Optional[BootParams] = None
+    _bp_generation: Optional[int] = None
     _suppress_machine_id = False
 
     # Read only state for foreign BLS entries
