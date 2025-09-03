@@ -32,7 +32,7 @@ is also provided in the ``MAP_KEY`` member).
 
 """
 from os.path import basename, exists as path_exists, join as path_join
-from subprocess import Popen, PIPE
+from subprocess import check_output, CalledProcessError, TimeoutExpired
 from tempfile import mkstemp
 from os import close, listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
@@ -316,17 +316,18 @@ def _grub2_get_env(name: str) -> str:
     :rtype: string
     """
     grub_cmd = ["grub2-editenv", "list"]
+    output = None
     try:
-        p = Popen(grub_cmd, stdin=None, stdout=PIPE, stderr=PIPE)
-        out = p.communicate()[0]
-    except OSError as e:
-        _log_error("Could not obtain grub2 environment: %s", e)
+        output = check_output(grub_cmd, encoding="utf8", shell=False, timeout=5)
+    except (TimeoutExpired, CalledProcessError, OSError) as err:
+        _log_error("Could not obtain grub2 environment: %s", err)
         return ""
 
-    for line in out.decode("utf8").splitlines():
-        (env_name, value) = line.split("=", 1)
-        if name == env_name:
-            return value.strip()
+    for line in output.splitlines():
+        if "=" in line:
+            (env_name, value) = line.split("=", 1)
+            if name == env_name:
+                return value.strip()
     return ""
 
 
