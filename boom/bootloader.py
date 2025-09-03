@@ -234,9 +234,9 @@ DEV_PATTERN: str = "/dev/%s"
 
 
 def boom_entries_path() -> str:
-    """Return the path to the boom profiles directory.
+    """Return the path to the boom entries directory.
 
-    :returns: The boom profiles path.
+    :returns: The boom entries path.
     :rtype: str
     """
     return path_join(get_boot_path(), ENTRIES_PATH)
