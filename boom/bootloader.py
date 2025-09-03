@@ -1982,7 +1982,7 @@ class BootEntry:
             btrfs_opts = self._apply_format(osp.root_opts_btrfs or "")
             root_opts.append(btrfs_opts)
 
-        if is_stratis_device_path(self.bp.root_device):
+        if bp and bp.has_stratis():
             stratis_opts = self._apply_format(ROOT_OPTS_STRATIS)
             root_opts.append(stratis_opts)
 
