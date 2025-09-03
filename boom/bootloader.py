@@ -1001,8 +1001,6 @@ def _transform_key(key_name: str) -> str:
     if key_name in MAP_KEY and MAP_KEY[key_name] in _exclude_keys:
         return key_name
 
-    if key_name in ["grub_users", "grub_class", "grub_arg"]:
-        return key_name
     if "_" in key_name:
         return key_name.replace("_", "-")
     if "-" in key_name:
