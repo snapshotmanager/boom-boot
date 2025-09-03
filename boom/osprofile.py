@@ -1158,7 +1158,10 @@ class BoomProfile:
         for this profile.
         """
         self._check_optional_key(key)
-        self.optional_keys = " ".join(k for k in (self.optional_keys, key) if k)
+        cur = self.optional_keys.split()
+        if key not in cur:
+            cur.append(key)
+        self.optional_keys = " ".join(cur)
 
     def del_optional_key(self, key: str):
         """Remove the BLS key ``key`` from the allowed set of optional
