@@ -655,11 +655,11 @@ class BoomProfile:
 
         :returns None:
         """
-        if self._identity_key in self._profile_data:
+        if self._profile_data:
             # The profile may not have been modified in a way that
             # causes the identifier to change: clear it anyway, and
             # it will be re-set to the previous value on next access.
-            self._profile_data.pop(self._identity_key)
+            self._profile_data.pop(self._identity_key, None)
         self._unwritten = True
 
     def _generate_id(self):
