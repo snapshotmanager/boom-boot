@@ -4489,7 +4489,7 @@ def main(args: List[str]) -> int:
         "--json", action="store_true", help="Output report as JSON"
     )
     format_group.add_argument(
-        "--rows", action="store_true", help="Output report columnes as rows"
+        "--rows", action="store_true", help="Output report columns as rows"
     )
     parser.add_argument(
         "--separator", metavar="SEP", type=str, help="Report field separator"
