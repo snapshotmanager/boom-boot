@@ -222,7 +222,7 @@ def _is_null_profile(osp: Union["OsProfile", "HostProfile"]) -> bool:
               otherwise
     :rtype: bool
     """
-    if osp.os_id == _profiles[0].os_id:
+    if _profiles and osp.os_id == _profiles[0].os_id:
         return True
     return False
 
