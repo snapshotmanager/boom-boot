@@ -864,7 +864,7 @@ def _do_print_type(
     :param output_fields: a comma-separated list of output fields
     :param opts: output formatting and control options
     :param sort_keys: a comma-separated list of sort keys
-    :rtype: str
+    :rtype: ``None``
     """
     opts = opts if opts is not None else ReportOpts()
 
@@ -1575,15 +1575,13 @@ def print_entries(
     selection: Optional[Selection] = None,
     output_fields: Optional[str] = None,
     opts: Optional[ReportOpts] = None,
-    sort_keys: None = None,
+    sort_keys: Optional[str] = None,
     expand: Optional[bool] = None,
 ) -> None:
     """Print boot loader entries matching selection criteria.
 
     Format a set of ``boom.bootloader.BootEntry`` objects matching
-    the given criteria, and output them as a report to the file
-    given in ``out_file``, or ``sys.stdout`` if ``out_file`` is
-    unset.
+    the given criteria, and output them as a report.
 
     Selection criteria may be expressed via a Selection object
     passed to the call using the ``selection`` parameter.
@@ -1594,8 +1592,7 @@ def print_entries(
     :param opts: output formatting and control options
     :param sort_keys: a comma-separated list of sort keys
     :param expand: Expand bootloader environment variables
-    :returns: the ``boot_id`` of the new entry
-    :rtype: str
+    :rtype: ``None``
     """
     output_fields = _expand_fields(_default_entry_fields, output_fields)
 
@@ -2138,8 +2135,7 @@ def print_profiles(
     :param opts: output formatting and control options
     :param sort_keys: a comma-separated list of sort keys
     :param expand: unused
-    :returns: the number of matching profiles output.
-    :rtype: int
+    :rtype: ``None``
     """
     output_fields = _expand_fields(_default_profile_fields, output_fields)
 
@@ -2494,8 +2490,7 @@ def print_hosts(
     :param opts: output formatting and control options
     :param sort_keys: a comma-separated list of sort keys
     :param expand: unused
-    :returns: the number of matching profiles output
-    :rtype: int
+    :rtype: ``None``
     """
     output_fields = _expand_fields(_default_host_fields, output_fields)
 
@@ -2533,8 +2528,7 @@ def _print_cache(
     :param opts: output formatting and control options
     :param sort_keys: a comma-separated list of sort keys
     :param expand: unused
-    :returns: the number of matching profiles output
-    :rtype: int
+    :rtype: ``None``
     """
     output_fields = _expand_fields(_default_cache_fields, output_fields)
 
@@ -2555,7 +2549,7 @@ def _print_cache(
 def print_cache(
     selection: Optional[Selection] = None,
     opts: Optional[ReportOpts] = None,
-    output_fields: None = None,
+    output_fields: Optional[str] = None,
     sort_keys: Optional[str] = None,
     expand: bool = False,
 ) -> None:
@@ -2570,8 +2564,7 @@ def print_cache(
     :param opts: output formatting and control options
     :param sort_keys: a comma-separated list of sort keys
     :param expand: unused
-    :returns: the number of matching profiles output
-    :rtype: int
+    :rtype: ``None``
     """
     return _print_cache(
         find_cache_paths,
@@ -2584,8 +2577,12 @@ def print_cache(
 
 # pylint: disable=unused-argument
 def print_cache_images(
-    selection=None, opts=None, output_fields=None, sort_keys=None, expand=False
-):
+    selection: Optional[Selection] = None,
+    opts: Optional[ReportOpts] = None,
+    output_fields: Optional[str] = None,
+    sort_keys: Optional[str] = None,
+    expand: bool = False,
+) -> None:
     """Print cache entries and images matching selection criteria.
 
     Selection criteria may be expressed via a ``Selection`` object
@@ -2597,8 +2594,7 @@ def print_cache_images(
     :param opts: output formatting and control options
     :param sort_keys: a comma-separated list of sort keys
     :param expand: unused
-    :returns: the number of matching profiles output
-    :rtype: int
+    :rtype: ``None``
     """
     return _print_cache(
         find_cache_images,
