@@ -997,7 +997,7 @@ class BoomProfile:
 
         if kernel_key in value:
             ptype = self.__class__.__name__
-            raise ValueError(f"{ptype}.kernel cannot contain {kernel_key}")
+            raise ValueError(f"{ptype}.kernel_pattern cannot contain {kernel_key}")
 
         if self._profile_data:
             self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
@@ -1020,7 +1020,9 @@ class BoomProfile:
         initramfs_key = key_from_key_name(FMT_INITRAMFS)
         if initramfs_key in value:
             ptype = self.__class__.__name__
-            raise ValueError(f"{ptype}.initramfs cannot contain {initramfs_key}")
+            raise ValueError(
+                f"{ptype}.initramfs_pattern cannot contain {initramfs_key}"
+            )
         if self._profile_data:
             self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
             self._dirty()
