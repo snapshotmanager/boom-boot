@@ -689,7 +689,8 @@ class BootEntryTests(unittest.TestCase):
         load_profiles()
 
         bp = BootParams("4.11.5-100.fc24.x86_64", root_device="/dev/sda5")
-        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp)
+        be = BootEntry(title="title", machine_id="ffffffff", boot_params=bp,
+                       allow_no_dev=True)
         with self.assertRaises(TypeError) as cm:
             be[123]
 
@@ -730,7 +731,7 @@ class BootEntryTests(unittest.TestCase):
         self.assertEqual(be.options, xoptions)
         self.assertEqual(be.devicetree, xdevicetree)
 
-    def test_BootEntry__getitem__bad_key_raises(self):
+    def test_BootEntry__setitem__bad_key_raises(self):
         from boom.osprofile import OsProfile, load_profiles
         load_profiles()
 
