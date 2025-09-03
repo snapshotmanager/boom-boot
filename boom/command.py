@@ -1034,6 +1034,31 @@ def _apply_btrfs_subvol_exclusive(
         bp.btrfs_subvol_path = None
 
 
+def _apply_no_fstab(
+    add_opts_list: list[str], del_opts_list: list[str]
+) -> tuple[list[str], list[str]]:
+    """
+    Apply no_fstab handling to ``add_opts_list``/``del_opts_list``.
+
+    :param add_opts_list: add_opts list to modify.
+    :param del_opts_list: del_opts list to modify.
+    """
+    if "fstab=no" not in add_opts_list:
+        add_opts_list.append("fstab=no")
+
+    if "ro" in add_opts_list:
+        add_opts_list.remove("ro")
+    if "rw" in del_opts_list:
+        del_opts_list.remove("rw")
+
+    if "ro" not in del_opts_list:
+        del_opts_list.append("ro")
+    if "rw" not in add_opts_list:
+        add_opts_list.append("rw")
+
+    return add_opts_list, del_opts_list
+
+
 def create_entry(
     title: str,
     version: str,
@@ -1116,11 +1141,7 @@ def create_entry(
     del_opts_list = del_opts.split() if del_opts else []
 
     if no_fstab:
-        add_opts_list.append("fstab=no")
-        # Ensure that root is mounted read-write
-        if "ro" not in del_opts_list:
-            del_opts_list.append("ro")
-            add_opts_list.append("rw")
+        add_opts_list, del_opts_list = _apply_no_fstab(add_opts_list, del_opts_list)
 
     if mounts:
         mount_units = parse_mount_units(mounts)
@@ -1306,11 +1327,7 @@ def clone_entry(
     (add_opts_list, del_opts_list) = _merge_add_del_opts(bp, add_opts, del_opts)
 
     if no_fstab:
-        add_opts_list.append("fstab=no")
-        # Ensure that root is mounted read-write
-        if "ro" not in del_opts_list:
-            del_opts_list.append("ro")
-            add_opts_list.append("rw")
+        add_opts_list, del_opts_list = _apply_no_fstab(add_opts_list, del_opts_list)
 
     if mounts:
         mount_units = parse_mount_units(mounts)
@@ -1484,11 +1501,7 @@ def edit_entry(
     add_opts_list, del_opts_list = _merge_add_del_opts(be.bp, add_opts, del_opts)
 
     if no_fstab:
-        add_opts_list.append("fstab=no")
-        # Ensure that root is mounted read-write
-        if "ro" not in del_opts_list:
-            del_opts_list.append("ro")
-            add_opts_list.append("rw")
+        add_opts_list, del_opts_list = _apply_no_fstab(add_opts_list, del_opts_list)
 
     if mounts:
         mount_units = parse_mount_units(mounts)
