@@ -1012,6 +1012,28 @@ def _find_one_entry(select: Selection) -> BootEntry:
     return bes[0]
 
 
+def _apply_btrfs_subvol_exclusive(
+    bp: BootParams, subvol_path: Optional[str], subvol_id: Optional[str]
+) -> None:
+    """
+    Apply btrfs subvolume parameters to ``BootParams``.
+
+    :param bp: ``BootParams`` to update.
+    :param subvol_path: An optional btrfs subvolume path to set.
+    :param subvol_id: An optional btrfs subvolume ID to set.
+    """
+    sv_path = subvol_path if subvol_path else None
+    sv_id = subvol_id if subvol_id else None
+    if sv_path and sv_id:
+        raise ValueError("Cannot set btrfs_subvol_path and btrfs_subvol_id")
+    if sv_path is not None:
+        bp.btrfs_subvol_path = sv_path
+        bp.btrfs_subvol_id = None
+    elif sv_id is not None:
+        bp.btrfs_subvol_id = sv_id
+        bp.btrfs_subvol_path = None
+
+
 def create_entry(
     title: str,
     version: str,
@@ -1302,13 +1324,7 @@ def clone_entry(
     bp.root_device = root_device if root_device else bp.root_device
     bp.lvm_root_lv = lvm_root_lv if lvm_root_lv else bp.lvm_root_lv
 
-    if btrfs_subvol_path and btrfs_subvol_id:
-        raise ValueError("cannot set btrfs_subvol_path and btrfs_subvol_id")
-
-    if btrfs_subvol_path:
-        bp.btrfs_subvol_path = btrfs_subvol_path
-    elif btrfs_subvol_id:
-        bp.btrfs_subvol_id = btrfs_subvol_id
+    _apply_btrfs_subvol_exclusive(bp, btrfs_subvol_path, btrfs_subvol_id)
 
     clone_be = BootEntry(
         title=title,
@@ -1482,6 +1498,8 @@ def edit_entry(
         swap_units = parse_swap_units(swaps)
         add_opts_list.extend(swap_units)
 
+    _apply_btrfs_subvol_exclusive(be.bp, btrfs_subvol_path, btrfs_subvol_id)
+
     be._osp = profile or be._osp
     be.title = title or be.title
     be.machine_id = machine_id or be.machine_id
@@ -1489,8 +1507,6 @@ def edit_entry(
     be.bp.version = version
     be.bp.root_device = root_device or be.bp.root_device
     be.bp.lvm_root_lv = lvm_root_lv or be.bp.lvm_root_lv
-    be.bp.btrfs_subvol_path = btrfs_subvol_path or be.bp.btrfs_subvol_path
-    be.bp.btrfs_subvol_id = btrfs_subvol_id or be.bp.btrfs_subvol_id
     be.bp.add_opts = add_opts_list
     be.bp.del_opts = del_opts_list
 
