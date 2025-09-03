@@ -1456,10 +1456,6 @@ class OsProfile(BoomProfile):
             for opt_key in profile_data[BOOM_OS_OPTIONAL_KEYS].split():
                 self._check_optional_key(opt_key)
 
-        # Empty OPTIONS is permitted: set the corresponding
-        # value in the _profile_data dictionary to the empty string.
-        if BOOM_OS_OPTIONS not in profile_data:
-            profile_data[BOOM_OS_OPTIONS] = ""
         self._profile_data = dict(profile_data)
 
         if BOOM_OS_ID not in self._profile_data:
