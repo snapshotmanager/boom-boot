@@ -37,6 +37,8 @@ SWAP_UNIT_FMT = "systemd.swap-extra=%s:%s"
 #: The blkid command
 _blkid = "blkid"
 
+_dev_prefixes = ["/dev/", "UUID=", "LABEL=", "PARTUUID=", "PARTLABEL="]
+
 
 def _detect_fstype(dev):
     """Detect the file system type corresponding to device ``dev``."""
@@ -61,19 +63,28 @@ def _parse_mount_unit(mount):
     parts = mount.split(":")
     if len(parts) < 2:
         raise BoomMountError(f"Invalid mount specification: '{mount}'")
-    what = parts[0]
-    where = parts[1]
+    what = parts[0].strip()
+    where = parts[1].strip()
     if len(parts) > 2:
-        fstype = parts[2]
+        fstype = parts[2].strip()
     else:
         try:
             fstype = _detect_fstype(what)
         except CalledProcessError:
             raise BoomMountError(f"Could not determine fstype for {what}")
     if len(parts) > 3:
-        options = parts[3]
+        options = parts[3].strip()
     else:
         options = "defaults"
+
+    if len(parts) > 4:
+        raise BoomMountError(f"Malformed mount unit: {mount}")
+
+    if any(not part for part in [what, where, fstype, options]):
+        raise BoomMountError(f"Malformed mount unit: {mount}")
+
+    if not any(what.startswith(prefix) for prefix in _dev_prefixes):
+        raise BoomMountError(f"Invalid mount device: {what}")
 
     return MOUNT_UNIT_FMT % (what, where, fstype, options)
 
@@ -85,21 +96,34 @@ def parse_mount_units(mounts):
     :retruns: A list of strings in systemd swap unit format.
     """
     _log_info("parsing mount units")
-    return [_parse_mount_unit(mnt) for mnt in mounts]
+    return [_parse_mount_unit(mnt.strip()) for mnt in mounts]
 
 
 def _parse_swap_unit(swap):
     """Parse a boom command line swap specification into the format
     required by the systemd boot syntax.
 
-    :param mount: The boom command line swap specification.
+    :param swap: The boom command line swap specification.
     :returns: A string in systemd swap unit format.
     """
     if ":" in swap:
-        (what, options) = swap.split(":")
+        (what, options) = swap.split(":", maxsplit=1)
+        what = what.strip()
+        options = options.strip()
+        if not what:
+            raise BoomMountError(f"Swap unit has empty device: {swap}")
+        if not options:
+            raise BoomMountError(f"Swap unit has empty options: {swap}")
     else:
-        what = swap
+        what = swap.strip()
         options = "defaults"
+
+    if ":" in options:
+        raise BoomMountError(f"Malformed swap unit: {swap}")
+
+    if not any(what.startswith(prefix) for prefix in _dev_prefixes):
+        raise BoomMountError(f"Invalid swap device: {what}")
+
     return SWAP_UNIT_FMT % (what, options)
 
 
@@ -107,9 +131,9 @@ def parse_swap_units(swaps):
     """Parse a list of command line swap specifications.
 
     :param swaps: A list of boom command line swap specifications.
-    :returns: A list of strings in systemd mount unit format.
+    :returns: A list of strings in systemd swap unit format.
     """
-    return [_parse_swap_unit(swap) for swap in swaps]
+    return [_parse_swap_unit(swap.strip()) for swap in swaps]
 
 
 __all__ = [
