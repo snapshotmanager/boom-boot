@@ -35,10 +35,8 @@ Boom \(em linux boot manager
 .HP
 .B boom
 .de CMD_COMMAND
-.  ad l
 .  ARG_CMD_TYPES
 .  ARG_COMMANDS
-.  ad b
 ..
 .CMD_COMMAND
 .
@@ -46,10 +44,8 @@ Boom \(em linux boot manager
 .HP
 .B boom
 .de CMD_LEGACY_COMMAND
-.  ad l
 .  ARG_LEGACY_TYPES
 .  ARG_LEGACY_COMMAND
-.  ad b
 ..
 .CMD_LEGACY_COMMAND
 .
@@ -57,10 +53,8 @@ Boom \(em linux boot manager
 .HP
 .B boom
 .de CMD_CACHE_COMMAND
-.  ad l
 .  ARG_CACHE_TYPES
 .  ARG_CACHE_COMMAND
-.  ad b
 ..
 .CMD_CACHE_COMMAND
 .
@@ -68,7 +62,6 @@ Boom \(em linux boot manager
 .HP
 .B boom
 .de CMD_ENTRY_CREATE
-.  ad l
 .  BR entry
 .  BR \fBcreate
 .  RB [ --profile
@@ -96,14 +89,12 @@ Boom \(em linux boot manager
 .  IR mount ]
 .  RB [ --swap
 .  IR swap ]
-.  ad b
 ..
 .CMD_ENTRY_CREATE
 .
 .HP
 .B boom
 .de CMD_ENTRY_DELETE
-.  ad l
 .  BR entry
 .  BR \fBdelete
 .  IR [ boot_id ]
@@ -113,14 +104,12 @@ Boom \(em linux boot manager
 .  IR os_id ]
 .  RB [ --version
 .  IR version ]
-.  ad b
 ..
 .CMD_ENTRY_DELETE
 .
 .HP
 .B boom
 .de CMD_ENTRY_CLONE
-.  ad l
 .  BR entry
 .  BR \fBclone
 .  IR [ boot_id ]
@@ -151,14 +140,12 @@ Boom \(em linux boot manager
 .  IR mount ]
 .  RB [ --swap
 .  IR swap ]
-.  ad b
 ..
 .CMD_ENTRY_CLONE
 .
 .HP
 .B boom
 .de CMD_ENTRY_LIST
-.  ad l
 .  BR entry
 .  BR \fBlist
 .  IR [ boot_id ]
@@ -193,14 +180,12 @@ Boom \(em linux boot manager
 .  RB [ --rows | --json ]
 .  RB [ --separator
 .  IR separator ]
-.  ad b
 ..
 .CMD_ENTRY_LIST
 .
 .HP
 .B boom
 .de CMD_ENTRY_SHOW
-.  ad l
 .  BR entry
 .  BR \fBshow
 .  IR [ boot_id ]
@@ -222,7 +207,6 @@ Boom \(em linux boot manager
 .  IR lv ]
 .  RB [ --btrfs-subvol
 .  IR subvol ]
-.  ad b
 ..
 .CMD_ENTRY_SHOW
 .
@@ -230,7 +214,6 @@ Boom \(em linux boot manager
 .HP
 .B boom
 .de CMD_PROFILE_CREATE
-.  ad l
 .  BR profile
 .  BR \fBcreate
 .  RB [ --name
@@ -252,14 +235,12 @@ Boom \(em linux boot manager
 .  IR btrfs_opts ]
 .  RB [ --os-options
 .  IR os_options ]
-.  ad b
 ..
 .CMD_PROFILE_CREATE
 .
 .HP
 .B boom
 .de CMD_PROFILE_DELETE
-.  ad l
 .  BR profile
 .  BR \fBdelete
 .  IR [ profile_id ]
@@ -284,14 +265,12 @@ Boom \(em linux boot manager
 .  IR btrfs_opts ]
 .  RB [ --os-options
 .  IR os_options ]
-.  ad b
 ..
 .CMD_PROFILE_DELETE
 .
 .HP
 .B boom
 .de CMD_PROFILE_CLONE
-.  ad l
 .  BR profile
 .  BR \fBclone
 .  IR [ profile_id ]
@@ -316,14 +295,12 @@ Boom \(em linux boot manager
 .  IR btrfs_opts ]
 .  RB [ --os-options
 .  IR os_options ]
-.  ad b
 ..
 .CMD_PROFILE_CLONE
 .
 .HP
 .B boom
 .de CMD_PROFILE_LIST
-.  ad l
 .  BR profile
 .  BR \fBlist
 .  IR [ profile_id ]
@@ -346,14 +323,12 @@ Boom \(em linux boot manager
 .  RB [ --rows | --json ]
 .  RB [ --separator
 .  IR separator ]
-.  ad b
 ..
 .CMD_PROFILE_LIST
 .
 .HP
 .B boom
 .de CMD_PROFILE_SHOW
-.  ad l
 .  BR profile
 .  BR \fBshow
 .  IR [ profile_id ]
@@ -367,7 +342,6 @@ Boom \(em linux boot manager
 .  IR osshortname ]
 .  RB [ --os-version
 .  IR version ]
-.  ad b
 ..
 .CMD_PROFILE_SHOW
 .
@@ -375,7 +349,6 @@ Boom \(em linux boot manager
 .HP
 .B boom
 .de CMD_HOST_CREATE
-.  ad l
 .  BR host
 .  BR \fBcreate
 .  RB [ --name
@@ -396,27 +369,23 @@ Boom \(em linux boot manager
 .  IR btrfs_opts ]
 .  RB [ --os-options
 .  IR os_options ]
-.  ad b
 ..
 .CMD_HOST_CREATE
 .
 .HP
 .B boom
 .de CMD_HOST_DELETE
-.  ad l
 .  BR host
 .  BR \fBdelete
 .  IR [ host_id ]
 .  RB [ --host-profile
 .  IR host_id ]
-.  ad b
 ..
 .CMD_HOST_DELETE
 .
 .HP
 .B boom
 .de CMD_HOST_CLONE
-.  ad l
 .  BR host
 .  BR \fBclone
 .  IR [ host_id ]
@@ -440,14 +409,12 @@ Boom \(em linux boot manager
 .  IR btrfs_opts ]
 .  RB [ --os-options
 .  IR os_options ]
-.  ad b
 ..
 .CMD_HOST_CLONE
 .
 .HP
 .B boom
 .de CMD_HOST_EDIT
-.  ad l
 .  BR host
 .  BR \fBedit
 .  IR [ host_id ]
@@ -471,14 +438,12 @@ Boom \(em linux boot manager
 .  IR btrfs_opts ]
 .  RB [ --os-options
 .  IR os_options ]
-.  ad b
 ..
 .CMD_HOST_EDIT
 .
 .HP
 .B boom
 .de CMD_HOST_LIST
-.  ad l
 .  BR host
 .  BR \fBlist
 .  IR [ host_id ]
@@ -511,14 +476,12 @@ Boom \(em linux boot manager
 .  RB [ --rows | --json ]
 .  RB [ --separator
 .  IR separator ]
-.  ad b
 ..
 .CMD_HOST_LIST
 .
 .HP
 .B boom
 .de CMD_HOST_SHOW
-.  ad l
 .  BR host
 .  BR \fBshow
 .  IR [ profile_id ]
@@ -532,7 +495,6 @@ Boom \(em linux boot manager
 .  IR osshortname ]
 .  RB [ --os-version
 .  IR version ]
-.  ad b
 ..
 .CMD_HOST_SHOW
 .
@@ -540,7 +502,6 @@ Boom \(em linux boot manager
 .HP
 .B boom
 .de CMD_LEGACY_WRITE
-.  ad l
 .  BR legacy
 .  BR \fBwrite
 .  IR [ boot_id ]
@@ -566,24 +527,20 @@ Boom \(em linux boot manager
 .  IR initrd_path ]
 .  RB [ --btrfs-subvol
 .  IR subvol ]
-.  ad b
 ..
 .CMD_LEGACY_WRITE
 .
 .HP
 .B boom
 .de CMD_LEGACY_CLEAR
-.  ad l
 .  BR legacy
 .  BR \fBclear
-.  ad b
 ..
 .CMD_LEGACY_CLEAR
 .
 .HP
 .B boom
 .de CMD_LEGACY_SHOW
-.  ad l
 .  BR legacy
 .  BR \fBshow
 .  IR [ boot_id ]
@@ -609,7 +566,6 @@ Boom \(em linux boot manager
 .  IR initrd_path ]
 .  RB [ --btrfs-subvol
 .  IR subvol ]
-.  ad b
 ..
 .CMD_LEGACY_SHOW
 .
@@ -617,7 +573,6 @@ Boom \(em linux boot manager
 .HP
 .B boom
 .de CMD_CACHE_LIST
-.  ad l
 .  BR cache
 .  BR \fBlist
 .  IR [ img_id ]
@@ -627,7 +582,6 @@ Boom \(em linux boot manager
 .  IR kernel_path ]
 .  RB [ --initrd
 .  IR initrd_path ]
-.  ad b
 .  RB [ --nameprefixes ]
 .  RB [ --noheadings ]
 .  RB [ --options
@@ -643,7 +597,6 @@ Boom \(em linux boot manager
 .HP
 .B boom
 .de CMD_CACHE_SHOW
-.  ad l
 .  BR cache
 .  BR \fBshow
 .  IR [ img_id ]
@@ -653,7 +606,6 @@ Boom \(em linux boot manager
 .  IR kernel_path ]
 .  RB [ --initrd
 .  IR initrd_path ]
-.  ad b
 ..
 .CMD_CACHE_SHOW
 .
