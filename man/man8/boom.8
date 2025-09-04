@@ -9,7 +9,7 @@
 ..
 .
 .de ARG_LEGACY_TYPES
-.  RI legacy
+.  RI legacy " "\c
 ..
 .
 .de ARG_LEGACY_COMMAND
@@ -17,14 +17,13 @@
 ..
 .
 .de ARG_CACHE_TYPES
-.  RI cache
+.  RI cache " "\c
 ..
 .
 .de ARG_CACHE_COMMAND
 .  RI [ list | show ]
 ..
 .
-..
 .SH NAME
 .
 Boom \(em linux boot manager
@@ -62,151 +61,151 @@ Boom \(em linux boot manager
 .
 .B boom
 .de CMD_ENTRY_CREATE
-.  BR entry
-.  BR \fBcreate
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --version
-.  IR version ]
-.  RB [ --root-device
-.  IR device ]
-.  RB [ --root-lv
-.  IR lv ]
-.  RB [ --linux
-.  IR kernel_path ]
-.  RB [ --initrd
-.  IR initrd_path ]
-.  RB [ --btrfs-subvol
-.  IR subvol ]
-.  RB [ --add-opts
-.  IR opts ]
-.  RB [ --del-opts
-.  IR opts ]
-.  RB [ --backup ]
-.  RB [ --update ]
-.  RB [ --no-fstab ]
-.  RB [ --mount
-.  IR mount ]
-.  RB [ --swap
-.  IR swap ]
+.  B entry
+.  B create
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --version\ \c
+.  IR version ] " "\c
+.  RB [ --root-device\ \c
+.  IR device ] " "\c
+.  RB [ --root-lv\ \c
+.  IR lv ] " "\c
+.  RB [ --linux\ \c
+.  IR kernel_path ] " "\c
+.  RB [ --initrd\ \c
+.  IR initrd_path ] " "\c
+.  RB [ --btrfs-subvol\ \c
+.  IR subvol ] " "\c
+.  RB [ --add-opts\ \c
+.  IR opts ] " "\c
+.  RB [ --del-opts\ \c
+.  IR opts ] " "\c
+.  RB [ --backup ] " "\c
+.  RB [ --update ] " "\c
+.  RB [ --no-fstab ] " "\c
+.  RB [ --mount\ \c
+.  IR mount ] " "\c
+.  RB [ --swap\ \c
+.  IR swap ] " "\c
 ..
 .CMD_ENTRY_CREATE
 .br
 .
 .B boom
 .de CMD_ENTRY_DELETE
-.  BR entry
-.  BR \fBdelete
-.  IR [ boot_id ]
-.  RB [ --boot-id
-.  IR boot_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --version
-.  IR version ]
+.  B entry
+.  B delete
+.  RB [ --boot-id\ \c
+.  IR boot_id ] " "\c
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --version\ \c
+.  IR version ] " "\c
+.  RB [ boot_id ] " "\c
 ..
 .CMD_ENTRY_DELETE
 .br
 .
 .B boom
 .de CMD_ENTRY_CLONE
-.  BR entry
-.  BR \fBclone
-.  IR [ boot_id ]
-.  RB [ --boot-id
-.  IR boot_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --version
-.  IR version ]
-.  RB [ --root-device
-.  IR device ]
-.  RB [ --root-lv
-.  IR lv ]
-.  RB [ --linux
-.  IR kernel_path ]
-.  RB [ --initrd
-.  IR initrd_path ]
-.  RB [ --btrfs-subvol
-.  IR subvol ]
-.  RB [ --add-opts
-.  IR opts ]
-.  RB [ --del-opts
-.  IR opts ]
-.  RB [ --backup ]
-.  RB [ --update ]
-.  RB [ --no-fstab ]
-.  RB [ --mount
-.  IR mount ]
-.  RB [ --swap
-.  IR swap ]
+.  B entry
+.  B clone
+.  RB [ --boot-id\ \c
+.  IR boot_id ] " "\c
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --version\ \c
+.  IR version ] " "\c
+.  RB [ --root-device\ \c
+.  IR device ] " "\c
+.  RB [ --root-lv\ \c
+.  IR lv ] " "\c
+.  RB [ --linux\ \c
+.  IR kernel_path ] " "\c
+.  RB [ --initrd\ \c
+.  IR initrd_path ] " "\c
+.  RB [ --btrfs-subvol\ \c
+.  IR subvol ] " "\c
+.  RB [ --add-opts\ \c
+.  IR opts ] " "\c
+.  RB [ --del-opts\ \c
+.  IR opts ] " "\c
+.  RB [ --backup ] " "\c
+.  RB [ --update ] " "\c
+.  RB [ --no-fstab ] " "\c
+.  RB [ --mount\ \c
+.  IR mount ] " "\c
+.  RB [ --swap\ \c
+.  IR swap ] " "\c
+.  RB [ boot_id ] " "\c
 ..
 .CMD_ENTRY_CLONE
 .br
 .
 .B boom
 .de CMD_ENTRY_LIST
-.  BR entry
-.  BR \fBlist
-.  IR [ boot_id ]
-.  RB [ --boot-id
-.  IR boot_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --version
-.  IR version ]
-.  RB [ --name
-.  IR osname ]
-.  RB [ --short-name
-.  IR osshortname ]
-.  RB [ --os-version
-.  IR version ]
-.  RB [ --root-device
-.  IR device ]
-.  RB [ --root-lv
-.  IR lv ]
-.  RB [ --linux
-.  IR kernel_path ]
-.  RB [ --initrd
-.  IR initrd_path ]
-.  RB [ --btrfs-subvol
-.  IR subvol ]
-.  RB [ --nameprefixes ]
-.  RB [ --noheadings ]
-.  RB [ --options
-.  IR fields ]
-.  RB [ --sort
-.  IR fields ]
-.  RB [ --rows | --json ]
-.  RB [ --separator
-.  IR separator ]
+.  B entry
+.  B list
+.  RB [ --boot-id\ \c
+.  IR boot_id ] " "\c
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --version\ \c
+.  IR version ] " "\c
+.  RB [ --name\ \c
+.  IR osname ] " "\c
+.  RB [ --short-name\ \c
+.  IR osshortname ] " "\c
+.  RB [ --os-version\ \c
+.  IR version ] " "\c
+.  RB [ --root-device\ \c
+.  IR device ] " "\c
+.  RB [ --root-lv\ \c
+.  IR lv ] " "\c
+.  RB [ --linux\ \c
+.  IR kernel_path ] " "\c
+.  RB [ --initrd\ \c
+.  IR initrd_path ] " "\c
+.  RB [ --btrfs-subvol\ \c
+.  IR subvol ] " "\c
+.  RB [ --nameprefixes ] " "\c
+.  RB [ --noheadings ] " "\c
+.  RB [ --options\ \c
+.  IR fields ] " "\c
+.  RB [ --sort\ \c
+.  IR fields ] " "\c
+.  RB [ --rows | --json ] " "\c
+.  RB [ --separator\ \c
+.  IR separator ] " "\c
+.  IR [ boot_id ] " "\c
 ..
 .CMD_ENTRY_LIST
 .br
 .
 .B boom
 .de CMD_ENTRY_SHOW
-.  BR entry
-.  BR \fBshow
-.  IR [ boot_id ]
-.  RB [ --boot-id
-.  IR boot_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --version
-.  IR version ]
-.  RB [ --name
-.  IR osname ]
-.  RB [ --short-name
-.  IR osshortname ]
-.  RB [ --os-version
-.  IR version ]
-.  RB [ --root-device
-.  IR device ]
-.  RB [ --root-lv
-.  IR lv ]
-.  RB [ --btrfs-subvol
-.  IR subvol ]
+.  B entry
+.  B show
+.  RB [ --boot-id\ \c
+.  IR boot_id ] " "\c
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --version\ \c
+.  IR version ] " "\c
+.  RB [ --name\ \c
+.  IR osname ] " "\c
+.  RB [ --short-name\ \c
+.  IR osshortname ] " "\c
+.  RB [ --os-version\ \c
+.  IR version ] " "\c
+.  RB [ --root-device\ \c
+.  IR device ] " "\c
+.  RB [ --root-lv\ \c
+.  IR lv ] " "\c
+.  RB [ --btrfs-subvol\ \c
+.  IR subvol ] " "\c
+.  IR [ boot_id ] " "\c
 ..
 .CMD_ENTRY_SHOW
 .br
@@ -214,134 +213,134 @@ Boom \(em linux boot manager
 .
 .B boom
 .de CMD_PROFILE_CREATE
-.  BR profile
-.  BR \fBcreate
-.  RB [ --name
-.  IR osname ]
-.  RB [ --short-name
-.  IR short_name ]
-.  RB [ --os-version
-.  IR version ]
-.  RB [ --os-version-id
-.  IR version_id ]
-.  BR [ --from-host ]
-.  RB [ --os-release
-.  IR os_release ]
-.  RB [ --uname-pattern
-.  IR uname_pattern ]
-.  RB [ --lvm-opts
-.  IR lvm_opts ]
-.  RB [ --btrfs-opts
-.  IR btrfs_opts ]
-.  RB [ --os-options
-.  IR os_options ]
+.  B profile
+.  B create
+.  RB [ --name\ \c
+.  IR osname ] " "\c
+.  RB [ --short-name\ \c
+.  IR short_name ] " "\c
+.  RB [ --os-version\ \c
+.  IR version ] " "\c
+.  RB [ --os-version-id\ \c
+.  IR version_id ] " "\c
+.  BR [ --from-host ] " "\c
+.  RB [ --os-release\ \c
+.  IR os_release ] " "\c
+.  RB [ --uname-pattern\ \c
+.  IR uname_pattern ] " "\c
+.  RB [ --lvm-opts\ \c
+.  IR lvm_opts ] " "\c
+.  RB [ --btrfs-opts\ \c
+.  IR btrfs_opts ] " "\c
+.  RB [ --os-options\ \c
+.  IR os_options ] " "\c
 ..
 .CMD_PROFILE_CREATE
 .br
 .
 .B boom
 .de CMD_PROFILE_DELETE
-.  BR profile
-.  BR \fBdelete
-.  IR [ profile_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --name
-.  IR osname ]
-.  RB [ --short-name
-.  IR short_name ]
-.  RB [ --os-version
-.  IR version ]
-.  RB [ --os-version-id
-.  IR version_id ]
-.  BR [ --from-host ]
-.  RB [ --os-release
-.  IR os_release ]
-.  RB [ --uname-pattern
-.  IR uname_pattern ]
-.  RB [ --lvm-opts
-.  IR lvm_opts ]
-.  RB [ --btrfs-opts
-.  IR btrfs_opts ]
-.  RB [ --os-options
-.  IR os_options ]
+.  B profile
+.  B delete
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --name\ \c
+.  IR osname ] " "\c
+.  RB [ --short-name\ \c
+.  IR short_name ] " "\c
+.  RB [ --os-version\ \c
+.  IR version ] " "\c
+.  RB [ --os-version-id\ \c
+.  IR version_id ] " "\c
+.  BR [ --from-host ] " "\c
+.  RB [ --os-release\ \c
+.  IR os_release ] " "\c
+.  RB [ --uname-pattern\ \c
+.  IR uname_pattern ] " "\c
+.  RB [ --lvm-opts\ \c
+.  IR lvm_opts ] " "\c
+.  RB [ --btrfs-opts\ \c
+.  IR btrfs_opts ] " "\c
+.  RB [ --os-options\ \c
+.  IR os_options ] " "\c
+.  IR [ profile_id ] " "\c
 ..
 .CMD_PROFILE_DELETE
 .br
 .
 .B boom
 .de CMD_PROFILE_CLONE
-.  BR profile
-.  BR \fBclone
-.  IR [ profile_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --name
-.  IR osname ]
-.  RB [ --short-name
-.  IR short_name ]
-.  RB [ --os-version
-.  IR version ]
-.  RB [ --os-version-id
-.  IR version_id ]
-.  BR [ --from-host ]
-.  RB [ --os-release
-.  IR os_release ]
-.  RB [ --uname-pattern
-.  IR uname_pattern ]
-.  RB [ --lvm-opts
-.  IR lvm_opts ]
-.  RB [ --btrfs-opts
-.  IR btrfs_opts ]
-.  RB [ --os-options
-.  IR os_options ]
+.  B profile
+.  B clone
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --name\ \c
+.  IR osname ] " "\c
+.  RB [ --short-name\ \c
+.  IR short_name ] " "\c
+.  RB [ --os-version\ \c
+.  IR version ] " "\c
+.  RB [ --os-version-id\ \c
+.  IR version_id ] " "\c
+.  BR [ --from-host ] " "\c
+.  RB [ --os-release\ \c
+.  IR os_release ] " "\c
+.  RB [ --uname-pattern\ \c
+.  IR uname_pattern ] " "\c
+.  RB [ --lvm-opts\ \c
+.  IR lvm_opts ] " "\c
+.  RB [ --btrfs-opts\ \c
+.  IR btrfs_opts ] " "\c
+.  RB [ --os-options\ \c
+.  IR os_options ] " "\c
+.  IR [ profile_id ] " "\c
 ..
 .CMD_PROFILE_CLONE
 .br
 .
 .B boom
 .de CMD_PROFILE_LIST
-.  BR profile
-.  BR \fBlist
-.  IR [ profile_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --version
-.  IR version ]
-.  RB [ --name
-.  IR osname ]
-.  RB [ --short-name
-.  IR osshortname ]
-.  RB [ --os-version
-.  IR version ]
-.  RB [ --nameprefixes ]
-.  RB [ --noheadings ]
-.  RB [ --options
-.  IR fields ]
-.  RB [ --sort
-.  IR fields ]
-.  RB [ --rows | --json ]
-.  RB [ --separator
-.  IR separator ]
+.  B profile
+.  B list
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --version\ \c
+.  IR version ] " "\c
+.  RB [ --name\ \c
+.  IR osname ] " "\c
+.  RB [ --short-name\ \c
+.  IR osshortname ] " "\c
+.  RB [ --os-version\ \c
+.  IR version ] " "\c
+.  RB [ --nameprefixes ] " "\c
+.  RB [ --noheadings ] " "\c
+.  RB [ --options\ \c
+.  IR fields ] " "\c
+.  RB [ --sort\ \c
+.  IR fields ] " "\c
+.  RB [ --rows | --json ] " "\c
+.  RB [ --separator\ \c
+.  IR separator ] " "\c
+.  IR [ profile_id ] " "\c
 ..
 .CMD_PROFILE_LIST
 .br
 .
 .B boom
 .de CMD_PROFILE_SHOW
-.  BR profile
-.  BR \fBshow
-.  IR [ profile_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --version
-.  IR version ]
-.  RB [ --name
-.  IR osname ]
-.  RB [ --short-name
-.  IR osshortname ]
-.  RB [ --os-version
-.  IR version ]
+.  B profile
+.  B show
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --version\ \c
+.  IR version ] " "\c
+.  RB [ --name\ \c
+.  IR osname ] " "\c
+.  RB [ --short-name\ \c
+.  IR osshortname ] " "\c
+.  RB [ --os-version\ \c
+.  IR version ] " "\c
+.  IR [ profile_id ] " "\c
 ..
 .CMD_PROFILE_SHOW
 .br
@@ -349,152 +348,152 @@ Boom \(em linux boot manager
 .
 .B boom
 .de CMD_HOST_CREATE
-.  BR host
-.  BR \fBcreate
-.  RB [ --name
-.  IR name ]
-.  RB [ --short-name
-.  IR short_name ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --machine-id
-.  IR machine_id ]
-.  RB [ --kernel-pattern
-.  IR kernel_pattern ]
-.  RB [ --initramfs-pattern
-.  IR initramfs_pattern ]
-.  RB [ --lvm-opts
-.  IR lvm_opts ]
-.  RB [ --btrfs-opts
-.  IR btrfs_opts ]
-.  RB [ --os-options
-.  IR os_options ]
+.  B host
+.  B create
+.  RB [ --name\ \c
+.  IR name ] " "\c
+.  RB [ --short-name\ \c
+.  IR short_name ] " "\c
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --machine-id\ \c
+.  IR machine_id ] " "\c
+.  RB [ --kernel-pattern\ \c
+.  IR kernel_pattern ] " "\c
+.  RB [ --initramfs-pattern\ \c
+.  IR initramfs_pattern ] " "\c
+.  RB [ --lvm-opts\ \c
+.  IR lvm_opts ] " "\c
+.  RB [ --btrfs-opts\ \c
+.  IR btrfs_opts ] " "\c
+.  RB [ --os-options\ \c
+.  IR os_options ] " "\c
 ..
 .CMD_HOST_CREATE
 .br
 .
 .B boom
 .de CMD_HOST_DELETE
-.  BR host
-.  BR \fBdelete
-.  IR [ host_id ]
-.  RB [ --host-profile
-.  IR host_id ]
+.  B host
+.  B delete
+.  RB [ --host-profile\ \c
+.  IR host_id ] " "\c
+.  IR [ host_id ] " "\c
 ..
 .CMD_HOST_DELETE
 .br
 .
 .B boom
 .de CMD_HOST_CLONE
-.  BR host
-.  BR \fBclone
-.  IR [ host_id ]
-.  RB [ --host-profile
-.  IR host_id ]
-.  RB [ --name
-.  IR name ]
-.  RB [ --short-name
-.  IR short_name ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --machine-id
-.  IR machine_id ]
-.  RB [ --kernel-pattern
-.  IR kernel_pattern ]
-.  RB [ --initramfs-pattern
-.  IR initramfs_pattern ]
-.  RB [ --lvm-opts
-.  IR lvm_opts ]
-.  RB [ --btrfs-opts
-.  IR btrfs_opts ]
-.  RB [ --os-options
-.  IR os_options ]
+.  B host
+.  B clone
+.  RB [ --host-profile\ \c
+.  IR host_id ] " "\c
+.  RB [ --name\ \c
+.  IR name ] " "\c
+.  RB [ --short-name\ \c
+.  IR short_name ] " "\c
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --machine-id\ \c
+.  IR machine_id ] " "\c
+.  RB [ --kernel-pattern\ \c
+.  IR kernel_pattern ] " "\c
+.  RB [ --initramfs-pattern\ \c
+.  IR initramfs_pattern ] " "\c
+.  RB [ --lvm-opts\ \c
+.  IR lvm_opts ] " "\c
+.  RB [ --btrfs-opts\ \c
+.  IR btrfs_opts ] " "\c
+.  RB [ --os-options\ \c
+.  IR os_options ] " "\c
+.  IR [ host_id ] " "\c
 ..
 .CMD_HOST_CLONE
 .br
 .
 .B boom
 .de CMD_HOST_EDIT
-.  BR host
-.  BR \fBedit
-.  IR [ host_id ]
-.  RB [ --host-profile
-.  IR host_id ]
-.  RB [ --name
-.  IR name ]
-.  RB [ --short-name
-.  IR short_name ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --machine-id
-.  IR machine_id ]
-.  RB [ --kernel-pattern
-.  IR kernel_pattern ]
-.  RB [ --initramfs-pattern
-.  IR initramfs_pattern ]
-.  RB [ --lvm-opts
-.  IR lvm_opts ]
-.  RB [ --btrfs-opts
-.  IR btrfs_opts ]
-.  RB [ --os-options
-.  IR os_options ]
+.  B host
+.  B edit
+.  RB [ --host-profile\ \c
+.  IR host_id ] " "\c
+.  RB [ --name\ \c
+.  IR name ] " "\c
+.  RB [ --short-name\ \c
+.  IR short_name ] " "\c
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --machine-id\ \c
+.  IR machine_id ] " "\c
+.  RB [ --kernel-pattern\ \c
+.  IR kernel_pattern ] " "\c
+.  RB [ --initramfs-pattern\ \c
+.  IR initramfs_pattern ] " "\c
+.  RB [ --lvm-opts\ \c
+.  IR lvm_opts ] " "\c
+.  RB [ --btrfs-opts\ \c
+.  IR btrfs_opts ] " "\c
+.  RB [ --os-options\ \c
+.  IR os_options ] " "\c
+.  IR [ host_id ] " "\c
 ..
 .CMD_HOST_EDIT
 .br
 .
 .B boom
 .de CMD_HOST_LIST
-.  BR host
-.  BR \fBlist
-.  IR [ host_id ]
-.  RB [ --host-profile
-.  IR host_id ]
-.  RB [ --name
-.  IR name ]
-.  RB [ --short-name
-.  IR short_name ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --machine-id
-.  IR machine_id ]
-.  RB [ --kernel-pattern
-.  IR kernel_pattern ]
-.  RB [ --initramfs-pattern
-.  IR initramfs_pattern ]
-.  RB [ --lvm-opts
-.  IR lvm_opts ]
-.  RB [ --btrfs-opts
-.  IR btrfs_opts ]
-.  RB [ --os-options
-.  IR os_options ]
-.  RB [ --nameprefixes ]
-.  RB [ --noheadings ]
-.  RB [ --options
-.  IR fields ]
-.  RB [ --sort
-.  IR fields ]
-.  RB [ --rows | --json ]
-.  RB [ --separator
-.  IR separator ]
+.  B host
+.  B list
+.  RB [ --host-profile\ \c
+.  IR host_id ] " "\c
+.  RB [ --name\ \c
+.  IR name ] " "\c
+.  RB [ --short-name\ \c
+.  IR short_name ] " "\c
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --machine-id\ \c
+.  IR machine_id ] " "\c
+.  RB [ --kernel-pattern\ \c
+.  IR kernel_pattern ] " "\c
+.  RB [ --initramfs-pattern\ \c
+.  IR initramfs_pattern ] " "\c
+.  RB [ --lvm-opts\ \c
+.  IR lvm_opts ] " "\c
+.  RB [ --btrfs-opts\ \c
+.  IR btrfs_opts ] " "\c
+.  RB [ --os-options\ \c
+.  IR os_options ] " "\c
+.  RB [ --nameprefixes ] " "\c
+.  RB [ --noheadings ] " "\c
+.  RB [ --options\ \c
+.  IR fields ] " "\c
+.  RB [ --sort\ \c
+.  IR fields ] " "\c
+.  RB [ --rows | --json ] " "\c
+.  RB [ --separator\ \c
+.  IR separator ] " "\c
+.  IR [ host_id ] " "\c
 ..
 .CMD_HOST_LIST
 .br
 .
 .B boom
 .de CMD_HOST_SHOW
-.  BR host
-.  BR \fBshow
-.  IR [ profile_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --version
-.  IR version ]
-.  RB [ --name
-.  IR osname ]
-.  RB [ --short-name
-.  IR osshortname ]
-.  RB [ --os-version
-.  IR version ]
+.  B host
+.  B show
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --version\ \c
+.  IR version ] " "\c
+.  RB [ --name\ \c
+.  IR osname ] " "\c
+.  RB [ --short-name\ \c
+.  IR osshortname ] " "\c
+.  RB [ --os-version\ \c
+.  IR version ] " "\c
+.  IR [ profile_id ] " "\c
 ..
 .CMD_HOST_SHOW
 .br
@@ -502,70 +501,70 @@ Boom \(em linux boot manager
 .
 .B boom
 .de CMD_LEGACY_WRITE
-.  BR legacy
-.  BR \fBwrite
-.  IR [ boot_id ]
-.  RB [ --boot-id
-.  IR boot_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --version
-.  IR version ]
-.  RB [ --name
-.  IR osname ]
-.  RB [ --short-name
-.  IR osshortname ]
-.  RB [ --os-version
-.  IR version ]
-.  RB [ --root-device
-.  IR device ]
-.  RB [ --root-lv
-.  IR lv ]
-.  RB [ --linux
-.  IR kernel_path ]
-.  RB [ --initrd
-.  IR initrd_path ]
-.  RB [ --btrfs-subvol
-.  IR subvol ]
+.  B legacy
+.  B write
+.  RB [ --boot-id\ \c
+.  IR boot_id ] " "\c
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --version\ \c
+.  IR version ] " "\c
+.  RB [ --name\ \c
+.  IR osname ] " "\c
+.  RB [ --short-name\ \c
+.  IR osshortname ] " "\c
+.  RB [ --os-version\ \c
+.  IR version ] " "\c
+.  RB [ --root-device\ \c
+.  IR device ] " "\c
+.  RB [ --root-lv\ \c
+.  IR lv ] " "\c
+.  RB [ --linux\ \c
+.  IR kernel_path ] " "\c
+.  RB [ --initrd\ \c
+.  IR initrd_path ] " "\c
+.  RB [ --btrfs-subvol\ \c
+.  IR subvol ] " "\c
+.  IR [ boot_id ] " "\c
 ..
 .CMD_LEGACY_WRITE
 .br
 .
 .B boom
 .de CMD_LEGACY_CLEAR
-.  BR legacy
-.  BR \fBclear
+.  B legacy
+.  B clear
 ..
 .CMD_LEGACY_CLEAR
 .br
 .
 .B boom
 .de CMD_LEGACY_SHOW
-.  BR legacy
-.  BR \fBshow
-.  IR [ boot_id ]
-.  RB [ --boot-id
-.  IR boot_id ]
-.  RB [ --profile
-.  IR os_id ]
-.  RB [ --version
-.  IR version ]
-.  RB [ --name
-.  IR osname ]
-.  RB [ --short-name
-.  IR osshortname ]
-.  RB [ --os-version
-.  IR version ]
-.  RB [ --root-device
-.  IR device ]
-.  RB [ --root-lv
-.  IR lv ]
-.  RB [ --linux
-.  IR kernel_path ]
-.  RB [ --initrd
-.  IR initrd_path ]
-.  RB [ --btrfs-subvol
-.  IR subvol ]
+.  B legacy
+.  B show
+.  RB [ --boot-id\ \c
+.  IR boot_id ] " "\c
+.  RB [ --profile\ \c
+.  IR os_id ] " "\c
+.  RB [ --version\ \c
+.  IR version ] " "\c
+.  RB [ --name\ \c
+.  IR osname ] " "\c
+.  RB [ --short-name\ \c
+.  IR osshortname ] " "\c
+.  RB [ --os-version\ \c
+.  IR version ] " "\c
+.  RB [ --root-device\ \c
+.  IR device ] " "\c
+.  RB [ --root-lv\ \c
+.  IR lv ] " "\c
+.  RB [ --linux\ \c
+.  IR kernel_path ] " "\c
+.  RB [ --initrd\ \c
+.  IR initrd_path ] " "\c
+.  RB [ --btrfs-subvol\ \c
+.  IR subvol ] " "\c
+.  IR [ boot_id ] " "\c
 ..
 .CMD_LEGACY_SHOW
 .br
@@ -573,39 +572,39 @@ Boom \(em linux boot manager
 .
 .B boom
 .de CMD_CACHE_LIST
-.  BR cache
-.  BR \fBlist
-.  IR [ img_id ]
-.  RB [ --image
-.  IR img_id ]
-.  RB [ --linux
-.  IR kernel_path ]
-.  RB [ --initrd
-.  IR initrd_path ]
-.  RB [ --nameprefixes ]
-.  RB [ --noheadings ]
-.  RB [ --options
-.  IR fields ]
-.  RB [ --sort
-.  IR fields ]
-.  RB [ --rows | --json ]
-.  RB [ --separator
-.  IR separator ]
+.  B cache
+.  B list
+.  RB [ --image\ \c
+.  IR img_id ] " "\c
+.  RB [ --linux\ \c
+.  IR kernel_path ] " "\c
+.  RB [ --initrd\ \c
+.  IR initrd_path ] " "\c
+.  RB [ --nameprefixes ] " "\c
+.  RB [ --noheadings ] " "\c
+.  RB [ --options\ \c
+.  IR fields ] " "\c
+.  RB [ --sort\ \c
+.  IR fields ] " "\c
+.  RB [ --rows | --json ] " "\c
+.  RB [ --separator\ \c
+.  IR separator ] " "\c
+.  IR [ img_id ] " "\c
 ..
 .CMD_CACHE_LIST
 .br
 .
 .B boom
 .de CMD_CACHE_SHOW
-.  BR cache
-.  BR \fBshow
-.  IR [ img_id ]
-.  RB [ --image
-.  IR img_id ]
-.  RB [ --linux
-.  IR kernel_path ]
-.  RB [ --initrd
-.  IR initrd_path ]
+.  B cache
+.  B show
+.  RB [ --image\ \c
+.  IR img_id ] " "\c
+.  RB [ --linux\ \c
+.  IR kernel_path ] " "\c
+.  RB [ --initrd\ \c
+.  IR initrd_path ] " "\c
+.  IR [ img_id ] " "\c
 ..
 .CMD_CACHE_SHOW
 .br
@@ -613,8 +612,8 @@ Boom \(em linux boot manager
 .
 .B boom
 .de CMD_CONFIG_CREATE
-.BR config
-.BR \fBcreate
+.B config
+.B create
 ..
 .CMD_CONFIG_CREATE
 .br
