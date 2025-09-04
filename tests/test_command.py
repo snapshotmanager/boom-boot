@@ -1537,6 +1537,22 @@ class CommandTests(unittest.TestCase):
         r = boom.command._create_cmd(args, None, opts, None)
         self.assertEqual(r, 0)
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test__create_cmd_mapper_name(self):
+        """Test the _create_cmd() handler with /dev/mapper/vg-lv name
+        """
+        def vg_lv_to_dev_mapper(vg_lv):
+            vg, lv = vg_lv.split("/", maxsplit=1)
+            return f"/dev/mapper/{vg.replace('-', '--')}-{lv.replace('-', '--')}"
+
+        args = get_create_cmd_args()
+        args.version = "5.4.7-100.fc30.x86_64"
+        args.root_lv = None
+        args.root_device = vg_lv_to_dev_mapper(get_root_lv())
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
     def test__create_cmd_no_profile(self):
         """Test the _create_cmd() handler with missing profile.
         """
