@@ -313,6 +313,21 @@ class CommandHelperTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     boom.command._apply_btrfs_subvol_exclusive(bp, sv_path, sv_id)
 
+    def test__apply_no_fstab(self):
+        cases = (
+            # (input add_opts, input del_opts, expected add_opts, expected del_opts)
+            ([], [], ["fstab=no", "rw"], ["ro"]),
+            (["foo"], ["bar"], ["foo", "fstab=no", "rw"], ["bar", "ro"]),
+            (["ro"], [], ["fstab=no", "rw"], ["ro"]),
+            ([], ["rw"], ["fstab=no", "rw"], ["ro"]),
+            (["fstab=no", "rw"], ["ro"], ["fstab=no", "rw"], ["ro"]),
+        )
+        for add_l, del_l, xadd, xdel in cases:
+            with self.subTest(add_l=add_l, del_l=del_l):
+                add_out, del_out = boom.command._apply_no_fstab(add_l, del_l)
+                self.assertEqual(add_out, xadd)
+                self.assertEqual(del_out, xdel)
+
 
 # Default test OsProfile identifiers
 test_os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"
