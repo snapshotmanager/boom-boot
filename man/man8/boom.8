@@ -1672,6 +1672,40 @@ Delete all entries for the Fedora 24 OS profile
 Deleted 4 entries
 .EE
 .P
+.SH EXIT STATUS
+\fBboom\fP exits with one of the following status codes:
+.TP 8
+0
+Command completed successfully.
+.TP 8
+.B 1
+A runtime error occurred.
+.TP 8
+.B 2
+Invalid arguments or option parsing error.
+.SH FILES
+Configuration is read from the following locations:
+.PP
+.
+.I /boot/boom/boom.conf
+.br
+.I /boot/boom/profiles
+.br
+.I /boot/boom/hosts
+.br
+.PP
+The main configuration file is \fI/boot/boom/boom.conf\fP. Defined OS and host
+profiles are stored in \fI/boot/boom/profiles\fP and \fI/boot/boom/hosts\fP
+respectively.
+.P
+BLS configuration snippets are stored in \fI/boot/loader/entries\fP.
+.
+.SH BUGS
+Please report bugs via the GitHub issue tracker:
+.P
+.UR https://\:github.com/snapshotmanager/boom-boot/issues
+.UE
+.
 .SH AUTHORS
 .
 Bryn M. Reeves <bmr@redhat.com>
