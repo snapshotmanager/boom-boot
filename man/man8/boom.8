@@ -13,6 +13,19 @@
 ..
 .\}
 .
+.\\" URL macro fallbacks for man2html compatibility (and groff without man-ext)
+.\" Define UR and UE independently so we don't assume both exist.
+.if !d UR \{\
+.de UR
+\\$2 \(la\\$1\(ra
+..
+.\}
+.if !d UE \{\
+.de UE
+.  br
+..
+.\}
+.
 .de ARG_CMD_TYPES
 .  RI [ entry | profile | host ]
 ..
@@ -1665,13 +1678,23 @@ Bryn M. Reeves <bmr@redhat.com>
 .
 .SH SEE ALSO
 .
-Boom project page: https://github.com/snapshotmanager/boom
+.UR https://\:github.com/snapshotmanager/boom
+boom project page
+.UE
 .br
-Boot to snapshot documentation: https://github.com/snapshotmanager/snapshot-boot-docs
+.UR https://\:github.com/snapshotmanager/snapshot-boot-docs
+boot to snapshot documentation
+.UE
 .br
-Boot Loader Specification: https://systemd.io/BOOT_LOADER_SPECIFICATION
+.UR https://systemd.io/BOOT_LOADER_SPECIFICATION
+Boot Loader Specification
+.UE
 .br
-LVM2 resource page: https://www.sourceware.org/lvm2/
+.UR https://\:www.sourceware.org/lvm2/
+LVM2 resource page
+.UE
 .br
-Device-mapper resource page: http://sources.redhat.com/dm/
+.UR https://\:sourceware.org/dm/
+device-mapper resource page
+.UE
 .br
