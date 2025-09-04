@@ -1,4 +1,17 @@
 .TH BOOM 8 "Oct 30 2017" "Linux" "MAINTENANCE COMMANDS"
+.\" Compatibility for older groff (1.22.x) lacking EX/EE
+.ie d EX \{\
+.\}
+.el \{\
+.de EX
+.  nf
+.  RS
+..
+.de EE
+.  RE
+.  fi
+..
+.\}
 .
 .de ARG_CMD_TYPES
 .  RI [ entry | profile | host ]
@@ -950,24 +963,17 @@ overridden by using the \fB--update\fP option.
 .IP
 The newly created entry and its boot identifier are printed to the
 terminal on success:
-.br
-#
-.B boom create --title 'System Snapshot' --root-lv vg00/lvol0
-.br
+.IP
+.EX
+# boom create --title 'System Snapshot' --root-lv vg00/lvol0
 Created entry with boot_id 14d6b6e:
-.br
   title System Snapshot
-.br
   machine-id 611f38fd887d41dea7eb3403b2730a76
-.br
   version 4.13.5-200.fc26.x86_64
-.br
   linux /vmlinuz-4.13.5-200.fc26.x86_64
-.br
   initrd /initramfs-4.13.5-200.fc26.x86_64.img
-.br
   options BOOT_IMAGE=/vmlinuz-4.13.5-200.fc26.x86_64 root=/dev/vg00/lvol0 ro rd.lvm.lv=vg00/lvol0 rhgb quiet
-.br
+.EE
 .
 .TP 5
 .B boom
@@ -1453,297 +1459,204 @@ fields, and the order in which they are displayed, may be controlled to
 produce custom report formats.
 .P
 Displaying the available boot entry fields
-.br
-#
-.B boom list -o help
-.br
+.P
+.EX
+# boom list -o help
 Boot loader entries Fields
-.br
 --------------------------
-.br
   bootid        - Boot identifier [sha]
-.br
   title         - Entry title [str]
-.br
   options       - Kernel options [str]
-.br
   kernel        - Kernel image [str]
-.br
   initramfs     - Initramfs image [str]
-.br
   machineid     - Machine identifier [sha]
-.br
   entrypath     - On-disk entry path [str]
 .P
 OS profiles Fields
-.br
 ------------------
-.br
   osid          - OS identifier [sha]
-.br
   osname        - OS name [str]
-.br
   osshortname   - OS short name [str]
-.br
   osversion     - OS version [str]
-.br
   osversion_id  - Version identifier [str]
-.br
   unamepattern  - UTS name pattern [str]
-.br
   kernelpattern - Kernel image pattern [str]
-.br
   initrdpattern - Initrd pattern [str]
-.br
   lvm2opts      - LVM2 options [str]
-.br
   btrfsopts     - BTRFS options [str]
-.br
   options       - Kernel options [str]
-.br
   profilepath   - On-disk profile path [str]
 .P
 Boot parameters Fields
-.br
 ----------------------
-.br
   version       - Kernel version [str]
-.br
   rootdev       - Root device [str]
-.br
   rootlv        - Root logical volume [str]
-.br
   subvolpath    - BTRFS subvolume path [str]
-.br
   subvolid      - BTRFS subvolume ID [num]
+.EE
+.
 .P
 Displaying the available OS profile fields
-.br
-#
-.B boom profile list -o help
-.br
-OS profiles Fields
-.br
-------------------
-.br
-  osid          - OS identifier [sha]
-.br
-  osname        - OS name [str]
-.br
-  osshortname   - OS short name [str]
-.br
-  osversion     - OS version [str]
-.br
-  osversion_id  - Version identifier [str]
-.br
-  unamepattern  - UTS name pattern [str]
-.br
-  kernelpattern - Kernel image pattern [str]
-.br
-  initrdpattern - Initrd pattern [str]
-.br
-  lvm2opts      - LVM2 options [str]
-.br
-  btrfsopts     - BTRFS options [str]
-.br
-  options       - Kernel options [str]
-.br
-  profilepath   - On-disk profile path [str]
 .P
+.EX
+# boom profile list -o help
+OS profiles Fields
+------------------
+  osid          - OS identifier [sha]
+  osname        - OS name [str]
+  osshortname   - OS short name [str]
+  osversion     - OS version [str]
+  osversion_id  - Version identifier [str]
+  unamepattern  - UTS name pattern [str]
+  kernelpattern - Kernel image pattern [str]
+  initrdpattern - Initrd pattern [str]
+  lvm2opts      - LVM2 options [str]
+  btrfsopts     - BTRFS options [str]
+  options       - Kernel options [str]
+  profilepath   - On-disk profile path [str]
+.EE
+.P
+.
 Selecting custom fields for the \fBentry list\fP and \fBprofile list\fP
 commands
-.br
-#
-.B boom list -o bootid,osname
-.br
+.P
+.EX
+# boom list -o bootid,osname
 BootID  Name
-.br
 0d3e547 Fedora
-.br
 bc18de2 Fedora
-.br
 576fe39 Fedora
-.br
 1838f58 Fedora
-.br
 81520ca Fedora
-.br
 327e24a Fedora
+.EE
 .P
+.
 Adding additional fields to the default set
-.br
-#
-.B boom list -o +options
-.br
-BootID  Version                  Name                     RootDevice              Options
-.br
-0d3e547 4.13.5-200.fc26.x86_64   Fedora                   /dev/mapper/vg_hex-root BOOT_IMAGE=/vmlinuz-4.11.12-100.fc24.x86_64 root=/dev/mapper/vg_hex-root ro rd.lvm.lv=vg_hex/root rhgb quiet rd.auto=1
-.br
-bc18de2 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg_hex/root-snap10 BOOT_IMAGE=/vmlinuz-4.13.5-200.fc26.x86_64 root=/dev/vg_hex/root-snap10 ro rd.lvm.lv=vg_hex/root-snap10
-.br
-576fe39 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg_hex/root        BOOT_IMAGE=/vmlinuz-4.13.5-200.fc26.x86_64 root=/dev/vg_hex/root ro rd.lvm.lv=vg_hex/root
-.br
-1838f58 4.13.5-200.fc26.x86_64   Fedora                   /dev/mapper/vg_hex-root BOOT_IMAGE=/vmlinuz-4.11.12-100.fc24.x86_64 root=/dev/mapper/vg_hex-root ro rd.lvm.lv=vg_hex/root rhgb quiet
-.br
-81520ca 4.13.13-200.fc26.x86_64  Fedora                   /dev/mapper/vg_hex-root BOOT_IMAGE=/vmlinuz-4.13.5-200.fc26.x86_64 root=/dev/mapper/vg_hex-root ro rd.lvm.lv=vg_hex/root rhgb quiet LANG=en_GB.UTF-8
-.br
-327e24a 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg_hex/root        BOOT_IMAGE=%{linux} root=/dev/vg_hex/root ro rd.lvm.lv=vg_hex/root
 .P
+.EX
+# boom list -o +options
+BootID  Version                  Name                     RootDevice              Options
+0d3e547 4.13.5-200.fc26.x86_64   Fedora                   /dev/mapper/vg_hex-root BOOT_IMAGE=/vmlinuz-4.11.12-100.fc24.x86_64 root=/dev/mapper/vg_hex-root ro rd.lvm.lv=vg_hex/root rhgb quiet rd.auto=1
+bc18de2 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg_hex/root-snap10 BOOT_IMAGE=/vmlinuz-4.13.5-200.fc26.x86_64 root=/dev/vg_hex/root-snap10 ro rd.lvm.lv=vg_hex/root-snap10
+576fe39 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg_hex/root        BOOT_IMAGE=/vmlinuz-4.13.5-200.fc26.x86_64 root=/dev/vg_hex/root ro rd.lvm.lv=vg_hex/root
+1838f58 4.13.5-200.fc26.x86_64   Fedora                   /dev/mapper/vg_hex-root BOOT_IMAGE=/vmlinuz-4.11.12-100.fc24.x86_64 root=/dev/mapper/vg_hex-root ro rd.lvm.lv=vg_hex/root rhgb quiet
+81520ca 4.13.13-200.fc26.x86_64  Fedora                   /dev/mapper/vg_hex-root BOOT_IMAGE=/vmlinuz-4.13.5-200.fc26.x86_64 root=/dev/mapper/vg_hex-root ro rd.lvm.lv=vg_hex/root rhgb quiet LANG=en_GB.UTF-8
+327e24a 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg_hex/root        BOOT_IMAGE=%{linux} root=/dev/vg_hex/root ro rd.lvm.lv=vg_hex/root
+.EE
+.P
+.
 Sort operating system profiles by ascending OS name and descending
 OS version
-.br
-#
-.B boom profile list -O+osname,-osversion
-.br
+.P
+.EX
+# boom profile list -O+osname,-osversion
 OsID    Name                            OsVersion
-.br
 d4439b7 Fedora                          26 (Workstation Edition)
-.br
 9736c34 Fedora                          25 (Server Edition)
-.br
 9cb53dd Fedora                          24 (Workstation Edition)
-.br
 6bf746b Fedora                          24 (Server Edition)
-.br
 b99ea5f Red Hat Enterprise Linux Server 8 (Server)
-.br
 3fc389b Red Hat Enterprise Linux Server 7.2 (Maipo)
-.br
 c0b921e Red Hat Enterprise Linux Server 7 (Server)
-.br
 98c3edb Red Hat Enterprise Linux Server 6 (Server)
-.br
 b730331 Red Hat Enterprise Linux Server 5 (Server)
-.br
 efd6d41 Red Hat Enterprise Linux Server 4 (Server)
-.br
 21e37c8 Ubuntu                          16.04 LTS (Xenial Xerus)
+.EE
 .P
 .SH EXAMPLES
 List the available operating system profiles
-.br
-#
-.B boom profile list
-.br
+.P
+.EX
+# boom profile list
 OsID    Name                            OsVersion
-.br
 efd6d41 Red Hat Enterprise Linux Server 4 (Server)
-.br
 b730331 Red Hat Enterprise Linux Server 5 (Server)
-.br
 98c3edb Red Hat Enterprise Linux Server 6 (Server)
-.br
 c0b921e Red Hat Enterprise Linux Server 7 (Server)
-.br
 3fc389b Red Hat Enterprise Linux Server 7.2 (Maipo)
-.br
 b99ea5f Red Hat Enterprise Linux Server 8 (Server)
+.EE
 .P
 List the available boot entries
-.br
-#
-.B boom list
-.br
+.P
+.EX
+# boom list
 BootID  Version                  Name                     RootDevice
-.br
 0d3e547 4.13.5-200.fc26.x86_64   Fedora                   /dev/mapper/vg00-lvol0
-.br
 bc18de2 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg00/lvol0-snap10
-.br
 576fe39 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg00/lvol0
-.br
 f52ba10 4.11.12-100.fc24.x86_64  Fedora                   /dev/vg00/lvol0-snap
-.br
 1838f58 4.13.5-200.fc26.x86_64   Fedora                   /dev/mapper/vg00-lvol0
-.br
 81520ca 4.13.13-200.fc26.x86_64  Fedora                   /dev/mapper/vg00-lvol0
-.br
 327e24a 4.13.5-200.fc26.x86_64   Fedora                   /dev/vg00/lvol0
+.EE
 .P
 Create an OS profile for the running system (using Fedora 26 as an
 example)
-.br
-#
-.B boom profile create --from-host --uname-pattern fc26
-.br
+.P
+.EX
+# boom profile create --from-host --uname-pattern fc26
 Created profile with os_id d4439b7:
-.br
   OS ID: "d4439b7d2f928c39f1160c0b0291407e5990b9e0",
-.br
   Name: "Fedora", Short name: "fedora",
-.br
   Version: "26 (Workstation Edition)", Version ID: "26",
-.br
   UTS release pattern: "fc26",
-.br
   Kernel pattern: "/kernel-%{version}", Initramfs pattern: "/initramfs-%{version}.img",
-.br
   Root options (LVM2): "rd.lvm.lv=%{lvm_root_lv}",
-.br
   Root options (BTRFS): "rootflags=%{btrfs_subvolume}",
-.br
   Options: "root=%{root_device} ro %{root_opts}"
+.EE
 .P
 Create a new boot entry for a specific OS profile and version
-.br
-#
-.B boom profile list --short-name rhel
-.br
-OsID    Name                            OsVersion
-.br
-3fc389b Red Hat Enterprise Linux Server 7.2 (Maipo)
-.br
-98c3edb Red Hat Enterprise Linux Server 6 (Server)
-.br
-c0b921e Red Hat Enterprise Linux Server 7 (Server)
 .P
-#
-.B boom create --profile 3fc389b --title \(dqRHEL7 snapshot\(dq --version 3.10-272.el7 --root-lv vg00/lvol0-snap
-.br
+.EX
+# boom profile list --short-name rhel
+OsID    Name                            OsVersion
+3fc389b Red Hat Enterprise Linux Server 7.2 (Maipo)
+98c3edb Red Hat Enterprise Linux Server 6 (Server)
+c0b921e Red Hat Enterprise Linux Server 7 (Server)
+.EE
+.P
+.EX
+# boom create --profile 3fc389b --title \(dqRHEL7 snapshot\(dq --version 3.10-272.el7 --root-lv vg00/lvol0-snap
 Created entry with boot_id a5aef11:
-.br
 title RHEL7 snapshot
-.br
 machine-id 611f38fd887d41dea7eb3403b2730a76
-.br
 version 3.10-272.el7
-.br
 linux /boot/vmlinuz-3.10-272.el7
-.br
 initrd /boot/initramfs-3.10-272.el7.img
-.br
 options root=/dev/vg00/lvol0-snap ro rd.lvm.lv=vg00/lvol0-snap rhgb quiet
+.EE
 .P
 Create a new boot entry for the running system, changing only the root logical volume
-.br
-#
-.B boom create --title Snap1 --root-lv vg00/lvol0-snap1
-.br
+.P
+.EX
+# boom create --title Snap1 --root-lv vg00/lvol0-snap1
 Created entry with boot_id e077490:
-.br
   title Snap1
-.br
   machine-id 611f38fd887d41dea7eb3403b2730a76
-.br
   version 4.13.13-200.fc26.x86_64
-.br
   linux /vmlinuz-4.13.13-200.fc26.x86_64
-.br
   initrd /initramfs-4.13.13-200.fc26.x86_64.img
-.br
   options BOOT_IMAGE=/vmlinuz-4.13.13-200.fc26.x86_64 root=/dev/vg00/lvol0-snap1 ro rd.lvm.lv=vg00/lvol0-snap1
+.EE
 .P
 Delete an entry by its boot identifier
-.br
-#
-.B boom delete --boot-id e077490
-.br
+.P
+.EX
+# boom delete --boot-id e077490
 Deleted 1 entry
+.EE
 .P
 Delete all entries for the Fedora 24 OS profile
-.br
+.P
+.EX
 # boom delete --name Fedora --os-version-id 24
 Deleted 4 entries
+.EE
 .P
 .SH AUTHORS
 .
