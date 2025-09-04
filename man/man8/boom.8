@@ -31,35 +31,33 @@ Boom \(em linux boot manager
 .
 .SH SYNOPSIS
 .
-.PD 0
-.HP
 .B boom
 .de CMD_COMMAND
 .  ARG_CMD_TYPES
 .  ARG_COMMANDS
 ..
 .CMD_COMMAND
+.br
 .
-.
-.HP
 .B boom
 .de CMD_LEGACY_COMMAND
 .  ARG_LEGACY_TYPES
 .  ARG_LEGACY_COMMAND
 ..
 .CMD_LEGACY_COMMAND
+.br
 .
-.
-.HP
 .B boom
 .de CMD_CACHE_COMMAND
 .  ARG_CACHE_TYPES
 .  ARG_CACHE_COMMAND
 ..
 .CMD_CACHE_COMMAND
+.br
 .
+.br
+.P
 .
-.HP
 .B boom
 .de CMD_ENTRY_CREATE
 .  BR entry
@@ -91,8 +89,8 @@ Boom \(em linux boot manager
 .  IR swap ]
 ..
 .CMD_ENTRY_CREATE
+.br
 .
-.HP
 .B boom
 .de CMD_ENTRY_DELETE
 .  BR entry
@@ -106,8 +104,8 @@ Boom \(em linux boot manager
 .  IR version ]
 ..
 .CMD_ENTRY_DELETE
+.br
 .
-.HP
 .B boom
 .de CMD_ENTRY_CLONE
 .  BR entry
@@ -142,8 +140,8 @@ Boom \(em linux boot manager
 .  IR swap ]
 ..
 .CMD_ENTRY_CLONE
+.br
 .
-.HP
 .B boom
 .de CMD_ENTRY_LIST
 .  BR entry
@@ -182,8 +180,8 @@ Boom \(em linux boot manager
 .  IR separator ]
 ..
 .CMD_ENTRY_LIST
+.br
 .
-.HP
 .B boom
 .de CMD_ENTRY_SHOW
 .  BR entry
@@ -209,9 +207,9 @@ Boom \(em linux boot manager
 .  IR subvol ]
 ..
 .CMD_ENTRY_SHOW
+.br
+.P
 .
-.
-.HP
 .B boom
 .de CMD_PROFILE_CREATE
 .  BR profile
@@ -237,8 +235,8 @@ Boom \(em linux boot manager
 .  IR os_options ]
 ..
 .CMD_PROFILE_CREATE
+.br
 .
-.HP
 .B boom
 .de CMD_PROFILE_DELETE
 .  BR profile
@@ -267,8 +265,8 @@ Boom \(em linux boot manager
 .  IR os_options ]
 ..
 .CMD_PROFILE_DELETE
+.br
 .
-.HP
 .B boom
 .de CMD_PROFILE_CLONE
 .  BR profile
@@ -297,8 +295,8 @@ Boom \(em linux boot manager
 .  IR os_options ]
 ..
 .CMD_PROFILE_CLONE
+.br
 .
-.HP
 .B boom
 .de CMD_PROFILE_LIST
 .  BR profile
@@ -325,8 +323,8 @@ Boom \(em linux boot manager
 .  IR separator ]
 ..
 .CMD_PROFILE_LIST
+.br
 .
-.HP
 .B boom
 .de CMD_PROFILE_SHOW
 .  BR profile
@@ -344,9 +342,9 @@ Boom \(em linux boot manager
 .  IR version ]
 ..
 .CMD_PROFILE_SHOW
+.br
+.P
 .
-.
-.HP
 .B boom
 .de CMD_HOST_CREATE
 .  BR host
@@ -371,8 +369,8 @@ Boom \(em linux boot manager
 .  IR os_options ]
 ..
 .CMD_HOST_CREATE
+.br
 .
-.HP
 .B boom
 .de CMD_HOST_DELETE
 .  BR host
@@ -382,8 +380,8 @@ Boom \(em linux boot manager
 .  IR host_id ]
 ..
 .CMD_HOST_DELETE
+.br
 .
-.HP
 .B boom
 .de CMD_HOST_CLONE
 .  BR host
@@ -411,8 +409,8 @@ Boom \(em linux boot manager
 .  IR os_options ]
 ..
 .CMD_HOST_CLONE
+.br
 .
-.HP
 .B boom
 .de CMD_HOST_EDIT
 .  BR host
@@ -440,8 +438,8 @@ Boom \(em linux boot manager
 .  IR os_options ]
 ..
 .CMD_HOST_EDIT
+.br
 .
-.HP
 .B boom
 .de CMD_HOST_LIST
 .  BR host
@@ -478,8 +476,8 @@ Boom \(em linux boot manager
 .  IR separator ]
 ..
 .CMD_HOST_LIST
+.br
 .
-.HP
 .B boom
 .de CMD_HOST_SHOW
 .  BR host
@@ -497,9 +495,9 @@ Boom \(em linux boot manager
 .  IR version ]
 ..
 .CMD_HOST_SHOW
+.br
+.P
 .
-.
-.HP
 .B boom
 .de CMD_LEGACY_WRITE
 .  BR legacy
@@ -529,16 +527,16 @@ Boom \(em linux boot manager
 .  IR subvol ]
 ..
 .CMD_LEGACY_WRITE
+.br
 .
-.HP
 .B boom
 .de CMD_LEGACY_CLEAR
 .  BR legacy
 .  BR \fBclear
 ..
 .CMD_LEGACY_CLEAR
+.br
 .
-.HP
 .B boom
 .de CMD_LEGACY_SHOW
 .  BR legacy
@@ -568,9 +566,9 @@ Boom \(em linux boot manager
 .  IR subvol ]
 ..
 .CMD_LEGACY_SHOW
+.br
+.P
 .
-.
-.HP
 .B boom
 .de CMD_CACHE_LIST
 .  BR cache
@@ -593,8 +591,8 @@ Boom \(em linux boot manager
 .  IR separator ]
 ..
 .CMD_CACHE_LIST
+.br
 .
-.HP
 .B boom
 .de CMD_CACHE_SHOW
 .  BR cache
@@ -608,21 +606,16 @@ Boom \(em linux boot manager
 .  IR initrd_path ]
 ..
 .CMD_CACHE_SHOW
+.br
+.P
 .
-.
-.HP
 .B boom
 .de CMD_CONFIG_CREATE
-. ad l
 .BR config
 .BR \fBcreate
-. ad b
 ..
 .CMD_CONFIG_CREATE
-.
-.
-.PD
-.ad b
+.br
 .
 .SH DESCRIPTION
 .
