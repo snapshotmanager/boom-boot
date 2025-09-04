@@ -907,47 +907,47 @@ subcommand.
 .
 .SS Boot Entry Commands
 .
-.HP
+.TP 5
 .B boom
 .CMD_ENTRY_CREATE
 .br
 Create a new boot entry using the specified values.
-.P
+.IP
 The title of the new entry must be set with the \fB--title\fP option.
-.P
+.IP
 The kernel version for the new entry is given with \fB--version\fP.
 If \fB--version\fP is not present the version is assumed to be that
 of the currently running kernel.
-.P
+.IP
 If \fB--profile\fP is given, it specifies the OS identifier of an
 existing OS profile to use for the new entry. If \fB--profile\fP is
 not given, and a profile exists that matches either the supplied
 or detected version then that profile will be automatically used.
-.P
+.IP
 The \fImachine-id\fP of the new entry is automatically set to the
 current machine-id (read from /etc/machine-id) unless this is
 overridden by the \fB--machine-id\fP switch.
-.P
+.IP
 A root device may be explicitly specified with the \fB--root-device\fP
 option or if an LVM2 logical volume is used this may be specified
 with \fB--root-lv\fP: in this case the root device is assumed to be
 the normal device path of the specified logical volume.
-.P
+.IP
 A BTRFS subvolume may be set by either the subvolume path or subvolume
 identifier using the \fB--btrfs-subvol\fP option.
-.P
+.IP
 Additional boot options not defined by the corresponding \fBOsProfile\fP
 templates may be specified with \fB--add-opts\fP. Options may also be
 removed from the entry using \fB--del-opts\fP (for example to disable
 graphical boot or the "quiet" flag for a particular entry).
-.P
+.IP
 If \fB--backup\fP is given a backup is made of the boot images (vmlinuz
 and initramfs) used by the boot entry and the new entry will use the
 backup paths instead of the original image paths. By default if an
 existing backup image is present it will be re-used instead of using the
 latest matching image found in the boot directory. This behaviour can be
 overridden by using the \fB--update\fP option.
-.P
+.IP
 The newly created entry and its boot identifier are printed to the
 terminal on success:
 .br
@@ -969,7 +969,7 @@ Created entry with boot_id 14d6b6e:
   options BOOT_IMAGE=/vmlinuz-4.13.5-200.fc26.x86_64 root=/dev/vg00/lvol0 ro rd.lvm.lv=vg00/lvol0 rhgb quiet
 .br
 .
-.HP
+.TP 5
 .B boom
 .CMD_ENTRY_DELETE
 .br
@@ -977,64 +977,64 @@ Delete the specified boot entry. The entry to delete may be specified
 either by its \fBboot identifier\fP, in which case at most one entry
 will be removed, or by specifying selection criteria which may match
 (and remove) multiple entries in a single operation.
-.P
+.IP
 For example, by giving \fB--version\fP, all entries matching the
 specified kernel version can be removed at once.
-.P
+.IP
 On success the number of entries removed is printed to the terminal.
 If the \fB--verbose\fP option is given then a report of the entries
 removed will also be displayed.
 .
-.HP
+.TP 5
 .B boom
 .CMD_ENTRY_CLONE
 .br
 Clone an existing boot entry and modify its configuration.
-.P
+.IP
 The entry to clone must be specified by its \fBboot identifier\fP.
 Any remaining command line arguments are taken to be modifications
 to the original entry.
-.P
+.IP
 If \fB--backup\fP is given a backup is made of the boot images (vmlinuz
 and initramfs) used by the boot entry and the new entry will use the
 backup paths instead of the original image paths. By default if an
 existing backup image is present it will be re-used instead of using the
 latest matching image found in the boot directory. This behaviour can be
 overridden by using the \fB--update\fP option.
-.P
+.IP
 On success the new entry and its boot identifier are printed to the
 terminal.
 .
-.HP
+.TP 5
 .B boom
 .CMD_ENTRY_LIST
 .br
 Output a tabular report of boot entries.
-.P
+.IP
 Displays a report with one boot entry per line, containing fields
 describing the properties of the configured boot entries.
-.P
+.IP
 The list of fields to display is given with \fB--options\fP as a
 comma separated list of field names. To obtain a list of available
 fields run '\fBboom list -o help\fP'. If the list of fields begins
 with the '\fB+\fP' character the specified fields are appended to
 the default field list. Otherwise the given list of fields replaces
 the default set of report fields.
-.P
+.IP
 Report output may be sorted by multiple user-defined keys using
 the \fB--sort\fP option. The option expects a comma separated list
 of keys, with optional '\fB+\fP' and '\fB-\fP' prefixes indicating
 ascending and descending sort for that field respectively.
 .
-.HP
+.TP 5
 .B boom
 .CMD_ENTRY_SHOW
 .br
 Display boot entries matching selection criteria on standard out.
-.P
+.IP
 Boot entries matching the criteria given on the command line are
 printed to the terminal in boot loader entry format.
-.P
+.IP
 If \fB--expand-variables\fP is given then any bootloader
 environment variables in the output will be replaced with their
 current values, for example the $kernelopts variable that some
@@ -1042,103 +1042,103 @@ distributions configure to store the kernel command line.
 .
 .SS OS Profile Commands
 .
-.HP
+.TP 5
 .B boom
 .CMD_PROFILE_CREATE
 .br
 Create a new OS profile using the specified values.
-.P
+.IP
 A new OS profile can be created either by specifying required values
 on the \fBboom\fP command line, or by reading data from either the
 hosts's \fIos-release\fP file (at /etc/os-release), or from another
 file in \fIos-release\fP format specified on the command line.
-.P
+.IP
 The information read from \fIos-release\fP (or equivalent command line
 options) form the profile's identity and are the basis for the profile
 OS identifier.
-.P
+.IP
 In addition to the \fIos-release\fP data a new OS profile requires
 a uname version string pattern to match, and template values used to
 construct boot entries.
-.P
+.IP
 The uname pattern must be given on the \fBprofile create\fP command
 line and is a regular expression matching the UTS release
 (\fBuname -r\fP) values reported by that distribution. The pattern is
 only used to attempt to match unknown boot entries to a valid OS
 profile: for example entries that have been manually edited, or that
 were created by another tool.
-.P
+.IP
 The \fBboom\fP command provides default templates that are suitable
 for most Linux distributions. Alternately, these values may be set
 on the command line at the time of profile creation, or modified using
 the \fBboom\fP program at a later time.
-.P
+.IP
 To create a profile for the currently running host, use the
 \fB--from-host\fP switch.
-.P
+.IP
 To create a profile from a saved \fIos-release\fP file use the
 \fB--os-release\fP optiona and give the path to the file to be used.
 .
-.HP
+.TP 5
 .B boom
 .CMD_PROFILE_DELETE
 .br
 Delete the specified Os profile or profiles.
-.P
+.IP
 Delete all OS profiles matching the provided selection criteria. If
 the \fB--profile\fP option is used to specify an OS identifier then
 at most one profile will be removed.
-.P
+.IP
 On success the number of profiles removed is printed to the terminal.
 If the \fB--verbose\fP option is given then a report of the profiles
 removed will also be displayed.
 .
-.HP
+.TP 5
 .B boom
 .CMD_PROFILE_CLONE
 .br
 Clone an existing OS profile and modify its configuration.
-.P
+.IP
 The entry to clone must be specified by its \fBOS identifier\fP.
 Any remaining command line arguments are taken to be modifications
 to the original entry.
-.P
+.IP
 On success the new entry and its OS identifier are printed to the
 terminal.
 .
-.HP
+.TP 5
 .B boom
 .CMD_PROFILE_LIST
 .br
 Output a tabular report of OS profiles.
-.P
+.IP
 Displays a report with one OS profile per line, containing fields
 describing the properties of the configured OS profiles.
-.P
+.IP
 The list of fields to display is given with \fB--options\fP as a
 comma separated list of field names. To obtain a list of available
 fields run '\fBboom list -o help\fP'. If the list of fields begins
 with the '\fB+\fP' character the specified fields are appended to
 the default field list. Otherwise the given list of fields replaces
 the default set of report fields.
-.P
+.IP
 Report output may be sorted by multiple user-defined keys using
 the \fB--sort\fP option. The option expects a comma separated list
 of keys, with optional '\fB+\fP' and '\fB-\fP' prefixes indicating
 ascending and descending sort for that field respectively.
 .
-.HP
+.TP 5
 .B boom
 .CMD_PROFILE_SHOW
 .br
 Display OS profiles matching selection criteria on standard out.
-.P
+.IP
 OS profiles matching the criteria given on the command line are
 printed to the terminal in a compact multi-line format.
 .
 .SS Host Profile Commands
 .
-.HP
+.TP 5
 .B boom
 .CMD_HOST_CREATE
 .br
@@ -1146,75 +1146,76 @@ Create a new host profile for the specified \fBmachine_id\fP and using
 the given profile option arguments. Any \fBOS Profile\fP keys that are
 given values will override the values in the underlying profile.
 .
-.HP
+.TP 5
 .B boom
 .CMD_HOST_DELETE
 .br
 Delete the specified host profile or profiles.
-.P
+.IP
 Delete all host profiles matching the provided selection criteria. If
 the \fB--host-profile\fP option is used to specify an host identifier
 then at most one profile will be removed.
-.P
+.IP
 On success the number of profiles removed is printed to the terminal.
 If the \fB--verbose\fP option is given then a report of the profiles
 removed will also be displayed.
 .
-.HP
+.TP 5
 .B boom
 .CMD_HOST_CLONE
 .br
 Clone an existing host profile and modify its configuration.
-.P
+.IP
 The entry to clone must be specified by its \fBhost identifier\fP.
 Any remaining command line arguments are taken to be modifications
 to the original entry.
-.P
+.IP
 On success the new entry and its host identifier are printed to the
 terminal.
 .
-.HP
+.TP 5
 .B boom
 .CMD_HOST_EDIT
 .br
 Edit an existing host profile and modify its configuration.
-.P
+.IP
 The entry to edit must be specified by its \fBhost identifier\fP.
 Any remaining command line arguments are taken to be modifications
 to the original profile.
-.P
+.IP
 On success the new profile and its host identifier are printed to the
 terminal.
 .
-.HP
+.TP 5
 .B boom
 .CMD_HOST_LIST .
+.br
 Output a tabular report of host profiles.
-.P
+.IP
 Displays a report with one host profile per line, containing fields
 describing the properties of the configured host profiles.
-.P
+.IP
 The list of fields to display is given with \fB--options\fP as a comma
 separated list of field names. To obtain a list of available fields run
 \&'\fBboom host list -o help\fP'. If the list of fields begins with the
 \&'\fB+\fP' character the specified fields are appended to the default
 field list. Otherwise the given list of fields replaces the default set
 of report fields.
-.P
+.IP
 Report output may be sorted by multiple user-defined keys using
 the \fB--sort\fP option. The option expects a comma separated list
 of keys, with optional '\fB+\fP' and '\fB-\fP' prefixes indicating
 ascending and descending sort for that field respectively.
-.HP
+.TP 5
 .B boom
 .CMD_HOST_SHOW
 .br
 Display host profiles matching selection criteria on standard out.
-.P
+.IP
 Host profiles matching the criteria given on the command line are
 printed to the terminal in a compact multi-line format.
-.P
-.SH LEGACY BOOTLOADER FORMATS
+.IP
+.SS Legacy bootloader commands
 Boom is able to write the current set of boot entries into the
 configuration file of a legacy boot loader installed on the
 system. This may be used either on platforms that do not have
@@ -1227,7 +1228,7 @@ automatically when present).
 Legacy support is enabled and configured via the \fBboom.conf(5)\fP
 configuration file.
 .
-.HP
+.TP 5
 .B boom
 .CMD_LEGACY_WRITE
 .br
@@ -1236,64 +1237,65 @@ legacy configuration file. The normal command line selection
 options may be used to control the set of entries written to the
 file.
 .
-.HP
+.TP 5
 .B boom
 .CMD_LEGACY_CLEAR
 .br
 Remove all Boom boot entries from the configured legacy
 configuration file.
 .
-.HP
+.TP 5
 .B boom
 .CMD_LEGACY_SHOW
+.br
 Display the selected boot entries as they would appear in the
 configured legacy boot loader format. The normal command line
 selection options may be used to control the set of entries
 written to the terminal.
 .P
-.SH BOOT IMAGE CACHE
+.SS Boot image cache commands
 Boom can optionally cache or back up the images used by a boom
 BootEntry. This allows an entry to be booted in the case that a
 subsequent update has removed the original kernel and initramfs
 images and can be used to recover an earlier system state from
 a snapshot following even major operating system updates.
 .
-.HP
+.TP 5
 .B boom
 .CMD_CACHE_LIST
 .br
 Output a tabular report of paths present in the boot image cache.
-.P
+.IP
 Displays a report with one cache entry per line, containing fields
 describing the properties of the cache entry.
-.P
+.IP
 The list of fields to display is given with \fB--options\fP as a comma
 separated list of field names. To obtain a list of available fields run
 '\fBboom host list -o help\fP'. If the list of fields begins with the
 '\fB+\fP' character the specified fields are appended to the default
 field list. Otherwise the given list of fields replaces the default set
 of report fields.
-.P
+.IP
 Report output may be sorted by multiple user-defined keys using
 the \fB--sort\fP option. The option expects a comma separated list
 of keys, with optional '\fB+\fP' and '\fB-\fP' prefixes indicating
 ascending and descending sort for that field respectively.
 .
-.HP
+.TP 5
 .B boom
 .CMD_CACHE_SHOW
 .br
 Display matching cache entries on standard output.
-.P
+.IP
 Entries matching selection criteria are printed in a compact multi-line
 format.
 .
-.HP
+.TP 5
 .B boom
 .CMD_CONFIG_CREATE
 .br
 Create a default configuration in /boot.
-.P
+.IP
 Set up /boot/boom if configuration files were not provided with the
 \fBboom\fP package.
 .
