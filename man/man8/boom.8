@@ -639,255 +639,225 @@ are synonymous.
 .
 .SH OPTIONS
 .
-.HP
-.BR -a | --add-opts
-.IR opts
+.TP 8
+\fB-a | --add-opts\fP \fIopts\fP
 .br
 Specify additional boot options for this entry.
 .
-.HP
-.BR -d | --del-opts
-.IR opts
+.TP 8
+\fB-d | --del-opts\fP \fIopts\fP
 .br
 Specify boot options to exclude from this entry.
 .
-.HP
-.BR --backup
+.TP 8
+.B --backup
 .br
 Back up boot images used for this entry.
 .
-.HP
-.BR -b | --boot-id | --bootid
-.IR boot_id
+.TP 8
+\fB-b | --boot-id | --bootid\fP \fIboot_id\fP
 .br
 Specify a boot identifier to operate on.
 .
-.HP
-.BR --boot-dir | --bootdir
-.IR path
+.TP 8
+\fB--boot-dir | --bootdir\fP \fIpath\fP
 .br
 Specify the location of the /boot file system. Useful for testing or
 for accessing boom data from a system image.
 .
-.HP
-.BR -B | --btrfs-subvolme | --btrfssubvolume
-.RI [ subvol_path | subvol_id ]
+.TP 8
+\fB-B | --btrfs-subvolume | --btrfssubvolume\fP \fIsubvol_path | subvol_id\fP
 .br
 Specify a BTRFS subvolume by its path or identifier.
 .br
-.HP
-.BR --btrfs-opts | --btrfsopts
-.IR btrfs_options_template
+.TP 8
+\fB--btrfs-opts | --btrfsopts\fP \fIbtrfs_options_template\fP
 .br
 An OS profile template string for BTRFS boot options.
 .
-.HP
-.BR --debug
-.IR debug_flags
+.TP 8
+\fB--debug\fP \fIdebug_flags\fP
 .br
 A comma-separated list of subsystem names to enable debugging output
 for, or 'all' to enable all debugging. The available debug classes
 are: profile, entry, command, report.
 .
-.HP
-.BR -e | --efi
-.IR efi_image
+.TP 8
+\fB-e | --efi\fP \fIefi_image\fP
 .br
 Specify an EFI application image for a boot entry.
 .
-.HP
-.BR -E | --expand-variables
+.TP 8
+.B -E | --expand-variables
 .br
 Expand bootloader variables in command output.
 .
-.HP
-.BR -H | --from-host | --fromhost
+.TP 8
+.B -H | --from-host | --fromhost
 .br
 When creating a new OS profile, use \fIos-release\fP data from the
 running host.
 .
-.HP
-.BR -P | --host-profile
+.TP 8
+\fB-P | --host-profile\fP \fIprofile\fP
 .br
 Use the specified host profile for search or create operations.
 .
-.HP
-.BR -i | --initrd
-.IR image_path
+.TP 8
+\fB-i | --initrd\fP \fIimage_path\fP
 .br
 A Linux initial ramfs image path.
 .
-.HP
-.BR -k | --kernel-pattern | --kernelpattern
-.IR pattern
+.TP 8
+\fB-k | --kernel-pattern | --kernelpattern\fP \fIpattern\fP
 .br
 An OS profile template used to generate kernel image paths.
 .
-.HP
-.BR -l | --linux
-.IR image_path
+.TP 8
+\fB-l | --linux\fP \fIimage_path\fP
 .br
 A Linux kernel image path.
 .
-.HP
-.BR -L | --root-lv | --rootlv
-.IR root_lv
+.TP 8
+\fB-L | --root-lv | --rootlv\fP \fIroot_lv\fP
 .br
 The logical volume containing the root file system for a boot entry.
 If \fB--root-lv\fP is given, but \fB--root-device\fP is not, the root
 device is assumed to be the specified logical volume.
 .
-.HP
-.BR --lvm-opts
-.IR lvm_opts
+.TP 8
+\fB--lvm-opts\fP \fIlvm_opts\fP
 .br
 An OS profile template used to generate LVM2 boot options.
 .
-.HP
-.BR -m | --machine-id | --machineid
-.IR machine_id
+.TP 8
+\fB-m | --machine-id | --machineid\fP \fImachine_id\fP
 .br
 .
-.HP
-.BR -M | --mount
-.IR what:where:fstype:options
+.TP 8
+\fB-M | --mount\fP \fIwhat:where:fstype:options\fP
 .br
 Specify a command-line file system mount for the boot entry.
 .
-.HP
-.BR -n | --name
-.IR os_name
+.TP 8
+\fB-n | --name\fP \fIos_name\fP
 .br
 The name of a boom operating system profile.
 .
-.HP
-.BR --name-prefixes | --nameprefixes
+.TP 8
+.B --name-prefixes | --nameprefixes
 .br
 Add a prefix to report field output names.
 .
-.HP
-.BR --no-fstab
+.TP 8
+.B --no-fstab
 .br
 Disable processing of /etc/fstab for the boot entry.
 .
-.HP
-.BR --no-headings | --noheadings
+.TP 8
+.B --no-headings | --noheadings
 .br
 Suppress output of report headings.
 .
-.HP
-.BR -o | --options
-.IR field_list
+.TP 8
+\fB-o | --options\fP \fIfield_list\fP
 .br
 Specify which fields to display.
 .
-.HP
-.BR --os-version
+.TP 8
+\fB--os-version\fP \fIos_version\fP
 .br
 The version string of a boom operating system profile.
 .
-.HP
-.BR -O | --sort
-.IR key_list
+.TP 8
+\fB-O | --sort\fP \fIkey_list\fP
 .br
 A comma-separated list of sort keys (field names), with an optional
 per-field prefix of \fB+\fP or \fB-\fP to force ascending or
 descending sort order respectively for that field.
 .
-.HP
-.BR -I | --os-version-id | --osversionid
-.IR os_version_id
+.TP 8
+\fB-I | --os-version-id | --osversionid\fP \fIos_version_id\fP
 .br
 A boom operating system profile version identifier.
 .
-.HP
-.BR --os-options | --osoptions
-.IR options_template
+.TP 8
+\fB--os-options | --osoptions\fP \fIoptions_template\fP
 .br
 An operating system profile template string used to generate the
 kernel command line options string.
 .
-.HP
-.BR --os-release | --osrelease
-.IR os_release_path
+.TP 8
+\fB--os-release | --osrelease\fP \fIos_release_path\fP
 .br
 A path to a file in \fIos-release(5)\fP from which to create a new
 operating system profile.
 .
-.HP
-.BR -p | --profile
-.IR os_id
+.TP 8
+\fB-p | --profile\fP \fIos_id\fP
 .br
 The operating system identifier (\fIos_id\fP) of a boom operating
 system profile to use for the current operation. Defaults to the
 OS profile of the running system if absent.
 .
-.HP
-.BR -r | --root-device | --rootdevice
-.IR root_dev
+.TP 8
+\fB-r | --root-device | --rootdevice\fP \fIroot_dev\fP
 .br
 The system root device for a new boot entry.
 .
-.HP
-.BR -R | --initramfs-pattern | --initramfspattern
-.IR initramfs_pattern
+.TP 8
+\fB-R | --initramfs-pattern | --initramfspattern\fP \fIinitramfs_pattern\fP
 .br
 An OS profile template used to generate initial ramfs image paths.
 .
-.HP
-.BR --rows
+.TP 8
+.B --rows
 .br
 Output report columns as rows.
 .
-.HP
-.BR --json
+.TP
+.B --json
 .br
 Output reports in JSON notation
 .
-.HP
-.BR --separator
-.IR separator
+.TP
+\fB--separator\fP \fIseparator\fP
 .br
 Report field separator
 .
-.HP
-.BR -s | --short-name | --shortname
-.IR short_name
+.TP
+\fB-s | --short-name | --shortname\fP \fIshort_name\fP
 The short name of a boom operating system profile.
 .
-.HP
-.BR --swap
-.IR what:options
+.TP
+\fB--swap\fP \fIwhat:options\fP
 .br
 Specify a command-line swap configuration for the boot entry.
 .
-.HP
-.BR -t | --title
-.IR entry_title
+.TP
+\fB-t | --title\fP \fIentry_title\fP
 .br
 The title for a new boot entry.
 .
-.HP
-.BR -u | --uname-pattern | --unamepattern
-.IR uname_pattern
+.TP
+\fB-u | --uname-pattern | --unamepattern\fP \fIuname_pattern\fP
 .br
 An uname pattern to match for an operating system profile.
 .
-.HP
-.BR --update
+.TP
+.B --update
 .br
 When used with \fB--backup\fP update the backup image to the current
 version found in the boot directory.
 .
-.HP
-.BR -V | --verbose
+.TP
+.B -V | --verbose
 .br
 Increase verbosity level. Specify multiple times, or set additional
 debug classed with \fB--debug\fP to enable more verbose messages.
 .
-.HP
-.BR -v | --version
-.IR version
+.TP
+\fB-v | --version\fP \fIversion\fP
 .br
 The kernel version of a boom boot entry.
 .
