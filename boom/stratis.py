@@ -49,7 +49,7 @@ _STRATISD_TIMEOUT = 120000
 _DBUS_OBJECT_MANAGER_IFACE = "org.freedesktop.DBus.ObjectManager"
 
 
-def pool_name_to_pool_uuid(pool_name: str) -> str:
+def pool_name_to_pool_uuid(pool_name: str) -> str:  # pragma: no cover
     """Return the UUID of the pool named ``pool_name`` as a string.
 
     :param pool_name: The name of the Stratis pool.
