@@ -47,4 +47,18 @@ class MountsHelperTests(unittest.TestCase):
         with self.assertRaises(BoomMountError):
             parse_mount_units(mount_list)
 
+    def test_parse_swap_units(self):
+        swap_list = ["/dev/test/var:defaults", "/dev/sda5:pri=1"]
+        xswap_str = ["systemd.swap-extra=/dev/test/var:defaults",
+                     "systemd.swap-extra=/dev/sda5:pri=1"]
+        for swap, xswap in zip(swap_list, xswap_str):
+            self.assertEqual(parse_swap_units([swap]), [xswap])
+
+    def test_parse_swap_units_bad_spec(self):
+        swap_list = ["foobar", ":foobar", "/dev/rhel/root:"]
+        for swap in swap_list:
+            with self.subTest(swap=swap):
+                with self.assertRaises(BoomMountError):
+                    parse_swap_units([swap])
+
 # vim: set et ts=4 sw=4 :
