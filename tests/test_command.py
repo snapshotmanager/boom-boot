@@ -278,6 +278,41 @@ class CommandHelperTests(unittest.TestCase):
         _optional_key_to_arg = boom.command._optional_key_to_arg
         self.assertEqual(_optional_key_to_arg("INVALID_KEY"), None)
 
+    def test__apply_btrfs_subvol_exclusive(self):
+        combinations = (
+            (None, None),
+            ("root", None),
+            (None, "123"),
+        )
+
+        bad_combinations = (("root", "123"),)
+
+        class MockBootParams:
+            def __init__(self, btrfs_subvol_path, btrfs_subvol_id):
+                self.btrfs_subvol_path = btrfs_subvol_path
+                self.btrfs_subvol_id = btrfs_subvol_id
+
+        for sv_path, sv_id in combinations:
+            with self.subTest(path=sv_path, id=sv_id):
+                bp = MockBootParams(None, None)
+                boom.command._apply_btrfs_subvol_exclusive(bp, sv_path, sv_id)
+                if sv_path:
+                    self.assertEqual(sv_path, bp.btrfs_subvol_path)
+                    self.assertIsNone(bp.btrfs_subvol_id)
+                if sv_id:
+                    self.assertEqual(sv_id, bp.btrfs_subvol_id)
+                    self.assertIsNone(bp.btrfs_subvol_path)
+                self.assertFalse(sv_id and sv_path)
+                if sv_path is None and sv_id is None:
+                    self.assertIsNone(bp.btrfs_subvol_path)
+                    self.assertIsNone(bp.btrfs_subvol_id)
+
+        for sv_path, sv_id in bad_combinations:
+            with self.subTest(path=sv_path, id=sv_id):
+                bp = MockBootParams(None, None)
+                with self.assertRaises(ValueError):
+                    boom.command._apply_btrfs_subvol_exclusive(bp, sv_path, sv_id)
+
 
 # Default test OsProfile identifiers
 test_os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"
