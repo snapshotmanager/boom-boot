@@ -2585,6 +2585,17 @@ class CommandTests(unittest.TestCase):
         r = boom.command.main(args)
         self.assertEqual(r, 1)
 
+    def test_boom_main_config_create(self):
+        args = ["bin/boom", "config", "create"]
+        with TemporaryDirectory(dir="/var/tmp") as boot_dir:
+            args += ["--boot-dir", boot_dir]
+            r = boom.command.main(args)
+            self.assertEqual(r, 0)
+            self.assertTrue(exists(join(boot_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(boot_dir, "boom", "cache")))
+            self.assertTrue(exists(join(boot_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(boot_dir, "boom", "profiles")))
+
     def test_create_config(self):
         with TemporaryDirectory(dir="/var/tmp") as conf_dir:
             boom.command.create_config(boot_path=conf_dir)
