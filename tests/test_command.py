@@ -165,7 +165,7 @@ class CommandHelperTests(unittest.TestCase):
         all_masks = ",".join(debug_masks[:-1])
         boom.command.set_debug(all_masks)
 
-    def test_set_debug_no_debug_arg(self):
+    def test_set_debug_bad_debug_arg(self):
         """Test set_debug() with a bad debug mask argument.
         """
         import boom.command
