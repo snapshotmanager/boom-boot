@@ -1899,7 +1899,7 @@ class CommandTests(unittest.TestCase):
         args.no_dev = True
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._edit_cmd(args, None, opts, None)
-        self.assertNotEqual(r, 1)
+        self.assertEqual(r, 0)
 
     def test__edit_cmd_no_criteria(self):
         """Test the _edit_cmd() handler with no valid selection.
@@ -1917,6 +1917,19 @@ class CommandTests(unittest.TestCase):
         args = MockArgs()
         args.boot_id = "qux"
         args.title = "Something New"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._edit_cmd(args, None, opts, None)
+        self.assertEqual(r, 1)
+
+    def test__edit_cmd_no_dev(self):
+        """Test the _edit_cmd() handler with a valid entry and new
+            title but non-existent root device and no_dev=False.
+        """
+        args = MockArgs()
+        args.boot_id = "61bcc49"
+        args.title = "Something New"
+        # Disable device presence checks
+        args.no_dev = False
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._edit_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
