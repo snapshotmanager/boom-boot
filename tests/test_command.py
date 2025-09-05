@@ -699,6 +699,14 @@ class CommandTests(unittest.TestCase):
         be.delete_entry()
         self.assertFalse(exists(be._entry_path))
 
+    @unittest.skipIf(not have_root(), "requires root privileges")
+    def test_clone_entry_backup(self):
+        be = clone_entry(Selection(boot_id="9591d36"), title="NEWNEWTITLE",
+                         images=I_BACKUP, del_opts="rhgb quiet", allow_no_dev=True)
+        self.assertTrue(exists(be._entry_path))
+        be.delete_entry()
+        self.assertFalse(exists(be._entry_path))
+
     @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_clone_entry_del_opts_and_re_add(self):
         # Fedora 24 (Workstation Edition)
