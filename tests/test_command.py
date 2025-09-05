@@ -2459,6 +2459,7 @@ class CommandTests(unittest.TestCase):
     def test__list_cache_cmd(self):
         args = MockArgs()
         r = boom.command._list_cache_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
 
     def test__list_cache_cmd_with_sort_num(self):
         args = MockArgs()
@@ -2470,6 +2471,7 @@ class CommandTests(unittest.TestCase):
     def test__show_cache_cmd(self):
         args = MockArgs()
         r = boom.command._show_cache_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
 
     def test_boom_main_list(self):
         args = ['bin/boom', 'entry', 'list']
