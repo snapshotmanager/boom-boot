@@ -2465,7 +2465,7 @@ class BootEntry:
         try:
             rename(tmp_path, entry_path)
             chmod(entry_path, BOOT_ENTRY_MODE)
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             _log_error("Error writing entry file %s: %s", entry_path, e)
             try:
                 unlink(tmp_path)
