@@ -605,6 +605,9 @@ class BoomProfile:
         if not isinstance(key, str):
             raise TypeError(f"{ptype} key must be a string.")
 
+        if not isinstance(value, str):
+            raise TypeError(f"{ptype} value must be a string.")
+
         if self._profile_keys and key not in self._profile_keys:
             raise ValueError(f"Invalid {ptype} key: {key}")
 
