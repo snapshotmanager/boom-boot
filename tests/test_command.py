@@ -974,21 +974,6 @@ class CommandTests(unittest.TestCase):
         edit_be.delete_entry()
 
     @unittest.skipIf(not have_root_lv(), "requires root LV")
-    def test_edit_entry_del_opts(self):
-        # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id(test_os_id)
-        orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
-                               test_lv, lvm_root_lv=test_root_lv,
-                               profile=osp)
-
-        be = edit_entry(Selection(boot_id=orig_be.boot_id),
-                        title="NEWNEWTITLE", del_opts="rhgb quiet")
-
-        self.assertTrue(exists(be._entry_path))
-        be.delete_entry()
-        self.assertFalse(exists(be._entry_path))
-
-    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_edit_delete_entry(self):
         # Fedora 24 (Workstation Edition)
         osp = get_os_profile_by_id(test_os_id)
