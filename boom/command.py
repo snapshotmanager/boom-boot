@@ -2710,6 +2710,8 @@ def _set_optional_key_defaults(
 def _lv_from_device_string(dev_path: str) -> Optional[str]:
     """Return an LVM2 vg/lv name from a /dev/mapper device path."""
     if dev_path.startswith("/dev/mapper"):
+        if "-" not in dev_path:
+            return None
         vg_lv_name = basename(dev_path)
         vg_lv_name = re.sub(r"([^-])-([^-])", r"\1/\2", vg_lv_name)
         vg_lv_name = re.sub(r"--", r"-", vg_lv_name)
