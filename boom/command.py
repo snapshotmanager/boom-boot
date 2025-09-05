@@ -2866,7 +2866,7 @@ def _create_cmd(
     try:
         be.write_entry(expand=cmd_args.expand_variables)
         __write_legacy()
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         if cmd_args.debug:
             raise
         print(e)
@@ -3016,7 +3016,7 @@ def _clone_cmd(
     try:
         be.write_entry(expand=cmd_args.expand_variables)
         __write_legacy()
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         if cmd_args.debug:
             raise
         print(e)
@@ -3238,7 +3238,7 @@ def _edit_cmd(
     try:
         be.write_entry(expand=cmd_args.expand_variables)
         __write_legacy()
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         if cmd_args.debug:
             raise
         print(e)
