@@ -328,6 +328,30 @@ class CommandHelperTests(unittest.TestCase):
                 self.assertEqual(add_out, xadd)
                 self.assertEqual(del_out, xdel)
 
+    def test__lv_from_device_string_dev_mapper(self):
+        mapper_devs = (
+            ("/dev/mapper/vg-lv", "vg/lv"),
+            ("/dev/mapper/my--vg-my--lv", "my-vg/my-lv"),
+            ("/dev/mapper/mpatha", None),
+            ("/dev/mapper", None),
+            ("/brimful/of/asha", None),
+        )
+        for mapper, vg_lv in mapper_devs:
+            with self.subTest(mapper=mapper, vg_lv=vg_lv):
+                self.assertEqual(boom.command._lv_from_device_string(mapper), vg_lv)
+
+    def test__lv_from_device_string_dev_vg_lv(self):
+        vg_devs = (
+            ("/dev/vg/lv", "vg/lv"),
+            ("/dev/my-vg/my-lv", "my-vg/my-lv"),
+            ("/dev/my-vg", None),
+            ("/dev/mpatha", None),
+            ("/on/the/45", None),
+        )
+        for dev_vg_lv, vg_lv in vg_devs:
+            with self.subTest(dev_vg_lv=dev_vg_lv, vg_lv=vg_lv):
+                self.assertEqual(boom.command._lv_from_device_string(dev_vg_lv), vg_lv)
+
 
 # Default test OsProfile identifiers
 test_os_id = "9cb53ddda889d6285fd9ab985a4c47025884999f"
