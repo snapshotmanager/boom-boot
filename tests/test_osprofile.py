@@ -383,4 +383,52 @@ class OsProfileTests(unittest.TestCase):
         osps = find_profiles(Selection(os_initramfs_pattern="/initramfs-%{version}.img"))
         self.assertTrue(osps)
 
+    def test_OsProfile__setitem__(self):
+        rhel72_os_id = "9736c347ccb724368be04e51bb25687a361e535c"
+        os_options_rw = "root=%{root_device} rw %{root_opts}"
+        osp = find_profiles(selection=Selection(os_id=rhel72_os_id))[0]
+        osp[BOOM_OS_OPTIONS] = os_options_rw
+        self.assertEqual(osp.options, os_options_rw)
+
+    def test_OsProfile__setitem___bad_fmt_lvm2(self):
+        rhel72_os_id = "9736c347ccb724368be04e51bb25687a361e535c"
+        bad_fmt = "%{root_opts}"  # ROOT_OPTS_LVM2 cannot contain %{root_opts}
+        osp = find_profiles(selection=Selection(os_id=rhel72_os_id))[0]
+        with self.assertRaises(ValueError):
+            osp[BOOM_OS_ROOT_OPTS_LVM2] = bad_fmt
+
+    def test_OsProfile__setitem___bad_fmt_btrfs(self):
+        rhel72_os_id = "9736c347ccb724368be04e51bb25687a361e535c"
+        bad_fmt = "%{root_opts}"  # ROOT_OPTS_BTRFS cannot contain %{root_opts}
+        osp = find_profiles(selection=Selection(os_id=rhel72_os_id))[0]
+        with self.assertRaises(ValueError):
+            osp[BOOM_OS_ROOT_OPTS_BTRFS] = bad_fmt
+
+    def test_OsProfile__setitem___bad_type(self):
+        rhel72_os_id = "9736c347ccb724368be04e51bb25687a361e535c"
+        bad_key = 23  # OsProfile keys must be str
+        osp = find_profiles(selection=Selection(os_id=rhel72_os_id))[0]
+        with self.assertRaises(TypeError):
+            osp[bad_key] = "ISeeTroubleOnTheWay"
+
+    def test_OsProfile__setitem___bad_key(self):
+        rhel72_os_id = "9736c347ccb724368be04e51bb25687a361e535c"
+        bad_key = "BOOM_HOST_ADD_OPTS"  # OsProfile does not allow host keys
+        osp = find_profiles(selection=Selection(os_id=rhel72_os_id))[0]
+        with self.assertRaises(ValueError):
+            osp[bad_key] = "bad_value"
+
+    def test_OsProfile__setitem___bad_value(self):
+        rhel72_os_id = "9736c347ccb724368be04e51bb25687a361e535c"
+        osp = find_profiles(selection=Selection(os_id=rhel72_os_id))[0]
+        bad_value = 23
+        with self.assertRaises(TypeError):
+            osp[BOOM_OS_OPTIONS] = bad_value
+
+    def test_OsProfile__setitem___bad_options_missing_root(self):
+        rhel72_os_id = "9736c347ccb724368be04e51bb25687a361e535c"
+        osp = find_profiles(selection=Selection(os_id=rhel72_os_id))[0]
+        with self.assertRaises(ValueError):
+            osp[BOOM_OS_OPTIONS] = "rw %{root_opts}"
+
 # vim: set et ts=4 sw=4 :

@@ -605,11 +605,18 @@ class BoomProfile:
         if not isinstance(key, str):
             raise TypeError(f"{ptype} key must be a string.")
 
+        if not isinstance(value, str):
+            raise TypeError(f"{ptype} value must be a string.")
+
         if self._profile_keys and key not in self._profile_keys:
             raise ValueError(f"Invalid {ptype} key: {key}")
 
         if key in bad_key_map:
             _check_format_key_value(key, value, bad_key_map[key])
+
+        # Optional parity with property setter semantics
+        if key == BOOM_OS_OPTIONS and "root=" not in value:
+            raise ValueError("OsProfile.options must include root= device option")
 
         if self._profile_data:
             self._profile_data[key] = value
