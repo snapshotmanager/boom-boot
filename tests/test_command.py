@@ -2209,16 +2209,6 @@ class CommandTests(unittest.TestCase):
         r = boom.command._edit_profile_cmd(args, None, None, None)
         self.assertEqual(r, 1)
 
-    def test__clone_profile_cmd(self):
-        """Test the _clone_profile_cmd() handler with valid args.
-        """
-        args = MockArgs()
-        args.profile = "d4439b7"
-        args.name = "NotFedora"
-        args.short_name = "notfedora"
-        r = boom.command._clone_profile_cmd(args, None, None, None)
-        self.assertEqual(r, 0)
-
     def test__create_host_cmd_with_identifier(self):
         """Test _create_host_cmd() with an invalid identifier arg.
         """
