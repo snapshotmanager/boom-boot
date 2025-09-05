@@ -2560,6 +2560,14 @@ class CommandTests(unittest.TestCase):
         r = boom.command.main(args)
         self.assertEqual(r, 1)
 
+    def test_boom_main_create_entry_bad_optional_keys(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
+        args += ['--profile', '418203e']  # does not support grub_user
+        args += ['--version', '5.4.7-100.fc30.x86_64', '--root-lv', get_root_lv()]
+        args += ['--grub-users', 'JeremyBenthamAndFriends']
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
     def test_boom_main_missing_boom(self):
         args = ['bin/boom', 'list']
         shutil.rmtree(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom"))
