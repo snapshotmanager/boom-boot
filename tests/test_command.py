@@ -2596,6 +2596,12 @@ class CommandTests(unittest.TestCase):
         r = boom.command.main(args)
         self.assertEqual(r, 1)
 
+    def test_boom_main_missing_hosts(self):
+        args = ['bin/boom', 'list']
+        shutil.rmtree(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom", "hosts"))
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
     def test_boom_main_config_create(self):
         args = ["bin/boom", "config", "create"]
         with TemporaryDirectory(dir="/var/tmp") as boot_dir:
