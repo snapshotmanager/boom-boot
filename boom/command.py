@@ -19,7 +19,7 @@ object types and fields that may be of use in implementing custom
 reports using the ``boom.report`` module.
 """
 from os import environ, uname, getcwd, makedirs
-from os.path import basename, exists as path_exists, isabs, join, sep
+from os.path import basename, exists as path_exists, isabs, isdir, join, sep
 from typing import Any, Dict, Callable, List, Optional, Set, Tuple, Union
 from argparse import Namespace, ArgumentParser
 from stat import filemode
@@ -2625,6 +2625,10 @@ def create_config(boot_path: Optional[str] = None):
     bc = get_boom_config()
 
     if boot_path is not None:
+        if not path_exists(boot_path):
+            raise BoomConfigError(f"Specified boot_path not found: {boot_path}")
+        if not isdir(boot_path):
+            raise BoomConfigError(f"Specified boot_path is not a directory: {boot_path}")
         bc.boot_path = boot_path
         bc.boom_path = join(boot_path, "boom")
         bc.cache_path = join(bc.boom_path, "cache")
@@ -2632,12 +2636,13 @@ def create_config(boot_path: Optional[str] = None):
     _log_info("Creating default configuration in %s", bc.boot_path)
 
     if path_exists(join(bc.boom_path, BOOM_CONFIG_FILE)):
-        raise BoomConfigError(f"Boom configuration already present in {bc.boom_path}")
+        _log_warn(f"Boom configuration already present in {bc.boom_path}")
 
-    makedirs(bc.boom_path, mode=0o755)
+    makedirs(bc.boom_path, mode=0o755, exist_ok=True)
     for subdir in ["cache", "hosts", "profiles"]:
-        makedirs(join(bc.boom_path, subdir), mode=0o700)
+        makedirs(join(bc.boom_path, subdir), mode=0o700, exist_ok=True)
     write_boom_config(config=bc, path=join(bc.boot_path, "boom", "boom.conf"))
+    set_boom_path(bc.boom_path)
 
 
 #
