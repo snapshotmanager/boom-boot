@@ -1117,7 +1117,7 @@ def create_entry(
     :returns: a ``BootEntry`` object corresponding to the new entry.
     :rtype: ``BootEntry``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate entry exists, or ``OsError`` if an error
+             a duplicate entry exists, or ``OSError`` if an error
              occurs while writing the entry file.
     """
     if not profile:
@@ -1286,7 +1286,7 @@ def clone_entry(
     :returns: a ``BootEntry`` object corresponding to the new entry.
     :rtype: ``BootEntry``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate entry exists, or ``OsError`` if an error
+             a duplicate entry exists, or ``OSError`` if an error
              occurs while writing the entry file.
     """
     if not selection:
@@ -1839,7 +1839,7 @@ def create_profile(
     :returns: an ``OsProfile`` object for the new profile
     :rtype: ``OsProfile``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate profile exists, or ``OsError`` if an error
+             a duplicate profile exists, or ``OSError`` if an error
              occurs while writing the profile file.
     """
     profile_data = profile_data or {}
@@ -1982,7 +1982,7 @@ def clone_profile(
     :returns: a new ``OsProfile`` object.
     :rtype: ``OsProfile``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate profile exists, or ``OsError`` if an error
+             a duplicate profile exists, or ``OSError`` if an error
              occurs while writing the profile file.
     """
     if not selection:
@@ -2202,7 +2202,7 @@ def create_host(
     :returns: a ``HostProfile`` object for the new profile
     :rtype: ``HostProfile``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate profile exists, or ``OsError`` if an error
+             a duplicate profile exists, or ``OSError`` if an error
              occurs while writing the profile file.
     """
 
@@ -2318,7 +2318,7 @@ def clone_host(
     :returns: a new ``HostProfile`` object.
     :rtype: ``HostProfile``
     :raises: ``ValueError`` if either required values are missing or
-             a duplicate profile exists, or ``OsError`` if an error
+             a duplicate profile exists, or ``OSError`` if an error
              occurs while writing the profile file.
     """
     if not selection:

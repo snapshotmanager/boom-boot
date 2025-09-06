@@ -1199,7 +1199,7 @@ class HostProfile(BoomProfile):
 
         :param force: Force this profile to be written to disk even
                       if the entry is unmodified.
-        :raises: ``OsError`` if the temporary entry file cannot be
+        :raises: ``OSError`` if the temporary entry file cannot be
                  renamed, or if setting file permissions on the
                  new entry file fails.
         """
@@ -1217,7 +1217,7 @@ class HostProfile(BoomProfile):
         disposed of).
 
         :rtype: ``NoneType``
-        :raises: ``OsError`` if an error occurs removing the file or
+        :raises: ``OSError`` if an error occurs removing the file or
                  ``ValueError`` if the profile does not exist.
         """
         self._delete_profile(self.host_id)

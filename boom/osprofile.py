@@ -1302,7 +1302,7 @@ class BoomProfile:
         profile store.
 
         :rtype: ``NoneType``
-        :raises: ``OsError``, ``IOError`` if an error occurs removing the
+        :raises: ``OSError``, ``IOError`` if an error occurs removing the
                  file.
         """
         ptype = self.__class__.__name__
@@ -1337,7 +1337,7 @@ class BoomProfile:
         file.
 
         :rtype: ``NoneType``
-        :raises: ``OsError`` if an error occurs removing the file or
+        :raises: ``OSError`` if an error occurs removing the file or
                  ``ValueError`` if the profile does not exist.
         """
         raise NotImplementedError
@@ -1828,7 +1828,7 @@ class OsProfile(BoomProfile):
         disposed of).
 
         :rtype: ``NoneType``
-        :raises: ``OsError`` if an error occurs removing the file or
+        :raises: ``OSError`` if an error occurs removing the file or
                  ``ValueError`` if the profile does not exist.
         """
         self._delete_profile(self.os_id)

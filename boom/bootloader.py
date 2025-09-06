@@ -2552,7 +2552,7 @@ class BootEntry:
         calling ``write_entry()``).
 
         :rtype: ``NoneType``
-        :raises: ``OsError`` if an error occurs removing the file or
+        :raises: ``OSError`` if an error occurs removing the file or
                  ``ValueError`` if the entry does not exist.
         """
         if self.read_only:
