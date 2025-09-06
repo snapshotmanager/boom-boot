@@ -8,8 +8,9 @@
 import unittest
 import logging
 from sys import stdout
-from os import listdir, makedirs
+from os import listdir, makedirs, unlink
 from os.path import abspath, basename, dirname, exists, join
+from tempfile import TemporaryDirectory
 from io import StringIO
 from glob import glob
 import shutil
@@ -24,6 +25,7 @@ from boom.hostprofile import *
 from boom.command import *
 from boom.config import *
 from boom.report import *
+from boom.cache import drop_cache
 
 # For access to non-exported members
 import boom.command
@@ -51,18 +53,37 @@ class CommandHelperTests(unittest.TestCase):
         test suite import boom.command directly in order to access the
         non-public helper routines not included in __all__.
     """
+    def test__int_if_val(self):
+        _int_if_val = boom.command._int_if_val
+
+        self.assertEqual(_int_if_val(None), None)
+        self.assertEqual(_int_if_val("0"), 0)
+        self.assertEqual(_int_if_val("1"), 1)
+        self.assertEqual(_int_if_val("10"), 10)
+        self.assertEqual(_int_if_val("16777216"), 16777216)
+        self.assertEqual(_int_if_val("-1"), -1)
+
+    def test__int_if_val_badval(self):
+        _int_if_val = boom.command._int_if_val
+
+        with self.assertRaises(ValueError):
+           _int_if_val("")
+
+        with self.assertRaises(ValueError):
+           _int_if_val("q")
+
+        with self.assertRaises(TypeError):
+           _int_if_val([])
+
     def test_int_if_val_with_val(self):
-        import boom.command
         val = "1"
         self.assertEqual(boom.command._int_if_val(val), int(val))
 
     def test_int_if_val_with_none(self):
-        import boom.command
         val = None
         self.assertEqual(boom.command._int_if_val(val), None)
 
     def test_int_if_val_with_badint(self):
-        import boom.command
         val = "qux"
         with self.assertRaises(ValueError) as cm:
             boom.command._int_if_val(val)
@@ -144,7 +165,7 @@ class CommandHelperTests(unittest.TestCase):
         all_masks = ",".join(debug_masks[:-1])
         boom.command.set_debug(all_masks)
 
-    def test_set_debug_no_debug_arg(self):
+    def test_set_debug_bad_debug_arg(self):
         """Test set_debug() with a bad debug mask argument.
         """
         import boom.command
@@ -171,6 +192,13 @@ class CommandHelperTests(unittest.TestCase):
         # reading /etc/machine-id.
         machine_id = boom.command.get_machine_id()
         self.assertTrue(machine_id)
+
+    def test__bool_to_yes_no(self):
+        _bool_to_yes_no = boom.command._bool_to_yes_no
+
+        self.assertEqual(_bool_to_yes_no(True), "yes")
+        self.assertEqual(_bool_to_yes_no(False), "no")
+        self.assertEqual(_bool_to_yes_no(None), "no")
 
     def test__merge_add_del_opts_no_op(self):
         bp = BootParams(version="1.1.1", root_device="/dev/vg00/lvol0")
@@ -224,6 +252,16 @@ class CommandHelperTests(unittest.TestCase):
         (add_opts, del_opts) = _merge_add_del_opts(bp, to_add, to_del)
         self.assertEqual(["log_buf_len=16M", "debug"], add_opts)
 
+    def test__merge_add_del_opts_with_conflicts(self):
+        bp = BootParams(version="1.1.1", root_device="/dev/vg00/lvol0")
+        _merge_add_del_opts = boom.command._merge_add_del_opts
+
+        # Try to add and delete the same option.
+        to_add = "debug"
+        to_del = "debug"
+        with self.assertRaises(ValueError):
+            _merge_add_del_opts(bp, to_add, to_del)
+
     def test__optional_key_to_arg_valid(self):
         _optional_key_to_arg = boom.command._optional_key_to_arg
         valid_keys_and_args = {
@@ -239,6 +277,78 @@ class CommandHelperTests(unittest.TestCase):
     def test__optional_key_to_arg_invalid(self):
         _optional_key_to_arg = boom.command._optional_key_to_arg
         self.assertEqual(_optional_key_to_arg("INVALID_KEY"), None)
+
+    def test__apply_btrfs_subvol_exclusive(self):
+        combinations = (
+            (None, None),
+            ("root", None),
+            (None, "123"),
+        )
+
+        bad_combinations = (("root", "123"),)
+
+        class MockBootParams:
+            def __init__(self, btrfs_subvol_path, btrfs_subvol_id):
+                self.btrfs_subvol_path = btrfs_subvol_path
+                self.btrfs_subvol_id = btrfs_subvol_id
+
+        for sv_path, sv_id in combinations:
+            with self.subTest(path=sv_path, id=sv_id):
+                bp = MockBootParams(None, None)
+                boom.command._apply_btrfs_subvol_exclusive(bp, sv_path, sv_id)
+                if sv_path:
+                    self.assertEqual(sv_path, bp.btrfs_subvol_path)
+                    self.assertIsNone(bp.btrfs_subvol_id)
+                if sv_id:
+                    self.assertEqual(sv_id, bp.btrfs_subvol_id)
+                    self.assertIsNone(bp.btrfs_subvol_path)
+                self.assertFalse(sv_id and sv_path)
+                if sv_path is None and sv_id is None:
+                    self.assertIsNone(bp.btrfs_subvol_path)
+                    self.assertIsNone(bp.btrfs_subvol_id)
+
+        for sv_path, sv_id in bad_combinations:
+            with self.subTest(path=sv_path, id=sv_id):
+                bp = MockBootParams(None, None)
+                with self.assertRaises(ValueError):
+                    boom.command._apply_btrfs_subvol_exclusive(bp, sv_path, sv_id)
+
+    def test__apply_no_fstab(self):
+        cases = (
+            # (input add_opts, input del_opts, expected add_opts, expected del_opts)
+            ([], [], ["fstab=no", "rw"], ["ro"]),
+            (["foo"], ["bar"], ["foo", "fstab=no", "rw"], ["bar", "ro"]),
+            (["ro"], [], ["fstab=no", "rw"], ["ro"]),
+            ([], ["rw"], ["fstab=no", "rw"], ["ro"]),
+            (["fstab=no", "rw"], ["ro"], ["fstab=no", "rw"], ["ro"]),
+        )
+        for add_l, del_l, xadd, xdel in cases:
+            with self.subTest(add_l=add_l, del_l=del_l):
+                add_out, del_out = boom.command._apply_no_fstab(add_l, del_l)
+                self.assertEqual(add_out, xadd)
+                self.assertEqual(del_out, xdel)
+
+    def test__lv_from_device_string_dev_mapper(self):
+        mapper_devs = (
+            ("/dev/mapper/vg-lv", "vg/lv"),
+            ("/dev/mapper/my--vg-my--lv", "my-vg/my-lv"),
+            ("/dev/mapper/mpatha", None),
+            ("/brimful/of/asha", None),
+        )
+        for mapper, vg_lv in mapper_devs:
+            with self.subTest(mapper=mapper, vg_lv=vg_lv):
+                self.assertEqual(boom.command._lv_from_device_string(mapper), vg_lv)
+
+    def test__lv_from_device_string_dev_vg_lv(self):
+        vg_devs = (
+            ("/dev/vg/lv", "vg/lv"),
+            ("/dev/my-vg/my-lv", "my-vg/my-lv"),
+            ("/dev/mpatha", None),
+            ("/on/the/45", None),
+        )
+        for dev_vg_lv, vg_lv in vg_devs:
+            with self.subTest(dev_vg_lv=dev_vg_lv, vg_lv=vg_lv):
+                self.assertEqual(boom.command._lv_from_device_string(dev_vg_lv), vg_lv)
 
 
 # Default test OsProfile identifiers
@@ -332,6 +442,7 @@ class CommandTests(unittest.TestCase):
         drop_entries()
         drop_profiles()
         drop_host_profiles()
+        drop_cache()
 
         # Clear sandbox data
         rm_sandbox()
@@ -582,6 +693,14 @@ class CommandTests(unittest.TestCase):
     def test_clone_entry_del_opts(self):
         be = clone_entry(Selection(boot_id="9591d36"), title="NEWNEWTITLE",
                          del_opts="rhgb quiet", allow_no_dev=True)
+        self.assertTrue(exists(be._entry_path))
+        be.delete_entry()
+        self.assertFalse(exists(be._entry_path))
+
+    @unittest.skipIf(not have_root(), "requires root privileges")
+    def test_clone_entry_backup(self):
+        be = clone_entry(Selection(boot_id="9591d36"), title="NEWNEWTITLE",
+                         images=I_BACKUP, del_opts="rhgb quiet", allow_no_dev=True)
         self.assertTrue(exists(be._entry_path))
         be.delete_entry()
         self.assertFalse(exists(be._entry_path))
@@ -883,21 +1002,6 @@ class CommandTests(unittest.TestCase):
 
         # Clean up entries
         edit_be.delete_entry()
-
-    @unittest.skipIf(not have_root_lv(), "requires root LV")
-    def test_edit_entry_del_opts(self):
-        # Fedora 24 (Workstation Edition)
-        osp = get_os_profile_by_id(test_os_id)
-        orig_be = create_entry("EDIT_TEST", "2.6.0", "ffffffff",
-                               test_lv, lvm_root_lv=test_root_lv,
-                               profile=osp)
-
-        be = edit_entry(Selection(boot_id=orig_be.boot_id),
-                        title="NEWNEWTITLE", del_opts="rhgb quiet")
-
-        self.assertTrue(exists(be._entry_path))
-        be.delete_entry()
-        self.assertFalse(exists(be._entry_path))
 
     @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test_edit_delete_entry(self):
@@ -1413,7 +1517,7 @@ class CommandTests(unittest.TestCase):
         args.version = None
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._create_cmd(args, None, opts, None)
-        self.assertNotEqual(r, 1)
+        self.assertEqual(r, 0)
 
     def test__create_cmd_no_root_device(self):
         """Test the _create_cmd() handler with missing root device.
@@ -1434,7 +1538,35 @@ class CommandTests(unittest.TestCase):
         args.version = "5.8.16-200.fc32.x86_64"
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._create_cmd(args, None, opts, None)
-        self.assertNotEqual(r, 1)
+        self.assertEqual(r, 0)
+
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test__create_cmd_backup(self):
+        """Test the _create_cmd() handler with image backups.
+        """
+        args = get_create_cmd_args()
+        args.profile = None
+        args.version = "5.4.7-100.fc30.x86_64"
+        args.backup = True
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
+
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test__create_cmd_mapper_name(self):
+        """Test the _create_cmd() handler with image backups.
+        """
+        def vg_lv_to_dev_mapper(vg_lv):
+            vg, lv = vg_lv.split("/", maxsplit=1)
+            return f"/dev/mapper/{vg.replace('-', '--')}-{lv.replace('-', '--')}"
+
+        args = get_create_cmd_args()
+        args.version = "5.4.7-100.fc30.x86_64"
+        args.root_lv = None
+        args.root_device = vg_lv_to_dev_mapper(get_root_lv())
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
 
     def test__create_cmd_no_profile(self):
         """Test the _create_cmd() handler with missing profile.
@@ -1504,26 +1636,18 @@ class CommandTests(unittest.TestCase):
         args.boot_id = "61bcc49"
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._delete_cmd(args, None, opts, None)
-        self.assertNotEqual(r, 1)
-
-    def test__delete_cmd_no_selection(self):
-        """Test the _delete_cmd() handler with no valid entry selection.
-        """
-        args = MockArgs()
-        args.boot_id = None
-        opts = boom.command._report_opts_from_args(args)
-        r = boom.command._delete_cmd(args, None, opts, None)
-        self.assertEqual(r, 1)
+        self.assertEqual(r, 0)
 
     def test__delete_cmd_verbose(self):
-        """Test the _delete_cmd() handler with a valid entry.
+        """Test the _delete_cmd() handler with a valid entry and verbose
+           output.
         """
         args = MockArgs()
         args.boot_id = "61bcc49"
         args.verbose = 1 # enable reporting
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._delete_cmd(args, None, opts, None)
-        self.assertNotEqual(r, 1)
+        self.assertEqual(r, 0)
 
     def test__delete_cmd_with_options(self):
         """Test the _delete_cmd() handler with a valid entry and report
@@ -1560,17 +1684,6 @@ class CommandTests(unittest.TestCase):
         r = boom.command._delete_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
 
-    def test__delete_cmd_verbose(self):
-        """Test the _delete_cmd() handler with a valid entry and
-            verbose output.
-        """
-        args = MockArgs()
-        args.boot_id = "61bcc49"
-        args.verbose = 1
-        opts = boom.command._report_opts_from_args(args)
-        r = boom.command._delete_cmd(args, None, opts, None)
-        self.assertNotEqual(r, 1)
-
     def test__delete_cmd_identity(self):
         """Test the _delete_cmd() handler with a valid entry that
             is passed via the 'identiry' handler argument.
@@ -1578,7 +1691,7 @@ class CommandTests(unittest.TestCase):
         args = MockArgs()
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._delete_cmd(args, None, opts, "61bcc49")
-        self.assertNotEqual(r, 1)
+        self.assertEqual(r, 0)
 
     def test__delete_cmd_no_criteria(self):
         """Test the _delete_cmd() handler with no valid selection.
@@ -1596,7 +1709,7 @@ class CommandTests(unittest.TestCase):
         args.boot_id = "6" # Matches four entries
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._delete_cmd(args, None, opts, None)
-        self.assertNotEqual(r, 1)
+        self.assertEqual(r, 0)
 
     def test__delete_cmd_no_matching(self):
         """Test the _delete_cmd() handler with no matching entries.
@@ -1618,7 +1731,7 @@ class CommandTests(unittest.TestCase):
         args.no_dev = True
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._clone_cmd(args, None, opts, None)
-        self.assertNotEqual(r, 1)
+        self.assertEqual(r, 0)
 
     def test__clone_cmd_no_criteria(self):
         """Test the _clone_cmd() handler with no valid selection.
@@ -1684,13 +1797,13 @@ class CommandTests(unittest.TestCase):
     def test__list_cmd(self):
         args = MockArgs()
         r = boom.command._list_cmd(args, None, None, None)
-        self.assertNotEqual(r, 1)
+        self.assertEqual(r, 0)
 
     def test__list_cmd_single(self):
         args = MockArgs()
         args.boot_id = "61bcc49"
         r = boom.command._list_cmd(args, None, None, None)
-        self.assertNotEqual(r, 1)
+        self.assertEqual(r, 0)
 
     def test__list_cmd_single_identifier(self):
         """Test the _list_cmd() handler with a single identifier.
@@ -1792,7 +1905,7 @@ class CommandTests(unittest.TestCase):
         args.no_dev = True
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._edit_cmd(args, None, opts, None)
-        self.assertNotEqual(r, 1)
+        self.assertEqual(r, 0)
 
     def test__edit_cmd_no_criteria(self):
         """Test the _edit_cmd() handler with no valid selection.
@@ -1810,6 +1923,19 @@ class CommandTests(unittest.TestCase):
         args = MockArgs()
         args.boot_id = "qux"
         args.title = "Something New"
+        opts = boom.command._report_opts_from_args(args)
+        r = boom.command._edit_cmd(args, None, opts, None)
+        self.assertEqual(r, 1)
+
+    def test__edit_cmd_no_dev(self):
+        """Test the _edit_cmd() handler with a valid entry and new
+            title but non-existent root device and no_dev=False.
+        """
+        args = MockArgs()
+        args.boot_id = "61bcc49"
+        args.title = "Something New"
+        # Disable device presence checks
+        args.no_dev = False
         opts = boom.command._report_opts_from_args(args)
         r = boom.command._edit_cmd(args, None, opts, None)
         self.assertEqual(r, 1)
@@ -2126,16 +2252,6 @@ class CommandTests(unittest.TestCase):
         r = boom.command._edit_profile_cmd(args, None, None, None)
         self.assertEqual(r, 1)
 
-    def test__clone_profile_cmd(self):
-        """Test the _clone_profile_cmd() handler with valid args.
-        """
-        args = MockArgs()
-        args.profile = "d4439b7"
-        args.name = "NotFedora"
-        args.short_name = "notfedora"
-        r = boom.command._clone_profile_cmd(args, None, None, None)
-        self.assertEqual(r, 0)
-
     def test__create_host_cmd_with_identifier(self):
         """Test _create_host_cmd() with an invalid identifier arg.
         """
@@ -2342,6 +2458,7 @@ class CommandTests(unittest.TestCase):
     def test__list_cache_cmd(self):
         args = MockArgs()
         r = boom.command._list_cache_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
 
     def test__list_cache_cmd_with_sort_num(self):
         args = MockArgs()
@@ -2353,6 +2470,7 @@ class CommandTests(unittest.TestCase):
     def test__show_cache_cmd(self):
         args = MockArgs()
         r = boom.command._show_cache_cmd(args, None, None, None)
+        self.assertEqual(r, 0)
 
     def test_boom_main_list(self):
         args = ['bin/boom', 'entry', 'list']
@@ -2382,4 +2500,158 @@ class CommandTests(unittest.TestCase):
                     boom.command.main(args)
                 self.assertEqual(cm.exception.code, 2)
 
+    def test_boom_main_bad_type(self):
+        args = ['bin/boom', 'quux', 'create']
+        with self.assertRaises(SystemExit) as cm:
+            boom.command.main(args)
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_boom_main_bad_command(self):
+        args = ['bin/boom', 'entry', 'quux']
+        with self.assertRaises(SystemExit) as cm:
+            boom.command.main(args)
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_boom_main_bad_debug(self):
+        args = ['bin/boom', 'entry', 'list', '--debug', 'quux']
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_bad_arg(self):
+        args = ['bin/boom', 'entry', 'list', '--quux']
+        with self.assertRaises(SystemExit) as cm:
+            boom.command.main(args)
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_boom_main_bad_root_device(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'BAD_ROOT']
+        args += ['--version', '5.4.7-100.fc30.x86_64', '--root-device', "/dev/zda2"]
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test_boom_main_root_lv(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
+        args += ['--version', '5.4.7-100.fc30.x86_64', '--root-lv', get_root_lv()]
+        r = boom.command.main(args)
+        self.assertEqual(r, 0)
+
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test_boom_main_root_lv_as_root_device(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
+        args += ['--version', '5.4.7-100.fc30.x86_64']
+        args += ['--root-device', "/dev/" + get_root_lv()]
+        r = boom.command.main(args)
+        self.assertEqual(r, 0)
+
+    def test_boom_main_root_lv_bad_lv_name(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'NOT_AN_LV_TEST']
+        args += ['--version', '5.4.7-100.fc30.x86_64', '--root-lv', "not-an-lv"]
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test_boom_main_root_lv_root_device_mismatch(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
+        args += ['--version', '5.4.7-100.fc30.x86_64', '--root-lv', get_root_lv()]
+        args += ['--root-device', '/dev/vda2']
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_create_entry_bad_optional_keys(self):
+        args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
+        args += ['--profile', '418203e']  # does not support grub_user
+        args += ['--version', '5.4.7-100.fc30.x86_64', '--root-lv', get_root_lv()]
+        args += ['--grub-users', 'JeremyBenthamAndFriends']
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_missing_boom(self):
+        args = ['bin/boom', 'list']
+        shutil.rmtree(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom"))
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_missing_boom_conf(self):
+        args = ['bin/boom', 'list']
+        unlink(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom", "boom.conf"))
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_missing_boom_conf_with_boot_dir(self):
+        args = ['bin/boom', 'list', '--boot-dir', join(BOOT_ROOT_TEST, 'sandbox', 'boot')]
+        # Ensure boom.conf is absent at the explicit boot-dir
+        conf_path = join(BOOT_ROOT_TEST, 'sandbox', 'boot', 'boom', 'boom.conf')
+        if exists(conf_path):
+            unlink(conf_path)
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_missing_boom_profiles(self):
+        args = ['bin/boom', 'list']
+        args += ['--boot-dir', join(BOOT_ROOT_TEST, "sandbox", "boot")]
+        shutil.rmtree(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom", "profiles"))
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_missing_hosts(self):
+        args = ['bin/boom', 'list']
+        shutil.rmtree(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom", "hosts"))
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_config_create(self):
+        args = ["bin/boom", "config", "create"]
+        with TemporaryDirectory(dir="/var/tmp") as boot_dir:
+            args += ["--boot-dir", boot_dir]
+            r = boom.command.main(args)
+            self.assertEqual(r, 0)
+            self.assertTrue(exists(join(boot_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(boot_dir, "boom", "cache")))
+            self.assertTrue(exists(join(boot_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(boot_dir, "boom", "profiles")))
+
+    def test_boom_main_config_create_idempotent(self):
+        args = ["bin/boom", "config", "create"]
+        with TemporaryDirectory(dir="/var/tmp") as boot_dir:
+            args += ["--boot-dir", boot_dir]
+            r = boom.command.main(args)
+            self.assertEqual(r, 0)
+            self.assertTrue(exists(join(boot_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(boot_dir, "boom", "cache")))
+            self.assertTrue(exists(join(boot_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(boot_dir, "boom", "profiles")))
+
+            # Re-run, assert unchanged
+            r = boom.command.main(args)
+            self.assertEqual(r, 0)
+            self.assertTrue(exists(join(boot_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(boot_dir, "boom", "cache")))
+            self.assertTrue(exists(join(boot_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(boot_dir, "boom", "profiles")))
+
+    def test_create_config(self):
+        with TemporaryDirectory(dir="/var/tmp") as conf_dir:
+            boom.command.create_config(boot_path=conf_dir)
+            self.assertTrue(exists(join(conf_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(conf_dir, "boom", "cache")))
+            self.assertTrue(exists(join(conf_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(conf_dir, "boom", "profiles")))
+
+    def test_create_config_idempotent(self):
+        with TemporaryDirectory(dir="/var/tmp") as conf_dir:
+            boom.command.create_config(boot_path=conf_dir)
+            self.assertTrue(exists(join(conf_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(conf_dir, "boom", "cache")))
+            self.assertTrue(exists(join(conf_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(conf_dir, "boom", "profiles")))
+
+            # Re-run, assert unchanged
+            boom.command.create_config(boot_path=conf_dir)
+            self.assertTrue(exists(join(conf_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(conf_dir, "boom", "cache")))
+            self.assertTrue(exists(join(conf_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(conf_dir, "boom", "profiles")))
+
+# vim: set et ts=4 sw=4 :
 # vim: set et ts=4 sw=4 :

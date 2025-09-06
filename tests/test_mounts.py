@@ -18,6 +18,7 @@ import re
 log = logging.getLogger()
 
 from boom import *
+import boom.mounts
 from boom.mounts import *
 
 from tests import *
@@ -38,13 +39,78 @@ class MountsHelperTests(unittest.TestCase):
         log.info("Tearing down %s", self._testMethodName)
 
     def test_parse_mount_units(self):
-        mount_list = ["/dev/test/var:/var:xfs:defaults"]
-        xmount_str = "systemd.mount-extra=/dev/test/var:/var:xfs:defaults"
-        self.assertEqual(parse_mount_units(mount_list)[0], xmount_str)
+        mount_list = [
+            "/dev/test/var:/var:xfs:defaults",
+            "UUID=b0ebd35b-3956-4b17-bd07-f38dfea021a7:/boot:xfs:rw,x-foo=bar",
+            "LABEL=quux:/boot:xfs:rw,x-foo=bar",
+            "PARTUUID=7b23f5bd-4f12-48e1-8ea4-70b30df7e540:/boot:xfs:rw,x-bar=baz",
+            "PARTLABEL=quux:/boot:xfs:rw,x-foo=bar",
+            "/dev/test/var:/var:xfs",
+        ]
+        xmount_str = [
+            "systemd.mount-extra=/dev/test/var:/var:xfs:defaults",
+            "systemd.mount-extra=UUID=b0ebd35b-3956-4b17-bd07-f38dfea021a7:/boot:xfs:rw,x-foo=bar",
+            "systemd.mount-extra=LABEL=quux:/boot:xfs:rw,x-foo=bar",
+            "systemd.mount-extra=PARTUUID=7b23f5bd-4f12-48e1-8ea4-70b30df7e540:/boot:xfs:rw,x-bar=baz",
+            "systemd.mount-extra=PARTLABEL=quux:/boot:xfs:rw,x-foo=bar",
+            "systemd.mount-extra=/dev/test/var:/var:xfs:defaults",
+        ]
+
+        for mount, xmount in zip(mount_list, xmount_str):
+            self.assertEqual(parse_mount_units([mount])[0], xmount)
 
     def test_parse_mount_units_bad_spec(self):
-        mount_list = "/dev:"
-        with self.assertRaises(BoomMountError):
-            parse_mount_units(mount_list)
+        mount_list = [
+            "/dev:",
+            "/dev/sda5:/foo:ext4:defaults:0:0",
+            "/dev/sda5:    :ext4:defaults",
+            "         :/foo:ext4:defaults",
+            "/dev/vda1:/mnt:xfs:  ",
+            "::::",
+            "    "
+        ]
+        for mount in mount_list:
+            with self.assertRaises(BoomMountError):
+                parse_mount_units([mount])
+
+    def test_parse_swap_units(self):
+        swap_list = ["/dev/test/var:defaults", "/dev/sda5:pri=1"]
+        xswap_str = ["systemd.swap-extra=/dev/test/var:defaults",
+                     "systemd.swap-extra=/dev/sda5:pri=1"]
+        for swap, xswap in zip(swap_list, xswap_str):
+            self.assertEqual(parse_swap_units([swap]), [xswap])
+
+    def test_parse_swap_units_bad_spec(self):
+        swap_list = [
+            "foobar",
+            ":foobar",
+            "/dev/rhel/root:",
+            " /dev/sda1 : ",
+            " :defaults ",
+            "::",
+            "   "
+        ]
+        for swap in swap_list:
+            with self.subTest(swap=swap):
+                with self.assertRaises(BoomMountError):
+                    parse_swap_units([swap])
+
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test__detect_fstype(self):
+        root_device = f"/dev/{get_root_lv()}"
+        fstype = boom.mounts._detect_fstype(root_device)
+        self.assertIsNotNone(fstype)
+        self.assertTrue(fstype in ("xfs", "ext4", "btrfs"))
+
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
+    def test_parse_mount_units_no_fstype(self):
+        root_device = f"/dev/{get_root_lv()}"
+        mount_list = [f"{root_device}:/somewhere"]
+        fstype = boom.mounts._detect_fstype(root_device)
+        xunit = f"systemd.mount-extra={root_device}:/somewhere:{fstype}:defaults"
+
+        unit = parse_mount_units(mount_list)[0]
+
+        self.assertEqual(unit, xunit)
 
 # vim: set et ts=4 sw=4 :
