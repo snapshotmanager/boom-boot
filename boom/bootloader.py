@@ -34,7 +34,22 @@ is also provided in the ``MAP_KEY`` member).
 from os.path import basename, exists as path_exists, join as path_join
 from subprocess import check_output, CalledProcessError, TimeoutExpired
 from tempfile import mkstemp
-from os import close, listdir, rename, fdopen, chmod, unlink, fdatasync, stat, dup
+from os import (
+    chmod,
+    close,
+    dup,
+    fdatasync,
+    fdopen,
+    fsync,
+    listdir,
+    open as os_open,
+    O_CLOEXEC,
+    O_DIRECTORY,
+    O_RDONLY,
+    rename,
+    stat,
+    unlink,
+)
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from stat import S_ISBLK
 from hashlib import sha1
@@ -2467,6 +2482,11 @@ class BootEntry:
         try:
             rename(tmp_path, entry_path)
             chmod(entry_path, BOOT_ENTRY_MODE)
+            dir_fd = os_open(boom_entries_path(), O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+            try:
+                fsync(dir_fd)
+            finally:
+                close(dir_fd)
         except (OSError, IOError) as err:  # pragma: no cover
             _log_error("Error writing entry file %s: %s", entry_path, err)
             try:

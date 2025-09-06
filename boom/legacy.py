@@ -14,7 +14,20 @@ all entries from the legacy configuration file.
 """
 from subprocess import Popen, PIPE
 from os.path import dirname, exists, isabs, join as path_join
-from os import chmod, dup, fdatasync, fdopen, rename, unlink
+from os import (
+    chmod,
+    close,
+    dup,
+    fdatasync,
+    fdopen,
+    fsync,
+    open as os_open,
+    O_CLOEXEC,
+    O_DIRECTORY,
+    O_RDONLY,
+    rename,
+    unlink,
+)
 from tempfile import mkstemp
 import logging
 import re
@@ -171,22 +184,37 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
                 dbe = decorator(be)
                 tmp_f.write(str(dbe) + "\n")
             tmp_f.write(end_tag + "\n")
+            tmp_f.flush()
     except (BoomLegacyFormatError, OSError, IOError) as err:
         _log_error("Error formatting %s configuration: %s", name, err)
         try:
+            close(tmp_fd)
+        except OSError:
+            pass
+        try:
             unlink(tmp_path)
+        except FileNotFoundError:
+            pass
         except OSError as err2:
             _log_error("Error unlinking temporary file '%s': %s", tmp_path, err2)
         return
 
     try:
         fdatasync(tmp_fd)
+        close(tmp_fd)
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
+        dir_fd = os_open(cfg_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+        try:
+            fsync(dir_fd)
+        finally:
+            close(dir_fd)
     except (OSError, IOError) as err:
         _log_error("Error writing legacy configuration file %s: %s", path, err)
         try:
             unlink(tmp_path)
+        except FileNotFoundError:
+            pass
         except (OSError, IOError) as err2:
             _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
         raise
@@ -303,12 +331,20 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
 
     try:
         fdatasync(tmp_fd)
+        close(tmp_fd)
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
+        dir_fd = os_open(cfg_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+        try:
+            fsync(dir_fd)
+        finally:
+            close(dir_fd)
     except (OSError, IOError) as err:
         _log_error("Error writing legacy configuration file %s: %s", path, err)
         try:
             unlink(tmp_path)
+        except FileNotFoundError:
+            pass
         except (OSError, IOError) as err2:
             _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
         raise

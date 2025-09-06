@@ -29,7 +29,19 @@ are suitable for display use and are used by default by the
 from hashlib import sha1
 from tempfile import mkstemp
 from os.path import basename, join as path_join, exists as path_exists
-from os import fdopen, rename, chmod, unlink, fdatasync
+from os import (
+    chmod,
+    close,
+    fdatasync,
+    fdopen,
+    fsync,
+    open as os_open,
+    O_CLOEXEC,
+    O_DIRECTORY,
+    O_RDONLY,
+    rename,
+    unlink,
+)
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, TYPE_CHECKING
 import logging
 import re
@@ -1213,9 +1225,10 @@ class BoomProfile:
         :param force: Force this profile to be written to disk even
                       if the entry is unmodified.
 
-        :raises: ``OsError`` if the temporary entry file cannot be
-                 renamed, or if setting file permissions on the
-                 new entry file fails.
+        :raises: ``OSError`` if the temporary profile file cannot be
+                 renamed, if setting file permissions on the new profile
+                 file fails, or if syncing the containing directory
+                 fails.
         """
         ptype = self.__class__.__name__
         if not force and not self._unwritten:
@@ -1242,10 +1255,17 @@ class BoomProfile:
         try:
             rename(tmp_path, profile_path)
             chmod(profile_path, mode)
+            dir_fd = os_open(profile_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+            try:
+                fsync(dir_fd)
+            finally:
+                close(dir_fd)
         except (OSError, IOError) as err:
             _log_error("Error writing profile file '%s': %s", profile_path, err)
             try:
                 unlink(tmp_path)
+            except FileNotFoundError:
+                pass
             except (OSError, IOError) as err2:
                 _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
             raise
@@ -1260,9 +1280,9 @@ class BoomProfile:
 
         This method must be overridden by `BoomProfile` subclasses.
 
-        :raises: ``OsError`` if the temporary entry file cannot be
+        :raises: ``OSError`` if the temporary profile file cannot be
                  renamed, or if setting file permissions on the
-                 new entry file fails. ``NotImplementedError`` if
+                 new profile file fails. ``NotImplementedError`` if
                  the method is called on the ``BoomProfile`` base
                  class.
         """
@@ -1790,9 +1810,9 @@ class OsProfile(BoomProfile):
 
         :param force: Force this profile to be written to disk even
                       if the entry is unmodified.
-        :raises: ``OsError`` if the temporary entry file cannot be
+        :raises: ``OSError`` if the temporary profile file cannot be
                  renamed, or if setting file permissions on the
-                 new entry file fails.
+                 new profile file fails.
         """
         path = boom_profiles_path()
         mode = BOOM_PROFILE_MODE

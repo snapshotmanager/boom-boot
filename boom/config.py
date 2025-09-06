@@ -14,7 +14,19 @@ the values of configuration keys defined in the boom configuration file.
 """
 from os.path import dirname
 
-from os import fdopen, rename, chmod, fdatasync, unlink
+from os import (
+    chmod,
+    close,
+    fdatasync,
+    fdopen,
+    fsync,
+    open as os_open,
+    O_CLOEXEC,
+    O_DIRECTORY,
+    O_RDONLY,
+    rename,
+    unlink,
+)
 from configparser import ConfigParser, ParsingError
 from tempfile import mkstemp
 from typing import Optional
@@ -223,6 +235,11 @@ def write_boom_config(config: Optional[BoomConfig] = None, path: Optional[str] =
     try:
         rename(tmp_path, path)
         chmod(path, BOOT_CONFIG_MODE)
+        dir_fd = os_open(cfg_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+        try:
+            fsync(dir_fd)
+        finally:
+            close(dir_fd)
     except (OSError, IOError) as err:
         _log_error("Error writing configuration file %s: %s", path, err)
         try:
