@@ -793,8 +793,8 @@ def get_machine_id() -> str:
     with open(path, "r", encoding="utf8") as f:
         try:
             machine_id = f.read().strip()
-        except Exception as e:  # pragma: no cover
-            _log_error("Could not read machine-id from '%s': %s", path, e)
+        except (OSError, UnicodeDecodeError) as err:  # pragma: no cover
+            _log_error("Could not read machine-id from '%s': %s", path, err)
             machine_id = ""
     return machine_id
 
@@ -993,9 +993,9 @@ def _cache_image(img_path: str, backup: bool, update: bool = False) -> str:
             ce = backup_path(img_path, update=update)
         else:
             ce = cache_path(img_path, update=update)
-    except (OSError, ValueError) as e:  # pragma: no cover
-        _log_error("Could not cache path %s", img_path)
-        raise e
+    except (OSError, ValueError) as err:  # pragma: no cover
+        _log_error("Could not cache path %s: %s", img_path, err)
+        raise
     return ce.path
 
 
@@ -2856,8 +2856,8 @@ def _create_cmd(
         print(brde)
         print("Creating an entry with no valid root device requires --no-dev")
         return 1
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
 
     _apply_profile_overrides(be, cmd_args)
@@ -2866,10 +2866,10 @@ def _create_cmd(
     try:
         be.write_entry(expand=cmd_args.expand_variables)
         __write_legacy()
-    except Exception as e:  # pragma: no cover
+    except (BoomError, OSError, ValueError) as err:  # pragma: no cover
         if cmd_args.debug:
             raise
-        print(e)
+        print(err)
         return 1
 
     print(f"Created entry with boot_id {be.disp_boot_id}:")
@@ -2919,8 +2919,8 @@ def _delete_cmd(
                 sort_keys=cmd_args.sort,
             )
         nr = delete_entries(select)
-    except (ValueError, IndexError) as e:
-        print(e)
+    except (ValueError, IndexError) as err:
+        print(err)
         return 1
 
     print(f"Deleted {nr} entr{'ies' if nr > 1 else 'y'}")
@@ -2965,8 +2965,8 @@ def _clone_cmd(
     select = Selection(boot_id=select.boot_id)
     try:
         be = _find_one_entry(select)
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
 
     version = cmd_args.version or be.version
@@ -3004,8 +3004,8 @@ def _clone_cmd(
             swaps=cmd_args.swap,
         )
 
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
 
     # Command-line overrides take precedence over any overridden values
@@ -3016,10 +3016,10 @@ def _clone_cmd(
     try:
         be.write_entry(expand=cmd_args.expand_variables)
         __write_legacy()
-    except Exception as e:  # pragma: no cover
+    except (BoomError, OSError, ValueError) as err:  # pragma: no cover
         if cmd_args.debug:
             raise
-        print(e)
+        print(err)
         return 1
 
     print(
@@ -3060,8 +3060,8 @@ def _show_cmd(
 
     try:
         bes = find_entries(selection=select)
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
     first = True
     for be in bes:
@@ -3111,8 +3111,8 @@ def _generic_list_cmd(
             sort_keys=cmd_args.sort,
             expand=cmd_args.expand_variables,
         )
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
     return 0
 
@@ -3185,8 +3185,8 @@ def _edit_cmd(
     select = Selection(boot_id=select.boot_id)
     try:
         be = _find_one_entry(select)
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
 
     version = cmd_args.version or be.version
@@ -3227,8 +3227,8 @@ def _edit_cmd(
         print(brde)
         print("Editing an entry with no valid root device requires --no-dev")
         return 1
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
 
     # Command-line overrides take precedence over any overridden values
@@ -3238,10 +3238,10 @@ def _edit_cmd(
     try:
         be.write_entry(expand=cmd_args.expand_variables)
         __write_legacy()
-    except Exception as e:  # pragma: no cover
+    except (BoomError, OSError, ValueError) as err:  # pragma: no cover
         if cmd_args.debug:
             raise
-        print(e)
+        print(err)
         return 1
 
     print(f"Edited entry, boot_id now: {be.disp_boot_id}")
@@ -3322,8 +3322,8 @@ def _create_profile_cmd(
             optional_keys=cmd_args.optional_keys,
             profile_file=release,
         )
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
     print(f"Created profile with os_id {osp.disp_os_id}:")
     print(_str_indent(str(osp), 2))
@@ -3368,8 +3368,8 @@ def _delete_profile_cmd(
         if cmd_args.verbose:
             print_profiles(select, output_fields=fields, sort_keys=cmd_args.sort)
         nr = delete_profiles(select)
-    except (ValueError, IndexError) as e:
-        print(e)
+    except (ValueError, IndexError) as err:
+        print(err)
         return 1
     print(f"Deleted {nr} profile{'s' if nr > 1 else ''}")
     return 0
@@ -3432,8 +3432,8 @@ def _clone_profile_cmd(
             options=options,
         )
 
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
     print(f"Cloned profile with os_id {select.os_id} as {osp.disp_os_id}:")
     print(_str_indent(str(osp), 2))
@@ -3458,8 +3458,8 @@ def _generic_show_cmd(
     """
     try:
         objs = find_fn(select)
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
 
     first = True
@@ -3586,8 +3586,8 @@ def _edit_profile_cmd(
             options=options,
             optional_keys=optional_keys,
         )
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
 
     print("Edited profile:")
@@ -3650,8 +3650,8 @@ def _create_host_cmd(
             del_opts=cmd_args.del_opts,
             options=cmd_args.os_options,
         )
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
     print(f"Created host profile with host_id {hp.disp_host_id}:")
     print(_str_indent(str(hp), 2))
@@ -3696,8 +3696,8 @@ def _delete_host_cmd(
         if cmd_args.verbose:
             print_hosts(select, output_fields=fields, sort_keys=cmd_args.sort)
         nr = delete_hosts(select)
-    except (ValueError, IndexError) as e:
-        print(e)
+    except (ValueError, IndexError) as err:
+        print(err)
         return 1
     print(f"Deleted {nr} profile{'s' if nr > 1 else ''}")
     return 0
@@ -3759,8 +3759,8 @@ def _clone_host_cmd(
             del_opts=cmd_args.del_opts,
             options=cmd_args.os_options,
         )
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
     print(f"Cloned profile with host_id {select.host_id} as {hp.disp_host_id}:")
     print(_str_indent(str(hp), 2))
@@ -3877,8 +3877,8 @@ def _edit_host_cmd(
             del_opts=del_opts,
             options=options,
         )
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
 
     print("Edited profile:")
@@ -3910,8 +3910,8 @@ def _show_cache_cmd(
     try:
         find_fn = find_cache_images if cmd_args.verbose else find_cache_paths
         ces = find_fn(selection=select)
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
     first = True
     for ce in ces:
@@ -3967,8 +3967,8 @@ def _write_legacy_cmd(
     try:
         clear_legacy_loader()
         write_legacy_loader(selection=select, loader=config.legacy_format)
-    except Exception as e:
-        print(e)
+    except (BoomLegacyFormatError, BoomError, OSError, ValueError) as err:
+        print(err)
         return 1
     return 0
 
@@ -3995,8 +3995,8 @@ def _clear_legacy_cmd(
 
     try:
         clear_legacy_loader()
-    except BoomLegacyFormatError as e:
-        print(e)
+    except BoomLegacyFormatError as err:
+        print(err)
         return 1
     return 0
 
@@ -4595,8 +4595,8 @@ def main(args: List[str]) -> int:
 
     try:
         set_debug(cmd_args.debug)
-    except ValueError as e:
-        print(e)
+    except ValueError as err:
+        print(err)
         return 1
     setup_logging(cmd_args)
 
@@ -4606,8 +4606,8 @@ def main(args: List[str]) -> int:
             boot_path = join(getcwd(), boot_path)
         try:
             set_boot_path(boot_path)
-        except ValueError as e:
-            _log_error("Failed to set boot path to '%s': %s", boot_path, e)
+        except ValueError as err:
+            _log_error("Failed to set boot path to '%s': %s", boot_path, err)
             return 1
 
     if cmd_args.config:
@@ -4617,8 +4617,8 @@ def main(args: List[str]) -> int:
         try:
             set_boom_path(join(get_boot_path(), "boom"))
             bc = load_boom_config()
-        except ValueError as e:
-            _log_error("Could not load boom configuration: %s", e)
+        except ValueError as err:
+            _log_error("Could not load boom configuration: %s", err)
 
         if not path_exists(get_boom_path()):
             _log_error("Configuration directory '%s' not found.", get_boom_path())
@@ -4658,8 +4658,8 @@ def main(args: List[str]) -> int:
     if cmd_args.root_lv:
         try:
             root_lv = _canonicalize_lv_name(cmd_args.root_lv)
-        except ValueError as e:
-            print(e)
+        except ValueError as err:
+            print(err)
             print(f"Invalid logical volume name: '{cmd_args.root_lv}'")
             return 1
         root_device = DEV_PATTERN % root_lv
@@ -4697,14 +4697,14 @@ def main(args: List[str]) -> int:
     else:
         try:
             status = command[1](cmd_args, select, opts, identifier)
-        except Exception as e:
-            _log_error("Command failed: %s", e)
+        except (BoomError, OSError, ValueError) as err:
+            _log_error("Command failed: %s", err)
 
     if bc.cache_enable and bc.cache_auto_clean:
         try:
             clean_cache()
-        except Exception as e:
-            _log_error("Could not clean boot image cache: %s", e)
+        except (BoomError, OSError) as err:
+            _log_error("Could not clean boot image cache: %s", err)
 
     shutdown_logging()
     return status

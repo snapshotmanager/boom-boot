@@ -83,8 +83,8 @@ def _read_boom_config(path: Optional[str] = None) -> BoomConfig:
     cfg = ConfigParser()
     try:
         cfg.read(path)
-    except ParsingError as e:
-        _log_error("Failed to parse configuration file '%s': %s", path, e)
+    except ParsingError as err:
+        _log_error("Failed to parse configuration file '%s': %s", path, err)
 
     bc = BoomConfig()
 
@@ -223,13 +223,15 @@ def write_boom_config(config: Optional[BoomConfig] = None, path: Optional[str] =
     try:
         rename(tmp_path, path)
         chmod(path, BOOT_CONFIG_MODE)
-    except Exception as e:
-        _log_error("Error writing configuration file %s: %s", path, e)
+    except (OSError, IOError) as err:
+        _log_error("Error writing configuration file %s: %s", path, err)
         try:
             unlink(tmp_path)
-        except Exception:
-            _log_error("Error unlinking temporary path %s", tmp_path)
-        raise e
+        except FileNotFoundError:
+            pass
+        except (OSError, IOError) as err2:
+            _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
+        raise
 
 
 __all__ = [

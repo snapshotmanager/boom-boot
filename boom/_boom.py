@@ -1034,12 +1034,12 @@ def load_profiles_for_class(
         pf_path = path_join(profiles_path, pf)
         try:
             profile_class(profile_file=pf_path)
-        except Exception as e:
+        except Exception as err:
             _log_warn(
-                "Failed to load %s from '%s': %s", profile_class.__name__, pf_path, e
+                "Failed to load %s from '%s': %s", profile_class.__name__, pf_path, err
             )
             if get_debug_mask():
-                raise e
+                raise
             continue
 
 

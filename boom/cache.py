@@ -218,9 +218,9 @@ def load_cache():
     try:
         with open(index_path, "r", encoding="utf8") as index_file:
             cachedata = json_load(index_file)
-    except IOError as e:
-        if e.errno != ENOENT:
-            raise e
+    except IOError as err:
+        if err.errno != ENOENT:
+            raise
         _log_debug("No metadata found: starting empty cache")
         return
 
@@ -285,9 +285,9 @@ def _insert(boot_path: str, cache_file: str):
     try:
         # FIXME: implement hard link support with fall-back to copy.
         _insert_copy(boot_path, cache_file)
-    except Exception as e:
-        _log_error("Error copying '%s' to cache: %s", boot_path, e)
-        raise e
+    except (OSError, IOError) as err:
+        _log_error("Error copying '%s' to cache: %s", boot_path, err)
+        raise
 
 
 def _remove_boot(boot_path: str):
@@ -315,9 +315,9 @@ def _remove(cache_file: str):
         raise ValueError(f"'{cache_file}' is not a boom cache path")
     try:
         _remove_copy(cache_file)
-    except Exception as e:
-        _log_error("Error removing cache image '%s': %s", cache_file, e)
-        raise e
+    except (OSError, IOError) as err:
+        _log_error("Error removing cache image '%s': %s", cache_file, err)
+        raise
 
 
 def _insert_path(path: str, img_id: str, mode: int, uid: int, gid: int, attrs: dict):
@@ -477,22 +477,22 @@ class CacheEntry:
         try:
             chown(boot_path, self.uid, self.gid)
             chmod(boot_path, self.mode)
-        except OSError as e:
+        except OSError:
             try:
                 unlink(boot_path)
             except OSError:
                 pass
-            raise e
+            raise
 
         try:
             dot_file = open(path_join(boot_dir, dot_path), "w", encoding="utf8")
             dot_file.close()
-        except OSError as e:
+        except OSError:
             try:
                 unlink(boot_path)
             except OSError:
                 pass
-            raise e
+            raise
 
     def purge(self):
         """Remove the boom restored image copy from the /boot file system."""

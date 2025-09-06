@@ -171,25 +171,25 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
                 dbe = decorator(be)
                 tmp_f.write(str(dbe) + "\n")
             tmp_f.write(end_tag + "\n")
-    except BoomLegacyFormatError as e:
-        _log_error("Error formatting %s configuration: %s", name, e)
+    except (BoomLegacyFormatError, OSError, IOError) as err:
+        _log_error("Error formatting %s configuration: %s", name, err)
         try:
             unlink(tmp_path)
-        except OSError:
-            _log_error("Error unlinking temporary file '%s'", tmp_path)
+        except OSError as err2:
+            _log_error("Error unlinking temporary file '%s': %s", tmp_path, err2)
         return
 
     try:
         fdatasync(tmp_fd)
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
-    except Exception as e:
-        _log_error("Error writing legacy configuration file %s: %s", path, e)
+    except (OSError, IOError) as err:
+        _log_error("Error writing legacy configuration file %s: %s", path, err)
         try:
             unlink(tmp_path)
-        except Exception:
-            _log_error("Error unlinking temporary path %s", tmp_path)
-        raise e
+        except (OSError, IOError) as err2:
+            _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
+        raise
 
 
 def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
@@ -230,10 +230,6 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         if isinstance(fmt_data[0], int):
             fmt_data = (f"line {fmt_data[0]}", fmt_data[1])
 
-        try:
-            unlink(tmp_path)
-        except OSError as e:
-            _log_error("Could not unlink '%s': %s", tmp_path, e)
         raise BoomLegacyFormatError(err % fmt_data)
 
     (name, _, path) = find_legacy_loader(loader, cfg_path)
@@ -309,13 +305,13 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         fdatasync(tmp_fd)
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
-    except Exception as err:
+    except (OSError, IOError) as err:
         _log_error("Error writing legacy configuration file %s: %s", path, err)
         try:
             unlink(tmp_path)
-        except Exception:
-            _log_error("Error unlinking temporary path %s", tmp_path)
-        raise err
+        except (OSError, IOError) as err2:
+            _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
+        raise
 
 
 class Grub1BootEntry:

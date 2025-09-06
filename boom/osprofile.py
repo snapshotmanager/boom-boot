@@ -296,8 +296,8 @@ def write_profiles(force: bool = False) -> None:
             continue
         try:
             osp.write_profile(force)
-        except Exception as e:
-            _log_warn("Failed to write OsProfile(os_id='%s'): %s", osp.disp_os_id, e)
+        except (OSError, IOError) as err:
+            _log_warn("Failed to write OsProfile(os_id='%s'): %s", osp.disp_os_id, err)
 
 
 def min_os_id_width() -> int:
@@ -727,8 +727,8 @@ class BoomProfile:
         try:
             # Call subclass _from_data() hook for initialisation
             self._from_data(profile_data, dirty=False)
-        except ValueError as e:
-            raise ValueError(str(e) + f"in {profile_file}")
+        except ValueError as err:
+            raise ValueError(str(err) + f"in {profile_file}") from err
 
     def __init__(
         self, profile_keys: List[str], required_keys: List[str], identity_key: str
@@ -1242,13 +1242,13 @@ class BoomProfile:
         try:
             rename(tmp_path, profile_path)
             chmod(profile_path, mode)
-        except Exception as e:
-            _log_error("Error writing profile file '%s': %s", profile_path, e)
+        except (OSError, IOError) as err:
+            _log_error("Error writing profile file '%s': %s", profile_path, err)
             try:
                 unlink(tmp_path)
-            except Exception:
-                _log_error("Error unlinking temporary path %s", tmp_path)
-            raise e
+            except (OSError, IOError) as err2:
+                _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
+            raise
 
         _log_debug("Wrote %s (id=%s)'", ptype, profile_id)
 
@@ -1297,8 +1297,9 @@ class BoomProfile:
         try:
             unlink(profile_path)
             _log_debug("Deleted %s(id='%s')", ptype, profile_id)
-        except Exception as e:
-            _log_error("Error removing %s file '%s': %s", ptype, profile_path, e)
+        except (OSError, IOError) as err:
+            _log_error("Error removing %s file '%s': %s", ptype, profile_path, err)
+            raise
 
     def delete_profile(self) -> None:
         """Delete on-disk data for this profile.

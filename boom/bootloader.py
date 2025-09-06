@@ -878,10 +878,10 @@ def load_entries(machine_id: Optional[str] = None):
         entry_path = path_join(entries_path, entry)
         try:
             _add_entry(BootEntry(entry_file=entry_path))
-        except Exception as e:
-            _log_info("Could not load BootEntry '%s': %s", entry_path, e)
+        except (OSError, IOError, ValueError, LookupError) as err:
+            _log_info("Could not load BootEntry '%s': %s", entry_path, err)
             if get_debug_mask():
-                raise e
+                raise
 
     if _entries:
         _log_debug("Loaded %d entries", len(_entries))
@@ -896,8 +896,10 @@ def write_entries():
     for be in _entries:
         try:
             be.write_entry()
-        except Exception as e:
-            _log_warn("Could not write BootEntry(boot_id='%s'): %s", be.disp_boot_id, e)
+        except (OSError, IOError) as err:
+            _log_warn(
+                "Could not write BootEntry(boot_id='%s'): %s", be.disp_boot_id, err
+            )
 
 
 def min_boot_id_width() -> int:
@@ -2465,13 +2467,13 @@ class BootEntry:
         try:
             rename(tmp_path, entry_path)
             chmod(entry_path, BOOT_ENTRY_MODE)
-        except Exception as e:  # pragma: no cover
-            _log_error("Error writing entry file %s: %s", entry_path, e)
+        except (OSError, IOError) as err:  # pragma: no cover
+            _log_error("Error writing entry file %s: %s", entry_path, err)
             try:
                 unlink(tmp_path)
-            except Exception:
-                _log_error("Error unlinking temporary path %s", tmp_path)
-            raise e
+            except (OSError, IOError) as err2:
+                _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
+            raise
 
         self._last_path = entry_path
         self._unwritten = False
@@ -2517,8 +2519,9 @@ class BootEntry:
             try:
                 if to_unlink:
                     unlink(to_unlink)
-            except Exception as e:
-                _log_error("Error unlinking entry file %s: %s", to_unlink, e)
+            except (OSError, IOError) as err:
+                _log_error("Error unlinking entry file %s: %s", to_unlink, err)
+                raise
 
     def delete_entry(self):
         """Remove on-disk BootEntry file.
@@ -2539,8 +2542,8 @@ class BootEntry:
             raise ValueError(f"Entry does not exist: {self._entry_path}")
         try:
             unlink(self._entry_path)
-        except Exception as e:
-            _log_error("Error removing entry file %s: %s", self._entry_path, e)
+        except (OSError, IOError) as err:
+            _log_error("Error removing entry file %s: %s", self._entry_path, err)
             raise
 
         if not self._unwritten:
