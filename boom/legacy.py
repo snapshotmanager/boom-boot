@@ -154,7 +154,7 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
     cfg_dir = dirname(path)
 
     if not exists(cfg_dir):
-        _log_error("Cannot write %s configuration: '%s' does not exist'", name, cfg_dir)
+        _log_error("Cannot write %s configuration: '%s' does not exist", name, cfg_dir)
         return
 
     begin_tag = BOOM_LEGACY_BEGIN_FMT % name
@@ -268,7 +268,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
     cfg_dir = dirname(path)
 
     if not exists(cfg_dir):
-        _log_error("Cannot clear %s configuration: '%s' does not exist'", name, cfg_dir)
+        _log_error("Cannot clear %s configuration: '%s' does not exist", name, cfg_dir)
         return
 
     begin_tag = BOOM_LEGACY_BEGIN_FMT % name
