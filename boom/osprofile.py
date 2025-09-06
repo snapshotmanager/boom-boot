@@ -1302,8 +1302,8 @@ class BoomProfile:
         profile store.
 
         :rtype: ``NoneType``
-        :raises: ``OsError`` if an error occurs removing the file or
-                 ``ValueError`` if the profile does not exist.
+        :raises: ``OsError``, ``IOError`` if an error occurs removing the
+                 file.
         """
         ptype = self.__class__.__name__
         profile_path = self._profile_path()
