@@ -4490,7 +4490,7 @@ def main(args: List[str]) -> int:
         "--optional-keys",
         metavar="KEYS",
         type=str,
-        help="Optional keys allows by this operating system profile",
+        help="Optional keys allowed by this operating system profile",
     )
     parser.add_argument(
         "-o",
