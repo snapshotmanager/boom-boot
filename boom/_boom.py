@@ -358,9 +358,9 @@ def get_boom_path() -> str:
 
 
 def get_cache_path() -> str:
-    """Return the currently configured boot file system path.
+    """Return the currently configured cache directory ath.
 
-    :returns: the path to the /boot file system.
+    :returns: the path to the boom image cache directory.
     :rtype: str
     """
     return __config.cache_path
