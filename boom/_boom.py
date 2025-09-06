@@ -381,7 +381,7 @@ def set_boot_path(boot_path):
 
     :param boot_path: the path to the 'boom/' directory containing
                       boom profiles and configuration.
-    :returnsNone: ``None``
+    :returns: ``None``
     :raises: ValueError if ``boot_path`` does not exist.
     """
     if not isabs(boot_path):
