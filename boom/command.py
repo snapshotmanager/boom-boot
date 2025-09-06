@@ -25,6 +25,7 @@ from argparse import Namespace, ArgumentParser
 from stat import filemode
 import platform
 import logging
+import sys
 import re
 
 from boom import (
@@ -2890,8 +2891,8 @@ def _create_cmd(
         print(brde)
         print("Creating an entry with no valid root device requires --no-dev")
         return 1
-    except ValueError as err:
-        print(err)
+    except (ValueError, BoomConfigError, OSError) as err:
+        print(err, file=sys.stderr)
         return 1
 
     _apply_profile_overrides(be, cmd_args)
@@ -2903,7 +2904,7 @@ def _create_cmd(
     except (BoomError, OSError, ValueError) as err:  # pragma: no cover
         if cmd_args.debug:
             raise
-        print(err)
+        print(err, file=sys.stderr)
         return 1
 
     print(f"Created entry with boot_id {be.disp_boot_id}:")
@@ -2954,7 +2955,7 @@ def _delete_cmd(
             )
         nr = delete_entries(select)
     except (ValueError, IndexError) as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
 
     print(f"Deleted {nr} entr{'ies' if nr > 1 else 'y'}")
@@ -3000,7 +3001,7 @@ def _clone_cmd(
     try:
         be = _find_one_entry(select)
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
 
     version = cmd_args.version or be.version
@@ -3038,8 +3039,8 @@ def _clone_cmd(
             swaps=cmd_args.swap,
         )
 
-    except ValueError as err:
-        print(err)
+    except (ValueError, BoomConfigError, OSError) as err:
+        print(err, file=sys.stderr)
         return 1
 
     # Command-line overrides take precedence over any overridden values
@@ -3053,7 +3054,7 @@ def _clone_cmd(
     except (BoomError, OSError, ValueError) as err:  # pragma: no cover
         if cmd_args.debug:
             raise
-        print(err)
+        print(err, file=sys.stderr)
         return 1
 
     print(
@@ -3095,7 +3096,7 @@ def _show_cmd(
     try:
         bes = find_entries(selection=select)
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     first = True
     for be in bes:
@@ -3146,7 +3147,7 @@ def _generic_list_cmd(
             expand=cmd_args.expand_variables,
         )
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     return 0
 
@@ -3220,7 +3221,7 @@ def _edit_cmd(
     try:
         be = _find_one_entry(select)
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
 
     version = cmd_args.version or be.version
@@ -3261,8 +3262,8 @@ def _edit_cmd(
         print(brde)
         print("Editing an entry with no valid root device requires --no-dev")
         return 1
-    except ValueError as err:
-        print(err)
+    except (ValueError, BoomConfigError, OSError) as err:
+        print(err, file=sys.stderr)
         return 1
 
     # Command-line overrides take precedence over any overridden values
@@ -3275,7 +3276,7 @@ def _edit_cmd(
     except (BoomError, OSError, ValueError) as err:  # pragma: no cover
         if cmd_args.debug:
             raise
-        print(err)
+        print(err, file=sys.stderr)
         return 1
 
     print(f"Edited entry, boot_id now: {be.disp_boot_id}")
@@ -3357,7 +3358,7 @@ def _create_profile_cmd(
             profile_file=release,
         )
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     print(f"Created profile with os_id {osp.disp_os_id}:")
     print(_str_indent(str(osp), 2))
@@ -3403,7 +3404,7 @@ def _delete_profile_cmd(
             print_profiles(select, output_fields=fields, sort_keys=cmd_args.sort)
         nr = delete_profiles(select)
     except (ValueError, IndexError) as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     print(f"Deleted {nr} profile{'s' if nr > 1 else ''}")
     return 0
@@ -3467,7 +3468,7 @@ def _clone_profile_cmd(
         )
 
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     print(f"Cloned profile with os_id {select.os_id} as {osp.disp_os_id}:")
     print(_str_indent(str(osp), 2))
@@ -3493,7 +3494,7 @@ def _generic_show_cmd(
     try:
         objs = find_fn(select)
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
 
     first = True
@@ -3621,7 +3622,7 @@ def _edit_profile_cmd(
             optional_keys=optional_keys,
         )
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
 
     print("Edited profile:")
@@ -3685,7 +3686,7 @@ def _create_host_cmd(
             options=cmd_args.os_options,
         )
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     print(f"Created host profile with host_id {hp.disp_host_id}:")
     print(_str_indent(str(hp), 2))
@@ -3731,7 +3732,7 @@ def _delete_host_cmd(
             print_hosts(select, output_fields=fields, sort_keys=cmd_args.sort)
         nr = delete_hosts(select)
     except (ValueError, IndexError) as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     print(f"Deleted {nr} profile{'s' if nr > 1 else ''}")
     return 0
@@ -3794,7 +3795,7 @@ def _clone_host_cmd(
             options=cmd_args.os_options,
         )
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     print(f"Cloned profile with host_id {select.host_id} as {hp.disp_host_id}:")
     print(_str_indent(str(hp), 2))
@@ -3912,7 +3913,7 @@ def _edit_host_cmd(
             options=options,
         )
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
 
     print("Edited profile:")
@@ -3945,7 +3946,7 @@ def _show_cache_cmd(
         find_fn = find_cache_images if cmd_args.verbose else find_cache_paths
         ces = find_fn(selection=select)
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     first = True
     for ce in ces:
@@ -4002,7 +4003,7 @@ def _write_legacy_cmd(
         clear_legacy_loader()
         write_legacy_loader(selection=select, loader=config.legacy_format)
     except (BoomLegacyFormatError, BoomError, OSError, ValueError) as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     return 0
 
@@ -4030,7 +4031,7 @@ def _clear_legacy_cmd(
     try:
         clear_legacy_loader()
     except BoomLegacyFormatError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     return 0
 
@@ -4073,7 +4074,7 @@ def _create_config_cmd(
     try:
         create_config()
     except BoomConfigError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     return 0
 
@@ -4634,7 +4635,7 @@ def main(args: List[str]) -> int:
     try:
         set_debug(cmd_args.debug)
     except ValueError as err:
-        print(err)
+        print(err, file=sys.stderr)
         return 1
     setup_logging(cmd_args)
 
@@ -4717,8 +4718,8 @@ def main(args: List[str]) -> int:
         try:
             root_lv = _canonicalize_lv_name(cmd_args.root_lv)
         except ValueError as err:
-            print(err)
-            print(f"Invalid logical volume name: '{cmd_args.root_lv}'")
+            print(err, file=sys.stderr)
+            print(f"Invalid logical volume name: '{cmd_args.root_lv}'", file=sys.stderr)
             return 1
         root_device = DEV_PATTERN % root_lv
         if cmd_args.root_device and cmd_args.root_device != root_device:
