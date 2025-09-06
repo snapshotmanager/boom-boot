@@ -4619,6 +4619,7 @@ def main(args: List[str]) -> int:
             bc = load_boom_config()
         except ValueError as e:
             _log_error("Could not load boom configuration: %s", e)
+            return 1
 
         if not path_exists(get_boom_path()):
             _log_error("Configuration directory '%s' not found.", get_boom_path())
