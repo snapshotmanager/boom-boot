@@ -230,6 +230,7 @@ def write_boom_config(config: Optional[BoomConfig] = None, path: Optional[str] =
     if config._cfg:
         with fdopen(tmp_fd, "w") as f_tmp:
             config._cfg.write(f_tmp)
+            f_tmp.flush()
             fdatasync(tmp_fd)
 
     try:
