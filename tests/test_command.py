@@ -1484,12 +1484,14 @@ class CommandTests(unittest.TestCase):
     # Command handler tests
     #
 
+    @unittest.skipIf(not have_root_lv(), "requires root LV")
     def test__create_cmd(self):
         """Test the _create_cmd() handler with correct arguments.
         """
         args = get_create_cmd_args()
         opts = boom.command._report_opts_from_args(args)
-        boom.command._create_cmd(args, None, opts, None)
+        r = boom.command._create_cmd(args, None, opts, None)
+        self.assertEqual(r, 0)
 
     def test__create_cmd_bad_identity(self):
         """Test the _create_cmd() handler with an invalid identity
