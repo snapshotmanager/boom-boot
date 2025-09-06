@@ -10,7 +10,7 @@ import logging
 from sys import stdout
 from os import listdir, makedirs, unlink
 from os.path import abspath, basename, dirname, exists, join
-from tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory, NamedTemporaryFile
 from io import StringIO
 from glob import glob
 import shutil
@@ -2613,6 +2613,38 @@ class CommandTests(unittest.TestCase):
             self.assertTrue(exists(join(boot_dir, "boom", "hosts")))
             self.assertTrue(exists(join(boot_dir, "boom", "profiles")))
 
+    def test_boom_main_config_create_idempotent(self):
+        args = ["bin/boom", "config", "create"]
+        with TemporaryDirectory(dir="/var/tmp") as boot_dir:
+            args += ["--boot-dir", boot_dir]
+            r = boom.command.main(args)
+            self.assertEqual(r, 0)
+            self.assertTrue(exists(join(boot_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(boot_dir, "boom", "cache")))
+            self.assertTrue(exists(join(boot_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(boot_dir, "boom", "profiles")))
+
+            # Re-run, assert unchanged
+            r = boom.command.main(args)
+            self.assertEqual(r, 0)
+            self.assertTrue(exists(join(boot_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(boot_dir, "boom", "cache")))
+            self.assertTrue(exists(join(boot_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(boot_dir, "boom", "profiles")))
+
+    def test_boom_main_config_create_non_existent(self):
+        args = ["bin/boom", "config", "create"]
+        args += ["--boot-dir", "/Brownsville/Turnaround/on/the/Tex-Mex/Border"]
+        r = boom.command.main(args)
+        self.assertEqual(r, 1)
+
+    def test_boom_main_config_create_not_a_dir(self):
+        with NamedTemporaryFile(dir="/var/tmp") as conf_not_a_dir:
+            args = ["bin/boom", "config", "create"]
+            args += ["--boot-dir", conf_not_a_dir.name]
+            r = boom.command.main(args)
+            self.assertEqual(r, 1)
+
     def test_create_config(self):
         with TemporaryDirectory(dir="/var/tmp") as conf_dir:
             boom.command.create_config(boot_path=conf_dir)
@@ -2620,5 +2652,29 @@ class CommandTests(unittest.TestCase):
             self.assertTrue(exists(join(conf_dir, "boom", "cache")))
             self.assertTrue(exists(join(conf_dir, "boom", "hosts")))
             self.assertTrue(exists(join(conf_dir, "boom", "profiles")))
+
+    def test_create_config_idempotent(self):
+        with TemporaryDirectory(dir="/var/tmp") as conf_dir:
+            boom.command.create_config(boot_path=conf_dir)
+            self.assertTrue(exists(join(conf_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(conf_dir, "boom", "cache")))
+            self.assertTrue(exists(join(conf_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(conf_dir, "boom", "profiles")))
+
+            # Re-run, assert unchanged
+            boom.command.create_config(boot_path=conf_dir)
+            self.assertTrue(exists(join(conf_dir, "boom", "boom.conf")))
+            self.assertTrue(exists(join(conf_dir, "boom", "cache")))
+            self.assertTrue(exists(join(conf_dir, "boom", "hosts")))
+            self.assertTrue(exists(join(conf_dir, "boom", "profiles")))
+
+    def test_create_config_non_existent(self):
+        with self.assertRaises(BoomConfigError):
+            boom.command.create_config(boot_path="/A/Melody/from/a/Past/Life/Keeps/Pulling/Me/Back")
+
+    def test_create_config_not_a_dir(self):
+        with NamedTemporaryFile(dir="/var/tmp") as conf_not_a_dir:
+            with self.assertRaises(BoomConfigError):
+                boom.command.create_config(boot_path=conf_not_a_dir.name)
 
 # vim: set et ts=4 sw=4 :

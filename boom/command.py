@@ -19,7 +19,7 @@ object types and fields that may be of use in implementing custom
 reports using the ``boom.report`` module.
 """
 from os import environ, uname, getcwd, makedirs
-from os.path import basename, exists as path_exists, isabs, join, sep
+from os.path import basename, exists as path_exists, isabs, isdir, join, sep
 from typing import Any, Dict, Callable, List, Optional, Set, Tuple, Union
 from argparse import Namespace, ArgumentParser
 from stat import filemode
@@ -36,6 +36,7 @@ from boom import (
     BOOM_DEBUG_REPORT,
     BOOM_DEBUG_COMMAND,
     BOOM_DEBUG_ALL,
+    DEFAULT_BOOT_PATH,
     Selection,
     get_boom_config,
     parse_btrfs_subvol,
@@ -2621,23 +2622,56 @@ def show_legacy(selection=None, loader=BOOM_LOADER_GRUB1):
 
 
 def create_config(boot_path: Optional[str] = None):
-    """Create default boom configuration in /boot."""
+    """Create default boom configuration in `boot_path`."""
     bc = get_boom_config()
 
     if boot_path is not None:
+        if not path_exists(boot_path):
+            raise BoomConfigError(f"Specified boot_path not found: {boot_path}")
+        if not isdir(boot_path):
+            raise BoomConfigError(
+                f"Specified boot_path is not a directory: {boot_path}"
+            )
         bc.boot_path = boot_path
         bc.boom_path = join(boot_path, "boom")
         bc.cache_path = join(bc.boom_path, "cache")
 
+        try:
+            runtime_boot_path = (
+                boot_path if isabs(boot_path) else join(getcwd(), boot_path)
+            )
+            set_boot_path(runtime_boot_path)
+        except ValueError as err:
+            _log_error("Failed to set boot path to '%s': %s", runtime_boot_path, err)
+            raise BoomConfigError("Failed to set boot_path") from err
+
     _log_info("Creating default configuration in %s", bc.boot_path)
 
-    if path_exists(join(bc.boom_path, BOOM_CONFIG_FILE)):
-        raise BoomConfigError(f"Boom configuration already present in {bc.boom_path}")
+    boom_conf = join(bc.boom_path, BOOM_CONFIG_FILE)
+    if path_exists(boom_conf):
+        _log_warn("Boom configuration already present in %s", bc.boom_path)
 
-    makedirs(bc.boom_path, mode=0o755)
-    for subdir in ["cache", "hosts", "profiles"]:
-        makedirs(join(bc.boom_path, subdir), mode=0o700)
-    write_boom_config(config=bc, path=join(bc.boot_path, "boom", "boom.conf"))
+    try:
+        makedirs(bc.boom_path, mode=0o755, exist_ok=True)
+        for subdir in ["cache", "hosts", "profiles"]:
+            makedirs(join(bc.boom_path, subdir), mode=0o700, exist_ok=True)
+    except (OSError, IOError) as err:
+        _log_error(
+            "Failed to create boom directory layout in %s: %s", bc.boot_path, err
+        )
+        raise BoomConfigError("Failed to create boom directory layout") from err
+
+    try:
+        write_boom_config(config=bc, path=boom_conf)
+    except (OSError, IOError) as err:
+        _log_error("Failed to write boom configuration to %s: %s", boom_conf, err)
+        raise BoomConfigError("Failed to write boom configuration") from err
+
+    try:
+        set_boom_path("boom")
+    except ValueError as err:
+        _log_error("Failed to set boom_path to '%s': %s", bc.boom_path, err)
+        raise BoomConfigError("Failed to set boom_path") from err
 
 
 #
@@ -4036,7 +4070,11 @@ def _create_config_cmd(
     :param _identifier: Unused
     :returns: integer status code returned from ``main()``
     """
-    create_config()
+    try:
+        create_config()
+    except BoomConfigError as err:
+        print(err)
+        return 1
     return 0
 
 
@@ -4600,25 +4638,33 @@ def main(args: List[str]) -> int:
         return 1
     setup_logging(cmd_args)
 
+    boot_path = None
     if cmd_args.boot_dir or BOOM_BOOT_PATH_ENV in environ:
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
         if not isabs(boot_path):
             boot_path = join(getcwd(), boot_path)
-        try:
-            set_boot_path(boot_path)
-        except ValueError as err:
-            _log_error("Failed to set boot path to '%s': %s", boot_path, err)
-            return 1
+
+    boot_path = boot_path or DEFAULT_BOOT_PATH
 
     if cmd_args.config:
         set_boom_config_path(cmd_args.config)
 
     if cmd_type[0] != CONFIG_TYPE:
         try:
-            set_boom_path(join(get_boot_path(), "boom"))
-            bc = load_boom_config()
+            set_boot_path(boot_path)
         except ValueError as err:
-            _log_error("Could not load boom configuration: %s", err)
+            _log_error("Failed to set boot path to '%s': %s", boot_path, err)
+            return 1
+        try:
+            set_boom_path(join(boot_path, "boom"))
+        except ValueError as err:
+            _log_error(
+                "Failed to set boom_path to '%s': %s",
+                join(get_boot_path(), "boom"),
+                err,
+            )
+            print("Run 'boom config create' to generate default configuration")
+            return 1
 
         if not path_exists(get_boom_path()):
             _log_error("Configuration directory '%s' not found.", get_boom_path())
@@ -4627,6 +4673,7 @@ def main(args: List[str]) -> int:
 
         if not path_exists(get_boom_config_path()):
             _log_error("Configuration file '%s' not found.", get_boom_config_path())
+            print("Run 'boom config create' to generate default configuration")
             return 1
 
         if not path_exists(boom_profiles_path()):
@@ -4647,7 +4694,18 @@ def main(args: List[str]) -> int:
                 "Boot loader entries directory '%s' not found.", boom_entries_path()
             )
             return 1
+
+        try:
+            bc = load_boom_config()
+        except (BoomConfigError, OSError, ValueError) as err:
+            _log_error("Could not load boom configuration: %s", err)
+            return 1
     else:
+        try:
+            set_boot_path(boot_path)
+        except ValueError as err:
+            _log_error("Failed to set boot path to '%s': %s", boot_path, err)
+            return 1
         bc = get_boom_config()
 
     if cmd_type[0] == CACHE_TYPE and not bc.cache_enable:

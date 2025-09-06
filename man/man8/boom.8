@@ -13,7 +13,7 @@
 ..
 .\}
 .
-.\\" URL macro fallbacks for man2html compatibility (and groff without man-ext)
+.\" URL macro fallbacks for man2html compatibility (and groff without man-ext)
 .\" Define UR and UE independently so we don't assume both exist.
 .if !d UR \{\
 .de UR
@@ -638,8 +638,10 @@ Boom \(em linux boot manager
 .
 .B boom
 .de CMD_CONFIG_CREATE
-.B config
-.B create
+.  B config
+.  B create
+.  RB [ --boot-dir\ \c
+.  IR boot_dir ] " "\c
 ..
 .CMD_CONFIG_CREATE
 .br
@@ -1314,10 +1316,12 @@ format.
 .B boom
 .CMD_CONFIG_CREATE
 .br
-Create a default configuration in /boot.
+Create a default configuration at \fI/boot/boom/boom.conf\fP, overwriting any
+existing configuration file. The directory used as \fI/boot\fP may be overridden
+with the \fB--boot-dir\fP option.
 .IP
-Set up /boot/boom if configuration files were not provided with the
-\fBboom\fP package.
+When \fB--boot-dir\fP is specified, the configuration is written to
+\fIboot_dir/boom/boom.conf\fP.
 .
 .SH REPORT FIELDS
 .
