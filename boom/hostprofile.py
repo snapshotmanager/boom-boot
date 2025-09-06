@@ -438,7 +438,7 @@ def match_host_profile(entry) -> Optional["HostProfile"]:
 class HostProfile(BoomProfile):
     """Class HostProfile implements Boom host system profiles.
 
-    Objects of type HostProfile define a host identiry, and optional
+    Objects of type HostProfile define a host identity, and optional
     fields or ``BootParams`` modifications to be applied to the
     specified host.
 

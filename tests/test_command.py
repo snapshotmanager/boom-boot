@@ -1688,7 +1688,7 @@ class CommandTests(unittest.TestCase):
 
     def test__delete_cmd_identity(self):
         """Test the _delete_cmd() handler with a valid entry that
-            is passed via the 'identiry' handler argument.
+            is passed via the 'identity' handler argument.
         """
         args = MockArgs()
         opts = boom.command._report_opts_from_args(args)
