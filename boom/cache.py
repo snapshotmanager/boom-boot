@@ -485,8 +485,8 @@ class CacheEntry:
             raise
 
         try:
-            dot_file = open(path_join(boot_dir, dot_path), "w", encoding="utf8")
-            dot_file.close()
+            with open(path_join(boot_dir, dot_path), "w", encoding="utf8"):
+                pass
         except OSError:
             try:
                 unlink(boot_path)
