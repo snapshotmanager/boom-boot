@@ -200,8 +200,10 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
         return
 
     try:
-        fdatasync(tmp_fd)
-        close(tmp_fd)
+        try:
+            fdatasync(tmp_fd)
+        finally:
+            close(tmp_fd)
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
         dir_fd = os_open(cfg_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
@@ -314,9 +316,18 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
                     if not in_boom_cfg:
                         tmp_f.write(line)
                     line_nr += 1
-    except BoomLegacyFormatError as err:
+    except (BoomLegacyFormatError, OSError, IOError) as err:
         _log_error("Error parsing %s configuration: %s", name, err)
         found_boom = False
+        try:
+            close(tmp_fd)
+        except OSError:
+            pass
+        try:
+            unlink(tmp_path)
+        except OSError as err2:
+            _log_error("Could not unlink temporary file '%s': %s", tmp_path, err2)
+        return
 
     if in_boom_cfg and not found_boom:
         _legacy_format_error(err_no_end, ("EOF", path))
@@ -330,8 +341,10 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
         return
 
     try:
-        fdatasync(tmp_fd)
-        close(tmp_fd)
+        try:
+            fdatasync(tmp_fd)
+        finally:
+            close(tmp_fd)
         rename(tmp_path, path)
         chmod(path, BOOT_ENTRY_MODE)
         dir_fd = os_open(cfg_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
