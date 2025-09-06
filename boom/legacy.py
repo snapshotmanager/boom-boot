@@ -154,7 +154,7 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
     cfg_dir = dirname(path)
 
     if not exists(cfg_dir):
-        _log_error("Cannot write %s configuration: '%s' does not exist", name, cfg_dir)
+        _log_error("Cannot write %s configuration: '%s' does not exist'", name, cfg_dir)
         return
 
     begin_tag = BOOM_LEGACY_BEGIN_FMT % name
@@ -163,7 +163,7 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
     (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=cfg_dir)
 
     try:
-        with fdopen(tmp_fd, "w") as tmp_f:
+        with fdopen(tmp_fd, "w", encoding="utf8") as tmp_f:
             # Our original file descriptor will be closed on exit from
             # the fdopen with statement: save a copy so that we can call
             # fdatasync once at the end of writing rather than on each
@@ -268,7 +268,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
     cfg_dir = dirname(path)
 
     if not exists(cfg_dir):
-        _log_error("Cannot clear %s configuration: '%s' does not exist", name, cfg_dir)
+        _log_error("Cannot clear %s configuration: '%s' does not exist'", name, cfg_dir)
         return
 
     begin_tag = BOOM_LEGACY_BEGIN_FMT % name
@@ -290,7 +290,7 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
     (tmp_fd, tmp_path) = mkstemp(prefix="boom", dir=cfg_dir)
 
     try:
-        with fdopen(tmp_fd, "w") as tmp_f:
+        with fdopen(tmp_fd, "w", encoding="utf8") as tmp_f:
             # Our original file descriptor will be closed on exit from
             # the fdopen with statement: save a copy so that we can call
             # fdatasync once at the end of writing rather than on each

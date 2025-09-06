@@ -228,7 +228,7 @@ def write_boom_config(config: Optional[BoomConfig] = None, path: Optional[str] =
         _sync_config(config, config._cfg)
 
     if config._cfg:
-        with fdopen(tmp_fd, "w") as f_tmp:
+        with fdopen(tmp_fd, "w", encoding="utf8") as f_tmp:
             config._cfg.write(f_tmp)
             f_tmp.flush()
             fdatasync(tmp_fd)
