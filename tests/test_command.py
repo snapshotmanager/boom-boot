@@ -2476,13 +2476,86 @@ class CommandTests(unittest.TestCase):
         r = boom.command._show_cache_cmd(args, None, None, None)
         self.assertEqual(r, 0)
 
+    def test_create_config_non_existent(self):
+        with self.assertRaises(BoomConfigError):
+            boom.command.create_config(boot_path="/A/Melody/from/a/Past/Life/Keeps/Pulling/Me/Back")
+
+    def test_create_config_not_a_dir(self):
+        with NamedTemporaryFile(dir="/var/tmp") as conf_not_a_dir:
+            with self.assertRaises(BoomConfigError):
+                boom.command.create_config(boot_path=conf_not_a_dir.name)
+
+
+class CommandTestsNoConf(unittest.TestCase):
+    """Test boom.commanad.main(), no boom configuration loaded.
+    """
+
+    # Main BLS loader directory for sandbox
+    loader_path = join(BOOT_ROOT_TEST, "loader")
+
+    # Main boom configuration path for sandbox
+    boom_path = join(BOOT_ROOT_TEST, "boom")
+
+    # Main grub configuration path for sandbox
+    grub_path = join(BOOT_ROOT_TEST, "grub")
+
+    # Test fixture init/cleanup
+    def setUp(self):
+        """Set up a test fixture for the CommandTestsNoConf class.
+
+            Defines standard objects for use in these tests.
+        """
+        log.info("Preparing %s", self._testMethodName)
+
+        reset_sandbox()
+
+        # Sandbox paths
+        boot_sandbox = join(SANDBOX_PATH, "boot")
+        boom_sandbox = join(SANDBOX_PATH, "boot/boom")
+        grub_sandbox = join(SANDBOX_PATH, "boot/grub")
+        loader_sandbox = join(SANDBOX_PATH, "boot/loader")
+
+        # Initialise sandbox from main
+        makedirs(boot_sandbox)
+        shutil.copytree(self.boom_path, boom_sandbox)
+        shutil.copytree(self.loader_path, loader_sandbox)
+        shutil.copytree(self.grub_path, grub_sandbox)
+
+        # Copy boot images
+        images = glob(join(BOOT_ROOT_TEST, "initramfs*"))
+        images += glob(join(BOOT_ROOT_TEST, "vmlinuz*"))
+        for image in images:
+            def _dotfile(img_path):
+                pattern = ".%s.boomrestored"
+                img_name = basename(img_path)
+                img_dir = dirname(img_path)
+                return join(img_dir, pattern % img_name)
+
+            shutil.copy2(image, boot_sandbox)
+            if exists(_dotfile(image)):
+                shutil.copy2(_dotfile(image), boot_sandbox)
+
+        drop_entries()
+        drop_profiles()
+        drop_host_profiles()
+        drop_cache()
+
+    def tearDown(self):
+        log.info("Tearing down %s", self._testMethodName)
+
+        # Clear sandbox data
+        rm_sandbox()
+        reset_boom_paths()
+
     def test_boom_main_list(self):
         args = ['bin/boom', 'entry', 'list']
+        args += ['--boot-dir', join(BOOT_ROOT_TEST, "sandbox", "boot")]
         status = boom.command.main(args)
         self.assertEqual(status, 0)
 
     def test_boom_main_list_no_type(self):
         args = ['bin/boom', 'list']
+        args += ['--boot-dir', join(BOOT_ROOT_TEST, "sandbox", "boot")]
         status = boom.command.main(args)
         self.assertEqual(status, 0)
 
@@ -2537,6 +2610,7 @@ class CommandTests(unittest.TestCase):
     def test_boom_main_root_lv(self):
         args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
         args += ['--version', '5.4.7-100.fc30.x86_64', '--root-lv', get_root_lv()]
+        args += ['--boot-dir', join(BOOT_ROOT_TEST, "sandbox", "boot")]
         r = boom.command.main(args)
         self.assertEqual(r, 0)
 
@@ -2545,6 +2619,7 @@ class CommandTests(unittest.TestCase):
         args = ['bin/boom', 'entry', 'create', '--title', 'LV_TEST']
         args += ['--version', '5.4.7-100.fc30.x86_64']
         args += ['--root-device', "/dev/" + get_root_lv()]
+        args += ['--boot-dir', join(BOOT_ROOT_TEST, "sandbox", "boot")]
         r = boom.command.main(args)
         self.assertEqual(r, 0)
 
@@ -2572,22 +2647,15 @@ class CommandTests(unittest.TestCase):
 
     def test_boom_main_missing_boom(self):
         args = ['bin/boom', 'list']
+        args += ["--boot-dir", join(BOOT_ROOT_TEST, "sandbox", "boot")]
         shutil.rmtree(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom"))
         r = boom.command.main(args)
         self.assertEqual(r, 1)
 
     def test_boom_main_missing_boom_conf(self):
-        args = ['bin/boom', 'list']
+        args = ['bin/boom', 'list', "-VV", "--debug=all"]
+        args += ["--boot-dir", join(BOOT_ROOT_TEST, "sandbox", "boot")]
         unlink(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom", "boom.conf"))
-        r = boom.command.main(args)
-        self.assertEqual(r, 1)
-
-    def test_boom_main_missing_boom_conf_with_boot_dir(self):
-        args = ['bin/boom', 'list', '--boot-dir', join(BOOT_ROOT_TEST, 'sandbox', 'boot')]
-        # Ensure boom.conf is absent at the explicit boot-dir
-        conf_path = join(BOOT_ROOT_TEST, 'sandbox', 'boot', 'boom', 'boom.conf')
-        if exists(conf_path):
-            unlink(conf_path)
         r = boom.command.main(args)
         self.assertEqual(r, 1)
 
@@ -2600,6 +2668,7 @@ class CommandTests(unittest.TestCase):
 
     def test_boom_main_missing_hosts(self):
         args = ['bin/boom', 'list']
+        args += ['--boot-dir', join(BOOT_ROOT_TEST, "sandbox", "boot")]
         shutil.rmtree(join(BOOT_ROOT_TEST, "sandbox", "boot", "boom", "hosts"))
         r = boom.command.main(args)
         self.assertEqual(r, 1)
@@ -2669,14 +2738,5 @@ class CommandTests(unittest.TestCase):
             self.assertTrue(exists(join(conf_dir, "boom", "cache")))
             self.assertTrue(exists(join(conf_dir, "boom", "hosts")))
             self.assertTrue(exists(join(conf_dir, "boom", "profiles")))
-
-    def test_create_config_non_existent(self):
-        with self.assertRaises(BoomConfigError):
-            boom.command.create_config(boot_path="/A/Melody/from/a/Past/Life/Keeps/Pulling/Me/Back")
-
-    def test_create_config_not_a_dir(self):
-        with NamedTemporaryFile(dir="/var/tmp") as conf_not_a_dir:
-            with self.assertRaises(BoomConfigError):
-                boom.command.create_config(boot_path=conf_not_a_dir.name)
 
 # vim: set et ts=4 sw=4 :
