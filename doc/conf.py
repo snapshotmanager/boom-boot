@@ -56,7 +56,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Boom'
-copyright = u'2017-2020, Red Hat, Inc.'
+copyright = u'2017-2025, Red Hat, Inc.'
 author = u'Bryn M. Reeves'
 
 # The version info for the project you're documenting, acts as replacement for
