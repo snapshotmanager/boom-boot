@@ -911,7 +911,7 @@ def write_entries():
     for be in _entries:
         try:
             be.write_entry()
-        except (OSError, IOError) as err:
+        except OSError as err:
             _log_warn(
                 "Could not write BootEntry(boot_id='%s'): %s", be.disp_boot_id, err
             )
@@ -2487,11 +2487,11 @@ class BootEntry:
                 fsync(dir_fd)
             finally:
                 close(dir_fd)
-        except (OSError, IOError) as err:  # pragma: no cover
+        except OSError as err:  # pragma: no cover
             _log_error("Error writing entry file %s: %s", entry_path, err)
             try:
                 unlink(tmp_path)
-            except (OSError, IOError) as err2:
+            except OSError as err2:
                 _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
             raise
 
@@ -2539,7 +2539,7 @@ class BootEntry:
             try:
                 if to_unlink:
                     unlink(to_unlink)
-            except (OSError, IOError) as err:
+            except OSError as err:
                 _log_error("Error unlinking entry file %s: %s", to_unlink, err)
                 raise
 
@@ -2562,7 +2562,7 @@ class BootEntry:
             raise ValueError(f"Entry does not exist: {self._entry_path}")
         try:
             unlink(self._entry_path)
-        except (OSError, IOError) as err:
+        except OSError as err:
             _log_error("Error removing entry file %s: %s", self._entry_path, err)
             raise
 

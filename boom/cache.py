@@ -285,7 +285,7 @@ def _insert(boot_path: str, cache_file: str):
     try:
         # FIXME: implement hard link support with fall-back to copy.
         _insert_copy(boot_path, cache_file)
-    except (OSError, IOError) as err:
+    except OSError as err:
         _log_error("Error copying '%s' to cache: %s", boot_path, err)
         raise
 
@@ -315,7 +315,7 @@ def _remove(cache_file: str):
         raise ValueError(f"'{cache_file}' is not a boom cache path")
     try:
         _remove_copy(cache_file)
-    except (OSError, IOError) as err:
+    except OSError as err:
         _log_error("Error removing cache image '%s': %s", cache_file, err)
         raise
 

@@ -308,7 +308,7 @@ def write_profiles(force: bool = False) -> None:
             continue
         try:
             osp.write_profile(force)
-        except (OSError, IOError) as err:
+        except OSError as err:
             _log_warn("Failed to write OsProfile(os_id='%s'): %s", osp.disp_os_id, err)
 
 
@@ -1260,13 +1260,13 @@ class BoomProfile:
                 fsync(dir_fd)
             finally:
                 close(dir_fd)
-        except (OSError, IOError) as err:
+        except OSError as err:
             _log_error("Error writing profile file '%s': %s", profile_path, err)
             try:
                 unlink(tmp_path)
             except FileNotFoundError:
                 pass
-            except (OSError, IOError) as err2:
+            except OSError as err2:
                 _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
             raise
 
@@ -1317,7 +1317,7 @@ class BoomProfile:
         try:
             unlink(profile_path)
             _log_debug("Deleted %s(id='%s')", ptype, profile_id)
-        except (OSError, IOError) as err:
+        except OSError as err:
             _log_error("Error removing %s file '%s': %s", ptype, profile_path, err)
             raise
 

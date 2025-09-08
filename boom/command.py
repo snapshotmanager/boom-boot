@@ -2656,7 +2656,7 @@ def create_config(boot_path: Optional[str] = None):
         makedirs(bc.boom_path, mode=0o755, exist_ok=True)
         for subdir in ["cache", "hosts", "profiles"]:
             makedirs(join(bc.boom_path, subdir), mode=0o700, exist_ok=True)
-    except (OSError, IOError) as err:
+    except OSError as err:
         _log_error(
             "Failed to create boom directory layout in %s: %s", bc.boot_path, err
         )
@@ -2664,7 +2664,7 @@ def create_config(boot_path: Optional[str] = None):
 
     try:
         write_boom_config(config=bc, path=boom_conf)
-    except (OSError, IOError) as err:
+    except OSError as err:
         _log_error("Failed to write boom configuration to %s: %s", boom_conf, err)
         raise BoomConfigError("Failed to write boom configuration") from err
 

@@ -241,13 +241,13 @@ def write_boom_config(config: Optional[BoomConfig] = None, path: Optional[str] =
             fsync(dir_fd)
         finally:
             close(dir_fd)
-    except (OSError, IOError) as err:
+    except OSError as err:
         _log_error("Error writing configuration file %s: %s", path, err)
         try:
             unlink(tmp_path)
         except FileNotFoundError:
             pass
-        except (OSError, IOError) as err2:
+        except OSError as err2:
             _log_error("Error unlinking temporary path %s: %s", tmp_path, err2)
         raise
 
