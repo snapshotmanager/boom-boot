@@ -628,7 +628,7 @@ class BoomProfile:
 
         # Optional parity with property setter semantics
         if key == BOOM_OS_OPTIONS and "root=" not in value:
-            raise ValueError("OsProfile.options must include root= device option")
+            raise ValueError(f"{ptype}.options must include root= device option")
 
         if self._profile_data:
             self._profile_data[key] = value
@@ -1115,9 +1115,12 @@ class BoomProfile:
 
     @options.setter
     def options(self, value: Optional[str]):
+        # Name of the current profile class instance
+        ptype = self.__class__.__name__
+
         if value is not None:
             if "root=" not in value:
-                raise ValueError("OsProfile.options must include root= device option")
+                raise ValueError(f"{ptype}.options must include root= device option")
             if self._profile_data:
                 self._profile_data[BOOM_OS_OPTIONS] = value
                 self._dirty()
@@ -1457,6 +1460,7 @@ class OsProfile(BoomProfile):
 
         :returns: None
         """
+        ptype = self.__class__.__name__
         err_str = "Invalid profile data (missing %s)"
 
         _log_debug_profile("Initialising OsProfile from profile_data=%s", profile_data)
@@ -1473,7 +1477,7 @@ class OsProfile(BoomProfile):
                 raise ValueError(err_str % key)
 
         if "root=" not in profile_data[BOOM_OS_OPTIONS]:
-            raise ValueError("OsProfile.options must include root= device option")
+            raise ValueError(f"{ptype}.options must include root= device option")
 
         root_opts = [key for key in OS_ROOT_KEYS if key in profile_data]
         if not any(root_opts):
