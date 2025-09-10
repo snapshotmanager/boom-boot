@@ -1005,7 +1005,7 @@ def _find_one_entry(select: Selection) -> BootEntry:
     """Find exactly one entry, and raise ValueError if zero or more
     than one entry is found.
 
-    :param: An instance of ``Selection`` specificying match criteria.
+    :param select: An instance of ``Selection`` specifying match criteria.
     :returns: A single instance of ``BootEntry``
     :raises: ValueError if selection results are empty or non-unique
     """
@@ -1107,7 +1107,7 @@ def create_entry(
     :param allow_no_dev: Accept a non-existent or invalid root dev.
     :param images: Whether to cache or backup boot images in the new
                    entry.
-    :param update: Whether to update or re-use an existing cached
+    :param update: Whether to update or reuse an existing cached
                    boot image.
     :param no_fstab: Disable parsing of the fstab for the new entry.
     :param mounts: A list of colon separated command-line mount
@@ -1276,7 +1276,7 @@ def clone_entry(
     :param allow_no_dev: Allow the block device to not exist.
     :param images: Whether to cache or backup boot images in the new
                    entry.
-    :param update: Whether to update or re-use an existing cached boot
+    :param update: Whether to update or reuse an existing cached boot
                    image.
     :param no_fstab: Disable parsing of the fstab for the new entry.
     :param mounts: A list of colon-separated command-line mount
