@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.6.6
+Version:	1.6.7
 Release:	1%{?dist}
 Summary:	%{summary}
 
@@ -154,6 +154,305 @@ pytest-3 --log-level=debug -v
 
 
 %changelog
+Mon Sep 15 2025 Bryn M. Reeves <bmr@redhat.com> - 1.6.7-1
+- boom: bump release to 1.6.7
+- legacy: add deprecation notices to boom.legacy docstrings
+- doc: note legacy bootloader deprecation status in boom.8
+- boom: emit warning on legacy_enable == True or 'boom legacy <cmd>' use
+- boom add boom/py.typed and add to MANIFEST.in
+- doc: fix typo in boom.8 (re-use -> reuse)
+- command: fix typos in boom.command
+- doc: Update README.md, add CONTRIBUTING.md, move detailed guide to doc/
+- osprofile: make 'options must include root=' formatting consistent
+- boom: replace (OSError, IOError) with OSError
+- tests: refactor test_boom_main_*` cases for better isolation
+- tests: assert exit satus in CommandTests.test__create_cmd()
+- boom: fix typo OsError for OSError
+- legacy: handle IO errors, close tmp_fd and unlink to avoid leaks
+- boom: set encoding="utf8" consistently when calling fdopen()
+- config: flush f_tmp before calling fdatasync()
+- osprofile: fix BoomProfile._delete_profile() docstring
+- legacy: stray apostrophe in error messages
+- cache: use context manager when creating the dot-file
+- boom: docstring fixes for set_boot_path()
+- boom: docstring mismatch for get_cache_path()
+- boom: ensure errors go to stderr
+- boom: fix optional_keys help text typo ("allows")
+- boom: fix typo 'identiry'
+- boom: call fsync() on containing directory after rename()
+- boom: create_config idempotency and boot_path validation
+- boom: fix overly broad excpetions and exception variable use
+- tests: replace NotEqual(r, 1) with Equal(r, 0) for exit status tests
+- tests: cover OsProfile.__setitem__()
+- bootloader: mark BootEntry.write_entry() exception branch no cover
+- tests: cover missing boom/hosts directory
+- boom: mark _{clone,create,edit}_cmd() exception branches no cover
+- tests: cover boom create --grub-user with profile missing grub_user optional key
+- tests: cover clone_entry() with --backup
+- tests: cover boom edit with non-existent root device and allow_no_dev=False
+- command: improve _lv_from_device_string() validation and add tests
+- tests: add test data for /dev/mapper/vg-lv case
+- tests: delete duplicate test__clone_profile_cmd
+- tests: delete duplicate test__delete_cmd_verbose
+- tests: delete duplicate test__delete_cmd_no_selection()
+- tests: delete duplicate test_edit_entry_del_opts()
+- tests: fix test case name (s/no_debug_arg/bad_debug_arg/)
+- tests: assert result in test__{list,show}_cache_cmd
+- tests: set boot_path=tests/sandbox in tests/boom/boom.conf
+- tests: add test for 'boom config create --boot-dir=...'
+- tests: add test to cover --root-device=/dev/mapper/.. case
+- tests: add test data for machine_id_from_filename()
+- stratis: mark pool_name_to_pool_uuid() no cover
+- tests: additional coverage for boom.mounts
+- tests: add coverage for boom.mounts
+- mounts: additional validation of swap and mount units
+- tests: add coverage for boom.command._apply_no_fstab()
+- tests: add coverage for boom.command._apply_btrfs_subvol_exclusive()
+- tests: add coverage for main() with invalid --root-device
+- boom: mark legacy integration hooks no cover
+- tests: add coverage for missing/broken configuration
+- boom: add tests to cover --root-lv/--root-device combinations
+- boom: ensure set_boom_path() called when --boot-dir/BOOM_BOOT_PATH
+- tests: add CommandTests.test_boom_main_bad_arg()
+- tests: add test_boom_main_bad_debug()
+- tests: add CommandTests for bad type and unknown command
+- command: mark _cache_path() error path as no cover
+- tests: add test__create_cmd_backup()
+- tests: drop_cache() when tearing down CommandTests
+- tests: add test_create_config()
+- command: accept boot_path arg to boom.command.create_config()
+- tests: add test for add_opts/del_opts conflict
+- command: don't cover __write_legacy() body
+- command: add 'no cover' to fallback get_machine_id() branches
+- tests: cover more _int_if_val() cases
+- tests: cover _bool_to_yes_no() helper
+- command: clarify exception types in _int_if_val() docstring
+- doc: fix typo "classed" -> "classes" in boom.8
+- doc: fix stray '.' in CMD_HOST_LIST macro usage
+- doc: fix typo "prorile" in boom.8
+- doc: update man page date in boom.8
+- doc: fix typo "optiona" in boom.8
+- doc: add man pages and Stratis links to SEE ALSO
+- doc: add EXIT STATUS, FILES, and BUGS sections to boom.8
+- doc: convert URLs to .UR/.UE markup
+- doc: normalize references to BLS in boom.8
+- doc: fix quoted font command mistaken for macro and boom cache list typo
+- doc: fix broken font commands (\fp for \fP) in boom.8
+- doc: convert examples to .EX/.EE in boom.8
+- doc: convert COMMANDS .HP use to .TP 6/.IP
+- doc: convert OPTIONS .HP usage to .TP
+- doc: fix command and argument formatting
+- doc: add "Command types" and "Subcommands" subsections to boom.8
+- doc: remove deprecated .HP / .PD usage
+- doc: remove manual . ad l / . ad b formatting commands from boom.8
+- doc: replace missuse of .P/.B for subsections with .SS Section Name
+- doc: add missing .SH COMMANDS to boom.8
+- doc: fix blank lines in boom.8
+- boom: remove redundant BOOM_OS_OPTIONS default in OsProfile._from_data()
+- command: fix return type for print_* functions
+- boom: avoid duplicating no_fstab / ro / rw option changes
+- bootloader: run grub2-editenv with a timeout
+- osprofile: check self._profile_data in BoomProfile._dirty()
+- bootloader: fix boom_entries_path() docstring
+- tests: fix duplicate test name (masks 2nd instance)
+- boom: simplify btrfs_subvol_* mutex checks in clone_entry(), edit_entry()
+- boom: fix typo in user-facing help --rows ("columnes")
+- osprofile: avoid duplicates and leading spaces when adding optional keys
+- osprofile: fix error messages to reference the correct property name
+- osprofile: harden _is_null_profile() for uninitialized profile list
+- boom: remove redundant special-casing in _transform_key()
+- boom: guard Stratis check when root_device may be None
+- osprofile: mark profile dirty in BoomProfile.__setitem__()
+- bootloader: be.delete_entry(): avoid TypeError if self._entry_path is unset
+- bootloader: make OsIdentifier: parsing more robust
+- bootloader: fix missing self._dirty() calls in optional-key setters
+- osprofile: Redundant BOOM_OS_OPTIONS presence check after defaults
+- osprofile: Avoid fdatasync() per-key in _write_profile()
+- bootloader: handle missing version more gracefully in from_entry()
+- bootloader: Split os_id comment only once in __os_id_from_comment()
+- boom: Guard against writing entries with empty machine_id/version
+- boom: Fix inverted env-expansion check in BootEntry.from_entry()
+- File descriptor leak and encoding issue in BootEntry.write_entry()
+- boom: clean up and simplify BootParams checks in edit_entry()
+- boom: Honor the expand parameter in from_entry()
+- osprofile: fix definition of OS_ROOT_KEYS list
+- boom: make BootEntry._have_optional_key() check more strict
+- boom: Type check bug: uses is instead of isinstance
+- boom: Fix "use before assign” and enforce NEEDS correctly in _apply_format
+- boom: fix docstring rtype mismatch ('str' vs. 'Optional[str]')
+- boom: propagate missing command arguments in edit_entry()
+- osprofile: add type annotations to OsProfile.write_profile()
+- osprofile: add type annotations to OsProfile.from_*os_release*()
+- osprofile: add type annotations to OsProfile string methods
+- osprofile: add type annotations to BoomProfile._{write,delete}_profile
+- osprofile: add type annotations to BoomProfile optional key methods
+- osprofile: add type annotations to BoomProfile.title
+- osprofile: add type annotations to BoomProfile.options
+- osprofile: add type annotations to BoomProfile.root_opts_btrfs
+- osprofile: add type annotations to BoomProfile.root_opts_lvm2
+- osprofile: add type annotations to {kernel,initramfs}_pattern
+- osprofile: add type annotations to BoomProfile.uname_pattern
+- osprofile: add type annotations to BoomProfile match_* methods
+- osprofile: add type annotations to BoomProfile._from_file()
+- osprofile: add type annotations to BoomProfile.{keys,values,items}()
+- osprofile: add type annotations to BoomProfile.__{get,set}item__()
+- osprofile: add type annotations to BoomProfile string methods
+- osprofile: add type annotations to BoomProfile defaults
+- osprofile: add type annotations to key_from_key_name()
+- osprofile: add type annotations to match_os_profile()
+- osprofile: fix select_profile() formatting
+- osprofile: add type annotations to write_profiles()
+- osprofile: add type annotations to _profile_exists()/_is_null_profile()
+- osprofile: add type annotations to module constants
+- boom: fix another star import
+- boom: more type fixes
+- boom: create_entry() error should reflect OsProfile|HostProfile
+- boom: raise error in edit_entry() if !be.bp and {add,del}_opts used
+- boom: fix profile clone error message
+- boom: fix incorrect exception string in edit_host()
+- boom: fix machine_id fallback in edit_host()
+- boom: propagate --update to clone image caching
+- boom: Fix incorrect user-facing message
+- boom: fix Hostprofile.optional_keys() setter NameError
+- boom: fix handling of missing values for create_host()
+- boom: fix create_host() arg validation
+- command: add type annotations to set_debug()
+- command: add type annotations to command handlers
+- command: handle optional values in edit_entry()
+- command: handle optional values in clone_entry()
+- command: handle optional values in create_entry()
+- bootloader: add type annotations to BootEntry.update_entry()
+- bootloader: add type annotations to BootEntry.entry_path
+- bootloader: add type annotations to BootEntry optional keys
+- bootloader: add type annotations to BootEntry.architecture
+- bootloader: add type annotations to BootEntry.devicetree
+- bootloader: add type annotations to BootEntry.efi
+- bootloader: add type annotations to BootEntry.{linux,initrd}
+- bootloader: add type annotations to BootEntry.options helpers
+- bootloader: add type annotations to BootEntry.version
+- bootloader: add type annotations to BootEntry.machine_id
+- bootloader: add type annotations to BootEntry.title
+- bootloader: add type annotations to BootEntry.bp
+- bootloader: add type annotations to BootEntry.expanded()
+- bootloader: add type annotations too BootEntry._have_optional_key()
+- bootloader: add type annotations to BootEntry.__generate_boot_id()
+- bootloader: add type annotations to BootEntry._apply_format() helpers
+- bootloader: add type annotations to __os_id_from_comment()
+- bootloader: add type hints and rewrite BootEntry.{items,keys,values}()
+- bootloader: add type annotations to BootEntry.__{get,set}item__()
+- bootloader: add type annotations to BootEntry.__eq__()
+- bootloader: add type annotations to BootEntry defaults
+- bootloader: add type annotations to select_{params,entry}()
+- bootloader: add type annotations to load_entries()
+- bootloader: add type annotations to BootParams.from_entry()
+- bootloader: add type annotations to BootParams properties
+- bootloader: add type annotations to BootParams initialiser
+- bootloader: add type annotations to BootParams string methods
+- bootloader: add type annotations to BootParams defaults
+- boom: add type annotations to _grub2_get_env()
+- bootloader: add type annotations to _match_root_lv()
+- bootloader: add type annotations to check_root_device()
+- bootloader: add type annotations to module constants
+- boom: remove stray debug print()s
+- boom: remove more star imports
+- boom: fix type for osprofile.select_profile()
+- doc: set language = 'en' in doc/conf.py
+- doc: apply CSS workaround for Sphinx docs sidebar overflow
+- doc: add DeepWiki badge to README.md
+- tests: additional coverage for 'boom list' with implicit type
+- boom: special-case --help in arg pre-validation
+- boom: document additional types and commands in help text
+- boom: separate out "unknown type" from "unknown command"
+- boom: make command type matching strict
+- tests: additional coverage for boom.command.main() error paths
+- boom: make "Unknown command" etc. match "unrecognised argument"
+- boom: get rid of try/except handling around parser.parse_args()
+- boom: include PATH in command environment when calling lvm2
+- boom: add .pylintrc
+- command: initial type annotations for command module
+- report: make title and output_fields Optional[str]
+- cache: mark find_cache_paths() selection arg as Optional[Selection]
+- bootloader: mark optional BootParams() args as Optional[str]
+- bootloader: accept HostProfile in BootEntry()
+- command: replace wildcard imports with explicit lists
+- hostprofile: initial type annotations for hostprofile module
+- hostprofile: add missing uname_pattern/optional_keys setters
+- hostprofile: replace wildcard imports with explicit lists
+- osprofile: initial type annotations for osprofile module
+- osprofile: replace wildcard imports with explicit lists
+- bootloader: fix BootEntry.initrd property method ordering
+- bootloader: fix missing ROOT_OPTS_STRATIS import
+- bootloader: re-order comments in BootEntry._apply_format()
+- bootloader: add type hint for format_key_specs table
+- bootloader: rename 'get_key_attr()' -> 'get_key_value()'
+- bootloader: initial type annotations for bootloader module
+- boom: add global MIN_ID_WIDTH constant
+- bootloader: replace wildcard imports with explicit lists
+- report: initial type annotations for report module
+- stratis: initial type annotations for stratis module
+- stratis: replace wildcard imports with explicit lists
+- config: initial type annotations for config module
+- config: test config._cfg before calling config._cfg.write()
+- config: drop obsolete hasattr() check for BoomConfig._cfg
+- config: replace wildcard imports with explicit lists
+- boom: add type hint for BoomConfig._cfg: ConfigParser
+- cache: initial type annotations for cache module
+- cache: replace wildcard imports with explicit lists
+- boom: initial type annotations for boom
+- boom: make environment helpers public
+- osprofile: make btrfs rootflags=subvol{,id}= regexes more precise [WIP]
+- bootlader: don't apply {add,del}_opts to BootEntry.options overrides
+- boom: automatically set BootParams.lvm_root_lv from root_device
+- bootloader: set stratis_pool_uuid in BootParams.__init__()
+- stratis: check for path presence in is_stratis_device_path()
+- Do not require wheel for building
+- boom: simplify fixed/formatted option membership tests
+- boom: avoid unnecessary 'else'/'elif' after 'return' pattern
+- boom: clean up unused variables
+- boom: always specify encoding when opening files in text mode
+- command: avoid redefining 'string' in _str_indent()
+- cache: avoid shadowing 'cache_path()' function with local vars
+- boom: convert to python3-style super() usage
+- osprofile: use None instead of empty dict as default profile_data
+- boom: drop unnecessary 'elif' after 'raise'
+- boom: fix unused argument warnings
+- command: fix missing add_opts/del_opts propagation in edit_host()
+- boom: fix inconsistent return statements
+- boom: replace list comprehensions with generators
+- boom: fix implicit string concatenation
+- boom: stop inheriting from object
+- boom: don't use .keys() when iterating dictionaries
+- cache: fix missing CACHE_UNKNOWN CacheEntry state constant
+- boom: fix missing errno.ENOENT import
+- config: fix missing os.unlink import
+- boom: remove unnecessary 'global' use
+- boom: drop obsolete use of from __future__ import print_function
+- boom: f-string conversion for mounts module
+- boom: f-string conversion for legacy module
+- boom: f-string conversion for config module
+- boom: f-string conversion for stratis module
+- boom: f-string conversion for cache module
+- boom: f-string conversion for hostprofile module
+- boom: f-string conversion for command module
+- boom: f-string conversion for osprofile module
+- boom: f-string conversion for bootloader module
+- boom: f-string conversion for boom module
+- command: fix missing update param in create_entry() docstring
+- tests: use log.info() for test log messages instead of log.debug()
+- tests: uncouple BadConfigTests from ConfigTests
+- tests: rename BadConfigTests.test_load_boom_config_default
+- dist: change boom-boot license from GPL-2.0-only to Apache-2.0
+- report: Report - stop misusing class vars
+- report: Row - stop misusing class vars
+- report: Field - stop misusing class vars
+- report: FieldType - stop misusing class vars
+- report: ReportObjType - stop misusing class vars
+- report: ReportOpts - stop misusing class vars
+- report: FieldProperties - stop misusing class vars and add initialiser
+- doc: update BLS specification URL in README.md
+- dist: avoid Python packaging warnings
+- dist: fix RPM changelog version string
+
 * Mon Mar 31 2025 Bryn M. Reeves <bmr@redhat.com> - 1.6.6-1
 - tests: drop remaining Python2 compat handling
 - boom.config: drop Python2 compat handling for ConfigParser

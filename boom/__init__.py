@@ -27,5 +27,5 @@ manual page for information on using the command line interface.
 from ._boom import *
 from ._boom import __all__
 
-__version__ = "1.6.6"
+__version__ = "1.6.7"
 # vimself.: set et ts=4 sw=4 :

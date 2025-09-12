@@ -1,6 +1,6 @@
 [project]
 name = "boom_boot"
-version = "1.6.6"
+version = "1.6.7"
 authors = [
   { name="Bryn M. Reeves", email="bmr@redhat.com" },
 ]
