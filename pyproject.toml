@@ -30,5 +30,8 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.package-data]
+boom = ["py.typed"]
+
 [project.optional-dependencies]
 docs = ["Sphinx>=1.8"]
