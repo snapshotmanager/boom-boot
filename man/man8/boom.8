@@ -657,14 +657,15 @@ Boom works best with a BLS compatible boot loader: either the
 \fIgrub2\fP boot loader included in \fBCentOS\fP, \fBFedora\fP and
 \fBRed Hat Enterprise Linux\fP include this support.
 .P
-Boom also supports writing configuration in legacy boot loader format:
-currently the syntax used by the \fBGrub1\fP configuration file is
-supported.
-.P
 All long options supported by boom may be written with or without
 dashes separating words. For example, \fB--boot-id\fP and \fB--bootid\fP
 are synonymous.
 .P
+.SH DEPRECATION NOTICE
+.
+The \fIlegacy bootloader commands\fP (\fBboom legacy write | clear | show\fP)
+and boom legacy bootloader integration are deprecated as of \fIboom-1.6.7\fP
+and will be removed in a future release.
 .
 .SH OPTIONS
 .
@@ -1238,6 +1239,7 @@ Host profiles matching the criteria given on the command line are
 printed to the terminal in a compact multi-line format.
 .IP
 .SS Legacy bootloader commands
+.P
 Boom is able to write the current set of boot entries into the
 configuration file of a legacy boot loader installed on the
 system. This may be used either on platforms that do not have
@@ -1249,6 +1251,12 @@ automatically when present).
 .P
 Legacy support is enabled and configured via the \fBboom.conf(5)\fP
 configuration file.
+.P
+\fBWarning\fP: these commands are deprecated as of \fIboom-1.6.7\fP
+and will be removed in a future release. Beginning with \fIboom-1.6.7\fP
+the \fBboom\fP command will issue a deprecation warning if legacy
+bootloader integration is enabled in \fBboom.conf(5)\fP or if \fBboom
+legacy\fP commands are used.
 .
 .TP 5
 .B boom
