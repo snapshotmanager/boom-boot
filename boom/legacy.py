@@ -11,6 +11,9 @@ with legacy bootloader configuration formats.
 Legacy formats are read-only and can only be updated by synchronising
 the entire current set of boot entries to the legacy format, or removing
 all entries from the legacy configuration file.
+
+Beginning with boom-1.6.7 support for legacy bootloader integration is
+deprecated and will be removed in a future release.
 """
 from subprocess import Popen, PIPE
 from os.path import dirname, exists, isabs, join as path_join
@@ -98,6 +101,9 @@ class BoomLegacyFormatError(BoomError):
     boot configuration, for example, missing begin or end marks
     in the legacy bootloader configuration file, or an unknown
     or invalid legacy bootloader type.
+
+    Beginning with boom-1.6.7 support for legacy bootloader integration
+    is deprecated and will be removed in a future release.
     """
 
     pass
@@ -108,6 +114,9 @@ def find_legacy_loader(loader, cfg_path):
     and return a tuple containing the format name, decorator class
     and the configuration file path. If ``cfg_path`` is set it will
     override the default file location for the format.
+
+    Beginning with boom-1.6.7 support for legacy bootloader integration
+    is deprecated and will be removed in a future release.
 
     :param loader: the legacy bootloader format to operate on
     :param cfg_path: the path to the legacy bootloader configuration
@@ -138,6 +147,9 @@ def write_legacy_loader(selection=None, loader=BOOM_LOADER_GRUB1, cfg_path=None)
     configuration statements bounded by "BOOM_BEGIN"/"BOOM_END" on
     a line by themselves and prefixed with the comment character
     for that configuration format (e.g. '#').
+
+    Beginning with boom-1.6.7 support for legacy bootloader integration
+    is deprecated and will be removed in a future release.
 
     :param selection: A ``Selection`` object specifying the match
                       criteria for the operation.
@@ -245,6 +257,9 @@ def clear_legacy_loader(loader=BOOM_LOADER_GRUB1, cfg_path=None):
     If the configuration path is not absolute it is assumed to be
     relative to the configured system '/boot' directory as returned
     by ``boom.get_boot_path()``.
+
+    Beginning with boom-1.6.7 support for legacy bootloader integration
+    is deprecated and will be removed in a future release.
 
     :param loader: the legacy bootloader format to operate on
     :param cfg_path: the path to the legacy bootloader configuration
