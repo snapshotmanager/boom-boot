@@ -4709,6 +4709,14 @@ def main(args: List[str]) -> int:
             return 1
         bc = get_boom_config()
 
+    # legacy_enable = False has been the default since BoomConfig was introduced
+    # in boom-0.9: very few installations are expected to remain where this
+    # is enabled.
+    if bc.legacy_enable or cmd_type[0] == LEGACY_TYPE:
+        _log_warn(
+            "Legacy boot loader integration is deprecated and will be removed in a future version."
+        )
+
     if cmd_type[0] == CACHE_TYPE and not bc.cache_enable:
         _log_error("Boot image cache disabled (config.cache_enable=False)")
         return 1
