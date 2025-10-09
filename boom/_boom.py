@@ -112,13 +112,6 @@ MIN_ID_WIDTH = 7
 # Logging
 #
 
-BOOM_LOG_DEBUG = logging.DEBUG
-BOOM_LOG_INFO = logging.INFO
-BOOM_LOG_WARN = logging.WARNING
-BOOM_LOG_ERROR = logging.ERROR
-
-_log_levels = (BOOM_LOG_DEBUG, BOOM_LOG_INFO, BOOM_LOG_WARN, BOOM_LOG_ERROR)
-
 _log = logging.getLogger(__name__)
 
 _log_debug = _log.debug
@@ -126,7 +119,7 @@ _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
 
-# Boom debugging levels
+# Boom debugging subsystem mask (legacy interface)
 BOOM_DEBUG_PROFILE = 1
 BOOM_DEBUG_ENTRY = 2
 BOOM_DEBUG_REPORT = 4
@@ -143,6 +136,22 @@ BOOM_DEBUG_ALL = (
 )
 
 __debug_mask = 0
+# Boom debugging subsystem names
+BOOM_SUBSYSTEM_PROFILE = "boom.profile"
+BOOM_SUBSYSTEM_ENTRY = "boom.entry"
+BOOM_SUBSYSTEM_REPORT = "boom.report"
+BOOM_SUBSYSTEM_COMMAND = "boom.command"
+BOOM_SUBSYSTEM_CACHE = "boom.cache"
+BOOM_SUBSYSTEM_STRATIS = "boom.stratis"
+
+_DEBUG_MASK_TO_SUBSYSTEM = {
+    BOOM_DEBUG_PROFILE: BOOM_SUBSYSTEM_PROFILE,
+    BOOM_DEBUG_ENTRY: BOOM_SUBSYSTEM_ENTRY,
+    BOOM_DEBUG_REPORT: BOOM_SUBSYSTEM_REPORT,
+    BOOM_DEBUG_COMMAND: BOOM_SUBSYSTEM_COMMAND,
+    BOOM_DEBUG_CACHE: BOOM_SUBSYSTEM_CACHE,
+    BOOM_DEBUG_STRATIS: BOOM_SUBSYSTEM_STRATIS,
+}
 
 
 class BoomError(Exception):
@@ -1101,6 +1110,13 @@ __all__ = [
     "BOOM_DEBUG_CACHE",
     "BOOM_DEBUG_STRATIS",
     "BOOM_DEBUG_ALL",
+    # Debug logging - subsystem name interface
+    "BOOM_SUBSYSTEM_PROFILE",
+    "BOOM_SUBSYSTEM_ENTRY",
+    "BOOM_SUBSYSTEM_REPORT",
+    "BOOM_SUBSYSTEM_COMMAND",
+    "BOOM_SUBSYSTEM_CACHE",
+    "BOOM_SUBSYSTEM_STRATIS",
     # Utility routines
     "blank_or_comment",
     "parse_name_value",
