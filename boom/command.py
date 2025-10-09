@@ -30,6 +30,7 @@ import re
 
 from boom import (
     BoomError,
+    SubsystemFilter,
     BOOM_CONFIG_FILE,
     MIN_ID_WIDTH,
     BOOM_DEBUG_PROFILE,
@@ -4215,13 +4216,23 @@ def setup_logging(cmd_args: Namespace):
         level = logging.DEBUG
     elif cmd_args.verbose and cmd_args.verbose > 0:
         level = logging.INFO
+
     # Configure the package-level logger
     boom_log = logging.getLogger("boom")
     formatter = logging.Formatter("%(levelname)s - %(message)s")
     boom_log.setLevel(level)
+    if boom_log.hasHandlers():
+        boom_log.handlers.clear()
+
+    # Subsystem log filtering
+    _boom_subsystem_filter = SubsystemFilter("boom")
+
+    # Main console handler
     _console_handler = logging.StreamHandler()
     _console_handler.setLevel(level)
     _console_handler.setFormatter(formatter)
+    _console_handler.addFilter(_boom_subsystem_filter)
+
     boom_log.addHandler(_console_handler)
 
 
