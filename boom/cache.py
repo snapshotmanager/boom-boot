@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from io import BufferedReader
 
 from boom import (
-    BOOM_DEBUG_CACHE,
+    BOOM_SUBSYSTEM_CACHE,
     Selection,
     find_minimum_sha_prefix,
     get_boot_path,
@@ -37,13 +37,17 @@ from boom.bootloader import find_entries
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
-_log.set_debug_mask(BOOM_DEBUG_CACHE)
 
 _log_debug = _log.debug
-_log_debug_cache = _log.debug_masked
 _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
+
+
+def _log_debug_cache(msg, *args, **kwargs):
+    """A wrapper for cache subsystem debug logs."""
+    _log.debug(msg, *args, extra={"subsystem": BOOM_SUBSYSTEM_CACHE}, **kwargs)
+
 
 #: Block size for hashing image files
 _hash_size = 1024**2

@@ -37,6 +37,7 @@ from boom import (
     BOOM_DEBUG_REPORT,
     BOOM_DEBUG_COMMAND,
     BOOM_DEBUG_ALL,
+    BOOM_SUBSYSTEM_COMMAND,
     DEFAULT_BOOT_PATH,
     Selection,
     get_boom_config,
@@ -139,13 +140,17 @@ _DBUS_MACHINE_ID = "/var/lib/dbus/machine-id"
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
-_log.set_debug_mask(BOOM_DEBUG_COMMAND)
 
 _log_debug = _log.debug
-_log_debug_cmd = _log.debug
 _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
+
+
+def _log_debug_cmd(msg, *args, **kwargs):
+    """A wrapper for command subsystem debug logs."""
+    _log.debug(msg, *args, extra={"subsystem": BOOM_SUBSYSTEM_COMMAND}, **kwargs)
+
 
 _default_log_level = logging.WARNING
 _console_handler = None

@@ -53,7 +53,7 @@ if TYPE_CHECKING:
 
 from boom import (
     BoomError,
-    BOOM_DEBUG_PROFILE,
+    BOOM_SUBSYSTEM_PROFILE,
     MIN_ID_WIDTH,
     Selection,
     get_boom_path,
@@ -178,13 +178,17 @@ _DEFAULT_KEYS: Dict[str, str] = {
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
-_log.set_debug_mask(BOOM_DEBUG_PROFILE)
 
 _log_debug = _log.debug
-_log_debug_profile = _log.debug_masked
 _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
+
+
+def _log_debug_profile(msg, *args, **kwargs):
+    """A wrapper for profile subsystem debug logs."""
+    _log.debug(msg, *args, extra={"subsystem": BOOM_SUBSYSTEM_PROFILE}, **kwargs)
+
 
 #: Global profile list
 _profiles: List["OsProfile"] = []

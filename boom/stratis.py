@@ -21,18 +21,22 @@ from os.path import exists, normpath
 from uuid import UUID
 import dbus
 
-from boom import BOOM_DEBUG_STRATIS
+from boom import BOOM_SUBSYSTEM_STRATIS
 from typing import Optional
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
-_log.set_debug_mask(BOOM_DEBUG_STRATIS)
 
 _log_debug = _log.debug
-_log_debug_stratis = _log.debug_masked
 _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
+
+
+def _log_debug_stratis(msg, *args, **kwargs):
+    """A wrapper for stratis subsystem debug logs."""
+    _log.debug(msg, *args, extra={"subsystem": BOOM_SUBSYSTEM_STRATIS}, **kwargs)
+
 
 # Constants for the Stratisd DBus service
 

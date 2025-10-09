@@ -57,7 +57,7 @@ import logging
 import re
 
 from boom import (
-    BOOM_DEBUG_ENTRY,
+    BOOM_SUBSYSTEM_ENTRY,
     BoomError,
     Selection,
     blank_or_comment,
@@ -233,13 +233,17 @@ GRUB2_EXPAND_ENV: str = "$"
 
 # Module logging configuration
 _log = logging.getLogger(__name__)
-_log.set_debug_mask(BOOM_DEBUG_ENTRY)
 
 _log_debug = _log.debug
-_log_debug_entry = _log.debug_masked
 _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
+
+
+def _log_debug_entry(msg, *args, **kwargs):
+    """A wrapper for entry subsystem debug logs."""
+    _log.debug(msg, *args, extra={"subsystem": BOOM_SUBSYSTEM_ENTRY}, **kwargs)
+
 
 #: The global list of boot entries.
 _entries: Optional[List["BootEntry"]] = None

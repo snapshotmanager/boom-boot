@@ -28,17 +28,21 @@ import math
 from json import dumps
 from typing import Callable, List, Optional, TextIO
 
-from boom import find_minimum_sha_prefix, BOOM_DEBUG_REPORT
+from boom import find_minimum_sha_prefix, BOOM_SUBSYSTEM_REPORT
 
 
 _log = logging.getLogger(__name__)
-_log.set_debug_mask(BOOM_DEBUG_REPORT)
 
 _log_debug = _log.debug
-_log_debug_report = _log.debug_masked
 _log_info = _log.info
 _log_warn = _log.warning
 _log_error = _log.error
+
+
+def _log_debug_report(msg, *args, **kwargs):
+    """A wrapper for report subsystem debug logs."""
+    _log.debug(msg, *args, extra={"subsystem": BOOM_SUBSYSTEM_REPORT}, **kwargs)
+
 
 _DEFAULT_COLUMNS = 80
 
