@@ -112,7 +112,7 @@ MIN_ID_WIDTH = 7
 # Logging
 #
 
-_log = logging.getLogger(__name__)
+_log = logging.getLogger("boom")
 
 _log_debug = _log.debug
 _log_info = _log.info
