@@ -135,7 +135,6 @@ BOOM_DEBUG_ALL = (
     | BOOM_DEBUG_STRATIS
 )
 
-__debug_mask = 0
 # Boom debugging subsystem names
 BOOM_SUBSYSTEM_PROFILE = "boom.profile"
 BOOM_SUBSYSTEM_ENTRY = "boom.entry"
@@ -153,6 +152,8 @@ _DEBUG_MASK_TO_SUBSYSTEM = {
     BOOM_DEBUG_STRATIS: BOOM_SUBSYSTEM_STRATIS,
 }
 
+_debug_subsystems = set()
+
 
 class BoomError(Exception):
     """Base class of all Boom exceptions."""
@@ -160,51 +161,32 @@ class BoomError(Exception):
     pass
 
 
-class BoomLogger(logging.Logger):
-    """BoomLogger()
-
-    Boom logging wrapper class: wrap the Logger.debug() method
-    to allow filtering of submodule debug messages by log mask.
-
-    This allows us to selectively control which messages are
-    logged in the library without having to tamper with the
-    Handler, Filter or Formatter configurations (which belong
-    to the client application using the library).
+class SubsystemFilter(logging.Filter):
+    """
+    Filters DEBUG records based on a set of enabled subsystem names.
+    Non-DEBUG records or DEBUG records without a 'subsystem' attribute
+    are always passed through.
     """
 
-    mask_bits = 0
+    def __init__(self, name=""):
+        super().__init__(name)
+        self.enabled_subsystems = set(_debug_subsystems)
 
-    def set_debug_mask(self, mask_bits: int):
-        """Set the debug mask for this ``BoomLogger``.
+    def filter(self, record):
+        # Always pass non-DEBUG messages.
+        if record.levelno != logging.DEBUG:
+            return True
 
-        This should normally be set to the ``BOOM_DEBUG_*`` value
-        corresponding to the ``boom`` sub-module that this instance
-        of ``BoomLogger`` belongs to.
+        # Always pass DEBUG messages that aren't for a specific subsystem.
+        if not hasattr(record, "subsystem"):
+            return True
 
-        :param mask_bits: The bits to set in this logger's mask.
-        :rtype: None
-        """
-        if mask_bits < 0 or mask_bits > BOOM_DEBUG_ALL:
-            raise ValueError(
-                f"Invalid BoomLogger mask bits: 0x{mask_bits & ~BOOM_DEBUG_ALL:x}"
-            )
+        # For subsystem-specific DEBUG messages, check if the subsystem is enabled.
+        return record.subsystem in self.enabled_subsystems
 
-        self.mask_bits = mask_bits
-
-    def debug_masked(self, msg: str, *args, **kwargs):
-        """Log a debug message if it passes the current debug mask.
-
-        Log the specified message if it passes the current logger
-        debug mask.
-
-        :param msg: the message to be logged
-        :rtype: None
-        """
-        if self.mask_bits & get_debug_mask():
-            self.debug(msg, *args, **kwargs)
-
-
-logging.setLoggerClass(BoomLogger)
+    def set_debug_subsystems(self, subsystems):
+        """Sets the collection of subsystems to allow."""
+        self.enabled_subsystems = set(subsystems)
 
 
 def get_debug_mask() -> int:
@@ -213,7 +195,19 @@ def get_debug_mask() -> int:
     :returns: The current debug mask value
     :rtype: int
     """
-    return __debug_mask
+    enabled_subsystems = set(_debug_subsystems)
+    boom_log = logging.getLogger("boom")
+
+    for handler in boom_log.handlers:
+        for f in handler.filters:
+            if isinstance(f, SubsystemFilter):
+                enabled_subsystems.update(f.enabled_subsystems)
+
+    mask_map = {v: k for k, v in _DEBUG_MASK_TO_SUBSYSTEM.items()}
+    mask = 0
+    for subsystem_name in enabled_subsystems:
+        mask |= mask_map.get(subsystem_name, 0)
+    return mask
 
 
 def set_debug_mask(mask):
@@ -223,10 +217,23 @@ def set_debug_mask(mask):
                  values to log.
     :rtype: None
     """
-    global __debug_mask
+    global _debug_subsystems
+
     if mask < 0 or mask > BOOM_DEBUG_ALL:
         raise ValueError(f"Invalid boom debug mask: {mask}")
-    __debug_mask = mask
+
+    enabled_subsystems = []
+    for flag, subsystem_name in _DEBUG_MASK_TO_SUBSYSTEM.items():
+        if mask & flag:
+            enabled_subsystems.append(subsystem_name)
+
+    boom_log = logging.getLogger("boom")
+    for handler in boom_log.handlers:
+        for f in handler.filters:
+            if isinstance(f, SubsystemFilter):
+                f.set_debug_subsystems(enabled_subsystems)
+
+    _debug_subsystems = set(enabled_subsystems)
 
 
 class BoomConfig:
@@ -1098,9 +1105,7 @@ __all__ = [
     "get_boom_config",
     # boom exception base class
     "BoomError",
-    # Boom logger class (used by test suite)
-    "BoomLogger",
-    # Debug logging
+    # Debug logging - legacy interface
     "get_debug_mask",
     "set_debug_mask",
     "BOOM_DEBUG_PROFILE",
@@ -1111,6 +1116,7 @@ __all__ = [
     "BOOM_DEBUG_STRATIS",
     "BOOM_DEBUG_ALL",
     # Debug logging - subsystem name interface
+    "SubsystemFilter",
     "BOOM_SUBSYSTEM_PROFILE",
     "BOOM_SUBSYSTEM_ENTRY",
     "BOOM_SUBSYSTEM_REPORT",

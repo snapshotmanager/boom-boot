@@ -7,9 +7,10 @@
 # SPDX-License-Identifier: Apache-2.0
 import unittest
 import logging
-import boom
 from sys import stdout
 from os.path import abspath
+
+import boom
 
 from tests import *
 
@@ -136,24 +137,16 @@ class BoomTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             boom.set_debug_mask(boom.BOOM_DEBUG_ALL + 1)
 
-    def test_BoomLogger(self):
-        bl = boom.BoomLogger("boom", 0)
-        bl.debug("debug")
-
-    def test_BoomLogger_set_debug_mask(self):
-        bl = boom.BoomLogger("boom", 0)
-        bl.set_debug_mask(boom.BOOM_DEBUG_ALL)
-
-    def test_BoomLogger_set_debug_mask_bad_mask(self):
-        bl = boom.BoomLogger("boom", 0)
-        with self.assertRaises(ValueError) as cm:
-            bl.set_debug_mask(boom.BOOM_DEBUG_ALL + 1)
-
-    def test_BoomLogger_debug_masked(self):
-        bl = boom.BoomLogger("boom", 0)
-        boom.set_debug_mask(boom.BOOM_DEBUG_ALL)
-        bl.set_debug_mask(boom.BOOM_DEBUG_ENTRY)
-        bl.debug_masked("qux")
+    def test_SubsystemFilter(self):
+        # Start with no subsystems enabled
+        boom.set_debug_mask(0)
+        sf = boom.SubsystemFilter("boom")
+        self.assertEqual(sf.enabled_subsystems, set())
+        # Enable a couple and ensure new filters initialise from cache
+        boom.set_debug_mask(boom.BOOM_DEBUG_PROFILE | boom.BOOM_DEBUG_COMMAND)
+        sf2 = boom.SubsystemFilter("boom")
+        self.assertIn(boom.BOOM_SUBSYSTEM_PROFILE, sf2.enabled_subsystems)
+        self.assertIn(boom.BOOM_SUBSYSTEM_COMMAND, sf2.enabled_subsystems)
 
     def test_BoomConfig__str__(self):
         bc = boom.BoomConfig(boot_path="/boot", legacy_enable=False)
