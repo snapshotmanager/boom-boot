@@ -49,6 +49,8 @@ class MountsHelperTests(unittest.TestCase):
             "PARTUUID=7b23f5bd-4f12-48e1-8ea4-70b30df7e540:/boot:xfs:rw,x-bar=baz",
             "PARTLABEL=quux:/boot:xfs:rw,x-foo=bar",
             "/dev/test/var:/var:xfs",
+            "/dev/fedora/swap:none:swap:defaults",
+            "/dev/vda3:none:swap:pri=1,discard=pages,nofail",
         ]
         xmount_str = [
             "systemd.mount-extra=/dev/test/var:/var:xfs:defaults",
@@ -57,6 +59,8 @@ class MountsHelperTests(unittest.TestCase):
             "systemd.mount-extra=PARTUUID=7b23f5bd-4f12-48e1-8ea4-70b30df7e540:/boot:xfs:rw,x-bar=baz",
             "systemd.mount-extra=PARTLABEL=quux:/boot:xfs:rw,x-foo=bar",
             "systemd.mount-extra=/dev/test/var:/var:xfs:defaults",
+            "systemd.mount-extra=/dev/fedora/swap:none:swap:defaults",
+            "systemd.mount-extra=/dev/vda3:none:swap:pri=1,discard=pages,nofail",
         ]
 
         for mount, xmount in zip(mount_list, xmount_str):
@@ -70,6 +74,9 @@ class MountsHelperTests(unittest.TestCase):
             "/dev/sda5:    :ext4:defaults",
             "         :/foo:ext4:defaults",
             "/dev/vda1:/mnt:xfs:  ",
+            "/dev/vda2:none:ext3:defaults",
+            "/dev/vda3:nope:swap:defaults",
+            "/dev/cs/swap:none:xfs:some=foo,bar=quux",
             "::::",
             "    "
         ]

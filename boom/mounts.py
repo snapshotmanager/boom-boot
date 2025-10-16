@@ -27,6 +27,34 @@ class BoomMountError(BoomError):
     mount specification.
     """
 
+    @staticmethod
+    def malformed_mount(mount):
+        return BoomMountError(f"Malformed mount unit: {mount}")
+
+    @staticmethod
+    def malformed_swap(swap):
+        return BoomMountError(f"Malformed swap unit: {swap}")
+
+    @staticmethod
+    def unknown_fstype(dev):
+        return BoomMountError(f"Could not determine fstype for {dev}")
+
+    @staticmethod
+    def invalid_device(device):
+        return BoomMountError(f"Invalid mount device: {device}")
+
+    @staticmethod
+    def invalid_swap_device(device):
+        return BoomMountError(f"Invalid swap device: {device}")
+
+    @staticmethod
+    def invalid_options(options):
+        return BoomMountError(f"Invalid options: '{options}'")
+
+    @staticmethod
+    def invalid_mount_point(mount_point):
+        return BoomMountError(f"Invalid mount point: {mount_point}")
+
 
 #: Format for systemd command line mount units
 MOUNT_UNIT_FMT = "systemd.mount-extra=%s:%s:%s:%s"
@@ -49,7 +77,7 @@ def _detect_fstype(dev):
             if tag.startswith("TYPE="):
                 (_tag, fstype) = tag.split("=")
                 return fstype.lstrip('"').rstrip('"')
-    raise BoomMountError(f"Could not determine fstype for {dev}")
+    raise BoomMountError.unknown_fstype(dev)
 
 
 def _parse_mount_unit(mount):
@@ -63,16 +91,13 @@ def _parse_mount_unit(mount):
     parts = mount.split(":")
 
     if len(parts) < 2:
-        raise BoomMountError(f"Invalid mount specification: '{mount}'")
+        raise BoomMountError.malformed_mount(mount)
 
     what = parts[0].strip()
     where = parts[1].strip()
 
     if not what.startswith(_DEV_PREFIXES):
-        raise BoomMountError(f"Invalid mount device: {what}")
-
-    if not where.startswith("/"):
-        raise BoomMountError(f"Invalid mount point: {where}")
+        raise BoomMountError.invalid_device(what)
 
     if len(parts) > 2:
         fstype = parts[2].strip()
@@ -80,17 +105,21 @@ def _parse_mount_unit(mount):
         try:
             fstype = _detect_fstype(what)
         except CalledProcessError as err:
-            raise BoomMountError(f"Could not determine fstype for {what}") from err
+            raise BoomMountError.unknown_fstype(what) from err
     if len(parts) > 3:
         options = parts[3].strip()
     else:
         options = "defaults"
 
+    if not where.startswith("/"):
+        if not (where == "none" and fstype == "swap"):
+            raise BoomMountError.invalid_mount_point(where)
+
     if len(parts) > 4:
-        raise BoomMountError(f"Malformed mount unit: {mount}")
+        raise BoomMountError.malformed_mount(mount)
 
     if any(not part for part in [what, where, fstype, options]):
-        raise BoomMountError(f"Malformed mount unit: {mount}")
+        raise BoomMountError.malformed_mount(mount)
 
     return MOUNT_UNIT_FMT % (what, where, fstype, options)
 
@@ -118,18 +147,18 @@ def _parse_swap_unit(swap):
         what = what.strip()
         options = options.strip()
         if not what:
-            raise BoomMountError(f"Swap unit has empty device: {swap}")
+            raise BoomMountError.invalid_swap_device(swap)
         if not options:
-            raise BoomMountError(f"Swap unit has empty options: {swap}")
+            raise BoomMountError.invalid_options(swap)
     else:
         what = swap.strip()
         options = "defaults"
 
     if ":" in options:
-        raise BoomMountError(f"Malformed swap unit: {swap}")
+        raise BoomMountError.malformed_swap(swap)
 
     if not what.startswith(_DEV_PREFIXES):
-        raise BoomMountError(f"Invalid swap device: {what}")
+        raise BoomMountError.invalid_swap_device(what)
 
     return SWAP_UNIT_FMT % (what, options)
 
