@@ -2673,7 +2673,8 @@ def create_config(boot_path: Optional[str] = None):
     try:
         set_boom_path("boom")
     except ValueError as err:
-        _log_error("Failed to set boom_path to '%s': %s", bc.boom_path, err)
+        attempted = join(get_boot_path(), "boom")
+        _log_error("Failed to set boom_path to '%s': %s", attempted, err)
         raise BoomConfigError("Failed to set boom_path") from err
 
 
