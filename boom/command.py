@@ -1042,8 +1042,8 @@ def _apply_btrfs_subvol_exclusive(
 
 
 def _apply_no_fstab(
-    add_opts_list: list[str], del_opts_list: list[str]
-) -> tuple[list[str], list[str]]:
+    add_opts_list: List[str], del_opts_list: List[str]
+) -> Tuple[List[str], List[str]]:
     """
     Apply no_fstab handling to ``add_opts_list``/``del_opts_list``.
 
