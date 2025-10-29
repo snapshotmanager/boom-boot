@@ -96,7 +96,9 @@ def _read_boom_config(path: Optional[str] = None) -> BoomConfig:
     try:
         cfg.read(path)
     except ParsingError as err:
-        _log_error("Failed to parse configuration file '%s': %s", path, err)
+        raise BoomConfigError(
+            f"Failed to parse configuration file '{path}': {err}"
+        ) from err
 
     bc = BoomConfig()
 

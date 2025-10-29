@@ -124,7 +124,7 @@ class BadConfigTests(ConfigTestsBase):
         """Test the `load_boom_config()` function with an invalid
             configuration file.
         """
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(BoomConfigError):
             load_boom_config()
 
 # vim: set et ts=4 sw=4 :
