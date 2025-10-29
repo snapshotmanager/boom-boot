@@ -794,12 +794,12 @@ def get_machine_id() -> str:
     else:  # pragma: no cover
         return ""
 
-    with open(path, "r", encoding="utf8") as f:
-        try:
+    try:
+        with open(path, "r", encoding="utf8") as f:
             machine_id = f.read().strip()
-        except (OSError, UnicodeDecodeError) as err:  # pragma: no cover
-            _log_error("Could not read machine-id from '%s': %s", path, err)
-            machine_id = ""
+    except (OSError, UnicodeDecodeError) as err:  # pragma: no cover
+        _log_error("Could not read machine-id from '%s': %s", path, err)
+        machine_id = ""
     return machine_id
 
 
