@@ -1324,9 +1324,10 @@ format.
 .B boom
 .CMD_CONFIG_CREATE
 .br
-Create a default configuration at \fI/boot/boom/boom.conf\fP, overwriting any
-existing configuration file. The directory used as \fI/boot\fP may be overridden
-with the \fB--boot-dir\fP option.
+Create (or replace) a default configuration at \fI/boot/boom/boom.conf\fP,
+overwriting any existing configuration file. Parent directories are created
+as needed. The directory used as \fI/boot\fP may be overridden with the
+\fB--boot-dir\fP option.
 .IP
 When \fB--boot-dir\fP is specified, the configuration is written to
 \fIboot_dir/boom/boom.conf\fP.
