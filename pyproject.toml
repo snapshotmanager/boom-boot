@@ -6,7 +6,7 @@ authors = [
 ]
 description = "The Boom Boot Manager"
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.9"
 dynamic = ["license"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",

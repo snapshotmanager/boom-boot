@@ -214,7 +214,7 @@ boom host list
 - Linux system with BLS-compatible bootloader:
   - GRUB 2 with BLS support (Red Hat/Fedora builds), or
   - systemd-boot
-- Python 3.6+
+- Python 3.9+
 - LVM2, Stratis, or BTRFS for snapshot functionality
 
 ## Documentation

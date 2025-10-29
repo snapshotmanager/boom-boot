@@ -79,7 +79,7 @@ Requirements
 ------------
 
 * BLS-compatible bootloader (systemd-boot or GRUB 2 with BLS support)
-* Python 3.6 or later
+* Python 3.9 or later
 * LVM2, Stratis, or BTRFS for snapshot functionality
 
 Command Line Interface
