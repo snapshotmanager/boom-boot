@@ -339,7 +339,6 @@ _profile_fields = [
 ]
 
 _default_profile_fields = "osid,osname,osversion"
-_verbose_profile_fields = _default_profile_fields + ",unamepattern,options"
 
 _host_fields = [
     FieldType(
@@ -462,7 +461,6 @@ _host_fields = [
 ]
 
 _default_host_fields = "hostid,hostname,machineid,osid"
-_verbose_host_fields = _default_host_fields + ",options,addopts,delopts"
 
 
 def _int_if_val(val: Optional[str]) -> Optional[int]:
@@ -705,7 +703,6 @@ _params_fields = [
 ]
 
 _default_entry_fields = "bootid,version,osname,rootdev"
-_verbose_entry_fields = _default_entry_fields + ",options,machineid"
 
 
 #: Fields derived from CacheEntry data
@@ -779,7 +776,6 @@ _cache_fields = [
 ]
 
 _default_cache_fields = "path,imgid,ts,state"
-_verbose_cache_fields = "path,imgid,ts,mode,uid,gid,state,count"
 
 
 def get_machine_id() -> str:
@@ -2947,8 +2943,6 @@ def _delete_cmd(
 
     if cmd_args.options:
         fields = cmd_args.options
-    elif cmd_args.verbose:
-        fields = _verbose_entry_fields
     else:
         fields = None
     try:
@@ -3118,7 +3112,6 @@ def _generic_list_cmd(
     cmd_args: Namespace,
     select: Optional[Selection],
     opts: Optional[ReportOpts],
-    verbose_fields: str,
     print_fn: Callable,
 ) -> int:
     """Generic list command implementation.
@@ -3139,8 +3132,6 @@ def _generic_list_cmd(
     """
     if cmd_args.options:
         fields = cmd_args.options
-    elif cmd_args.verbose:
-        fields = verbose_fields
     else:
         fields = None
 
@@ -3184,9 +3175,7 @@ def _list_cmd(
         else:
             select = Selection(allow_null=True)
 
-    return _generic_list_cmd(
-        cmd_args, select, opts, _verbose_entry_fields, print_entries
-    )
+    return _generic_list_cmd(cmd_args, select, opts, print_entries)
 
 
 def _edit_cmd(
@@ -3400,8 +3389,6 @@ def _delete_profile_cmd(
 
     if cmd_args.options:
         fields = cmd_args.options
-    elif cmd_args.verbose:
-        fields = _verbose_profile_fields
     else:
         fields = None
 
@@ -3562,9 +3549,7 @@ def _list_profile_cmd(
     if identifier is not None:
         select = Selection(os_id=identifier)
 
-    return _generic_list_cmd(
-        cmd_args, select, opts, _verbose_profile_fields, print_profiles
-    )
+    return _generic_list_cmd(cmd_args, select, opts, print_profiles)
 
 
 def _edit_profile_cmd(
@@ -3728,8 +3713,6 @@ def _delete_host_cmd(
 
     if cmd_args.options:
         fields = cmd_args.options
-    elif cmd_args.verbose:
-        fields = _verbose_host_fields
     else:
         fields = _default_host_fields
 
@@ -3860,7 +3843,7 @@ def _list_host_cmd(
     if identifier is not None:
         select = Selection(host_id=identifier)
 
-    return _generic_list_cmd(cmd_args, select, opts, _verbose_host_fields, print_hosts)
+    return _generic_list_cmd(cmd_args, select, opts, print_hosts)
 
 
 def _edit_host_cmd(
@@ -3982,7 +3965,7 @@ def _list_cache_cmd(
     :returns: integer status code returned from ``main()``
     """
     print_fn = print_cache if not cmd_args.verbose else print_cache_images
-    return _generic_list_cmd(cmd_args, select, opts, _verbose_cache_fields, print_fn)
+    return _generic_list_cmd(cmd_args, select, opts, print_fn)
 
 
 def _write_legacy_cmd(
