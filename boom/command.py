@@ -998,7 +998,7 @@ def _cache_image(img_path: str, backup: bool, update: bool = False) -> str:
         else:
             ce = cache_path(img_path, update=update)
     except (OSError, ValueError) as err:  # pragma: no cover
-        _log_error("Could not cache path %s: %s", img_path, err)
+        # Let callers handle logging
         raise
     return ce.path
 
