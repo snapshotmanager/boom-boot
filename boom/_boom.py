@@ -374,7 +374,7 @@ def get_boom_path() -> str:
 
 
 def get_cache_path() -> str:
-    """Return the currently configured cache directory ath.
+    """Return the currently configured cache directory path.
 
     :returns: the path to the boom image cache directory.
     :rtype: str
