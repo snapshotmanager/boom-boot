@@ -1247,7 +1247,6 @@ __all__ = [
     "select_host_profile",
     "get_host_profile_by_id",
     "match_host_profile",
-    "select_host_profile",
     # Host profile keys
     "BOOM_HOST_ID",
     "BOOM_HOST_NAME",
