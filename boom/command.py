@@ -19,7 +19,7 @@ object types and fields that may be of use in implementing custom
 reports using the ``boom.report`` module.
 """
 from os import environ, uname, getcwd, makedirs
-from os.path import basename, exists as path_exists, isabs, isdir, join, sep
+from os.path import basename, exists as path_exists, isabs, isdir, join, sep, abspath
 from typing import Any, Dict, Callable, List, Optional, Set, Tuple, Union
 from argparse import Namespace, ArgumentParser
 from stat import filemode
@@ -2641,7 +2641,7 @@ def create_config(boot_path: Optional[str] = None):
 
         try:
             runtime_boot_path = (
-                boot_path if isabs(boot_path) else join(getcwd(), boot_path)
+                abspath(boot_path) if not isabs(boot_path) else boot_path
             )
             set_boot_path(runtime_boot_path)
         except ValueError as err:
