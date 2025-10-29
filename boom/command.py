@@ -3578,7 +3578,7 @@ def _edit_profile_cmd(
     id_keys = (
         cmd_args.name,
         cmd_args.short_name,
-        cmd_args.version,
+        cmd_args.os_version,
         cmd_args.os_version_id,
     )
 
