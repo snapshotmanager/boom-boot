@@ -8,7 +8,7 @@
 """The ``boom.mounts`` module provides helper routines for handling
 command-line mount units as supported by systemd.
 """
-from subprocess import run, PIPE, DEVNULL, CalledProcessError
+from subprocess import run, PIPE, DEVNULL, CalledProcessError, TimeoutExpired
 import logging
 
 from boom import BoomError
@@ -63,16 +63,24 @@ MOUNT_UNIT_FMT = "systemd.mount-extra=%s:%s:%s:%s"
 SWAP_UNIT_FMT = "systemd.swap-extra=%s:%s"
 
 #: The blkid command
-_blkid = "blkid"
+_BLKID = "blkid"
 
 _DEV_PREFIXES = ("/dev/", "UUID=", "LABEL=", "PARTUUID=", "PARTLABEL=")
 
 
 def _detect_fstype(dev):
     """Detect the file system type corresponding to device ``dev``."""
-    p = run([_blkid, "--", dev], stdin=DEVNULL, stdout=PIPE, stderr=PIPE, check=True)
-    _log_debug("parsing blkid out: %s", p.stdout)
-    for tag in p.stdout.decode("utf8").split():
+    p = run(
+        [_BLKID, "--", dev],
+        stdin=DEVNULL,
+        stdout=PIPE,
+        stderr=PIPE,
+        check=True,
+        timeout=10,
+    )
+    decoded_output = p.stdout.decode("utf8", errors="replace")
+    _log_debug("parsing blkid out: %s", decoded_output)
+    for tag in decoded_output.split():
         if "=" in tag:
             if tag.startswith("TYPE="):
                 (_tag, fstype) = tag.split("=")
@@ -104,7 +112,7 @@ def _parse_mount_unit(mount):
     else:
         try:
             fstype = _detect_fstype(what)
-        except CalledProcessError as err:
+        except (CalledProcessError, TimeoutExpired) as err:
             raise BoomMountError.unknown_fstype(what) from err
     if len(parts) > 3:
         options = parts[3].strip()
