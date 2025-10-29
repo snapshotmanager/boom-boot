@@ -234,8 +234,8 @@ def write_boom_config(config: Optional[BoomConfig] = None, path: Optional[str] =
             fdatasync(tmp_fd)
 
     try:
+        chmod(tmp_path, BOOT_CONFIG_MODE)
         rename(tmp_path, path)
-        chmod(path, BOOT_CONFIG_MODE)
         dir_fd = os_open(cfg_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
         try:
             fsync(dir_fd)
