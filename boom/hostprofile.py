@@ -486,7 +486,6 @@ class HostProfile(BoomProfile):
 
         :rtype: string
         """
-        # FIXME HostProfile breaks
         breaks = [
             BOOM_HOST_ID,
             BOOM_HOST_NAME,
