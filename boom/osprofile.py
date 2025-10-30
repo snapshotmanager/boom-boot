@@ -577,6 +577,25 @@ class BoomProfile:
         """
         return len(self._profile_data) if self._profile_data else 0
 
+    def _check_format_key_value(self, key: str, value: str, ptype: str):
+        # Map key names to a list of format keys which must not
+        # appear in that key's value: e.g. %{kernel} in the kernel
+        # pattern profile key.
+        bad_key_map = {
+            BOOM_OS_KERNEL_PATTERN: [FMT_KERNEL],
+            BOOM_OS_INITRAMFS_PATTERN: [FMT_INITRAMFS],
+            BOOM_OS_ROOT_OPTS_LVM2: [FMT_ROOT_OPTS],
+            BOOM_OS_ROOT_OPTS_BTRFS: [FMT_ROOT_OPTS],
+        }
+
+        if key not in bad_key_map:
+            return
+        bad_keys = bad_key_map[key]
+        for bad_key in bad_keys:
+            if bad_key in value:
+                bad_fmt = key_from_key_name(bad_key)
+                raise ValueError(f"{ptype}.{key} cannot contain {bad_fmt}")
+
     def __getitem__(self, key: str) -> str:
         """Return an item from this profile.
 
@@ -602,22 +621,6 @@ class BoomProfile:
         # Name of the current profile class instance
         ptype = self.__class__.__name__
 
-        # Map key names to a list of format keys which must not
-        # appear in that key's value: e.g. %{kernel} in the kernel
-        # pattern profile key.
-        bad_key_map = {
-            BOOM_OS_KERNEL_PATTERN: [FMT_KERNEL],
-            BOOM_OS_INITRAMFS_PATTERN: [FMT_INITRAMFS],
-            BOOM_OS_ROOT_OPTS_LVM2: [FMT_ROOT_OPTS],
-            BOOM_OS_ROOT_OPTS_BTRFS: [FMT_ROOT_OPTS],
-        }
-
-        def _check_format_key_value(key, value, bad_keys):
-            for bad_key in bad_keys:
-                if bad_key in value:
-                    bad_fmt = key_from_key_name(bad_key)
-                    raise ValueError(f"{ptype}.{key} cannot contain {bad_fmt}")
-
         if not isinstance(key, str):
             raise TypeError(f"{ptype} key must be a string.")
 
@@ -627,8 +630,7 @@ class BoomProfile:
         if self._profile_keys and key not in self._profile_keys:
             raise ValueError(f"Invalid {ptype} key: {key}")
 
-        if key in bad_key_map:
-            _check_format_key_value(key, value, bad_key_map[key])
+        self._check_format_key_value(key, value, ptype)
 
         # Optional parity with property setter semantics
         if key == BOOM_OS_OPTIONS and "root=" not in value:

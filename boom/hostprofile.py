@@ -530,46 +530,6 @@ class HostProfile(BoomProfile):
         hp_str = hp_str.rstrip(", ")
         return hp_str + "})"
 
-    def __setitem__(self, key, value):
-        """Set the specified ``HostProfile`` key to the given value.
-
-        :param key: the ``HostProfile`` key to be set.
-        :param value: the value to set for the specified key.
-        """
-
-        # FIXME: duplicated from OsProfile.__setitem__ -> factor
-        # osprofile.check_format_key_value(key, value)
-        # and include isstr() key name validation etc.
-
-        # Map hp key names to a list of format keys which must not
-        # appear in that key's value: e.g. %{kernel} in the kernel
-        # pattern profile key.
-        bad_key_map = {
-            BOOM_OS_KERNEL_PATTERN: [FMT_KERNEL],
-            BOOM_OS_INITRAMFS_PATTERN: [FMT_INITRAMFS],
-            BOOM_OS_ROOT_OPTS_LVM2: [FMT_ROOT_OPTS],
-            BOOM_OS_ROOT_OPTS_BTRFS: [FMT_ROOT_OPTS],
-        }
-
-        def _check_format_key_value(key, value, bad_keys):
-            for bad_key in bad_keys:
-                if bad_key in value:
-                    raise ValueError(
-                        f"HostProfile.{key} cannot contain "
-                        f"{key_from_key_name(bad_key)}"
-                    )
-
-        if not isinstance(key, str):
-            raise TypeError("HostProfile key must be a string.")
-
-        if key not in HOST_PROFILE_KEYS:
-            raise ValueError(f"Invalid HostProfile key: {key}")
-
-        if key in bad_key_map:
-            _check_format_key_value(key, value, bad_key_map[key])
-
-        self._profile_data[key] = value
-
     def _generate_id(self):
         """Generate a new host identifier.
 
