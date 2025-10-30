@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.6.7
+Version:	1.6.8
 Release:	1%{?dist}
 Summary:	%{summary}
 
@@ -154,6 +154,42 @@ pytest-3 --log-level=debug -v
 
 
 %changelog
+* Thu Oct 30 2025 Bryn M. Reeves <bmr@redhat.com> - 1.6.8-1
+- tests: convert test_command.py from * to explicit imports
+- command: avoid list mutation in _apply_no_fstab()
+- osprofile: enforce absolute kernel/initramfs patterns
+- config: use ConfigParser.getboolean instead of substring tests
+- config: docstring nit: “read” → “write” for path param
+- hostprofile: fix deletion removing all labels for the same machine_id
+- hostprofile: normalize label to empty str if None passed to setter
+- hostprofile: guard against None in HostProfile._generate_id()
+- profiles: factor out common code from {Os,Host}Profile.__setitem__
+- hostprofile: add missing docstrings for property setters
+- hostprofile: drop obsolete FIXME comment
+- dist: update and drop files in examples/
+- command: use abspath() for boot_path normalzaiton
+- mounts: add timeout and log decoded blkid output
+- command: have create_config() report actual path in fail log
+- hostprofile: duplicate symbol in __all__
+- boom: fix docstring typo ("ath" → "path")
+- doc: Mention BOOM_BOOT_PATH alongside --boot-dir in boom.8
+- doc: Clarify config overwrite semantics and idempotency in boom.8
+- config: raise BoomConfigError exception on parse failure
+- config: make permissions atomic: chmod temp file before rename
+- command: harden machine-id read: catch OSError from open too
+- command: avoid duplicate logging in _cache_image()
+- boom: bump required python to 3.9
+- boom: fix type hints to use typing imports
+- command: profile edit guard checks the wrong OS version option
+- tests: remove unused local BoomConfig in setUp (confusing no-op).
+- boom: drop annoying --verbose field selection
+- boom.mounts: allow swap entries with create_entry(mounts=...)
+- boom: wire up new debug log filttering in boom.command.setup_logging()
+- boom: convert modules to new log filtering interface
+- boom: replace BoomLogger Logging class with SubsystemFilter Filter class
+- boom: use "boom" rather than __name__ (boom._boom) for getLogger()
+- boom: add string constants for new name-based subsystem log filtering
+
 Mon Sep 15 2025 Bryn M. Reeves <bmr@redhat.com> - 1.6.7-1
 - boom: bump release to 1.6.7
 - legacy: add deprecation notices to boom.legacy docstrings
