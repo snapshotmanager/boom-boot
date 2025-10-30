@@ -1042,14 +1042,19 @@ def _apply_btrfs_subvol_exclusive(
 
 
 def _apply_no_fstab(
-    add_opts_list: List[str], del_opts_list: List[str]
+    add_opts: List[str], del_opts: List[str]
 ) -> Tuple[List[str], List[str]]:
     """
-    Apply no_fstab handling to ``add_opts_list``/``del_opts_list``.
+    Apply no_fstab handling by copying and modifying the ``add_opts`` and
+    ``del_opts`` lists and returning the modified copies.
 
-    :param add_opts_list: add_opts list to modify.
-    :param del_opts_list: del_opts list to modify.
+    :param add_opts: add_opts list to modify.
+    :param del_opts: del_opts list to modify.
+    :returns: A tuple of new `(add_opts_list, del_opts_list)`.
     """
+    add_opts_list = add_opts.copy()
+    del_opts_list = del_opts.copy()
+
     if "fstab=no" not in add_opts_list:
         add_opts_list.append("fstab=no")
 
