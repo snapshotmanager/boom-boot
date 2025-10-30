@@ -534,12 +534,13 @@ class HostProfile(BoomProfile):
         """Generate a new host identifier.
 
         Generate a new sha1 profile identifier for this profile,
-        using the name, machine_id, and os_id and store it in
-        _profile_data.
+        using the machine_id, and label and store it in  _profile_data.
 
         :returns: None
         """
-        hashdata = self.machine_id + self.label
+        machine_id = self.machine_id or ""
+        label = self.label or ""
+        hashdata = machine_id + label
 
         digest = sha1(hashdata.encode("utf-8"), usedforsecurity=False).hexdigest()
         self._profile_data[BOOM_HOST_ID] = digest
