@@ -213,7 +213,7 @@ def write_boom_config(config: Optional[BoomConfig] = None, path: Optional[str] =
 
     :param config: the configuration values to write, or None to
                    write the current configuration
-    :param path: the configuration file to read, or None to read the
+    :param path: the configuration file to write, or None to use the
                  currently configured config file path
 
     :rtype: None
