@@ -1195,12 +1195,15 @@ class HostProfile(BoomProfile):
         return ""
 
     @label.setter
-    def label(self, value):
+    def label(self, value: Optional[str]):
         """Set label for this host profile.
 
         :param value: The new value to set.
         :type value: str
         """
+        if value is None:
+            value = ""
+
         valid_chars = string.ascii_letters + string.digits + "_- "
 
         if BOOM_HOST_LABEL in self._profile_data:
