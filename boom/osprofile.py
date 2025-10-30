@@ -632,6 +632,13 @@ class BoomProfile:
 
         self._check_format_key_value(key, value, ptype)
 
+        # Enforce absolute paths for image patterns
+        if key in (
+            BOOM_OS_KERNEL_PATTERN,
+            BOOM_OS_INITRAMFS_PATTERN,
+        ) and not value.startswith("/"):
+            raise ValueError(f"{ptype}.{key} must be an absolute path")
+
         # Optional parity with property setter semantics
         if key == BOOM_OS_OPTIONS and "root=" not in value:
             raise ValueError(f"{ptype}.options must include root= device option")
@@ -1024,6 +1031,11 @@ class BoomProfile:
             ptype = self.__class__.__name__
             raise ValueError(f"{ptype}.kernel_pattern cannot contain {kernel_key}")
 
+        if not value.startswith("/"):
+            raise ValueError(
+                f"{self.__class__.__name__}.kernel_pattern must be an absolute path"
+            )
+
         if self._profile_data:
             self._profile_data[BOOM_OS_KERNEL_PATTERN] = value
             self._dirty()
@@ -1048,6 +1060,12 @@ class BoomProfile:
             raise ValueError(
                 f"{ptype}.initramfs_pattern cannot contain {initramfs_key}"
             )
+
+        if not value.startswith("/"):
+            raise ValueError(
+                f"{self.__class__.__name__}.initramfs_pattern must be an absolute path"
+            )
+
         if self._profile_data:
             self._profile_data[BOOM_OS_INITRAMFS_PATTERN] = value
             self._dirty()
