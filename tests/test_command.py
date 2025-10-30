@@ -18,13 +18,60 @@ import re
 
 log = logging.getLogger()
 
-from boom import *
-from boom.osprofile import *
-from boom.bootloader import *
-from boom.hostprofile import *
-from boom.command import *
-from boom.config import *
-from boom.report import *
+from boom import (
+    Selection,
+    BoomConfig,
+    set_boom_config,
+    set_boot_path,
+)
+from boom.osprofile import (
+    BOOM_OS_NAME,
+    BOOM_OS_SHORT_NAME,
+    BOOM_OS_VERSION,
+    BOOM_OS_VERSION_ID,
+    BOOM_OS_UNAME_PATTERN,
+    BOOM_OS_KERNEL_PATTERN,
+    BOOM_OS_INITRAMFS_PATTERN,
+    BOOM_OS_ROOT_OPTS_LVM2,
+    BOOM_OS_ROOT_OPTS_BTRFS,
+    BOOM_OS_OPTIONS,
+    BOOM_OS_TITLE,
+    OsProfile,
+    load_profiles,
+    drop_profiles,
+    get_os_profile_by_id,
+)
+from boom.bootloader import (
+    BootParams,
+    load_entries,
+    drop_entries,
+    find_entries,
+    boom_entries_path,
+)
+from boom.hostprofile import load_host_profiles, drop_host_profiles
+from boom.command import (
+    I_BACKUP,
+    clone_entry,
+    clone_host,
+    clone_profile,
+    create_entry,
+    create_host,
+    create_profile,
+    delete_entries,
+    delete_hosts,
+    delete_profiles,
+    edit_entry,
+    edit_host,
+    edit_profile,
+    list_entries,
+    list_hosts,
+    list_profiles,
+    print_entries,
+    print_hosts,
+    print_profiles
+)
+from boom.config import BoomConfigError
+from boom.report import ReportOpts
 from boom.cache import drop_cache
 
 # For access to non-exported members
