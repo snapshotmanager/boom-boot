@@ -1285,7 +1285,11 @@ class HostProfile(BoomProfile):
         if _host_profiles and self in _host_profiles:
             _host_profiles.remove(self)
         if _host_profiles_by_id and machine_id in _host_profiles_by_id:
-            _host_profiles_by_id.pop(machine_id)
+            if self.label in _host_profiles_by_id[machine_id]:
+                del _host_profiles_by_id[machine_id][self.label]
+            # Only remove machine_id dict if no labels remain
+            if not _host_profiles_by_id[machine_id]:
+                del _host_profiles_by_id[machine_id]
         if _host_profiles_by_host_id and host_id in _host_profiles_by_host_id:
             _host_profiles_by_host_id.pop(host_id)
 
