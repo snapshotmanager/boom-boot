@@ -832,6 +832,11 @@ class HostProfile(BoomProfile):
 
     @machine_id.setter
     def machine_id(self, value: str):
+        """Set the machine_id of this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         if self._profile_data and BOOM_ENTRY_MACHINE_ID in self._profile_data:
             if value == self._profile_data[BOOM_ENTRY_MACHINE_ID]:
                 return
@@ -851,6 +856,11 @@ class HostProfile(BoomProfile):
 
     @os_id.setter
     def os_id(self, value):
+        """Set the os_id of this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         if value == self._profile_data[BOOM_OS_ID]:
             return
         self._profile_data[BOOM_OS_ID] = value
@@ -872,6 +882,11 @@ class HostProfile(BoomProfile):
 
     @osp.setter
     def osp(self, osp):
+        """Set the ``OsProfile`` used by this ``HostProfile``.
+
+        :param value: The new value to set.
+        :type value: OsProfile
+        """
         if self._osp and osp.os_id == self._osp.os_id:
             return
         self._osp = osp
@@ -880,7 +895,7 @@ class HostProfile(BoomProfile):
         self._generate_id()
 
     @property
-    def host_name(self):
+    def host_name(self) -> str:
         """The ``host_name`` of this profile.
 
         Normally set to the hostname of the system corresponding to
@@ -892,7 +907,12 @@ class HostProfile(BoomProfile):
         return self._profile_data[BOOM_HOST_NAME]
 
     @host_name.setter
-    def host_name(self, value):
+    def host_name(self, value: str):
+        """Set the `host_name` used by this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         if value == self._profile_data[BOOM_HOST_NAME]:
             return
         self._profile_data[BOOM_HOST_NAME] = value
@@ -966,6 +986,11 @@ class HostProfile(BoomProfile):
 
     @uname_pattern.setter
     def uname_pattern(self, value):
+        """Set the `uname_pattern` used by this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         self._profile_data[BOOM_OS_UNAME_PATTERN] = value
         self._dirty()
 
@@ -987,6 +1012,11 @@ class HostProfile(BoomProfile):
 
     @kernel_pattern.setter
     def kernel_pattern(self, value):
+        """Set the `kernel_pattern` used by this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         kernel_key = key_from_key_name(FMT_KERNEL)
         if kernel_key in value:
             raise ValueError(f"HostProfile.kernel cannot contain {kernel_key}")
@@ -1007,6 +1037,11 @@ class HostProfile(BoomProfile):
 
     @initramfs_pattern.setter
     def initramfs_pattern(self, value):
+        """Set the `initramfs_pattern` used by this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         initramfs_key = key_from_key_name(FMT_INITRAMFS)
         if initramfs_key in value:
             raise ValueError(f"HostProfile.initramfs cannot contain {initramfs_key}")
@@ -1028,6 +1063,11 @@ class HostProfile(BoomProfile):
 
     @root_opts_lvm2.setter
     def root_opts_lvm2(self, value):
+        """Set the LVM2 root options used by this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
         if root_opts_key in value:
             raise ValueError(
@@ -1050,6 +1090,11 @@ class HostProfile(BoomProfile):
 
     @root_opts_btrfs.setter
     def root_opts_btrfs(self, value):
+        """Set the BTRFS root options used by this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         root_opts_key = key_from_key_name(FMT_ROOT_OPTS)
         if root_opts_key in value:
             raise ValueError(
@@ -1073,6 +1118,11 @@ class HostProfile(BoomProfile):
 
     @options.setter
     def options(self, value):
+        """Set the options template used by this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         self._profile_data[BOOM_OS_OPTIONS] = value
         self._dirty()
 
@@ -1090,6 +1140,11 @@ class HostProfile(BoomProfile):
 
     @title.setter
     def title(self, value):
+        """Set the title used by this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         if not value:
             # It is valid to set an empty title in a HostProfile as long
             # as the OsProfile defines one.
@@ -1100,6 +1155,10 @@ class HostProfile(BoomProfile):
 
     @property
     def optional_keys(self):
+        """Return the `optional_keys` value used by this host profile.
+
+        :rtype: str
+        """
         if BOOM_OS_OPTIONAL_KEYS in self._profile_data:
             return self._profile_data[BOOM_OS_OPTIONAL_KEYS]
         if not self.osp or not self.osp.optional_keys:
@@ -1108,6 +1167,11 @@ class HostProfile(BoomProfile):
 
     @optional_keys.setter
     def optional_keys(self, value):
+        """Set the `optional_keys` used by this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         if value is None:
             value = ""
         for opt_key in value.split():
@@ -1121,34 +1185,61 @@ class HostProfile(BoomProfile):
 
     @property
     def add_opts(self):
+        """Return additional options defined by this host profile.
+
+        :rtype: str
+        """
         if BOOM_HOST_ADD_OPTS in self._profile_data:
             return self._profile_data[BOOM_HOST_ADD_OPTS]
         return ""
 
     @add_opts.setter
     def add_opts(self, opts):
+        """Set additional options used by this host profile.
+
+        :param opts: The new value to set.
+        :type opts: str
+        """
         self._profile_data[BOOM_HOST_ADD_OPTS] = opts
         self._dirty()
 
     @property
     def del_opts(self):
+        """Return options deleted this host profile.
+
+        :rtype: str
+        """
         if BOOM_HOST_DEL_OPTS in self._profile_data:
             return self._profile_data[BOOM_HOST_DEL_OPTS]
         return ""
 
     @del_opts.setter
     def del_opts(self, opts):
+        """Set options deleted by this host profile.
+
+        :param opts: The new value to set.
+        :type opts: str
+        """
         self._profile_data[BOOM_HOST_DEL_OPTS] = opts
         self._dirty()
 
     @property
     def label(self):
+        """Return label for this host profile.
+
+        :rtype: str
+        """
         if BOOM_HOST_LABEL in self._profile_data:
             return self._profile_data[BOOM_HOST_LABEL]
         return ""
 
     @label.setter
     def label(self, value):
+        """Set label for this host profile.
+
+        :param value: The new value to set.
+        :type value: str
+        """
         valid_chars = string.ascii_letters + string.digits + "_- "
 
         if BOOM_HOST_LABEL in self._profile_data:
