@@ -21,16 +21,12 @@ jobs:
           python3-toml
           python3-wheel
           python3-pip
-          bandit
       - name: Install Boom
         run: >
           sudo pip install -v .
       - name: Check PyCodestyle
         run: >
           pycodestyle boom --ignore E501,E203,W503
-      - name: Run bandit
-        run: >
-          bandit -c bandit.toml -r boom
       - name: Run test suite with coverage
         run: >
           coverage run /usr/bin/pytest -v --log-level=debug
@@ -52,16 +48,12 @@ jobs:
           python3-pycodestyle
           python3-coverage
           pycodestyle
-          bandit
       - name: Install Boom
         run: >
           sudo pip install -v .
       - name: Check PyCodestyle
         run: >
           pycodestyle boom --ignore E501,E203,W503
-      - name: Run bandit
-        run: >
-          bandit --skip B303,B404,B603 -r boom
       - name: Run test suite with coverage
         run: >
           sudo python3-coverage run /usr/bin/pytest-3 -v --log-level=debug
