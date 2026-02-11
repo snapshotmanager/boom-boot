@@ -51,6 +51,8 @@ class MountsHelperTests(unittest.TestCase):
             "/dev/test/var:/var:xfs",
             "/dev/fedora/swap:none:swap:defaults",
             "/dev/vda3:none:swap:pri=1,discard=pages,nofail",
+            "Amazing\\x3a/Grace:/AmazingGrace:nfs:defaults",
+            "//I/Shall/Not/Be:/Moved:cifs:defaults",
         ]
         xmount_str = [
             "systemd.mount-extra=/dev/test/var:/var:xfs:defaults",
@@ -61,6 +63,8 @@ class MountsHelperTests(unittest.TestCase):
             "systemd.mount-extra=/dev/test/var:/var:xfs:defaults",
             "systemd.mount-extra=/dev/fedora/swap:none:swap:defaults",
             "systemd.mount-extra=/dev/vda3:none:swap:pri=1,discard=pages,nofail",
+            "systemd.mount-extra=Amazing\\x3a/Grace:/AmazingGrace:nfs:defaults",
+            "systemd.mount-extra=//I/Shall/Not/Be:/Moved:cifs:defaults",
         ]
 
         for mount, xmount in zip(mount_list, xmount_str):

@@ -65,7 +65,7 @@ SWAP_UNIT_FMT = "systemd.swap-extra=%s:%s"
 #: The blkid command
 _BLKID = "blkid"
 
-_DEV_PREFIXES = ("/dev/", "UUID=", "LABEL=", "PARTUUID=", "PARTLABEL=")
+_WHAT_PREFIXES = ("/dev/", "UUID=", "LABEL=", "PARTUUID=", "PARTLABEL=", "//")
 
 
 def _detect_fstype(dev):
@@ -88,6 +88,27 @@ def _detect_fstype(dev):
     raise BoomMountError.unknown_fstype(dev)
 
 
+def _unescape(escaped: str) -> str:
+    """
+    Unescape hex escapes in mount string values.
+
+    :param escaped: The string to unescape.
+    :type escaped: str
+    :returns: The unescaped string with hex escape values replaced by
+              literal character values.
+    :rtype: str
+    """
+    return (
+        escaped.replace("\\x20", " ")
+        .replace("\\x09", "\t")
+        .replace("\\x9", "\t")
+        .replace("\\x0a", "\n")
+        .replace("\\xa", "\n")
+        .replace("\\x3a", ":")
+        .replace("\\x5c", "\\")
+    )
+
+
 def _parse_mount_unit(mount):
     """Parse a boom command line mount specification into the format
     required by the systemd boot syntax.
@@ -101,10 +122,15 @@ def _parse_mount_unit(mount):
     if len(parts) < 2:
         raise BoomMountError.malformed_mount(mount)
 
-    what = parts[0].strip()
-    where = parts[1].strip()
+    # Preserve the escaped arguments: we will pass them on to the
+    # generated systemd units. Unescape hex encoding for validation.
+    orig_what = parts[0].strip()
+    orig_where = parts[1].strip()
+    what = _unescape(orig_what)
+    where = _unescape(orig_where)
 
-    if not what.startswith(_DEV_PREFIXES):
+    # Handle device, CIFS, and NFS syntax
+    if not what.startswith(_WHAT_PREFIXES) and ":" not in what:
         raise BoomMountError.invalid_device(what)
 
     if len(parts) > 2:
@@ -129,7 +155,7 @@ def _parse_mount_unit(mount):
     if any(not part for part in [what, where, fstype, options]):
         raise BoomMountError.malformed_mount(mount)
 
-    return MOUNT_UNIT_FMT % (what, where, fstype, options)
+    return MOUNT_UNIT_FMT % (orig_what, orig_where, fstype, options)
 
 
 def parse_mount_units(mounts):
@@ -165,7 +191,7 @@ def _parse_swap_unit(swap):
     if ":" in options:
         raise BoomMountError.malformed_swap(swap)
 
-    if not what.startswith(_DEV_PREFIXES):
+    if not what.startswith(_WHAT_PREFIXES):
         raise BoomMountError.invalid_swap_device(what)
 
     return SWAP_UNIT_FMT % (what, options)
