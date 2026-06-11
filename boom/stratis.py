@@ -69,7 +69,7 @@ def pool_name_to_pool_uuid(pool_name: str) -> str:  # pragma: no cover
     )
     proxy = bus.get_object(_STRATISD_SERVICE, _STRATISD_PATH, introspect=False)
     object_manager = dbus.Interface(proxy, _DBUS_OBJECT_MANAGER_IFACE)
-    managed_objects = object_manager.GetManagedObjects(_STRATISD_TIMEOUT)
+    managed_objects = object_manager.GetManagedObjects(timeout=_STRATISD_TIMEOUT)
     try:
         props = next(
             obj_data[_POOL_IFACE]
