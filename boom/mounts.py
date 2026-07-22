@@ -90,23 +90,15 @@ def _detect_fstype(dev):
 
 def _unescape(escaped: str) -> str:
     """
-    Unescape hex escapes in mount string values.
+    Unescape ":" character in mount string values.
 
     :param escaped: The string to unescape.
     :type escaped: str
-    :returns: The unescaped string with hex escape values replaced by
-              literal character values.
+    :returns: The unescaped string with hex escape value 0x3a replaced by
+              literal colon characters.
     :rtype: str
     """
-    return (
-        escaped.replace("\\x20", " ")
-        .replace("\\x09", "\t")
-        .replace("\\x9", "\t")
-        .replace("\\x0a", "\n")
-        .replace("\\xa", "\n")
-        .replace("\\x3a", ":")
-        .replace("\\x5c", "\\")
-    )
+    return escaped.replace("\\x3a", ":")
 
 
 def _parse_mount_unit(mount):

@@ -89,6 +89,29 @@ class MountsHelperTests(unittest.TestCase):
                 with self.assertRaises(BoomMountError):
                     parse_mount_units([mount])
 
+    def test__unescape_colon(self):
+        unescaped = boom.mounts._unescape(r"foo\x3abar")
+        self.assertEqual(unescaped, "foo:bar")
+
+    def test__unescape_colon_multiple(self):
+        unescaped = boom.mounts._unescape(r"foo\x3abar\x3abaz\x3aquux")
+        self.assertEqual(unescaped, "foo:bar:baz:quux")
+
+    def test__unescape_other(self):
+        unescaped = boom.mounts._unescape(r"foo\x0abar")
+        self.assertEqual(unescaped, r"foo\x0abar")
+
+    def test__unescape_other_null(self):
+        unescaped = boom.mounts._unescape(r"foo\x00bar")
+        self.assertEqual(unescaped, r"foo\x00bar")
+
+    def test__unescape_bad_str_raises(self):
+        with self.assertRaises(AttributeError):
+            boom.mounts._unescape(None)
+
+        with self.assertRaises(AttributeError):
+            boom.mounts._unescape(0)
+
     def test_parse_swap_units(self):
         swap_list = ["/dev/test/var:defaults", "/dev/sda5:pri=1"]
         xswap_str = ["systemd.swap-extra=/dev/test/var:defaults",
