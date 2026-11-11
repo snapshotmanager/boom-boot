@@ -389,11 +389,11 @@ def set_boot_path(boot_path):
     file system: this may be overridden by calling this function
     with a different path.
 
-    Calling ``set_boom_root_path()`` will re-set the value returned
+    Calling ``set_boot_path()`` will re-set the value returned
     by ``get_boom_path()`` to the default boom configuration sub-
     directory within the new boot file system. The location of the
     boom configuration path may be configured separately by calling
-    ``set_boom_root_path()`` after setting the boot path.
+    ``set_boom_path()`` after setting the boot path.
 
     :param boot_path: the path to the 'boom/' directory containing
                       boom profiles and configuration.
