@@ -2529,7 +2529,7 @@ class CommandTests(unittest.TestCase):
 
 
 class CommandTestsNoConf(unittest.TestCase):
-    """Test boom.commanad.main(), no boom configuration loaded.
+    """Test boom.command.main(), no boom configuration loaded.
     """
 
     # Main BLS loader directory for sandbox
