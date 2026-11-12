@@ -65,7 +65,7 @@ def pool_name_to_pool_uuid(pool_name: str) -> str:  # pragma: no cover
     """
     bus = dbus.SystemBus()
     _log_debug_stratis(
-        "Connecting to %s at %s via system bus", (_STRATISD_SERVICE, _STRATISD_PATH)
+        "Connecting to %s at %s via system bus", _STRATISD_SERVICE, _STRATISD_PATH
     )
     proxy = bus.get_object(_STRATISD_SERVICE, _STRATISD_PATH, introspect=False)
     object_manager = dbus.Interface(proxy, _DBUS_OBJECT_MANAGER_IFACE)
