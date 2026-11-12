@@ -99,6 +99,112 @@ class CacheHelperTests(unittest.TestCase):
         with self.assertRaises(IOError) as cm:
             boom.cache._image_id_from_path(img_path)
 
+class CachePathChangeTests(unittest.TestCase):
+    """Test that changing the configured boot, boom or cache path
+        invalidates in-memory state loaded from the previous path.
+    """
+
+    # Main BLS loader directory for sandbox
+    loader_path = join(BOOT_ROOT_TEST, "loader")
+
+    # Main boom configuration path for sandbox
+    boom_path = join(BOOT_ROOT_TEST, "boom")
+
+    # A populated boot file system
+    full_boot = join(SANDBOX_PATH, "boot")
+
+    # An empty boot file system
+    empty_boot = join(SANDBOX_PATH, "boot2")
+
+    def setUp(self):
+        """Create two sandbox boot file systems: one populated with the
+            standard test profiles, entries and cached images and one
+            containing an empty boom configuration.
+        """
+        log.info("Preparing %s", self._testMethodName)
+
+        reset_sandbox()
+
+        makedirs(self.full_boot)
+        shutil.copytree(self.boom_path, join(self.full_boot, "boom"))
+        shutil.copytree(self.loader_path, join(self.full_boot, "loader"))
+
+        for subdir in ["boom/cache", "boom/hosts", "boom/profiles",
+                       "loader/entries"]:
+            makedirs(join(self.empty_boot, subdir))
+
+        set_boot_path(self.full_boot)
+
+    def tearDown(self):
+        log.info("Tearing down %s", self._testMethodName)
+
+        drop_entries()
+        drop_profiles()
+        drop_host_profiles()
+        drop_cache()
+
+        rm_sandbox()
+        reset_boom_paths()
+
+    def test_set_boot_path_drops_cache(self):
+        load_cache()
+        self.assertTrue(len(boom.cache._index))
+
+        set_boot_path(self.empty_boot)
+
+        self.assertFalse(len(boom.cache._index))
+        self.assertFalse(len(boom.cache._paths))
+        self.assertFalse(len(boom.cache._images))
+
+    def test_set_boot_path_reloads_cache_from_new_path(self):
+        # Images cached in the populated boot file system.
+        self.assertTrue(len(find_cache_images()))
+
+        set_boot_path(self.empty_boot)
+
+        # The empty boot file system has no cached images: without
+        # invalidation the stale index of the previous boot path is
+        # returned here.
+        self.assertFalse(len(find_cache_images()))
+        self.assertFalse(len(find_cache_paths()))
+
+    def test_set_boom_path_drops_cache(self):
+        load_cache()
+        self.assertTrue(len(boom.cache._index))
+
+        set_boom_path(join(self.empty_boot, "boom"))
+
+        self.assertFalse(len(boom.cache._index))
+
+    def test_set_cache_path_drops_cache(self):
+        load_cache()
+        self.assertTrue(len(boom.cache._index))
+
+        set_cache_path(join(self.empty_boot, "boom/cache"))
+
+        self.assertFalse(len(boom.cache._index))
+        self.assertFalse(len(boom.cache._paths))
+        self.assertFalse(len(boom.cache._images))
+
+    def test_set_boot_path_drops_profiles_and_entries(self):
+        load_profiles()
+        load_host_profiles()
+        load_entries()
+        self.assertTrue(len(find_entries()))
+        self.assertTrue(profiles_loaded())
+        self.assertTrue(host_profiles_loaded())
+
+        set_boot_path(self.empty_boot)
+
+        self.assertFalse(len(boom.bootloader._entries))
+        self.assertFalse(profiles_loaded())
+        self.assertFalse(host_profiles_loaded())
+
+        # Lazily re-loaded from the new, empty boot path.
+        self.assertFalse(len(find_entries()))
+        self.assertFalse(len(find_profiles()))
+
+
 class CacheTests(unittest.TestCase):
     """Test boom.command APIs
     """
