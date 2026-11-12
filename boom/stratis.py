@@ -101,7 +101,7 @@ def symlink_to_pool_uuid(link_path: str) -> str:
     # Separate the "pool" and "fs" components from a Stratis file system
     # link path formatted as "/dev/stratis/pool/fs".
     (pool, _) = normpath(link_path).split(path_sep)[-2:]
-    _log_debug_stratis(f"Looking up pool UUID for Stratis symlink '{link_path}'")
+    _log_debug_stratis("Looking up pool UUID for Stratis symlink '%s'", link_path)
     return pool_name_to_pool_uuid(pool)
 
 
