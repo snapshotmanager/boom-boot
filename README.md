@@ -217,6 +217,11 @@ boom host list
 - Python 3.9+
 - LVM2, Stratis, or BTRFS for snapshot functionality
 
+> **Note:** Image Mode (bootc) and ostree based deployments are currently
+> unsupported. These systems use a read-only `/boot` filesystem and a
+> different boot management model that boom does not yet support. boom
+> detects such deployments and exits early with an error.
+
 ## Documentation
 
 - [User Guide](https://boom.readthedocs.io/en/latest/user_guide.html) - Comprehensive usage documentation
