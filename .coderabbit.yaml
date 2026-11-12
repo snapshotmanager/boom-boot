@@ -78,7 +78,6 @@ reviews:
     - path: ".github/workflows/**/*"
       instructions: |
         CI/CD security:
-        - Pin actions by full SHA, not tag
         - No secrets in logs; mask sensitive outputs
         - Least privilege: minimize GITHUB_TOKEN permissions
         - No pull_request_target with checkout of PR head
