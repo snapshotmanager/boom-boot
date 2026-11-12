@@ -4665,6 +4665,14 @@ def main(args: List[str]) -> int:
         return 1
     setup_logging(cmd_args)
 
+    # Reject Image Mode / ostree deployments early: these are unsupported
+    # and would otherwise fail later with a confusing read-only /boot error.
+    try:
+        _check_image_mode()
+    except BoomError as err:
+        _log_error("%s", err)
+        return 1
+
     boot_path = None
     if cmd_args.boot_dir or BOOM_BOOT_PATH_ENV in environ:
         boot_path = cmd_args.boot_dir or environ[BOOM_BOOT_PATH_ENV]
