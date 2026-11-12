@@ -6,12 +6,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 import unittest
+from unittest.mock import patch
 import logging
 from sys import stdout
 from os import listdir, makedirs, unlink
 from os.path import abspath, basename, dirname, exists, join
 from tempfile import TemporaryDirectory, NamedTemporaryFile
 from io import StringIO
+from contextlib import redirect_stderr
 from glob import glob
 import shutil
 import re
@@ -19,6 +21,7 @@ import re
 log = logging.getLogger()
 
 from boom import (
+    BoomError,
     Selection,
     BoomConfig,
     set_boom_config,
@@ -398,6 +401,20 @@ class CommandHelperTests(unittest.TestCase):
         for dev_vg_lv, vg_lv in vg_devs:
             with self.subTest(dev_vg_lv=dev_vg_lv, vg_lv=vg_lv):
                 self.assertEqual(boom.command._lv_from_device_string(dev_vg_lv), vg_lv)
+
+    @patch("boom.command.path_exists")
+    def test__check_image_mode(self, mock_exists):
+        """Test detection of Image Mode / ostree deployments."""
+        # Case 1: not an ostree/Image Mode system - should not raise
+        mock_exists.return_value = False
+        boom.command._check_image_mode()
+        mock_exists.assert_called_once_with(boom.command._OSTREE_BOOTED_PATH)
+
+        # Case 2: ostree marker present - should raise BoomError
+        mock_exists.return_value = True
+        with self.assertRaises(BoomError) as cm:
+            boom.command._check_image_mode()
+        self.assertIn("Image Mode", str(cm.exception))
 
 
 # Default test OsProfile identifiers
@@ -2635,6 +2652,38 @@ class CommandTestsNoConf(unittest.TestCase):
         args = ['bin/boom', 'entry', 'list', '--debug', 'quux']
         r = boom.command.main(args)
         self.assertEqual(r, 1)
+
+    def test_boom_main_rejects_image_mode(self):
+        """main() fails early on an Image Mode / ostree system."""
+        real_exists = exists
+
+        def fake_exists(path):
+            """
+            Report only the ostree marker as present, and delegate every
+            other path to the real ``os.path.exists()``.
+            """
+            if path == boom.command._OSTREE_BOOTED_PATH:
+                return True
+            return real_exists(path)
+
+        boot_dir = join(BOOT_ROOT_TEST, "sandbox", "boot")
+        cases = [
+            ["bin/boom", "entry", "list", "--boot-dir", boot_dir],
+            ["bin/boom", "config", "create", "--boot-dir", boot_dir],
+        ]
+        for args in cases:
+            with self.subTest(args=args):
+                with patch("boom.command.path_exists", side_effect=fake_exists):
+                    with patch("boom.command.set_boot_path") as mock_set_boot_path:
+                        with redirect_stderr(StringIO()) as err:
+                            r = boom.command.main(args)
+                self.assertEqual(r, 1)
+                self.assertIn(
+                    "ERROR - Image Mode deployments are currently unsupported",
+                    err.getvalue(),
+                )
+                # The check must come before any boot path or config setup
+                mock_set_boot_path.assert_not_called()
 
     def test_boom_main_bad_arg(self):
         args = ['bin/boom', 'entry', 'list', '--quux']
