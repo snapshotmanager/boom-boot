@@ -9,6 +9,7 @@ directly: it will be imported automatically with the top level module.
 """
 from os.path import exists as path_exists, isabs, isdir, join as path_join
 from os import listdir
+from sys import modules as sys_modules
 import logging
 import string
 import errno
@@ -382,6 +383,51 @@ def get_cache_path() -> str:
     return __config.cache_path
 
 
+#: Map of boom sub-modules that cache on-disk state in memory to the
+#: name of the function used to discard that in-memory state.
+_DROP_STATE_FNS = {
+    "boom.cache": "drop_cache",
+    "boom.bootloader": "drop_entries",
+    "boom.hostprofile": "drop_host_profiles",
+    "boom.osprofile": "drop_profiles",
+}
+
+#: The sub-modules whose state depends on the configured cache path.
+_CACHE_STATE_MODULES = ("boom.cache",)
+
+#: The sub-modules whose state depends on the configured boot or boom path.
+_PATH_STATE_MODULES = tuple(_DROP_STATE_FNS.keys())
+
+
+def _drop_cached_state(modules):
+    """Discard the in-memory state cached by the boom sub-modules named
+    in ``modules``.
+
+    Boom sub-modules cache the on-disk state found at the configured
+    boot, boom and cache paths in module scope variables and load them
+    lazily on first use. Since these caches are never re-validated they
+    must be discarded whenever the paths they were loaded from change:
+    the next access then lazily re-loads the state from the new path.
+
+    Sub-modules that have not been imported are ignored: a module that
+    has not been imported cannot hold any cached state.
+
+    :param modules: An iterable of boom sub-module names.
+    :returns: ``None``
+    """
+    for module in modules:
+        mod = sys_modules.get(module)
+        if mod is None:
+            continue
+        drop_fn = getattr(mod, _DROP_STATE_FNS[module], None)
+        if drop_fn is None:
+            # The module is in the process of being imported and cannot
+            # yet hold any cached state.
+            continue
+        _log_debug("Dropping cached %s state", module)
+        drop_fn()
+
+
 def set_boot_path(boot_path):
     """Sets the location of the boot file system to ``boot_path``.
 
@@ -394,6 +440,10 @@ def set_boot_path(boot_path):
     directory within the new boot file system. The location of the
     boom configuration path may be configured separately by calling
     ``set_boom_path()`` after setting the boot path.
+
+    Any in-memory profile, boot entry and boot image cache state
+    loaded from the previous boot path is discarded: it is lazily
+    re-loaded from the new path on next use.
 
     :param boot_path: the path to the 'boom/' directory containing
                       boom profiles and configuration.
@@ -409,6 +459,7 @@ def set_boot_path(boot_path):
     __config.boot_path = boot_path
     _log_debug("Set boot path to: %s", boot_path)
     __config.boom_path = path_join(boot_path, DEFAULT_BOOM_DIR)
+    _drop_cached_state(_PATH_STATE_MODULES)
 
     # If a boom/ directory exists at the boot path, automatically set
     # the boom path to it. Otherwise, we assume that the caller will
@@ -426,6 +477,10 @@ def set_boom_path(boom_path):
     'boom/' sub-directory in the boot file system specified by
     ``config.boot_path``: this may be overridden by calling this
     function with a different path.
+
+    Any in-memory profile, boot entry and boot image cache state
+    loaded from the previous boom path is discarded: it is lazily
+    re-loaded from the new path on next use.
 
     :param boom_path: the path to the 'boom/' directory containing
                       boom profiles and configuration.
@@ -450,6 +505,7 @@ def set_boom_path(boom_path):
     _log_debug("Set boom path to: %s", boom_path)
     __config.boom_path = boom_path
     set_boom_config_path(__config.boom_path)
+    _drop_cached_state(_PATH_STATE_MODULES)
 
     cache_path = path_join(boom_path, "cache")
     if path_exists(cache_path):
@@ -464,6 +520,10 @@ def set_cache_path(cache_path):
     'cache/' sub-directory in the boom configuration directory
     ``config.boom_path``: this may be overridden by calling this
     function with a different path.
+
+    Any in-memory boot image cache state loaded from the previous
+    cache path is discarded: it is lazily re-loaded from the new
+    path on next use.
 
     :param cache_path: the path to the 'cache/' directory containing
                       cached boot images.
@@ -481,6 +541,7 @@ def set_cache_path(cache_path):
 
     __config.cache_path = cache_path
     _log_debug("Set cache path to: %s", cache_path)
+    _drop_cached_state(_CACHE_STATE_MODULES)
 
 
 def get_boom_config_path() -> str:
