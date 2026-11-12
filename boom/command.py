@@ -139,6 +139,10 @@ _MACHINE_ID = "/etc/machine-id"
 #: Path to the legacy system machine-id file
 _DBUS_MACHINE_ID = "/var/lib/dbus/machine-id"
 
+#: Marker file created by ostree when booted into an ostree/Image Mode
+#: deployment (this includes bootc based Image Mode systems).
+_OSTREE_BOOTED_PATH = "/run/ostree-booted"
+
 # Module logging configuration
 _log = logging.getLogger(__name__)
 
@@ -4227,6 +4231,23 @@ def setup_logging(cmd_args: Namespace):
 
 def shutdown_logging():
     logging.shutdown()
+
+
+def _check_image_mode():
+    """Reject operation on Image Mode / ostree deployments.
+
+    boom cannot manage boot entries on Image Mode (bootc) or ostree based
+    systems: these deployments use a read-only ``/boot`` filesystem and a
+    different boot management model that boom does not currently support.
+    Detect such systems early and fail with a clear message rather than
+    allowing operations to fail later with confusing errors (for example
+    when attempting to write configuration or boot entries to the read-only
+    ``/boot`` filesystem).
+
+    :raises BoomError: If an ostree / Image Mode deployment is detected.
+    """
+    if path_exists(_OSTREE_BOOTED_PATH):
+        raise BoomError("Image Mode deployments are currently unsupported")
 
 
 def set_debug(debug_arg: Optional[str]):
