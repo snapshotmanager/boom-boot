@@ -190,8 +190,8 @@ To run the entire test suite with coverage checking, use the following
 commands:
 
 ```bash
-coverage run -m pytest -v --log-level=debug tests
-coverage report -m --include "./boom/*"
+python3 -m coverage run /usr/bin/pytest -v --log-level=debug tests
+python3 -m coverage report -m --include "./boom/*"
 ```
 
 To run a specific test, you can use the `-k` flag with `pytest`:
