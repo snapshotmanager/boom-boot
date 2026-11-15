@@ -2,7 +2,7 @@
 %global sphinx_docs 1
 
 Name:		boom-boot
-Version:	1.6.8
+Version:	1.6.9
 Release:	1%{?dist}
 Summary:	%{summary}
 
@@ -154,6 +154,41 @@ pytest-3 --log-level=debug -v
 
 
 %changelog
+* Sun Nov 15 2026 Bryn M. Reeves <bmr@redhat.com> - 1.6.9-1
+- tests: add coverage for cache mutation after invalidation
+- cache: load invalidated cache state before mutating it
+- tests: drop useless host profile DAC read/write tests
+- tests: add coverage for path change cache invalidation
+- boom: invalidate cached state when boom paths change
+- doc: note that Image Mode / ostree deployments are unsupported
+- tests: add coverage for Image Mode / ostree detection
+- command: reject Image Mode / ostree deployments in main()
+- command: add Image Mode / ostree deployment detection
+- tests: drop full SHA requirement for pinned actions
+- tests: enable workflow on pull_request
+- tests: restrict python-basic-tests workflows to read permissions
+- tests: bump actions/checkout to v6
+- tests: replace coverage ... entrypoint with python3 -m coverage
+- stratis: fix missed lazy log interpolation in symlink_to_pool_uuid()
+- stratis: fix broken debug logging call in pool_name_to_uuid()
+- tests: fix "commanad" -> "command" typo in test_command docstring
+- stratis: fix "ps" -> "fs" typo in Stratis link path example
+- boom: fix references to non-existent set_boom_root_path() in docstring
+- mounts: simplify boom.mounts._unescape() and add explicit tests
+- doc: update CONTRIBUTING.md to describe commit message format
+- stratis: fix D-Bus GetManagedObjects() call signature
+- ci: enhance CodeRabbit config with Red Hat security standards
+- ci: add CodeRabbit configuration to focus on actionable issues
+- ci: add --skip-unavailable for cross-version Fedora compatibility
+- boom: narrow broad exception handlers to expected error types
+- bootloader: set mode before rename to avoid 0600 window after crash
+- osprofile: set mode before rename to avoid chmod-after-rename window
+- boom: fix vim modeline typo and type annotation
+- mounts: _parse_mount_unit() does not understand hex escapes or NFS/CIFS
+- boom: drop bandit (removed from Fedora)
+- boom: add a generative AI policy
+- boom: add a security policy
+
 * Thu Oct 30 2025 Bryn M. Reeves <bmr@redhat.com> - 1.6.8-1
 - tests: convert test_command.py from * to explicit imports
 - command: avoid list mutation in _apply_no_fstab()
