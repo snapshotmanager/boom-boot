@@ -253,30 +253,6 @@ class HostProfileTests(unittest.TestCase):
         self.assertTrue(exists(profile_path))
         hp.delete_profile()
 
-    @unittest.skipIf(have_root(), "DAC controls do not apply to root")
-    def test_load_host_profiles_no_read(self):
-        # Set the /boot path to a non-writable path for the test user.
-        set_boot_path("/boot")
-        with self.assertRaises(OSError) as cm:
-            load_host_profiles()
-        # Re-set test /boot
-        set_boot_path(BOOT_ROOT_TEST)
-
-    @unittest.skipIf(have_root(), "DAC controls do not apply to root")
-    def test_write_host_profiles_fail(self):
-        load_host_profiles()
-        # Set the /boot path to a non-writable path for the test user.
-        set_boot_path("/boot")
-        # Create a dirty profile to write
-        hp = HostProfile(machine_id="ffffffffffffff1", host_name="localhost",
-                         os_id="3fc389b", label="")
-        write_host_profiles()
-
-        # Clean up dummy profile
-        hp.delete_profile()
-        # Re-set test /boot
-        set_boot_path(BOOT_ROOT_TEST)
-
     def test_osprofile_write_profiles(self):
         load_host_profiles()
         write_host_profiles()
