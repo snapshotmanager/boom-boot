@@ -112,6 +112,9 @@ _paths = {}
 #: Mapping of image identifiers to image metadata.
 _images = {}
 
+#: Whether the in-memory cache state has been loaded from disk.
+_cache_loaded = False
+
 
 def _make_relative(img_path: str) -> str:
     """Convert an image path with a leading path separator into
@@ -185,10 +188,38 @@ def drop_cache():
     no effect on the persistent cache state but will free all
     in-memory representations and clear the cache index.
     """
-    global _index, _paths, _images
+    global _index, _paths, _images, _cache_loaded
     _index = {}
     _paths = {}
     _images = {}
+    _cache_loaded = False
+
+
+def cache_loaded() -> bool:
+    """Test whether the boot image cache has been loaded from disk.
+
+    :rtype: bool
+    :returns: ``True`` if the cache index is loaded in memory or
+              ``False`` otherwise
+    """
+    return _cache_loaded
+
+
+def _load_cache_if_needed():
+    """Load the on-disk boot image cache state into memory unless it
+    has already been loaded.
+
+    Both the lookup and the mutation interfaces of this module operate
+    on the in-memory cache index: each must ensure that the state of
+    the configured cache path has been loaded before use. In particular
+    a mutation that writes the index back to disk without loading it
+    first would discard the metadata of every image already present in
+    the cache.
+
+    :returns: ``None``
+    """
+    if not _cache_loaded:
+        load_cache()
 
 
 def _load_image_ids(cache_file: str) -> List[str]:
@@ -206,7 +237,7 @@ def _load_image_ids(cache_file: str) -> List[str]:
 
 def load_cache():
     """Read the state of the on-disk boot image cache into memory."""
-    global _index, _paths, _images
+    global _index, _paths, _images, _cache_loaded
     drop_cache()
 
     cache_file = get_cache_path()
@@ -226,6 +257,7 @@ def load_cache():
         if err.errno != ENOENT:
             raise
         _log_debug("No metadata found: starting empty cache")
+        _cache_loaded = True
         return
 
     index = cachedata["index"]
@@ -259,6 +291,7 @@ def load_cache():
     _index = index
     _paths = paths
     _images = images
+    _cache_loaded = True
 
 
 def write_cache():
@@ -462,6 +495,7 @@ class CacheEntry:
         """Restore this CacheEntry to the /boot file system."""
         img_id = self.images[0][0]
         if dest:
+            _load_cache_if_needed()
             if dest not in _index:
                 _insert_path(dest, img_id, self.mode, self.uid, self.gid, self.attrs)
             self.path = dest
@@ -557,6 +591,8 @@ def _cache_path(img_path: str, update: bool = True, backup: bool = False) -> Cac
         """
         return CacheEntry(img_path, _paths[img_path], [(img_id, image_ts)])
 
+    _load_cache_if_needed()
+
     boot_path = _image_path_to_boot(img_path)
     st = stat(boot_path)
 
@@ -636,6 +672,8 @@ def uncache_path(img_path, force=False):
 
     :param img_path: The cached path to remove
     """
+    _load_cache_if_needed()
+
     if img_path not in _paths:
         raise ValueError(f"Path '{img_path}' is not cached.")
 
@@ -714,8 +752,7 @@ def _find_cache_entries(
     """
     matches = []
 
-    if not _index:
-        load_cache()
+    _load_cache_if_needed()
 
     # Use null search criteria if unspecified
     selection = selection if selection else Selection()
@@ -790,6 +827,7 @@ __all__ = [
     "CACHE_UNKNOWN",
     "drop_cache",
     "load_cache",
+    "cache_loaded",
     "write_cache",
     "cache_path",
     "backup_path",
