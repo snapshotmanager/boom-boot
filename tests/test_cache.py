@@ -12,6 +12,7 @@ from os import listdir, makedirs, unlink
 from os.path import abspath, basename, dirname, exists, join
 from io import StringIO
 from glob import glob
+import json
 import shutil
 import re
 
@@ -203,6 +204,75 @@ class CachePathChangeTests(unittest.TestCase):
         # Lazily re-loaded from the new, empty boot path.
         self.assertFalse(len(find_entries()))
         self.assertFalse(len(find_profiles()))
+
+    def _make_testimg(self, img_name):
+        """Create an image file in the configured $BOOT path and return
+            its path relative to the boot file system.
+        """
+        with open(join(get_boot_path(), img_name), "w") as img_file:
+            img_file.write(img_name)
+        return "/" + img_name
+
+    def _read_cache_index(self):
+        """Return the on-disk cache index as a dictionary.
+        """
+        with open(join(get_cache_path(), "cacheindex.json")) as index_file:
+            return json.load(index_file)
+
+    def test_cache_path_after_invalidation_keeps_cached_images(self):
+        # Re-selecting the current cache path invalidates the in-memory
+        # state: a mutation that does not re-load it first writes a
+        # cache index containing only the newly added image, discarding
+        # the metadata of every image already in the cache.
+        load_cache()
+        xpaths = set(boom.cache._index.keys())
+        ximages = set(boom.cache._images.keys())
+        self.assertTrue(len(xpaths))
+        self.assertTrue(len(ximages))
+
+        set_cache_path(get_cache_path())
+        self.assertFalse(cache_loaded())
+
+        # Add an image with no intervening cache lookup.
+        img_path = self._make_testimg("vmlinuz-6.6.6-1.fc42.x86_64")
+        ce = cache_path(img_path)
+
+        self.assertTrue(xpaths.issubset(set(boom.cache._index.keys())))
+        self.assertTrue(ximages.issubset(set(boom.cache._images.keys())))
+        self.assertIn(img_path, boom.cache._index)
+
+        # The on-disk index must describe the same state.
+        cachedata = self._read_cache_index()
+        self.assertTrue(xpaths.issubset(set(cachedata["index"].keys())))
+        self.assertTrue(ximages.issubset(set(cachedata["images"].keys())))
+        self.assertIn(img_path, cachedata["index"])
+        self.assertIn(ce.img_id, cachedata["images"])
+
+    def test_uncache_path_after_invalidation(self):
+        load_cache()
+        img_path = list(boom.cache._index.keys())[0]
+        ximages = set(boom.cache._images.keys())
+
+        set_cache_path(get_cache_path())
+        self.assertFalse(cache_loaded())
+
+        # Remove a cached path with no intervening cache lookup: without
+        # a re-load the path is not found in the invalidated index.
+        uncache_path(img_path, force=True)
+
+        self.assertNotIn(img_path, boom.cache._index)
+
+        # Remaining paths and images are preserved on disk.
+        cachedata = self._read_cache_index()
+        self.assertNotIn(img_path, cachedata["index"])
+        self.assertTrue(len(cachedata["index"]))
+        self.assertTrue(set(cachedata["images"].keys()).issubset(ximages))
+        referenced_images = {
+            image_id
+            for image_ids in cachedata["index"].values()
+            for image_id in image_ids
+        }
+        self.assertTrue(referenced_images.issubset(cachedata["images"]))
 
 
 class CacheTests(unittest.TestCase):
